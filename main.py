@@ -2,6 +2,42 @@
 import psycopg2 
 from config import config 
 
+
+def insert_row(table_name, name):
+	sql = f"INSERT INTO {table_name}(id, name) VALUES(%s, %s) RETURNING id"
+	id = None
+	try:
+		database_config = config()
+		with psycopg2.connect(**database_config) as conn:
+			with conn.cursor() as cur:
+				cur.execute(sql, (1, name))
+				rows = cur.fetchone()
+				if rows:
+					id = rows[0]
+			
+			conn.commit()
+	except (Exception, psycopg2.DatabaseError) as error:
+		print(error)
+	finally:
+		return id
+		
+def create_table(table_name):
+	conn = None
+	try:
+		params = config()
+		conn = psycopg2.connect(**params)
+		cur = conn.cursor()
+
+		cur.execute(f"CREATE TABLE {table_name}(id INTEGER PRIMARY KEY, name TEXT);")
+		
+		cur.close()
+		conn.commit() 
+	except (Exception, psycopg2.DatabaseError) as error: 
+		print(error) 
+	finally: 
+		if conn is not None: 
+			conn.close()
+
 def connect(): 
 	""" Connect to the PostgreSQL database server """
 	conn = None
@@ -35,4 +71,5 @@ def connect():
 
 
 if __name__ == '__main__': 
-	connect()
+	# create_table("mytable")
+	print(insert_row('mytable', 'ted'))
