@@ -21,14 +21,15 @@ def insert_row(table_name, name):
 	finally:
 		return id
 		
-def create_table(table_name):
+def create_table(sql_file: str):
 	conn = None
 	try:
 		params = config()
 		conn = psycopg2.connect(**params)
 		cur = conn.cursor()
 
-		cur.execute(f"CREATE TABLE {table_name}(id INTEGER PRIMARY KEY, name TEXT);")
+		with open(sql_file, 'r') as file:
+			cur.execute(file.read())
 		
 		cur.close()
 		conn.commit() 
@@ -38,38 +39,68 @@ def create_table(table_name):
 		if conn is not None: 
 			conn.close()
 
-def connect(): 
-	""" Connect to the PostgreSQL database server """
-	conn = None
-	try: 
-		# read connection parameters 
-		params = config() 
+def add_item(barcode: str, name: str):
+	sql = f"INSERT INTO item_info(barcode) VALUES ('{barcode}') RETURNING id;"
+	database_config = config()
+	item_info_id = None
+	with psycopg2.connect(**database_config) as conn:
+		try:
+			with conn.cursor() as cur:
+				cur.execute(sql)
+				rows = cur.fetchone()
+				if rows:
+					item_info_id = rows[0]
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
 
-		# connect to the PostgreSQL server 
-		print('Connecting to the PostgreSQL database...') 
-		conn = psycopg2.connect(**params) 
+		sqltwo = f"INSERT INTO items(barcode, item_name, item_info_id, row_type, item_type, search_string) VALUES('{barcode}', '{name}', {item_info_id}, 'item', 'other', '{barcode}%{name}') RETURNING *;"
+		row = None
+		try:
+			with conn.cursor() as cur:
+				cur.execute(sqltwo)
+				rows = cur.fetchone()
+				if rows:
+					row = rows[:]
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+
+		conn.commit()
+
+		return row
+
+def drop_table(sql_file: str):
+	database_config = config()
+
+	with open(sql_file, 'r') as sql_file:
+		sql = sql_file.read()
+
+	with psycopg2.connect(**database_config) as conn:
+		try:
+			with conn.cursor() as cur:
+				cur.execute(sql)
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
 		
-		# create a cursor 
-		cur = conn.cursor() 
-		
-	# execute a statement 
-		print('PostgreSQL database version:') 
-		cur.execute('SELECT version()') 
+		conn.commit()
+		return True
+	
+if __name__ == '__main__':
+	drop_table('sql/drop/item_info.sql')
+	drop_table('sql/drop/items.sql') 
+	create_table('sql/create/logins.sql')
+	create_table('sql/create/groups.sql')
+	create_table('sql/create/linked_items.sql')
+	create_table('sql/create/transactions.sql')
+	create_table('sql/create/brands.sql')
+	create_table('sql/create/food_info.sql')
+	create_table('sql/create/item_info.sql')
+	create_table('sql/create/item.sql')
 
-		# display the PostgreSQL database server version 
-		db_version = cur.fetchone() 
-		print(db_version) 
-		
-	# close the communication with the PostgreSQL 
-		cur.close() 
-	except (Exception, psycopg2.DatabaseError) as error: 
-		print(error) 
-	finally: 
-		if conn is not None: 
-			conn.close() 
-			print('Database connection closed.') 
-
-
-if __name__ == '__main__': 
-	# create_table("mytable")
-	print(insert_row('mytable', 'ted'))
+	row = add_item(barcode='1237', name='test237')
+	print(row)
