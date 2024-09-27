@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS Transactions (
+CREATE TABLE IF NOT EXISTS main_Transactions (
     id SERIAL PRIMARY KEY,
     timestamp TIMESTAMP,
     barcode VARCHAR(255) NOT NULL,

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOt EXISTS item_info (
+CREATE TABLE IF NOt EXISTS %sitename%_item_info (
     id SERIAL PRIMARY KEY,
     barcode VARCHAR(255) NOT NULL,
     linked_items INTEGER [],

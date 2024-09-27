@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS groups(
+CREATE TABLE IF NOT EXISTS main_groups(
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,

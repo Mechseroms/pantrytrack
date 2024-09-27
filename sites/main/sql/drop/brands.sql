@@ -1,0 +1,1 @@
+DROP TABLE main_brands CASCADE;

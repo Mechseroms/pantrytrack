@@ -1,0 +1,1 @@
+DELETE TABLE %sitename%_logistics_info CASCADE;
