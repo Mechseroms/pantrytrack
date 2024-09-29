@@ -125,6 +125,8 @@ def delete_site(site_name):
 	drop_table(f'sites/{site_name}/sql/drop/brands.sql')
 	drop_table(f'sites/{site_name}/sql/drop/food_info.sql')
 	drop_table(f'sites/{site_name}/sql/drop/logistics_info.sql')
+	drop_table(f'sites/{site_name}/sql/drop/zones.sql')
+	drop_table(f'sites/{site_name}/sql/drop/locations.sql')
 
 def create_site(site_name):
 	create_table(f'sites/{site_name}/sql/create/logins.sql')
@@ -136,6 +138,8 @@ def create_site(site_name):
 	create_table(f'sites/{site_name}/sql/create/item_info.sql')
 	create_table(f'sites/{site_name}/sql/create/logistics_info.sql')
 	create_table(f'sites/{site_name}/sql/create/item.sql')
+	create_table(f'sites/{site_name}/sql/create/zones.sql')
+	create_table(f'sites/{site_name}/sql/create/locations.sql')
 
 
 if __name__ == "__main__":

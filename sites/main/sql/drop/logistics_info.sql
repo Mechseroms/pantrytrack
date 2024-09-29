@@ -1,1 +1,1 @@
-DELETE TABLE main_logistics_info CASCADE;
+DROP TABLE main_logistics_info CASCADE;
