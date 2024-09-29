@@ -39,6 +39,16 @@ def create():
     site_owner = input("Site Owner: ")
     email = input("Contact Email: ")
     
+    default_zone_name = input("Set Default Zone Name (default): ").strip()
+    if default_zone_name == "":
+        default_zone_name = "default"
+
+    print(f"\n")
+
+    print(f"Now you will set the default location that you wish for things to be received into (primary location) and used from (auto-issue).")
+    default_location_name = input("Set Default Location (all): ").strip()
+    if default_location_name == "":
+        default_location_name = "all"
 
     if not os.path.exists(f"sites/{site_name}"):
         print(f"Creating {site_name} site...")
@@ -54,7 +64,14 @@ def create():
             config.write(f"site_name={site_name}\n")
             config.write(f"site_owner={site_owner}\n")
             config.write(f"email={email}\n")
-        
+            config.write(f"\n")
+
+            config.write(f"[defaults]\n")
+            config.write(f"default_zone={default_zone_name}\n")
+            config.write(f"default_primary_location={default_location_name}\n")
+            config.write(f"default_auto_issue_location={default_location_name}\n")
+
+
         print(f"Site {site_name} config created!")
         print(f"Site {site_name} created!")
 
