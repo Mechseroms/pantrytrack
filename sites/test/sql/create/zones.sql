@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS main_zones(
+CREATE TABLE IF NOT EXISTS test_zones(
     id SERIAL PRIMARY KEY,
     name VARCHAR(32) NOT NULL,
     UNIQUE(name)

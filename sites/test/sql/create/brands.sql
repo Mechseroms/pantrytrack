@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS main_brands (
+CREATE TABLE IF NOT EXISTS test_brands (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255)
 );

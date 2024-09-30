@@ -1,1 +1,0 @@
-DROP TABLE main_transactions CASCADE;

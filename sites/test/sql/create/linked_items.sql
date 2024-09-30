@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS main_itemlinks (
+CREATE TABLE IF NOT EXISTS test_itemlinks (
     id SERIAL PRIMARY KEY,
     barcode VARCHAR(255) NOt NULL,
     link INTEGER NOT NULL,

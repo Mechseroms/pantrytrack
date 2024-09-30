@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS main_items(
+CREATE TABLE IF NOT EXISTS test_items(
     id SERIAL PRIMARY KEY,
     barcode VARCHAR(255) NOT NULL,
     item_name VARCHAR(255) NOT NULL,
@@ -11,18 +11,17 @@ CREATE TABLE IF NOT EXISTS main_items(
     row_type VARCHAR(255) NOT NULL,
     item_type VARCHAR(255) NOT NULL,
     search_string TEXT NOT NULL,
-    quantity_on_hand FLOAT8,
     UNIQUE(barcode, item_info_id),
     CONSTRAINT fk_item_info
         FOREIGN KEY(item_info_id) 
-        REFERENCES main_item_info(id),
+        REFERENCES test_item_info(id),
     CONSTRAINT fk_food_info
         FOREIGN KEY(food_info_id)
-        REFERENCES main_food_info(id),
+        REFERENCES test_food_info(id),
     CONSTRAINT fk_brand
         FOREIGN KEY(brand)
-        REFERENCES main_brands(id),
+        REFERENCES test_brands(id),
     CONSTRAINT fk_logistics_info
         FOREIGN KEY(logistics_info_id)
-        REFERENCES main_logistics_info(id)
+        REFERENCES test_logistics_info(id)
 );

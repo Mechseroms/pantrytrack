@@ -3,5 +3,5 @@ CREATE TABLE IF NOT EXISTS %sitename%_food_info (
     food_groups TEXT [],
     ingrediants TEXT [],
     nutrients JSONB,
-    exires BOOLEAN
+    expires BOOLEAN
 );

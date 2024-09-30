@@ -89,3 +89,16 @@ if __name__ == "__main__":
             main.delete_site(sys.argv[2])
             shutil.rmtree(f"sites/{sys.argv[2]}")
 
+        if func_name == "add_item":
+            barcode = input("barcode: ")
+            name = input("name: ")
+            qty = float(input("qty: "))
+            main.add_food_item(sys.argv[2], barcode, name, qty, payload=main.payload_food_item)
+
+        if func_name == "transact":
+            barcode = input("barcode: ")
+            qty = float(input("qty: "))
+            location = input("TO: ")
+
+            main.add_transaction(sys.argv[2], barcode, qty, 1, description="manual", location=location)
+

@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS %sitename%_items(
     row_type VARCHAR(255) NOT NULL,
     item_type VARCHAR(255) NOT NULL,
     search_string TEXT NOT NULL,
-    quantity_on_hand FLOAT8,
     UNIQUE(barcode, item_info_id),
     CONSTRAINT fk_item_info
         FOREIGN KEY(item_info_id) 
