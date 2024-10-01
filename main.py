@@ -1,7 +1,7 @@
 #!/usr/bin/python 
 import psycopg2 
 from config import config 
-import json, datetime, copy
+import json, datetime, copy, csv
 
 def lst2pgarr(alist):
     return '{' + ','.join(alist) + '}'
@@ -100,20 +100,18 @@ def add_transaction(site_name, barcode, qty, user_id, transaction_type = "info",
 	with psycopg2.connect(**database_config) as conn:
 		with conn.cursor() as cur:
 			cur.execute(f"SELECT item_name, logistics_info_id FROM {site_name}_items WHERE barcode=%s;", (barcode, ))
-			row = cur.fetchone()
-			print(row)
+			item = cur.fetchone()
 
 		with conn.cursor() as cur:
-			cur.execute(f"SELECT location_data, quantity_on_hand, primary_location FROM {site_name}_logistics_info WHERE id=%s;", (row[1],))
+			cur.execute(f"SELECT location_data, quantity_on_hand, primary_location, barcode FROM {site_name}_logistics_info WHERE id=%s;", (item[1],))
 			logistics_info = cur.fetchone()
-			print(logistics_info)
 
 	new_trans = copy.deepcopy(transaction_payload)
 	new_trans["timestamp"] = datetime.datetime.now()
-	new_trans["logistics_info_id"] = row[1]
+	new_trans["logistics_info_id"] = item[1]
 	new_trans["barcode"] = barcode
 	new_trans["user_id"] = user_id
-	new_trans["name"] = row[0]
+	new_trans["name"] = item[0]
 	new_trans["transaction_type"] = transaction_type
 	new_trans["description"] = description
 	new_trans["quantity"] = qty
@@ -131,10 +129,33 @@ def add_transaction(site_name, barcode, qty, user_id, transaction_type = "info",
 			print(error)
 			conn.rollback()
 			return False
+		
 		if not location:
 			mover = logistics_info[2]
 		else:
 			mover = location
+
+
+		location_items = None
+		location_id = None
+		try:
+			with conn.cursor() as cur:
+				cur.execute(f"SELECT id, items FROM {site_name}_locations WHERE name=%s;", (mover, ))
+				location = cur.fetchone()
+				if location:
+					location_id = location[0]
+					location_items = location[1]
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+
+		if logistics_info[3] in location_items.keys():
+			location_items[logistics_info[3]] = location_items[logistics_info[3]] + qty
+		else:
+			location_items[logistics_info[3]] = qty
+
+		print(location_items)
 
 		if mover in logistics_info[0].keys():
 			logistics_info[0][mover] = logistics_info[0][mover] + qty 
@@ -143,10 +164,12 @@ def add_transaction(site_name, barcode, qty, user_id, transaction_type = "info",
 
 		qty = logistics_info[1] + qty
 
+		set_location_data = f"UPDATE {site_name}_locations SET items = %s WHERE id = %s;"
 		set_quantity_on_hand = f"UPDATE {site_name}_logistics_info SET quantity_on_hand = %s, location_data = %s WHERE id = %s;"
 		try:
 			with conn.cursor() as cur:
 				cur.execute(set_quantity_on_hand, (qty, json.dumps(logistics_info[0]), new_trans["logistics_info_id"]))
+				cur.execute(set_location_data, (json.dumps(location_items), location_id))
 		except (Exception, psycopg2.DatabaseError) as error:
 			print(error)
 			conn.rollback()
@@ -155,6 +178,8 @@ def add_transaction(site_name, barcode, qty, user_id, transaction_type = "info",
 		conn.commit()
 
 def add_food_item(site_name: str, barcode: str, name: str, qty: float, payload: dict):
+
+	# TODO: I need to validate the name so that it doesnt have characters against the SQL database schema such as ' 
 
 	defaults = config(filename=f"sites/{site_name}/site.ini", section="defaults")
 	payload["logistics_info"]["primary_location"] = defaults["default_primary_location"]
@@ -225,6 +250,9 @@ def delete_site(site_name):
 	drop_table(f'sites/{site_name}/sql/drop/locations.sql')
 
 def create_site(site_name):
+
+	site_config = config(f"sites/{site_name}/site.ini", 'defaults')
+
 	create_table(f'sites/{site_name}/sql/create/logins.sql')
 	create_table(f'sites/{site_name}/sql/create/groups.sql')
 	create_table(f'sites/{site_name}/sql/create/linked_items.sql')
@@ -237,6 +265,33 @@ def create_site(site_name):
 	create_table(f'sites/{site_name}/sql/create/zones.sql')
 	create_table(f'sites/{site_name}/sql/create/locations.sql')
 
+	sql = f"INSERT INTO {site_name}_zones(name) VALUES (%s) RETURNING id;"
+	sqltwo = f"INSERT INTO {site_name}_locations(name, zone_id, items) VALUES (%s, %s, %s);"
+
+	database_config = config()
+	with psycopg2.connect(**database_config) as conn:
+		zone_id = None
+		try:
+			with conn.cursor() as cur:
+				cur.execute(sql, (site_config["default_zone"], ))
+				rows = cur.fetchone()
+				if rows:
+					zone_id = rows[0]
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+		
+		try:
+			with conn.cursor() as cur:
+				cur.execute(sqltwo, (site_config["default_primary_location"], zone_id, json.dumps({})))
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+
+
+		conn.commit()
 
 
 
@@ -281,16 +336,36 @@ payload_food_item = {
 	}
 }
 
+def parse_csv(path_to_csv):
+
+	payload = copy.deepcopy(payload_food_item)
+
+
+	with open(path_to_csv, "r+", encoding="utf-8") as file:
+		reader = csv.reader(file)
+		for line in reader:
+			if line[0] != "id":
+				payload["item_info"]["packaging"] = line[10]
+				payload["item_info"]["uom"] = line[13]
+				payload["item_info"]["cost"] = line[15]
+				if line[17] != "None":
+					payload["item_info"]["safety_stock"] = line[17]
+				qty = float(line[30])
+				add_food_item(site_name="test", barcode=line[1], name=line[2], qty=qty, payload=payload)
+
+			
 
 
 if __name__ == "__main__":
-	#print(add_item(site_name="main", barcode="1235", name="testone"))
+	#print(add_readitem(site_name="main", barcode="1235", name="testone"))
 	database_config = config()
-	sql = "SELECT * FROM main_logistics_info WHERE id=2;"
+	sql = "SELECT items FROM test_locations WHERE id=1;"
 	with psycopg2.connect(**database_config) as conn:
 		with conn.cursor() as cur:
 			cur.execute(sql)
 
-			rows = cur.fetchone()
-			print(rows)
-			print(type(rows[5]))
+			items = cur.fetchone()[0]
+			for k, v in items.items():
+				print(f"{k}: {v}")
+
+	#parse_csv(r"C:\\Users\\jadow\Downloads\\2024-09-30-Pantry.csv")

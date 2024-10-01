@@ -1,1 +1,0 @@
-DROP TABLE test_item_info CASCADE;
