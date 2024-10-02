@@ -1,0 +1,1 @@
+DROP TABLE main_logistics_info CASCADE;

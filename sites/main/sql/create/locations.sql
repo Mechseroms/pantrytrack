@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS %sitename%_locations(
+CREATE TABLE IF NOT EXISTS main_locations(
     id SERIAL PRIMARY KEY,
     uuid VARCHAR(255) NOT NULL,
     name VARCHAR(32) NOT NULL,
@@ -7,5 +7,5 @@ CREATE TABLE IF NOT EXISTS %sitename%_locations(
     UNIQUE(uuid),
     CONSTRAINT fk_zone
         FOREIGN KEY(zone_id)
-        REFERENCES %sitename%_zones(id)
+        REFERENCES main_zones(id)
 );

@@ -33,7 +33,6 @@ def rename_create_sql(site_name):
         with open(f"sites/{site_name}/sql/create/{file_name}", "w") as file:
             file.write(words)
 
-
 def create():
     site_name = input("Site Name: ")
     site_owner = input("Site Owner: ")
@@ -78,27 +77,55 @@ def create():
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         func_name = sys.argv[1]
+        argument = sys.argv[2]
 
-        if func_name == "create_site":
+        if func_name == "create" and argument == "site":
             create()
 
-        if func_name == "propagate":
-            main.create_site(sys.argv[2])
+        if func_name == "propagate" and argument == "site":
+            main.create_site(sys.argv[3])
         
-        if func_name == "delete":
-            main.delete_site(sys.argv[2])
-            shutil.rmtree(f"sites/{sys.argv[2]}")
+        if func_name == "delete" and argument == "site":
+            main.delete_site(sys.argv[3])
+            shutil.rmtree(f"sites/{sys.argv[3]}")
 
-        if func_name == "add_item":
-            barcode = input("barcode: ")
-            name = input("name: ")
-            qty = float(input("qty: "))
-            main.add_food_item(sys.argv[2], barcode, name, qty, payload=main.payload_food_item)
+        if func_name == "item":
+            if argument == "add":
+                barcode = input("barcode: ")
+                name = input("name: ")
+                qty = float(input("qty: "))
+                main.add_food_item(sys.argv[3], barcode, name, qty, payload=main.payload_food_item)
 
-        if func_name == "transact":
-            barcode = input("barcode: ")
-            qty = float(input("qty: "))
-            location = input("TO: ")
+            if argument == "update_primary":
+                barcode = input("barcode: ")
+                location = input(f"New Zone/Location (default@all): ")
+                main.update_item_primary(sys.argv[3], barcode, location)
 
-            main.add_transaction(sys.argv[2], barcode, qty, 1, description="manual", location=location)
+            if argument == "transact":
+                barcode = input("barcode: ")
+                qty = float(input("qty: "))
+                location = str(input("TO: ")).strip()
 
+                if location == "":
+                    location = None
+
+                main.add_transaction(sys.argv[3], barcode, qty, 1, description="manual", location=location)
+            
+            if argument == "transfer":
+                barcode = input("barcode: ")
+                qty = float(input("qty: "))
+                from_location = str(input("From: ")).strip()
+                to_location = str(input("To: ")).strip()
+
+
+        if func_name == "location":
+            if argument == "add":
+                location_name = str(input(f"New Location Name: ")).replace(" ", "_")
+                zone_id = int(input(f"Zone ID: "))
+                main.add_location(sys.argv[3], location_name, zone_id)
+
+        if func_name == "zone":
+            if argument == "add":
+                zone_name = str(input(f"New Zone Name: ")).replace(" ", "_")
+
+                main.add_zone(sys.argv[3], zone_name)

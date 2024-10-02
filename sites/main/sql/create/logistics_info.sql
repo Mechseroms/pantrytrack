@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS %sitename%_logistics_info(
+CREATE TABLE IF NOT EXISTS main_logistics_info(
     id SERIAL PRIMARY KEY,
     barcode VARCHAR(255) NOT NULL,
     primary_location VARCHAR(64),
