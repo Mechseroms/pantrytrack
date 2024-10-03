@@ -244,6 +244,7 @@ def add_food_item(site_name: str, barcode: str, name: str, qty: float, payload: 
 
 	defaults = config(filename=f"sites/{site_name}/site.ini", section="defaults")
 	uuid = f"{defaults["default_zone"]}@{defaults["default_primary_location"]}"
+	name = name.replace("'", "@&apostraphe&")
 	payload["logistics_info"]["primary_location"] = uuid
 	payload["logistics_info"]["auto_issue_location"] = uuid
 
@@ -414,14 +415,14 @@ def parse_csv(path_to_csv):
 				if line[17] != "None":
 					payload["item_info"]["safety_stock"] = line[17]
 				qty = float(line[30])
-				add_food_item(site_name="test", barcode=line[1], name=line[2], qty=qty, payload=payload)
+				add_food_item(site_name="main", barcode=line[1], name=line[2], qty=qty, payload=payload)
 
 			
 
 
 if __name__ == "__main__":
 	#print(add_readitem(site_name="main", barcode="1235", name="testone"))
-	database_config = config()
+	"""database_config = config()
 	sql = "SELECT items FROM test_locations WHERE id=1;"
 	with psycopg2.connect(**database_config) as conn:
 		with conn.cursor() as cur:
@@ -430,5 +431,5 @@ if __name__ == "__main__":
 			items = cur.fetchone()[0]
 			for k, v in items.items():
 				print(f"{k}: {v}")
-
-	#parse_csv(r"C:\\Users\\jadow\Downloads\\2024-09-30-Pantry.csv")
+	"""
+	parse_csv(r"C:\\Users\\jadow\Downloads\\2024-10-02-Pantry.csv")

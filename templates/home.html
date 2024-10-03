@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title>My Pantry</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col s12">
+                    <ul class="collection" id="collection_list">
+                        <li class="collection-item">Alvin</li>
+                        <li class="collection-item">Alvin</li>
+                        <li class="collection-item">Alvin</li>
+                        <li class="collection-item">Alvin</li>
+                    </ul>
+                </div>
+                <div class="divider col s12"></div>
+                <div class="col s12 center">
+                    <a id="back" class="btn icon-left" href="#!"><i class="material-icons">chevron_left</i></a>
+                    <a id="forward" class="btn icon-right"><i class="material-icons">chevron_right</i></a>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        let current_page = 1
+        let limit = 25
+        const checked_items = new Array();
+        let instructions = new Array()
+
+        document.addEventListener('DOMContentLoaded', function() {
+            update_list()
+        });
+
+        function update_list(){
+            const url = new URL('/getItems', window.location.origin);
+            url.searchParams.append('page', current_page);
+            url.searchParams.append('limit', limit);
+            fetch(url)
+            .then(response => response.json())
+            .then(data => {                
+                if (data.items.length < limit){
+                    document.getElementById('forward').classList.add("disabled")
+                } else {
+                    document.getElementById('forward').classList.remove("disabled")
+                }
+                
+                const collection = document.getElementById('collection_list');
+                while(collection.firstChild){
+                    collection.removeChild(collection.firstChild);
+                }
+                data.items.forEach(item => {
+                    const collection_item = document.createElement('li');
+                    collection_item.classList.add('collection-item');
+                    collection_item.innerHTML = `<div>${item[2]}
+                        <a href="#!" class="btn-small right" style="position: relative; bottom: 5px;"><i class="material-icons">send</i></a>
+                        <a href="#!" class="btn-small right" style="position: relative; bottom: 5px; right: 5px;"><i class="material-icons">edit</i></a>
+                        </div>`;
+                    collection.appendChild(collection_item);
+                })
+            })
+        };
+
+        document.getElementById('forward').addEventListener('click', () =>{
+            current_page++
+            update_list();
+        });
+    
+        document.getElementById('back').addEventListener('click', () =>{
+            current_page--
+            update_list();
+        }); 
+            
+    </script>
+</html>
+    

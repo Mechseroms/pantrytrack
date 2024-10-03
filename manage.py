@@ -1,6 +1,11 @@
 import sys, os, shutil
 import main
 
+""" 
+Manage.py is where the databases and configuration is set up. Its a CLI for quick serving the databases necessary for
+MyPantry App.
+"""
+
 def rename_drop_sql(site_name):
     files = os.walk(f"sites/{site_name}/sql/drop")
 
@@ -41,8 +46,6 @@ def create():
     default_zone_name = input("Set Default Zone Name (default): ").strip()
     if default_zone_name == "":
         default_zone_name = "default"
-
-    print(f"\n")
 
     print(f"Now you will set the default location that you wish for things to be received into (primary location) and used from (auto-issue).")
     default_location_name = input("Set Default Location (all): ").strip()
