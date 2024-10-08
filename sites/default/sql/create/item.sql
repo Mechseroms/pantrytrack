@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS %sitename%_items(
     item_name VARCHAR(255) NOT NULL,
     brand INTEGER,
     tags TEXT [],
-    links TEXT [],
+    links JSONB,
     item_info_id INTEGER NOT NULL,
     logistics_info_id INTEGER NOT NULL,
     food_info_id INTEGER,

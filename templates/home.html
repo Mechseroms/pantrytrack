@@ -9,72 +9,197 @@
     </head>
 
     <body>
-        <div class="container">
+        <div class="container section">
             <div class="row">
-                <div class="col s12">
-                    <ul class="collection" id="collection_list">
-                        <li class="collection-item">Alvin</li>
-                        <li class="collection-item">Alvin</li>
-                        <li class="collection-item">Alvin</li>
-                        <li class="collection-item">Alvin</li>
-                    </ul>
+                <div class="col s9 m6 offset-m3 input-field outlined align-center">
+                    <i class="material-icons prefix">search</i>
+                    <input style="border-radius: 20px; border: 1px solid #ccc;" id="search" name="search" type="search" placeholder="Search" value="">
                 </div>
-                <div class="divider col s12"></div>
-                <div class="col s12 center">
-                    <a id="back" class="btn icon-left" href="#!"><i class="material-icons">chevron_left</i></a>
-                    <a id="forward" class="btn icon-right"><i class="material-icons">chevron_right</i></a>
+                <div class="col s3">
+                    <a class="btn waves-effect waves-light center-align right tooltipped" data-position="bottom" data-tooltip="Open up filter options." style="margin-top: 5px;" onclick="hideFilters()"><i class="material-icons">tune</i></a>
+                </div>
+                <div class="col s12 hide" id="filter_options">
+                    <div class="row">
+                            <div class="col s12">
+                                <p>Item Limit</p>
+                            </div>
+                            <div class="col s2">
+                            <label>
+                                <input name="group1" type="radio" checked onclick="changeLimit(25)"/>
+                                <span>25 items</span>
+                            </label>
+                            </div>
+                            <div class="col s2">
+                                <label>
+                                <input name="group1" type="radio" onclick="changeLimit(50)"/>
+                                <span>50 items</span>
+                            </label>
+                            </div>
+                            <div class="col s2">
+                                <label>
+                                    <input name="group1" type="radio"  onclick="changeLimit(75)"/>
+                                    <span>75 itesm</span>
+                                </label>
+                            </div>
+                            <div class="col s2">
+                                <label>
+                                    <input name="group1" type="radio" onclick="changeLimit(100)"/>
+                                    <span>100 items</span>
+                                </label>
+                            </div>
+                            <div class="col s12 divider"></div>
+                    </div>
+
+                </div>
+                <div class="col s12">
+                    <div class="collection" id="collection_list">
+                    </div>
+                </div>
+                <div class="col s12 center" id="pagination_list">
+                    <ul class="pagination">
+                        <li id="first" class="waves-effect"><a><i class="material-icons">first_page</i></a></li>
+                        <li id="back" class="waves-effect"><a><i class="material-icons">chevron_left</i></a></li>
+                        <li id="current_page" class="flow-text">page_number</li>
+                        <li id="forward" class="waves-effect"><a><i class="material-icons">chevron_right</i></a></li>
+                        <li id="last" class="waves-effect"><a><i class="material-icons">last_page</i></a></li>
+
+                    </ul>
                 </div>
             </div>
         </div>
+
     </body>
     <script>
         let current_page = 1
-        let limit = 25
-        const checked_items = new Array();
-        let instructions = new Array()
+        let end_page = 10
+        let limit = 50
+        let filter_state = "hidden"
+        let searchText = ""
 
         document.addEventListener('DOMContentLoaded', function() {
             update_list()
         });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('.modal');
+            var instances = M.Modal.init(elems, {
+              // specify options here
+            });
+            M.AutoInit();
+        });
+        
 
         function update_list(){
+            console.log(current_page)
+            if (current_page === 1){
+                document.getElementById('back').classList.add("disabled")
+                document.getElementById('back').classList.remove("waves-effect")
+                document.getElementById('first').classList.add("disabled")
+                document.getElementById('first').classList.remove("waves-effect")
+
+            } else { 
+                document.getElementById('back').classList.remove("disabled")
+                document.getElementById('back').classList.add("waves-effect")
+                document.getElementById('first').classList.remove("disabled")
+                document.getElementById('first').classList.add("waves-effect")
+            };
+
             const url = new URL('/getItems', window.location.origin);
             url.searchParams.append('page', current_page);
             url.searchParams.append('limit', limit);
+            url.searchParams.append('search_text', searchText);
+
             fetch(url)
             .then(response => response.json())
-            .then(data => {                
-                if (data.items.length < limit){
+            .then(data => {
+                
+                end_page = parseInt(data.end)
+                if (current_page === end_page){
                     document.getElementById('forward').classList.add("disabled")
+                    document.getElementById('forward').classList.remove("waves-effect")
+                    document.getElementById('last').classList.add("disabled")
+                    document.getElementById('last').classList.remove("waves-effect")
+
                 } else {
                     document.getElementById('forward').classList.remove("disabled")
-                }
+                    document.getElementById('forward').classList.add("waves-effect")
+                    document.getElementById('last').classList.remove("disabled")
+                    document.getElementById('last').classList.add("waves-effect")
+                };
                 
                 const collection = document.getElementById('collection_list');
+                collection.style = "border: 0px; gap: 12px;"
                 while(collection.firstChild){
                     collection.removeChild(collection.firstChild);
                 }
                 data.items.forEach(item => {
-                    const collection_item = document.createElement('li');
+                    const collection_item = document.createElement('a');
                     collection_item.classList.add('collection-item');
-                    collection_item.innerHTML = `<div>${item[2]}
-                        <a href="#!" class="btn-small right" style="position: relative; bottom: 5px;"><i class="material-icons">send</i></a>
-                        <a href="#!" class="btn-small right" style="position: relative; bottom: 5px; right: 5px;"><i class="material-icons">edit</i></a>
-                        </div>`;
+                    collection_item.classList.add('truncate');
+
+
+                    collection_item.href = `/getItem?id=${item[0]}`
+                    collection_item.style = "border-radius: 20px; border: 1px solid #ccc; margin-top: 5px;"
+                    let qty = item[18]
+                    let roundedQty = qty.toFixed(2)
+                    collection_item.innerHTML = `${item[2]}<span class="badge hide-on-small-only indigo lighten-4" style="border-radius: 20px;" data-badge-caption="">${roundedQty}</span>`;
                     collection.appendChild(collection_item);
                 })
+                document.getElementById("current_page").innerHTML = `${String(current_page)} / ${String(end_page)}`
             })
+
+
+        };
+        
+        function changeLimit(limit_value){
+            limit = limit_value
+            current_page = 1
+            update_list()
         };
 
+        function hideFilters(){
+            if (filter_state == "hidden"){
+                document.getElementById("filter_options").classList.remove("hide");
+                filter_state = "shown";
+            } else {
+                document.getElementById("filter_options").classList.add("hide");
+                filter_state = "hidden";
+            }
+        }
+
         document.getElementById('forward').addEventListener('click', () =>{
-            current_page++
-            update_list();
+            if (!(document.getElementById("forward").classList.contains("disabled"))){
+                current_page++
+                update_list();
+            };
         });
     
         document.getElementById('back').addEventListener('click', () =>{
-            current_page--
-            update_list();
+            if (!(document.getElementById("back").classList.contains("disabled"))){
+                current_page--
+                update_list();
+            }
+        });
+
+        document.getElementById('last').addEventListener('click', () =>{
+            if(!(document.getElementById("last").classList.contains("disabled"))){
+                current_page = end_page
+                update_list();
+                };
+        });
+    
+        document.getElementById('first').addEventListener('click', () =>{
+            if (!(document.getElementById("first").classList.contains("disabled"))){
+                current_page = 1
+                update_list();
+            };
         }); 
+
+        document.querySelector("#search").addEventListener('change', () =>{
+            searchText = document.getElementById("search").value;
+            current_page = 1
+            update_list()
+        });
             
     </script>
 </html>

@@ -9,4 +9,4 @@ app.register_blueprint(api.database_api)
 def home():
     return render_template("home.html")
 
-app.run(host="127.0.0.1", debug=True)
+app.run(host="0.0.0.0", port=5002, debug=True)
