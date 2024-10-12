@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS %sitename%_receipt_items (
+CREATE TABLE IF NOT EXISTS main_receipt_items (
     id SERIAL PRIMARY KEY, 
     type VARCHAR(255) NOT NULL, 
     barcode VARCHAR(255) NOT NULL, 

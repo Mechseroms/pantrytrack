@@ -310,6 +310,11 @@ def delete_site(site_name):
 	drop_table(f'sites/{site_name}/sql/drop/logistics_info.sql')
 	drop_table(f'sites/{site_name}/sql/drop/zones.sql')
 	drop_table(f'sites/{site_name}/sql/drop/locations.sql')
+	drop_table(f'sites/{site_name}/sql/drop/vendors.sql')
+	drop_table(f'sites/{site_name}/sql/drop/receipt_items.sql')
+	drop_table(f'sites/{site_name}/sql/drop/receipts.sql')
+	drop_table(f'sites/{site_name}/sql/drop/recipes.sql')
+	drop_table(f'sites/{site_name}/sql/drop/shopping_lists.sql')
 
 def create_site(site_name):
 
@@ -326,6 +331,12 @@ def create_site(site_name):
 	create_table(f'sites/{site_name}/sql/create/item.sql')
 	create_table(f'sites/{site_name}/sql/create/zones.sql')
 	create_table(f'sites/{site_name}/sql/create/locations.sql')
+	create_table(f'sites/{site_name}/sql/create/vendors.sql')
+	create_table(f'sites/{site_name}/sql/create/receipt_items.sql')
+	create_table(f'sites/{site_name}/sql/create/receipts.sql')
+	create_table(f'sites/{site_name}/sql/create/recipes.sql')
+	create_table(f'sites/{site_name}/sql/create/shopping_lists.sql')
+	
 
 	sql = f"INSERT INTO {site_name}_zones(name) VALUES (%s) RETURNING id;"
 	sqltwo = f"INSERT INTO {site_name}_locations(uuid, name, zone_id, items) VALUES (%s, %s, %s, %s);"
@@ -411,7 +422,8 @@ def parse_csv(path_to_csv):
 			if line[0] != "id":
 				payload["item_info"]["packaging"] = line[10]
 				payload["item_info"]["uom"] = line[13]
-				payload["item_info"]["cost"] = line[15]
+				if line[15] != "":
+					payload["item_info"]["cost"] = line[15]
 				if line[17] != "None":
 					payload["item_info"]["safety_stock"] = line[17]
 				qty = float(line[30])
@@ -432,4 +444,4 @@ if __name__ == "__main__":
 			for k, v in items.items():
 				print(f"{k}: {v}")
 	"""
-	parse_csv(r"C:\\Users\\jadow\Downloads\\2024-10-02-Pantry.csv")
+	parse_csv(r"C:\\Users\\jadow\\Documents\\code\\postgresql python\\postgresql-python\\2024-10-02-Pantry.csv")

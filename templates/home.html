@@ -4,77 +4,176 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
         <title>My Pantry</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+        <!-- Material Icons -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
         <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
     </head>
+    <style>
+        .hand-pointer {
+            cursor: pointer;
+        }
+        [type="radio"]:checked + span:after {
+            border: 2px solid rgb(0 128 0 / 30%); /* Outline color */
+            background-color: rgb(0 128 0 / 30%); /* Fill color */
+        }
+    </style>
 
     <body>
-        <div class="container section">
+        <div class="container section" style="padding-bottom: 72px;">
             <div class="row">
                 <div class="col s9 m6 offset-m3 input-field outlined align-center">
                     <i class="material-icons prefix">search</i>
                     <input style="border-radius: 20px; border: 1px solid #ccc;" id="search" name="search" type="search" placeholder="Search" value="">
                 </div>
                 <div class="col s3">
-                    <a class="btn waves-effect waves-light center-align right tooltipped" data-position="bottom" data-tooltip="Open up filter options." style="margin-top: 5px;" onclick="hideFilters()"><i class="material-icons">tune</i></a>
+                    <a class="btn waves-effect waves-light center-align right tooltipped green lighten-3 black-text text-darken-2 z-depth-0" data-position="bottom" data-tooltip="Open up filter options." style="margin-right: 5px; margin-top:0px; border-radius: 20px 10px 20px 10px;" onclick="hideFilters()"><i class="material-icons">tune</i></a>
                 </div>
-                <div class="col s12 hide" id="filter_options">
-                    <div class="row">
+                <div class="col s12 hide" id="filter_options" style="padding: 20px">
+                    <!-- This is for basic views -->
+                    <div class="row center">
+                        <div class="col s12">
+                            <p>Change Views</p>
+                        </div>
+                        <div class="col s6 m4 l2">
+                            <label>
+                                <input name="group3" type="radio" checked onclick="changeView(0)"/>
+                                <span>All</span>
+                            </label>
+                        </div>
+                        <div class="col s6 m4 l2">
+                            <label>
+                                <input name="group3" type="radio" onclick="changeView(1)"/>
+                                <span>Non Zero Items</span>
+                            </label>
+                        </div>
+                        <div class="col s12 divider"></div>
+                    </div>
+                    <!-- This is for sorting values -->
+                    <div class="row center">
+                        <div class="col s12">
+                            <p>Sort Items By</p>
+                        </div>
+                        <div class="col s6 m4 l2">
+                            <label>
+                                <input name="group2" type="radio" onclick="changeSort(0)"/>
+                                <span>Barcode</span>
+                            </label>
+                        </div>
+                        <div class="col s6 m4 l2">
+                            <label>
+                                <input name="group2" type="radio" checked onclick="changeSort(1)"/>
+                                <span>Item Name</span>
+                            </label>
+                        </div>
+                        <div class="col s6 m4 l2">
+                            <label>
+                                <input name="group2" type="radio" onclick="changeSort(2)"/>
+                                <span>Quantity on Hand</span>
+                            </label>
+                        </div>
+                        <div class="col s12 divider"></div>
+                    </div>
+                    <!-- Set the number of items -->
+                    <div class="row center">
                             <div class="col s12">
-                                <p>Item Limit</p>
+                                <p>Set Items Per Page</p>
                             </div>
-                            <div class="col s2">
+                            <div class="col s6 m4 l2">
                             <label>
                                 <input name="group1" type="radio" checked onclick="changeLimit(25)"/>
                                 <span>25 items</span>
                             </label>
                             </div>
-                            <div class="col s2">
+                            <div class="col s6 m4 l2">
                                 <label>
                                 <input name="group1" type="radio" onclick="changeLimit(50)"/>
                                 <span>50 items</span>
                             </label>
                             </div>
-                            <div class="col s2">
+                            <div class="col s6 m4 l2">
                                 <label>
                                     <input name="group1" type="radio"  onclick="changeLimit(75)"/>
                                     <span>75 itesm</span>
                                 </label>
                             </div>
-                            <div class="col s2">
+                            <div class="col s6 m4 l2">
                                 <label>
                                     <input name="group1" type="radio" onclick="changeLimit(100)"/>
                                     <span>100 items</span>
+                                </label>
+                            </div>
+                            <div class="col s6 m4 l2">
+                                <label>
+                                    <input name="group1" type="radio" onclick="changeLimit(150)"/>
+                                    <span>150 items</span>
+                                </label>
+                            </div>
+                            <div class="col s6 m4 l2">
+                                <label>
+                                    <input name="group1" type="radio" onclick="changeLimit(200)"/>
+                                    <span>200 items</span>
                                 </label>
                             </div>
                             <div class="col s12 divider"></div>
                     </div>
 
                 </div>
-                <div class="col s12">
-                    <div class="collection" id="collection_list">
+                <div class="col s12 z-depth-0">
+                    <div class="z-depth-0" id="cards">
+
                     </div>
                 </div>
                 <div class="col s12 center" id="pagination_list">
                     <ul class="pagination">
-                        <li id="first" class="waves-effect"><a><i class="material-icons">first_page</i></a></li>
-                        <li id="back" class="waves-effect"><a><i class="material-icons">chevron_left</i></a></li>
-                        <li id="current_page" class="flow-text">page_number</li>
-                        <li id="forward" class="waves-effect"><a><i class="material-icons">chevron_right</i></a></li>
-                        <li id="last" class="waves-effect"><a><i class="material-icons">last_page</i></a></li>
+                        <li id="first" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">first_page</i></a></li>
+                        <li id="back" class="waves-effect hand-pointer" ><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_left</i></a></li>
+                        <li id="current_page" style="padding-top: 7px; padding-left: 5px; padding-right: 5px; font-size: 18px;">page_number</li>
+                        <li id="forward" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_right</i></a></li>
+                        <li id="last" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">last_page</i></a></li>
 
                     </ul>
-                </div>
+                </div>  
             </div>
+        </div>
+        <div class="fixed-action-btn">
+            <a class="btn-floating btn-large">
+              <i class="large material-icons">more_vert</i>
+            </a>
+            <ul>
+              <li><a class="btn-floating blue darken-1"><i class="material-icons">playlist_add</i></a></li>
+              <li><a class="btn-floating green darken-1"><i class="material-icons">download</i></a></li>
+            </ul>
         </div>
 
     </body>
     <script>
         let current_page = 1
         let end_page = 10
+        let sort_order = 1
+        let view = 0
         let limit = 50
         let filter_state = "hidden"
         let searchText = ""
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('.collapsible');
+            var instances = M.Collapsible.init(elems, {
+            // specify options here
+            });
+        });
+          
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('.fixed-action-btn');
+            var instances = M.FloatingActionButton.init(elems, {
+            // specify options here
+            });
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             update_list()
@@ -108,6 +207,10 @@
             url.searchParams.append('page', current_page);
             url.searchParams.append('limit', limit);
             url.searchParams.append('search_text', searchText);
+            url.searchParams.append('sort_order', sort_order);
+            url.searchParams.append('view', view);
+
+
 
             fetch(url)
             .then(response => response.json())
@@ -127,24 +230,79 @@
                     document.getElementById('last').classList.add("waves-effect")
                 };
                 
-                const collection = document.getElementById('collection_list');
-                collection.style = "border: 0px; gap: 12px;"
-                while(collection.firstChild){
-                    collection.removeChild(collection.firstChild);
-                }
+                //<ul class="collapsible">
+                  //  <li>
+                    //  <div class="collapsible-header"><i class="material-icons">filter_drama</i>First</div>
+                      //<div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+                   // </li>
+                    
+                  //</ul>
+
+                const cards = document.getElementById("cards")
+                const dummy_div = document.createElement('div')
+                const list_collapsible = document.createElement('ul')
+                list_collapsible.classList.add("collapsible")
+                list_collapsible.classList.add("popout")
+                list_collapsible.style = "background: white;"
+
                 data.items.forEach(item => {
-                    const collection_item = document.createElement('a');
-                    collection_item.classList.add('collection-item');
-                    collection_item.classList.add('truncate');
-
-
-                    collection_item.href = `/getItem?id=${item[0]}`
-                    collection_item.style = "border-radius: 20px; border: 1px solid #ccc; margin-top: 5px;"
                     let qty = item[18]
                     let roundedQty = qty.toFixed(2)
-                    collection_item.innerHTML = `${item[2]}<span class="badge hide-on-small-only indigo lighten-4" style="border-radius: 20px;" data-badge-caption="">${roundedQty}</span>`;
-                    collection.appendChild(collection_item);
-                })
+                    var list_item = document.createElement('li')
+                    list_item.classList.add("z-depth-0")
+                    list_item.style = "background: white;"
+
+                    var header = document.createElement("div")
+                    header.classList.add("collapsible-header")
+                    header.style = "box-shadow: none !important; background: white; border: 1px solid rgb(150 150 150 / 30%); border-radius: 10px 10px 0px 0px;"
+                    header.innerHTML = `<i class='material-symbols-outlined'>grocery</i>${item[2]}
+                    <span class="badge green lighten-4 black-text text-darken-2 z-depth-0" style="border-radius: 5px;">Qty: ${roundedQty}</span>`
+
+                    var body = document.createElement('div')
+                    body.classList.add("collapsible-body")
+                    body.style = "box-shadow: none !important; background: rgb(0 128 0 / 10%); border: 1px solid rgb(150 150 150 / 30%); border-radius: 0px 0px 10px 10px;"
+
+                    var description = document.createElement('div')
+                    description.classList.add("col")
+                    description.classList.add("s12")
+                    description.innerHTML = `
+                    <span>Lorem ipsum dolor sit amet. This is a description for ${item[2]}</span>
+                    <div class="divider s12" style="margin-bottom: 5px; margin-top: 5px;"></div>`
+                    var button_group = document.createElement('div')
+                    button_group.classList.add("row")
+                    button_group.style = "margin-bottom: 0px; padding-bottom: 0px;"
+                    button_group.innerHTML = `
+                    <div class="col s12" style="align-items: center;">
+                        <a class="btn right green lighten-3 black-text text-darken-2 z-depth-0 tooltipped" data-position="bottom" data-tooltip="Edit Item" style="display: inline-flex; border-radius: 20px 10px 20px 10px;">
+                            <i class='material-icons'>edit</i>
+                        </a>
+                        <a class="btn right green lighten-3 black-text text-darken-2 z-depth-0 tooltipped" data-position="left" data-tooltip="Transactions" style="display: inline-flex; margin-right: 5px; margin-top:0px; border-radius: 20px 10px 20px 10px;">
+                            <i class='material-icons'>list_alt</i>
+                        </a>
+                    </div>`
+
+                    body.appendChild(description)
+                    body.appendChild(button_group)
+
+                    list_item.appendChild(header)
+                    list_item.appendChild(body)
+
+                    list_collapsible.appendChild(list_item)
+                });
+
+                dummy_div.appendChild(list_collapsible)
+
+                cards.innerHTML = dummy_div.innerHTML
+
+                var elems = document.querySelectorAll('.collapsible');
+                var instances = M.Collapsible.init(elems, {
+                    // specify options here
+                });
+                var elems = document.querySelectorAll('.tooltipped');
+                var instances = M.Tooltip.init(elems, {
+                    // specify options here
+                });
+
                 document.getElementById("current_page").innerHTML = `${String(current_page)} / ${String(end_page)}`
             })
 
@@ -156,6 +314,16 @@
             current_page = 1
             update_list()
         };
+
+        function changeSort(order){
+            sort_order = order
+            update_list()
+        }
+
+        function changeView(view_num){
+            view = view_num
+            update_list()
+        }
 
         function hideFilters(){
             if (filter_state == "hidden"){

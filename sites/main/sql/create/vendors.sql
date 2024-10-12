@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS %sitename%_vendors ( 
+CREATE TABLE IF NOT EXISTS main_vendors ( 
     id SERIAL PRIMARY KEY, 
     name VARCHAR(255) NOT NULL,
     address VARCHAR(255), 

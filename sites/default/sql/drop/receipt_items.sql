@@ -1,0 +1,1 @@
+DROP TABLE %sitename%_receipt_items CASCADE;

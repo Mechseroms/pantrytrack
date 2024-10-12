@@ -1,0 +1,1 @@
+DROP TABLE main_receipt_items CASCADE;

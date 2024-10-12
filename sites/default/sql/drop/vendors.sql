@@ -1,0 +1,1 @@
+DROP TABLE %sitename%_vendors CASCADE;

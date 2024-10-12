@@ -6,6 +6,22 @@ Manage.py is where the databases and configuration is set up. Its a CLI for quic
 MyPantry App.
 """
 
+def rename_unique_sql(site_name):
+    files = os.walk(f"sites/{site_name}/sql/unique")
+
+    sql_files = []
+    for file in files:
+        sql_files = file[2]
+        
+    for file_name in sql_files:
+        words = None
+        with open(f"sites/{site_name}/sql/unique/{file_name}", "r") as file:
+            words = file.read()
+            words = words.replace("%sitename%", site_name)
+        
+        with open(f"sites/{site_name}/sql/unique/{file_name}", "w") as file:
+            file.write(words)
+
 def rename_drop_sql(site_name):
     files = os.walk(f"sites/{site_name}/sql/drop")
 
@@ -60,6 +76,7 @@ def create():
         shutil.copytree(f"sites/default/sql", f"sites/{site_name}/sql")
         rename_create_sql(site_name)
         rename_drop_sql(site_name)
+        rename_unique_sql(site_name)
 
         with open(f"sites/{site_name}/site.ini", "w+") as config:
             config.write(f"[site]\n")

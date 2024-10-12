@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS %sitename%_items(
     barcode VARCHAR(255) NOT NULL,
     item_name VARCHAR(255) NOT NULL,
     brand INTEGER,
+    description TEXT;
     tags TEXT [],
     links JSONB,
     item_info_id INTEGER NOT NULL,

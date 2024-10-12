@@ -4,6 +4,9 @@ app = Flask(__name__)
 
 app.register_blueprint(api.database_api)
 
+@app.route("/workshop")
+def workshop():
+    return render_template("workshop.html")
 
 @app.route("/")
 def home():

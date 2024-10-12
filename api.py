@@ -4,12 +4,59 @@ from config import config
 
 database_api= Blueprint('database_api', __name__)
 
+
+def paginate_with_params(cur, limit, offset, params):
+    sql = f"SELECT * FROM main_items LEFT JOIN main_logistics_info ON main_items.logistics_info_id = main_logistics_info.id"
+    count = f"SELECT COUNT(*) FROM main_items LEFT JOIN main_logistics_info ON main_items.logistics_info_id = main_logistics_info.id"
+    # WHERE search_string LIKE '%{search_string}%'
+    strings = []
+    count_strings = []
+    if params['search_string'] != "":
+        s = params['search_string']
+        strings.append(f" search_string LIKE '%{s}%'")
+        count_strings.append(f" search_string LIKE '%{s}%'")
+    
+    if params['view'] == 1:
+        s = params['view']
+        strings.append(f" main_logistics_info.quantity_on_hand <> 0.00")
+        count_strings.append(f" main_logistics_info.quantity_on_hand <> 0.00")
+
+
+    #   LIMIT {limit} OFFSET {offset};"
+
+    if len(strings) > 0:
+        sql = f"{sql} WHERE{" AND".join(strings)}"
+
+    if len(count_strings) > 0:
+        count = f"{count} WHERE{" AND".join(count_strings)}"
+
+    sql = f"{sql} ORDER BY main_logistics_info.quantity_on_hand LIMIT {limit} OFFSET {offset};"
+    count = f"{count};"
+    print(count)
+    print(sql)
+    cur.execute(sql)
+    pantry_inventory = cur.fetchall()
+    cur.execute(count)
+    count = cur.fetchone()[0]
+    return pantry_inventory, count
+
+def paginate_default(cur, limit, offset):
+    sql = f"SELECT * FROM main_items LEFT JOIN main_logistics_info ON main_items.logistics_info_id = main_logistics_info.id LIMIT %s OFFSET %s;"
+    cur.execute(sql, (limit, offset))
+    pantry_inventory = cur.fetchall()
+    cur.execute("SELECT COUNT(*) FROM main_items;")
+    count = cur.fetchone()[0]
+    return pantry_inventory, count
+
+
 @database_api.route("/getItems")
 def pagninate_items():
     print("hello")
     page = int(request.args.get('page', 1))
     limit = int(request.args.get('limit', 10))
     search_string = str(request.args.get('search_text', ""))
+    sort_order = int(request.args.get('sort_order', 1))
+    view = int(request.args.get('view', 0))
 
     offset = (page - 1) * limit
 
@@ -20,26 +67,22 @@ def pagninate_items():
     with psycopg2.connect(**database_config) as conn:
         try:
             with conn.cursor() as cur:
-                if search_string != "":
-                    sql = f"SELECT * FROM main_items LEFT JOIN main_logistics_info ON main_items.logistics_info_id = main_logistics_info.id WHERE search_string LIKE '%{search_string}%' LIMIT {limit} OFFSET {offset};"
-                    cur.execute(sql)
-                    pantry_inventory = cur.fetchall()
-                    cur.execute(f"SELECT COUNT(*) FROM main_items WHERE search_string LIKE '%{search_string}%';")
-                    count = cur.fetchone()[0]
-                else:
-                    sql = f"SELECT * FROM main_items LEFT JOIN main_logistics_info ON main_items.logistics_info_id = main_logistics_info.id LIMIT %s OFFSET %s;"
-                    cur.execute(sql, (limit, offset))
-                    pantry_inventory = cur.fetchall()
-                    cur.execute("SELECT COUNT(*) FROM main_items;")
-                    count = cur.fetchone()[0]
-
-                print(sql)
-                print(count, math.ceil(count/limit))
-                
+                pantry_inventory, count = paginate_with_params(
+                    cur, limit, offset, 
+                    {'search_string': search_string, 
+                     'view': view}
+                     )
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
 
-        pantry_inventory = sorted(pantry_inventory, key=lambda x: x[2])
+        if sort_order == 0:
+            pantry_inventory = sorted(pantry_inventory, key=lambda x: x[1])
+
+        if sort_order == 1:
+            pantry_inventory = sorted(pantry_inventory, key=lambda x: x[2])
+        
+        if sort_order == 2:
+            pantry_inventory = sorted(pantry_inventory, key=lambda x: x[18])
 
     return jsonify({'items': pantry_inventory, "end": math.ceil(count/limit)})
 
@@ -64,3 +107,16 @@ def get_item():
             print(error)
 
     return render_template(f"item_page/index.html", item=item)
+
+@database_api.route("/addGroup")
+def addGroup():
+    name = str(request.args.get('name', ""))
+    description = str(request.args.get('description', ""))
+    group_type = str(request.args.get('type', ""))
+
+    state = "FAILED"
+
+    if name or description or group_type == "":
+        print("this is empty")
+
+    return jsonify({'state': state})
