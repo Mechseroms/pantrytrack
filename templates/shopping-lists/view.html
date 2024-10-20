@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title>My Pantry</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
+    </head>
+    <style>
+        header, main, footer, body {
+            padding-left: 250px;
+            }
+        
+            @media only screen and (max-width : 992px) {
+            header, main, footer, body {
+                padding-left: 0;
+            }
+            }
+            .dropdown-disabled {
+                pointer-events: none;
+                opacity: 0.5; /* or your desired degree of transparency */
+              }
+    </style>
+    <ul id='dropdown1' class='dropdown-content'>
+        {% for site in sites %}
+            <li><button class="btn transparent black-text z-depth-0" onclick="changeSite('{{ site }}')">{{site}}</button></li>
+        {% endfor %}
+    </ul>
+    <ul id="slide-out" class="sidenav sidenav-fixed orange lighten-4" style="width: 250px;">
+        <li>
+            <div class="user-view">
+                <!-- <div class="background">
+                    <img src="images/office.jpg">
+                </div> -->
+                <!-- <a href="#user"><img class="circle" src="images/yuna.jpg"></a> -->
+                <a href="#name"><span class="black-text name">John Doe</span></a>
+                <a href="#email"><span class="black-text email">jdoe@example.com</span></a>
+            </div>
+        </li>
+        <li><a class="dropdown-trigger dropdown-disabled" data-target="dropdown1">Current Site > {{session['selected_site']}}<i class="material-icons right">arrow_drop_down</i></a></li>
+        <li><div class="divider grey darken-1" style="margin-left: 5px; margin-right: 10px;"></div></li>
+        <li><a href="/items">Site Items</a></li>
+        <li><a href="/groups">Site Groups</a></li>
+        <li><a href="/shopping-lists">Site Shopping Lists</a></li>
+    </ul>
+    <body>
+        <div class="container">
+            <div class="section">
+                <div class="row">
+                    <p id="temp"></p>
+                    <div class="col s12">
+                        <h3 id="list_name"></h3>
+                    </div>
+                    <div class="col s12">
+                        <p id="description"></p>
+                    </div>
+                    <div id="table_div" class="col s12 p-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        const list_id = {{id|tojson}}
+        let shoppingList;
+        let quantities = {};
+
+        document.addEventListener("DOMContentLoaded", async function(){
+            await fetchList()
+
+            var elems = document.querySelectorAll('select');
+            var instances = M.FormSelect.init(elems, {});
+            var elems = document.querySelectorAll('.modal');
+            var instances = M.Modal.init(elems, {});
+            var elems = document.querySelectorAll('.fixed-action-btn');
+            var instances = M.FloatingActionButton.init(elems, {});
+            var elems = document.querySelectorAll('.sidenav');
+            var instances = M.Sidenav.init(elems, {});
+            var elems = document.querySelectorAll('.dropdown-trigger');
+            var instances = M.Dropdown.init(elems, {});
+            var elems = document.querySelectorAll('.collapsible');
+            var instances = M.Collapsible.init(elems, {});
+            M.AutoInit();
+
+            await populateInfo()
+            await populateReferences()
+            console.log(quantities)
+        })
+
+        async function fetchList(){
+            const url = new URL('/getListView', window.location.origin);
+            url.searchParams.append('id', list_id);
+            const response = await fetch(url);
+            data =  await response.json();
+            shoppingList = data.shopping_list;
+            quantities = shoppingList[7]
+        }
+
+        function changeSite(site){
+            console.log(site)
+        }
+
+        async function populateInfo(){
+            let listName = document.getElementById('list_name')
+            let description = document.getElementById('description')
+
+            listName.innerHTML = shoppingList[1];
+            description.innerHTML = shoppingList[2];
+        }
+
+        async function populateReferences(){
+            var table_div = document.getElementById('table_div')
+            table_div.innerHTML = ""
+            
+            var references_table = document.createElement('table')
+            references_table.classList.add("striped")
+
+            var tbl_header = document.createElement('thead')
+            tbl_header.innerHTML = `<tr><th>Item Name</th><th>Product Qty</th></tr>`
+
+            var tbl_body = document.createElement('tbody')
+            
+            let inventory_items = shoppingList[3];
+            console.log(inventory_items)
+
+            // if it is plain then we want to grab the qty from the quantities dictionary
+
+            // if it is calculated we need to calculate qty for all inventory items
+            for (let i=0; i < inventory_items.length; i++){
+                var row = document.createElement('tr')
+
+                let name_cell = document.createElement('td')
+                if (inventory_items[i][3]){
+                    name_cell.innerHTML = `<a href=${inventory_items[i][3].main} target="_blank">${inventory_items[i][2]}</a>`
+                } else {
+                    name_cell.innerHTML = `${inventory_items[i][2]}`
+                }
+                
+                console.log(inventory_items[i])
+                let qty_uom_cell = document.createElement('td')
+                if(shoppingList[10] == 'calculated'){
+                    qty = Number(inventory_items[i][5]) - Number(inventory_items[i][4])
+                    uom = inventory_items[i][6]
+                } else {
+                    qty = quantities[`${inventory_items[i][0]}@item`]['qty']
+                    uom = quantities[`${inventory_items[i][0]}@item`]['uom']
+                }
+                qty_uom_cell.innerHTML = `${qty} ${uom}`
+
+                row.appendChild(name_cell)
+                row.appendChild(qty_uom_cell)
+
+                tbl_body.appendChild(row)
+            };
+
+            // all custom items will pull quantities form the quantities dictionary.
+
+            references_table.appendChild(tbl_header)
+            references_table.appendChild(tbl_body)
+
+            table_div.appendChild(references_table)
+        }
+
+    </script>
+</html>

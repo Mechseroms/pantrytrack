@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
-        <title>My Pantry</title>
+        <title>My Pantry - Items</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
         <!-- Material Icons -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
@@ -22,17 +22,57 @@
             border: 2px solid rgb(0 128 0 / 30%); /* Outline color */
             background-color: rgb(0 128 0 / 30%); /* Fill color */
         }
+        header, main, footer, body {
+            padding-left: 300px;
+            }
+        
+            @media only screen and (max-width : 992px) {
+            header, main, footer, body {
+                padding-left: 0;
+            }
+            }
+            .dropdown-disabled {
+                pointer-events: none;
+                opacity: 0.5; /* or your desired degree of transparency */
+              }
+        
     </style>
-
+    <ul id='dropdown1' class='dropdown-content'>
+        {% for site in sites %}
+            <li><button class="btn transparent black-text z-depth-0" onclick="changeSite('{{ site }}')">{{site}}</button></li>
+        {% endfor %}
+    </ul>
+    <ul id="slide-out" class="sidenav sidenav-fixed green lighten-4" style="width: 250px;">
+        <li>
+            <div class="user-view">
+                <!-- <div class="background">
+                    <img src="images/office.jpg">
+                </div> -->
+                <!-- <a href="#user"><img class="circle" src="images/yuna.jpg"></a> -->
+                <a href="#name"><span class="black-text name">John Doe</span></a>
+                <a href="#email"><span class="black-text email">jdoe@example.com</span></a>
+            </div>
+        </li>
+        <li><a class="dropdown-trigger" data-target="dropdown1">Current Site > {{current_site}}<i class="material-icons right">arrow_drop_down</i></a></li>
+        <li><div class="divider grey darken-1" style="margin-left: 5px; margin-right: 10px;"></div></li>
+        <li class="active"><a href="/items">Site Items</a></li>
+        <li><a href="/groups">Site Groups</a></li>
+        <li><a href="/shopping-lists">Site Shopping Lists</a></li>
+    </ul>
     <body>
         <div class="container section" style="padding-bottom: 72px;">
             <div class="row">
-                <div class="col s9 m6 offset-m3 input-field outlined align-center">
-                    <i class="material-icons prefix">search</i>
-                    <input style="border-radius: 20px; border: 1px solid #ccc;" id="search" name="search" type="search" placeholder="Search" value="">
-                </div>
-                <div class="col s3">
-                    <a class="btn waves-effect waves-light center-align right tooltipped green lighten-3 black-text text-darken-2 z-depth-0" data-position="bottom" data-tooltip="Open up filter options." style="margin-right: 5px; margin-top:0px; border-radius: 20px 10px 20px 10px;" onclick="hideFilters()"><i class="material-icons">tune</i></a>
+                <div class="row col s12">
+                    <div class="col-s3">
+                        <a href="#" data-target="slide-out" class="sidenav-trigger hide-on-large-only left"><i class="material-icons">menu</i></a>
+                    </div>
+                    <div class="col s6 m6 offset-m3 input-field outlined align-center">
+                        <i class="material-icons prefix">search</i>
+                        <input style="border-radius: 20px; border: 1px solid #ccc;" id="search" name="search" type="search" placeholder="Search Items" value="">
+                    </div>
+                    <div class="col s3">
+                        <a class="btn waves-effect waves-light center-align right tooltipped green lighten-3 black-text text-darken-2 z-depth-0" data-position="bottom" data-tooltip="Open up filter options." style="margin-right: 5px; margin-top:0px; border-radius: 20px 10px 20px 10px;" onclick="hideFilters()"><i class="material-icons">tune</i></a>
+                    </div>
                 </div>
                 <div class="col s12 hide" id="filter_options" style="padding: 20px">
                     <!-- This is for basic views -->
@@ -146,9 +186,63 @@
               <i class="large material-icons">more_vert</i>
             </a>
             <ul>
-              <li><a class="btn-floating blue darken-1"><i class="material-icons">playlist_add</i></a></li>
+              <li><a class="btn-floating blue darken-1 modal-trigger" href="#modal1"><i class="material-icons">playlist_add</i></a></li>
               <li><a class="btn-floating green darken-1"><i class="material-icons">download</i></a></li>
             </ul>
+        </div>
+        <div id="modal1" class="modal">
+            <div class="modal-content">
+                <h4>Adding a Item...</h4>
+                <div class="row">
+                    <div class="col s12">
+                        <div class="card-panel green lighten-4">
+                            <span>Adding an item is the main feature of your inventory. Items are used to store information and the most pertinant variables
+                                around the items in your system and act as the foundation of all other aspects and features of this system. To create an Item 
+                                the 4 most important fields you need is the barcode (this is the unique number the item is tracked under), a name, an item type, 
+                                and finally a subtype.
+                            <br><br>There are two item types of items you can create: 
+                            <br><br>
+                            <b>Single Item</b> - These are the bare bone item as you might think it to be. Its a barcode that gets moved about your system and tracked by that
+                            barcode.
+                            <br><br>
+                            <b>Linked Item</b> - Linked Items are a more advanced feature that allows you to chain together barcodes into one. Whenever one of those barcodes 
+                            are transacted on it is instead replaced with its linked barcode. This allows you to chain together the same types of items together if you want. 
+                            I.E. you have multiple barcodes for Chicken Noodle Soup and want them all to be the same item instead of seperate items in your system.
+                            <br><br>
+                        </span>
+                        </div>
+                    </div>
+                    <div class="col s12 m6 input-field p-2">
+                        <input id="barcode" type="text" placeholder=" " maxlength="64">
+                        <label for="barcode">Barcode</label>
+                    </div>
+                    <div class="col s12 m6 input-field p-2">
+                        <input id="item_name" type="text" placeholder=" " maxlength="64">
+                        <label for="item_name">Item Name</label>
+                    </div>
+                    <div class="input-field col s12 m6 p-2">
+                        <select id="item_type">
+                            <option value="single" selected>Single Item</option>
+                            <option value="linked">Linked Item</option>
+                        </select>
+                        <label for="item_type">Item Type</label>
+                    </div>
+                    <div class="input-field col s12 m6 p-2">
+                        <select id="sub_type">
+                            <option value="FOOD" selected>Food</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                        <label for="sub_type">Sub Type</label>
+                    </div>                          
+                    <div class="input-field col s12 p-2">
+                        <textarea id="item_description" class="materialize-textarea" placeholder="A short description for what this group represents..."></textarea>
+                        <label for="item_description">Item Description</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <a onclick="addItem()" class="waves-effect btn green lighten-4">Add</a>
+            </div>
         </div>
 
     </body>
@@ -160,6 +254,8 @@
         let limit = 50
         let filter_state = "hidden"
         let searchText = ""
+        let site = {{ current_site|tojson }}
+
 
         document.addEventListener('DOMContentLoaded', function() {
             var elems = document.querySelectorAll('.collapsible');
@@ -174,9 +270,15 @@
             // specify options here
             });
         });
-
         document.addEventListener('DOMContentLoaded', function() {
-            update_list()
+            var elems = document.querySelectorAll('.dropdown-trigger');
+            var instances = M.Dropdown.init(elems, {
+                alignment: 'right',
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await update_list()
         });
         
         document.addEventListener('DOMContentLoaded', function() {
@@ -187,8 +289,18 @@
             M.AutoInit();
         });
         
+        async function changeSite(new_site){
+            console.log(`current_site: ${site}`)
+            console.log(`new site: ${new_site}`)
+            site = new_site
+            console.log(`current_site: ${site}`)
+            const url = new URL('/changeSite', window.location.origin);
+            url.searchParams.append('site', site)
+            await fetch(url)
+            location.reload();
+        }
 
-        function update_list(){
+        async function update_list(){
             console.log(current_page)
             if (current_page === 1){
                 document.getElementById('back').classList.add("disabled")
@@ -212,7 +324,7 @@
 
 
 
-            fetch(url)
+            await fetch(url)
             .then(response => response.json())
             .then(data => {
                 
@@ -246,7 +358,7 @@
                 list_collapsible.style = "background: white;"
 
                 data.items.forEach(item => {
-                    let qty = item[18]
+                    let qty = item[19]
                     let roundedQty = qty.toFixed(2)
                     var list_item = document.createElement('li')
                     list_item.classList.add("z-depth-0")
@@ -273,7 +385,7 @@
                     button_group.style = "margin-bottom: 0px; padding-bottom: 0px;"
                     button_group.innerHTML = `
                     <div class="col s12" style="align-items: center;">
-                        <a class="btn right green lighten-3 black-text text-darken-2 z-depth-0 tooltipped" data-position="bottom" data-tooltip="Edit Item" style="display: inline-flex; border-radius: 20px 10px 20px 10px;">
+                        <a href="/getItem?id=${item[0]}"class="btn right green lighten-3 black-text text-darken-2 z-depth-0 tooltipped" data-position="bottom" data-tooltip="Edit Item" style="display: inline-flex; border-radius: 20px 10px 20px 10px;">
                             <i class='material-icons'>edit</i>
                         </a>
                         <a class="btn right green lighten-3 black-text text-darken-2 z-depth-0 tooltipped" data-position="left" data-tooltip="Transactions" style="display: inline-flex; margin-right: 5px; margin-top:0px; border-radius: 20px 10px 20px 10px;">
@@ -309,20 +421,20 @@
 
         };
         
-        function changeLimit(limit_value){
+        async function changeLimit(limit_value){
             limit = limit_value
             current_page = 1
-            update_list()
+            await update_list()
         };
 
-        function changeSort(order){
+        async function changeSort(order){
             sort_order = order
-            update_list()
+            await update_list()
         }
 
-        function changeView(view_num){
+        async function changeView(view_num){
             view = view_num
-            update_list()
+            await update_list()
         }
 
         function hideFilters(){
@@ -335,40 +447,68 @@
             }
         }
 
-        document.getElementById('forward').addEventListener('click', () =>{
+        document.getElementById('forward').addEventListener('click', async () =>{
             if (!(document.getElementById("forward").classList.contains("disabled"))){
                 current_page++
-                update_list();
+                await update_list();
             };
         });
     
-        document.getElementById('back').addEventListener('click', () =>{
+        document.getElementById('back').addEventListener('click', async () =>{
             if (!(document.getElementById("back").classList.contains("disabled"))){
                 current_page--
-                update_list();
+                await update_list();
             }
         });
 
-        document.getElementById('last').addEventListener('click', () =>{
+        document.getElementById('last').addEventListener('click', async () =>{
             if(!(document.getElementById("last").classList.contains("disabled"))){
                 current_page = end_page
-                update_list();
+                await update_list();
                 };
         });
     
-        document.getElementById('first').addEventListener('click', () =>{
+        document.getElementById('first').addEventListener('click', async () =>{
             if (!(document.getElementById("first").classList.contains("disabled"))){
                 current_page = 1
-                update_list();
+                await update_list();
             };
         }); 
 
-        document.querySelector("#search").addEventListener('change', () =>{
+        document.querySelector("#search").addEventListener('change', async () => {
             searchText = document.getElementById("search").value;
-            current_page = 1
-            update_list()
+            current_page = 1;
+            await update_list();
         });
-            
+        
+        async function addItem(){
+            let barcode = document.getElementById("barcode")
+            let item_name = document.getElementById("item_name")
+            let item_type = document.getElementById("item_type")
+            let sub_type = document.getElementById("sub_type")
+            let description = document.getElementById("item_description")
+
+            const url = new URL('/addItem', window.location.origin);
+            url.searchParams.append('barcode', barcode.value);
+            url.searchParams.append('item_name', item_name.value);
+            url.searchParams.append('item_type', item_type.value);
+            url.searchParams.append('sub_type', sub_type.value);
+            url.searchParams.append('item_description', description.value);
+
+
+            await fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                M.toast({text: `Adding ${name}: ${data.state}`});
+            })
+            await update_list()
+            var elem = document.getElementById("modal1");
+            var instance = M.Modal.getInstance(elem);
+            instance.close()
+
+
+        }
+
     </script>
 </html>
     

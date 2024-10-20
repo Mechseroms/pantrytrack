@@ -35,7 +35,7 @@ def update_item_primary(site_name, barcode, new_primary: str):
 			return False
 
 def insert_row(table_name, name):
-	sql = f"INSERT INTO {table_name}(id, name) VALUES(%s, %s) RETURNING id"
+	sql = f"INSERT INTO {table_name}(id, name) VALUES(%s, %s) RETURNING id;"
 	id = None
 	try:
 		database_config = config()
@@ -85,7 +85,7 @@ def create_logistics_info(conn, site_name, barcode, payload):
 	except (Exception, psycopg2.DatabaseError) as error:
 		print(error)
 		conn.rollback()
-		return False
+		return error
 	
 	return logistics_info_id
 
@@ -103,7 +103,7 @@ def create_item_info(conn, site_name, barcode, payload):
 	except (Exception, psycopg2.DatabaseError) as error:
 		print(error)
 		conn.rollback()
-		return False
+		return error
 
 	return item_info_id
 
@@ -136,7 +136,7 @@ def add_location(site_name, name, zone_id):
 		except (Exception, psycopg2.DatabaseError) as error:
 			print(error)
 			conn.rollback()
-			return False
+			return error
 
 		uuid = f"{zone_name}@{name}"
 		try:
@@ -145,7 +145,7 @@ def add_location(site_name, name, zone_id):
 		except (Exception, psycopg2.DatabaseError) as error:
 			print(error)
 			conn.rollback()
-			return False
+			return error
 
 def add_zone(site_name, name):
 	database_config = config()
@@ -157,7 +157,7 @@ def add_zone(site_name, name):
 		except (Exception, psycopg2.DatabaseError) as error:
 			print(error)
 			conn.rollback()
-			return False
+			return error
 
 def add_transaction(site_name, barcode, qty, user_id, transaction_type = "info", description = "", data = {}, location=None):
 	database_config = config()
@@ -192,7 +192,7 @@ def add_transaction(site_name, barcode, qty, user_id, transaction_type = "info",
 		except (Exception, psycopg2.DatabaseError) as error:
 			print(error)
 			conn.rollback()
-			return False
+			return error
 		
 		if not location:
 			mover = logistics_info[2]
@@ -211,7 +211,7 @@ def add_transaction(site_name, barcode, qty, user_id, transaction_type = "info",
 		except (Exception, psycopg2.DatabaseError) as error:
 			print(error)
 			conn.rollback()
-			return False
+			return error
 
 		if logistics_info[3] in location_items.keys():
 			location_items[logistics_info[3]] = location_items[logistics_info[3]] + qty
@@ -234,11 +234,11 @@ def add_transaction(site_name, barcode, qty, user_id, transaction_type = "info",
 		except (Exception, psycopg2.DatabaseError) as error:
 			print(error)
 			conn.rollback()
-			return False
+			return error
 
 		conn.commit()
 
-def add_food_item(site_name: str, barcode: str, name: str, qty: float, payload: dict):
+def add_food_item(site_name: str, barcode: str, name: str, payload: dict):
 
 	# TODO: I need to validate the name so that it doesnt have characters against the SQL database schema such as ' 
 
@@ -279,7 +279,6 @@ def add_food_item(site_name: str, barcode: str, name: str, qty: float, payload: 
 
 
 	add_transaction(site_name, barcode, qty=0, user_id=1, description="Added Item to System!")
-	add_transaction(site_name, barcode, qty=qty, user_id=1, description="scan in")
 
 def drop_table(sql_file: str):
 	database_config = config()

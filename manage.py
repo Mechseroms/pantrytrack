@@ -1,5 +1,6 @@
 import sys, os, shutil
 import main
+import config as cfg
 
 """ 
 Manage.py is where the databases and configuration is set up. Its a CLI for quick serving the databases necessary for
@@ -90,6 +91,7 @@ def create():
             config.write(f"default_primary_location={default_location_name}\n")
             config.write(f"default_auto_issue_location={default_location_name}\n")
 
+        cfg.write_new_site(site_name)
 
         print(f"Site {site_name} config created!")
         print(f"Site {site_name} created!")
@@ -108,6 +110,8 @@ if __name__ == "__main__":
         if func_name == "delete" and argument == "site":
             main.delete_site(sys.argv[3])
             shutil.rmtree(f"sites/{sys.argv[3]}")
+            cfg.delete_site(sys.argv[3])
+
 
         if func_name == "item":
             if argument == "add":

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title>My Pantry</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
+    </head>
+    <style>
+        header, main, footer, body {
+            padding-left: 300px;
+            }
+        
+            @media only screen and (max-width : 992px) {
+            header, main, footer, body {
+                padding-left: 0;
+            }
+            }
+            .dropdown-disabled {
+                pointer-events: none;
+                opacity: 0.5; /* or your desired degree of transparency */
+              }
+        
+    </style>
+    <ul id='dropdown1' class='dropdown-content'>
+        {% for site in sites %}
+            <li><button class="btn transparent black-text z-depth-0" onclick="changeSite('{{ site }}')">{{site}}</button></li>
+        {% endfor %}
+    </ul>
+    <ul id="slide-out" class="sidenav sidenav-fixed orange lighten-4" style="width: 250px;">
+        <li>
+            <div class="user-view">
+                <!-- <div class="background">
+                    <img src="images/office.jpg">
+                </div> -->
+                <!-- <a href="#user"><img class="circle" src="images/yuna.jpg"></a> -->
+                <a href="#name"><span class="black-text name">John Doe</span></a>
+                <a href="#email"><span class="black-text email">jdoe@example.com</span></a>
+            </div>
+        </li>
+        <li><a class="dropdown-trigger dropdown-disabled" data-target="dropdown1">Current Site > {{current_site}}<i class="material-icons right">arrow_drop_down</i></a></li>
+        <li><div class="divider grey darken-1" style="margin-left: 5px; margin-right: 10px;"></div></li>
+        <li><a href="/items">Site Items</a></li>
+        <li><a href="/groups">Site Groups</a></li>
+        <li><a href="/shopping-lists">Site Shopping Lists</a></li>
+    </ul>
+    <body>
+        <div class="container">
+            <div class="section">
+                <div class="row">
+                    <div class="col s12">
+                        <div class="row">
+                            <div class="col s2">
+                                <h3><a href="#" data-target="slide-out" class="sidenav-trigger hide-on-large-only left"><i class="material-icons">menu</i></a></h3>
+                            </div>
+                            <div class="col s8 orange lighten-4" style="border-radius: 10px;">
+                                <h3 id="list_name" class="center"></h3>
+                            </div>
+                            <div class="col s2">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col s12 p-2">
+                        <h5 id="database_id"></h5>
+                    </div>
+                    <div class="col s12 m6 p-2">
+                        <label for="list_type">List Type</label>
+                        <select id="list_type" class="browser-default">
+                          <option value="plain">Plain</option>
+                          <option value="calculated">Calculated</option>
+                        </select>
+                    </div>
+                    <div class="input-field col s12 p-2">
+                        <textarea id="description" class="materialize-textarea" placeholder=" "></textarea>
+                        <label for="description">Group Description</label>
+                    </div>
+                    <div class="divider col s12"></div>
+                    <div class="col s12 p-2">
+                        <button class="btn filled icon-left modal-trigger orange lighten-4 black-text z-depth-0" data-target="item_modal">Add Item</button>
+                        <button class="btn filled icon-left modal-trigger orange lighten-4 black-text z-depth-0" data-target="custom_modal">Add Custom</button>
+                        <button class="btn filled icon-left modal-trigger orange lighten-4 black-text z-depth-0 disabled" data-target="item_modal">Add Recipe</button>
+                        <button class="btn filled icon-left modal-trigger orange lighten-4 black-text z-depth-0 disabled" data-target="item_modal">Add Group</button>
+                    </div>
+                    <div id="table_div" class="col s12 p-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fixed-action-btn">
+            <button class="btn-floating btn-large" onclick="saveList()">
+              <i class="large material-icons">save</i>
+            </button>
+        </div>
+
+        <div id="item_modal" class="modal">
+            <div class="modal-content">
+                <div class="row" style="gap: 5px;">
+                    <div class="col s12">
+                        <h4>Add Items...</h4>
+                    </div>
+                    <div class="col s12">
+                        <div class="card-panel orange lighten-4 z-depth-0">
+                          <span class="black-text"> Here is where you can search, add, and remove items from this list by checking or unchecking the items below. You can select
+                            multiple at a time or simply one. Utilize the search bar to filter down quickly to items you need or simply scroll to your hearts content.
+                            <br><br>
+                            <b>WARNING:</b> clicking the checkbox will not save the changes right off the bat! You <b>MUST</b> click the Update Items button!
+                            <br><br>
+                          </span>
+                        </div>
+                    </div>
+                    
+                    <div class="col s9 m6 offset-m3 input-field outlined align-center">
+                        <i class="material-icons prefix">search</i>
+                        <input style="border-radius: 20px; border: 1px solid #ccc;" id="search" name="search" type="search" placeholder="Search Items" value="">
+                    </div>
+                    <div class="col s12 center">
+                        <a id="back" class="btn icon-left orange lighten-4 black-text z-depth-0"><i class="material-icons">chevron_left</i></a>
+                        <a id="update_items" class="btn orange lighten-4 black-text z-depth-0">Update Items</a>
+                        <a id="forward" class="btn icon-right orange lighten-4 black-text z-depth-0"><i class="material-icons">chevron_right</i></a>
+                    </div>
+                    <div class="divider col s12"></div>
+                    <div id="checkbox-container" class="col s12">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="custom_modal" class="modal">
+            <div class="modal-content">
+                <div class="row" style="gap: 5px;">
+                    <div class="col s12">
+                        <h4>Add Custom...</h4>
+                    </div>
+                    <div class="col s12">
+                        <div class="card-panel orange lighten-4 z-depth-0">
+                          <span class="black-text"> Here is where you can add custom items to the list.</span>
+                        </div>
+                    </div>
+                    <div class="s12 m6 input-field outlined">
+                        <input id="item_name" type="text" placeholder=" ">
+                        <label for="item_name">Item Name</label>
+                    </div>
+                    <div class="s12 input-field outlined">
+                        <input id="weblink" type="text" placeholder=" ">
+                        <label for="weblink">Weblink</label>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="addCustom()" class="modal-close waves-effect btn-flat">Add</button>
+            </div>
+        </div>
+
+    </body>
+    <script>
+        const list_id = {{id|tojson}}
+        let shoppingList;
+        let current_page = 1
+        let limit = 25
+        let pantry_checked_items = new Array();
+        let groups_checked_items = new Array();
+        let search_text = "";
+        let custom_items = {};
+        let quantities = {};
+
+        document.addEventListener("DOMContentLoaded", async function(){
+            await fetchList()
+
+            var elems = document.querySelectorAll('select');
+            var instances = M.FormSelect.init(elems, {});
+            var elems = document.querySelectorAll('.modal');
+            var instances = M.Modal.init(elems, {});
+            var elems = document.querySelectorAll('.fixed-action-btn');
+            var instances = M.FloatingActionButton.init(elems, {});
+            var elems = document.querySelectorAll('.sidenav');
+            var instances = M.Sidenav.init(elems, {});
+            var elems = document.querySelectorAll('.dropdown-trigger');
+            var instances = M.Dropdown.init(elems, {});
+            var elems = document.querySelectorAll('.collapsible');
+            var instances = M.Collapsible.init(elems, {});
+            M.AutoInit();
+
+            await populateInfo()
+            await populateReferences()
+            update_list()
+
+        });
+
+        async function fetchList(){
+            const url = new URL('/getList', window.location.origin);
+            url.searchParams.append('id', list_id);
+            const response = await fetch(url);
+            data =  await response.json();
+            shoppingList = data.shopping_list;
+        };
+
+        async function populateInfo(){
+            var itemName = document.getElementById('list_name');
+            var databaseID = document.getElementById('database_id');
+            var selectElement = document.getElementById('list_type');
+            var description = document.getElementById('description');
+
+            itemName.innerHTML = shoppingList[1];
+            databaseID.innerHTML = `Database ID: ${shoppingList[0]}`;
+            selectElement.value = shoppingList[10];
+            selectElement.dispatchEvent(new Event('change'));
+            description.value = shoppingList[2];
+            M.Forms.textareaAutoResize(description);
+            
+            pantry_checked_items = [];
+
+            for(let i=0; i < shoppingList[3].length; i++){
+                pantry_checked_items.push(shoppingList[3][i][0]);
+            }
+
+            custom_items = shoppingList[4];
+            if(shoppingList[7]){
+                quantities = shoppingList[7];
+            }
+        }
+
+        async function populateReferences(){
+            var table_div = document.getElementById('table_div')
+            table_div.innerHTML = ""
+            
+            var references_table = document.createElement('table')
+            references_table.classList.add("striped")
+
+            var tbl_header = document.createElement('thead')
+            tbl_header.innerHTML = `
+            <tr>
+            <th>Database ID</th>
+            <th>Barcode</th>
+            <th>Item Name</th>
+            <th>Qty/UOM</th>
+            <th>type</th>
+            </tr>`
+
+            var tbl_body = document.createElement('tbody')
+            
+            let inventory_items = shoppingList[3];
+            for (let i=0; i < inventory_items.length; i++){
+                var row = document.createElement('tr')
+                
+                let database_id_cell = document.createElement('td')
+                database_id_cell.innerHTML = `${inventory_items[i][0]}`
+
+                let barcode_cell = document.createElement('td')
+                barcode_cell.innerHTML = `${inventory_items[i][1]}`
+
+                let name_cell = document.createElement('td')
+                if (inventory_items[i][3]){
+                    name_cell.innerHTML = `<a href=${inventory_items[i][3].main} target="_blank">${inventory_items[i][2]}</a>`
+                } else {
+                    name_cell.innerHTML = `${inventory_items[i][2]}`
+                }
+                let qty_uom_cell = document.createElement('td')
+                console.log(shoppingList[10])
+                if(shoppingList[10] == 'calculated'){
+                    qty_uom_cell.innerHTML = `
+                    <input class="item_qty" id="${inventory_items[i][0]}@item" value='0.00' type="text" placeholder=" " style="width: 60px; height: 30px;" disabled>
+                    <input class="item_uom" id="${inventory_items[i][0]}@item" value='' type="text" placeholder=" " style="width: 60px; height: 30px;" disabled>`
+                } else {
+                    qty = quantities[`${inventory_items[i][0]}@item`]['qty']
+                    uom = quantities[`${inventory_items[i][0]}@item`]['uom']
+                    qty_uom_cell.innerHTML = `
+                    <input class="item_qty" id="${inventory_items[i][0]}@item" value="${qty}" type="text" placeholder=" " style="width: 60px; height: 30px;">
+                    <input class="item_uom" id="${inventory_items[i][0]}@item" value="${uom}" type="text" placeholder=" " style="width: 60px; height: 30px;">`
+                }
+
+                let type_cell = document.createElement('td')
+                type_cell.innerHTML = "Item"
+
+                row.appendChild(database_id_cell)
+                row.appendChild(barcode_cell)
+                row.appendChild(name_cell)
+                row.appendChild(qty_uom_cell)
+                row.appendChild(type_cell)
+
+                tbl_body.appendChild(row)
+            };
+
+            <!-- Reference creation for Custom Items -->
+            Object.entries(custom_items).forEach(([key, value]) =>{
+                var row = document.createElement('tr')
+                
+                let database_id_cell = document.createElement('td')
+                database_id_cell.innerHTML = `${value[0]}`
+
+                let barcode_cell = document.createElement('td')
+                barcode_cell.innerHTML = `${value[1]}`
+
+                let name_cell = document.createElement('td')
+                if (value[3]){
+                    name_cell.innerHTML = `<a href=${value[3].main} target="_blank">${value[2]}</a>`
+                } else {
+                    name_cell.innerHTML = `${value[2]}`
+                }
+                let qty_uom_cell = document.createElement('td')
+                console.log(shoppingList[10])
+                if(shoppingList[10] == 'calculated'){
+                    qty_uom_cell.innerHTML = `
+                    <input class="item_qty" id="${value[0]}@custom" value=${quantities[`${value[0]}@custom`]['qty']} type="text" placeholder=" " style="width: 60px; height: 30px;">
+                    <input class="item_uom" id="${value[0]}@custom" value=${quantities[`${value[0]}@custom`]['uom']} style="width: 60px; height: 30px;">`
+                } else {
+                qty_uom_cell.innerHTML = `
+                    <input class="item_qty" id="${value[0]}@custom" value=${quantities[`${value[0]}@custom`]['qty']} type="text" placeholder=" " style="width: 60px; height: 30px;">
+                    <input class="item_uom" id="${value[0]}@custom" value=${quantities[`${value[0]}@custom`]['uom']} type="text" placeholder=" " style="width: 60px; height: 30px;">`
+                }
+
+                let type_cell = document.createElement('td')
+                type_cell.innerHTML = "Custom"
+
+                row.appendChild(database_id_cell)
+                row.appendChild(barcode_cell)
+                row.appendChild(name_cell)
+                row.appendChild(qty_uom_cell)
+                row.appendChild(type_cell)
+
+                tbl_body.appendChild(row)
+            });
+            
+            references_table.appendChild(tbl_header)
+            references_table.appendChild(tbl_body)
+
+            table_div.appendChild(references_table)
+        }
+
+        async function save_checked(){
+            let checkboxes = document.querySelectorAll('.checkbox-class');
+            checkboxes.forEach((checkbox) => {
+                if (pantry_checked_items.includes(Number(checkbox.id)) && !checkbox.checked){
+                    pantry_checked_items.splice(pantry_checked_items.indexOf(Number(Number(checkbox.id))), 1);
+                    delete quantities[`${Number(checkbox.id)}@item`]
+                }
+                if (!pantry_checked_items.includes(Number(checkbox.id)) && checkbox.checked){
+                    pantry_checked_items.push(Number(checkbox.id))
+                    quantities[`${Number(checkbox.id)}@item`] = {
+                        qty: 0.00,
+                        uom: "each",
+                    }
+                }
+            });
+        }
+        
+        async function save_quantities(){
+            let x = document.querySelectorAll(".item_qty")
+            for(let i=0; i<x.length; i++){
+                if(shoppingList[10]== 'calculated'){
+                    quantities[`${x[i].id}`] = {qty: Number(x[i].value)}
+                } else {
+                    quantities[`${x[i].id}`] = {qty: Number(x[i].value)}
+                }
+            }
+            let y = document.querySelectorAll(".item_uom")
+            for(let i=0; i<y.length; i++){
+                if(shoppingList[10]== 'calculated'){
+                    quantities[`${y[i].id}`]['uom']  = y[i].value
+                } else {
+                    quantities[`${y[i].id}`]['uom'] = y[i].value
+                }
+            }
+        }
+
+        function update_list(){
+            if (current_page == 1){
+                document.getElementById('back').classList.add("disabled")
+            }else{ 
+                document.getElementById('back').classList.remove("disabled")
+            };
+    
+            const url = new URL('/getItems', window.location.origin);
+            url.searchParams.append('page', current_page);
+            url.searchParams.append('limit', limit);
+            url.searchParams.append('search_text', search_text);
+
+            let container = document.getElementById('checkbox-container')
+            fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.items.length < limit){
+                    document.getElementById('forward').classList.add("disabled")
+                } else {
+                    document.getElementById('forward').classList.remove("disabled")
+                }
+    
+                const divi = document.createElement('div')
+                data.items.forEach(item => {
+                    const checkboxHTML = document.createElement('p')
+                    if (pantry_checked_items.includes(item[0])){
+                        checkboxHTML.innerHTML = `<label>
+                            <input class="checkbox-class" id=${item[0]} name=${item[0]} checked="checked" type="checkbox" />
+                            <span>${item[1]} - ${item[2]}</span>
+                        </label>`;
+                    } else {
+                        checkboxHTML.innerHTML = `<div class="col s12"><label>
+                            <input class="checkbox-class" id=${item[0]} name=${item[0]} type="checkbox" />
+                            <span>${item[1]} - ${item[2]}</span>
+                        </label></div>`;
+                    }
+                    divi.appendChild(checkboxHTML)
+                })
+                
+                container.innerHTML = divi.innerHTML
+            })
+        }
+
+        document.getElementById("search").addEventListener('keydown', function(event){
+            if(event.key === 'Enter'){
+                console.log(document.getElementById("search").value);
+                search_text = document.getElementById("search").value;
+                update_list()
+            }
+        })
+
+        document.getElementById('forward').addEventListener('click', () =>{
+            current_page++
+            save_checked()
+            update_list()
+        })
+    
+        document.getElementById('back').addEventListener('click', () =>{
+            current_page--
+            save_checked()
+            update_list()
+        })
+
+        async function updateShoppingList(){
+
+            var itemName = document.getElementById('list_name');
+            var selectElement = document.getElementById('list_type');
+            var description = document.getElementById('description');
+            
+
+            await fetch(`/updateList`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: shoppingList[0],
+                    name: itemName.innerHTML,
+                    description:description.value,
+                    items: pantry_checked_items,
+                    custom: custom_items,
+                    list_type:selectElement.value,
+                    quantities:quantities,
+                }),
+            });
+            M.toast({text: "List Saved!"})
+        }
+
+        document.getElementById('update_items').addEventListener('click', async function(){
+            await save_checked()
+            //await save_quantities()
+
+            await updateShoppingList()
+    
+            var modalElem = document.querySelector('#item_modal');
+            var instance = M.Modal.getInstance(modalElem);
+            instance.close();
+            
+            await fetchList()
+            await populateInfo()
+            await populateReferences()
+        })
+
+        function generateRandomString() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+              result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+          }
+        
+
+        async function saveList(){
+            await save_checked()
+            await save_quantities()
+
+            await updateShoppingList()
+            await fetchList()
+            await populateInfo()
+            await populateReferences()
+        }
+
+        async function addCustom(){
+            let item_id = generateRandomString()
+            let name = document.getElementById('item_name').value
+            let weblink = document.getElementById('weblink').value
+            //await save_quantities()
+
+
+            item = new Array();
+            item[0] = item_id
+            item[1] = item_id
+            item[2] = name
+            item[3] = {
+                main: weblink
+            }
+            custom_items[item_id] = item
+            quantities[`${item_id}@custom`] = {
+                qty: 0.00,
+                uom: 'each',
+            }
+
+            await updateShoppingList()
+            await populateInfo()
+            await populateReferences()
+        }
+
+    </script>
+</html>
