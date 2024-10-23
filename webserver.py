@@ -42,6 +42,7 @@ def items():
 @app.route("/")
 def home():
     session['selected_site'] = 'main'
-    return render_template("items/index.html")
+    sites = config.sites_config()
+    return render_template("items/index.html", current_site=session['selected_site'], sites=sites['sites'])
 
 app.run(host="0.0.0.0", port=5002, debug=True)

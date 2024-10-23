@@ -105,6 +105,36 @@
                       </ul>
                     </div>
                     <div id="item_info" class="col s12">
+                        <div class="row" style="gap: 10px; padding-top: 10px;">
+                            <div class="col s6 m4 input-field outlined item_info_target">
+                                <input onchange="updatePackaging()" id="packaging" type="text" placeholder=" " maxlength="32">
+                                <label for="packaging">Packaging</label>
+                            </div>
+                            <div class="col s6 m4 input-field outlined item_info_target">
+                                <input onchange="updateUOM()" id="uom" type="text" placeholder=" " maxlength="32">
+                                <label for="uom">Unit of Measure</label>
+                            </div>
+                            <div class="col s6 m4 input-field outlined item_info_target">
+                                <input onchange="updateCost()" id="cost" type="number" placeholder=" " maxlength="32">
+                                <label for="cost">Cost</label>
+                            </div>
+                            <div class="col s6 m4 input-field outlined item_info_target">
+                                <input onchange="updateSafetyStock()" id="safety_stock" type="number" placeholder=" " maxlength="32">
+                                <label for="safety_stock">Safety Stock</label>
+                            </div>
+                            <div class="col s6 m4 input-field outlined item_info_target">
+                                <input onchange="updateLeadTimeDays()" id="lead_time_days" type="number" placeholder=" " maxlength="32">
+                                <label for="lead_time_days">Leadtime (Days)</label>
+                            </div>
+                            <div class="col s6 m4 center">
+                                <p>
+                                    <label>
+                                      <input onclick="updateAiPickable()" id="ai_pickable" type="checkbox" />
+                                      <span>AI Pickable</span>
+                                    </label>
+                                </p>
+                            </div>
+                        </div>
                         <table class="" id="reference_table">
                             <thead>
                                 <tr>
@@ -153,10 +183,16 @@
             </div>
         </div>
     </body>
+    <script src="{{ url_for('static', filename='itemHandler.js') }}"></script>
     <script>
     const item = {{ item|tojson }}
     var reference_state = 1
     let links = {};
+    let updated = {};
+    let item_info = {};
+    let food_info = {};
+    let logistics_info = {};
+    
 
     document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById("title").innerHTML = String(item[2])
@@ -177,6 +213,7 @@
 
     });
     
+
     async function propagateInfo(){
         const entryType = document.getElementById('entry_type');
         entryType.value = item[10];

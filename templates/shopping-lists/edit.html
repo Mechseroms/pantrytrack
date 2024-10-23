@@ -228,6 +228,7 @@
         }
 
         async function populateReferences(){
+            console.log(shoppingList[4])
             var table_div = document.getElementById('table_div')
             table_div.innerHTML = ""
             
@@ -263,12 +264,13 @@
                     name_cell.innerHTML = `${inventory_items[i][2]}`
                 }
                 let qty_uom_cell = document.createElement('td')
-                console.log(shoppingList[10])
+                console.log(shoppingList[7])
                 if(shoppingList[10] == 'calculated'){
                     qty_uom_cell.innerHTML = `
                     <input class="item_qty" id="${inventory_items[i][0]}@item" value='0.00' type="text" placeholder=" " style="width: 60px; height: 30px;" disabled>
                     <input class="item_uom" id="${inventory_items[i][0]}@item" value='' type="text" placeholder=" " style="width: 60px; height: 30px;" disabled>`
                 } else {
+                    console.log(inventory_items[i][0])
                     qty = quantities[`${inventory_items[i][0]}@item`]['qty']
                     uom = quantities[`${inventory_items[i][0]}@item`]['uom']
                     qty_uom_cell.innerHTML = `
@@ -353,6 +355,7 @@
         
         async function save_quantities(){
             let x = document.querySelectorAll(".item_qty")
+            console.log(x)
             for(let i=0; i<x.length; i++){
                 if(shoppingList[10]== 'calculated'){
                     quantities[`${x[i].id}`] = {qty: Number(x[i].value)}
