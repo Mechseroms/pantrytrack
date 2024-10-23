@@ -13,6 +13,8 @@
         <!-- Material Symbols - Sharp Set -->
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
         <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
     </head>
     <style>
         header, main, footer, body {
@@ -146,7 +148,19 @@
                             </tbody>
                         </table>
                     </div>
-                    <div id="food_info" class="col s12">Food Info</div>
+                    <div id="food_info" class="col s12">
+                        <div class="row" style="gap: 10px; padding-top: 10px;">
+                            <div id="food_groups_container" class="col s12 chips">
+                                <!-- This holds open for food groups pills -->
+                            </div>
+                            <div id="ingrediants_container" class="col s12 chips">
+                                <!-- This holds all the ingrediants pills -->
+                            </div>
+                            <div id="nutrients_container" class="col s12">
+                                <!-- This holds all the nutrients tables -->
+                            </div>                           
+                        </div>
+                    </div>
                     <div id="logistics_info" class="col s12">Logistics Info</div>
                     <div id="linked_items" class="col s12 disabled">Linked Items</div>
                   </div>
@@ -185,13 +199,16 @@
     </body>
     <script src="{{ url_for('static', filename='itemHandler.js') }}"></script>
     <script>
-    const item = {{ item|tojson }}
+    
+    var item = {{ item|tojson }};
     var reference_state = 1
     let links = {};
     let updated = {};
     let item_info = {};
     let food_info = {};
     let logistics_info = {};
+    let food_groups = [];
+    let ingrediants = [];
     
 
     document.addEventListener('DOMContentLoaded', async function() {
@@ -206,7 +223,25 @@
         var elems = document.querySelectorAll('.modal');
         var instances = M.Modal.init(elems, {});
 
+
+        var elem = document.getElementById('food_groups_container');
+        M.Chips.init(elem, {
+            placeholder: 'Add Group...',
+            secondaryPlaceholder: 'Add Group...',
+            onChipDelete: deleteFoodGroup,
+            onChipAdd: addFoodGroup,
+        });
+
+        var elem = document.getElementById('ingrediants_container');
+        M.Chips.init(elem, {
+            placeholder: 'Add Ingrediant...',
+            secondaryPlaceholder: 'Add Ingrediant...',
+            onChipDelete: deleteIngrediant,
+        });
+
         await propagateInfo()
+        refreshFoodGroups()
+        refreshIngrediants()
         populateReferences(item[23], 'shopping_list')
         populateReferences(item[24], 'recipe')
         populateReferences(item[25], 'group')
@@ -220,7 +255,41 @@
         const itemType = document.getElementById('item_type');
         itemType.value = item[11];
         await propagateLinks()
+
+        food_groups = item[33];
+        ingrediants = item[34];
     }
+
+    function refreshFoodGroups(){
+        let instance = M.Chips.getInstance(document.getElementById('food_groups_container'));
+        for (let i=0; i < food_groups.length; i++){
+            instance.addChip({tag: String(food_groups[i])});
+        ;}
+    };
+
+    function addFoodGroup(e, chip){
+        chipText = chip.textContent.replace('close', '').trim()
+        console.log(chipText)
+        food_groups.push(chipText)
+        console.log(food_groups)
+    }
+
+    function deleteFoodGroup(e, chip){
+        chipText = chip.textContent.replace('close', '').trim()
+        food_groups = food_groups.filter(chip => chip !== chipText);
+    };
+
+    function deleteIngrediant(e, chip){
+        chipText = chip.textContent.replace('close', '').trim()
+        ingrediants = ingrediants.filter(chip => chip !== chipText);
+    }
+
+    function refreshIngrediants(){
+        let instance = M.Chips.getInstance(document.getElementById('ingrediants_container'));
+        for (let i=0; i < ingrediants.length; i++){
+            instance.addChip({tag: String(ingrediants[i])});
+        ;}
+    };
 
     async function propagateLinks(){
         var element = document.getElementById("weblinks");
