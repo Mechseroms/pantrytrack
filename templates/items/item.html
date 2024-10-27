@@ -53,121 +53,398 @@
         <li><a href="/groups">Site Groups</a></li>
         <li><a href="/shopping-lists">Site Shopping Lists</a></li>
     </ul>
-    <body>
+    <body style="margin-bottom: 80px;">
         <div class="container section">
             <div class="row g-4">
-            <div class="col s12">
-                <h3>{{item[2]}}</h3>
-                <h5>Database ID: {{item[0]}}</h5>
-                <h5>Barcode: {{item[1]}}</h5>
-            </div>
-            <div class="s12 m6" style="margin-right: 5px;">
-                <label for="entry_type">Entry Type</label>
-                <select id="entry_type" class="browser-default" >
-                    <option value="" disabled selected>Choose your option</option>
-                    <option value="single">item</option>
-                    <option value="linked">linked list</option>
-                </select>
-            </div>
-            <div class="s12 m6">
-                <label for="item_type">Item Type</label>
-                <select id="item_type" class="browser-default">
-                    <option value="" disabled selected>Choose your option</option>
-                    <option value="FOOD">Food</option>
-                    <option value="FOOD (PLU)">Food(PLU)</option>
-                    <option value="OTHER">Other</option>
-                </select>
-            </div>
-            <!-- Weblinks Input perhaps a modal to add a link or a text input..?-->
-            <div class="divider col s12" style="margin-top: 5px;"></div>
-            <div class="col s12">
-                <div class="row">
-                    <div class="col s6" style="padding-top: 10px;">
-                        <span style="font-size: 16px;">Links</span>
+                <div class="col s6">
+                    <a href="#" data-target="slide-out" class="sidenav-trigger hide-on-large-only left btn green lighten-4 black-text btn-flat"><i class="material-icons">menu</i></a>
+                </div>
+                <div class="col s6">
+                    <button class="btn btn-flat grey right white-text hide-on-med-and-up show-on-small-only" onclick="saveItem()"><i class="large material-icons">save</i></button>
+                </div>
+                <div class="col s12">
+                    <h3 id="item_name"></h3>
+                </div>
+                <div class="col s6">
+                    <h5 id="database_id"></h5>
+                </div>
+                <div class="col s6 right">
+                    <h5 class="right" id="barcode"></h5>
+                </div>
+                <div class="col s12 green lighten-4" style="margin-top: 10px; margin-bottom: 10px; border-radius: 10px;">
+                    <h5 class="center">Item Types</h5>
+                </div>
+                <div class="col s12">
+                    <div class="card-panel grey z-depth-0 lighten-4">
+                      <span class="black-text">
+                        Here is how you classify the type of item this barcode/id is. There are two types:<br><br>
+                        <b>Entry Type:</b> is how the item is classified across the system.<br>
+                        <b>Item Type:</b> is more of a subtype for your own filtering and defining.
+                      </span>
                     </div>
-                    <div class="col s6">
-                        <button class="btn btn-small btn-flat right modal-trigger green lighten-4 black-text" data-target="web-modal" style="margin-top: 5px; padding-bottom: 10px;">Add Link</button>
+                </div>
+                <div class="s12 m6" style="margin-right: 5px;">
+                    <label for="entry_type">Entry Type</label>
+                    <select onchange="updateEntryType()" id="entry_type" class="browser-default" >
+                        <option value="" disabled selected>Choose your option</option>
+                        <option value="single">Single</option>
+                        <option value="linked">Linked</option>
+                    </select>
+                </div>
+                <div class="s12 m6">
+                    <label for="item_type">Item Type</label>
+                    <select onchange="updateItemType()" id="item_type" class="browser-default">
+                        <option value="" disabled selected>Choose your option</option>
+                        <option value="FOOD">Food</option>
+                        <option value="FOOD (PLU)">Food(PLU)</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div class="col s12 green lighten-4" style="margin-top: 10px; margin-bottom: 10px; border-radius: 10px;">
+                    <h5 class="center">General Tags</h5>
+                </div>
+                <div class="col s12">
+                    <div class="card-panel grey z-depth-0 lighten-4">
+                      <span class="black-text">Here is where you can assign this barcode/id general tags to your 
+                        liking. These can be things that set them apart, group items together, or even little notes
+                        to remind yourself what this item is.
+                      </span>
                     </div>
-                    <div id="tags_container" class="col s12 chips">
-                        <!-- This holds open for tags pills -->
-                    </div>
-                    <div class="col s12 p-3">
-                        <div id="weblinks">
+                </div>
+                <div id="tags_container" class="col s12 chips">
+                <!-- This holds open for tags pills -->
+                </div>
+                <!-- Weblinks Input perhaps a modal to add a link or a text input..?-->
+                <div class="divider col s12" style="margin-top: 5px;"></div>
+                <div class="col s12">
+                    <div class="row">
+                        <div class="col s12 green lighten-4" style="margin-bottom: 10px; border-radius: 10px;">
+                            <h5 class="center">Links</h5>
+                        </div>
+                        <div class="col s12">
+                            <div class="card-panel grey z-depth-0 lighten-4">
+                              <span class="black-text">Here is where you can set links for this barcode/id that
+                                might provide you and others paths to understand better what this item is used for.
+                                The only rule here is that if you would like for other systems to use a link then you 
+                                must assign a <b>main</b> link.
+                              </span>
+                            </div>
+                        </div>
+                        <div class="col s10">
+                            <div id="weblinks">
+                            </div>
+                        </div>
+                        <div class="col s2">
+                            <button class="btn btn-small btn-flat right modal-trigger green lighten-4 black-text" data-target="web-modal" style="margin-top: 5px; padding-bottom: 10px;">Add Link</button>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="divider col s12" style="margin-top: 5px;"></div>
+                <div class="divider col s12" style="margin-top: 5px;"></div>
 
-            <div class="col s12">
-                <div class="row">
-                    <div class="col s12">
-                      <ul class="tabs tabs-fixed-width" id="info_tabs" style="background-color: white;">
-                        <li class="tab col s3"><a class="active" href="#item_info">Item Info</a></li>
-                        <li class="tab col s3"><a href="#food_info">Food Info</a></li>
-                        <li class="tab col s3"><a href="#logistics_info">Logistics Info</a></li>
-                        <li class="tab col s3 disabled"><a href="#linked_items">Linked Items</a></li>
-                      </ul>
-                    </div>
-                    <div id="item_info" class="col s12">
-                        <div class="row" style="gap: 10px; padding-top: 10px;">
-                            <div class="col s6 m4 input-field outlined item_info_target">
-                                <input onchange="updatePackaging()" id="packaging" type="text" placeholder=" " maxlength="32">
-                                <label for="packaging">Packaging</label>
+                <div class="col s12" style="margin-top: 50px;">
+                    <div class="row">
+                        <div class="col s12">
+                        <ul class="tabs tabs-fixed-width green lighten-4 black-text" id="info_tabs" style="border-radius: 10px 10px 0px 0px">
+                            <li class="tab col s3"><a class="active" href="#item_info">Item Info</a></li>
+                            <li class="tab col s3"><a href="#food_info">Food Info</a></li>
+                            <li class="tab col s3"><a href="#logistics_info">Logistics Info</a></li>
+                            <li class="tab col s3 disabled"><a href="#linked_items">Linked Items</a></li>
+                        </ul>
+                        </div>
+                        <div id="item_info" class="col s12 grey lighten-5 p-3">
+                            <div class="row" style="gap: 10px; padding-top: 10px;">
+                                <div class="col s12 green lighten-4" style="border-radius: 10px;">
+                                    <h5 class="center">Purchasing/Packaging</h5>
+                                </div>
+                                <div class="col s12">
+                                    <div class="card-panel green z-depth-0 lighten-5">
+                                      <span class="black-text">The following information is used for financial 
+                                        reports and to give quick information to the user how this item is represented
+                                        logically in the system. <b>Safety Stock</b> and <b>Leadtime</b> is used when using systems that
+                                        calculate quantites on the fly. <b>AI Pickable</b> sets this item to be used with any 
+                                        Artifical Intelligent systems (TBD).
+                                      </span>
+                                    </div>
+                                </div>
+                                <div class="col s6 m4 input-field outlined item_info_target">
+                                    <input onchange="updatePackaging()" id="packaging" type="text" placeholder=" " maxlength="32">
+                                    <label for="packaging">Packaging</label>
+                                </div>
+                                <div class="col s6 m4 input-field outlined item_info_target">
+                                    <input onchange="updateUOM()" id="uom" type="text" placeholder=" " maxlength="32">
+                                    <label for="uom">Unit of Measure</label>
+                                </div>
+                                <div class="col s6 m4 input-field outlined item_info_target">
+                                    <input onchange="updateCost()" id="cost" type="number" placeholder=" " maxlength="32">
+                                    <label for="cost">Cost</label>
+                                </div>
+                                <div class="col s6 m4 input-field outlined item_info_target">
+                                    <input onchange="updateSafetyStock()" id="safety_stock" type="number" placeholder=" " maxlength="32">
+                                    <label for="safety_stock">Safety Stock</label>
+                                </div>
+                                <div class="col s6 m4 input-field outlined item_info_target">
+                                    <input onchange="updateLeadTimeDays()" id="lead_time_days" type="number" placeholder=" " maxlength="32">
+                                    <label for="lead_time_days">Leadtime (Days)</label>
+                                </div>
+                                <div class="col s6 m4 center">
+                                    <p>
+                                        <label>
+                                        <input onclick="updateAiPickable()" id="ai_pickable" type="checkbox" />
+                                        <span>AI Pickable</span>
+                                        </label>
+                                    </p>
+                                </div>
                             </div>
-                            <div class="col s6 m4 input-field outlined item_info_target">
-                                <input onchange="updateUOM()" id="uom" type="text" placeholder=" " maxlength="32">
-                                <label for="uom">Unit of Measure</label>
-                            </div>
-                            <div class="col s6 m4 input-field outlined item_info_target">
-                                <input onchange="updateCost()" id="cost" type="number" placeholder=" " maxlength="32">
-                                <label for="cost">Cost</label>
-                            </div>
-                            <div class="col s6 m4 input-field outlined item_info_target">
-                                <input onchange="updateSafetyStock()" id="safety_stock" type="number" placeholder=" " maxlength="32">
-                                <label for="safety_stock">Safety Stock</label>
-                            </div>
-                            <div class="col s6 m4 input-field outlined item_info_target">
-                                <input onchange="updateLeadTimeDays()" id="lead_time_days" type="number" placeholder=" " maxlength="32">
-                                <label for="lead_time_days">Leadtime (Days)</label>
-                            </div>
-                            <div class="col s6 m4 center">
-                                <p>
-                                    <label>
-                                      <input onclick="updateAiPickable()" id="ai_pickable" type="checkbox" />
-                                      <span>AI Pickable</span>
-                                    </label>
-                                </p>
+                            <div class="divider col s12" style="margin-top: 10px;"></div>
+                            <div class="row" style="gap: 10px; padding-top: 10px;">
+                                <div class="col s12 green lighten-4" style="border-radius: 10px;">
+                                    <h5 class="center">References</h5>
+                                </div>
+                                <div class="col s12">
+                                    <div class="card-panel green z-depth-0 lighten-5">
+                                      <span class="black-text">References are where this barcode/id is used in other systems 
+                                        such as Recipes, Shopping Lists, Groups, etc. This will further be expanded on as more 
+                                        systems are distributed.
+                                      </span>
+                                    </div>
+                                </div>
+                                <div class="col s12">
+                                    <table class="" id="reference_table">
+                                        <thead>
+                                            <tr>
+                                            <th>Reference Type</th>
+                                            <th>Reference Name</th> 
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                        <table class="" id="reference_table">
-                            <thead>
-                                <tr>
-                                   <th>Reference Type</th>
-                                   <th>Reference Name</th> 
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="food_info" class="col s12">
-                        <div class="row" style="gap: 10px; padding-top: 10px;">
-                            <div id="food_groups_container" class="col s12 chips chips-initial">
-                                <!-- This holds open for food groups pills -->
+                        <div id="food_info" class="col s12">
+                            <div class="row grey lighten-5 p-3" style="gap: 10px; padding-top: 10px;">
+                                <!-- expiration -->
+                                <div class="col s12 green lighten-4" style="border-radius: 10px;">
+                                    <h5 class="center">Expiration</h5>
+                                </div>
+                                <div class="col s12">
+                                    <div class="card-panel green z-depth-0 lighten-5">
+                                      <span class="black-text">You may want to set up expiration dates for this barcode/id and this is where you 
+                                        set this information so the system can use that information to send you notifications when 
+                                        an item has something that will expire.
+                                      </span>
+                                    </div>
+                                </div>
+                                <div class="col s1 m2"></div>
+                                <div class="col s5 m4 input-field outlined item_info_target">
+                                    <input id="default_expiry_days" type="number" placeholder=" " maxlength="32" disabled>
+                                    <label for="default_expiry_days">Default Expires (Days)</label>
+                                </div>
+                                <div class="col s5 m4 center">
+                                    <p>
+                                        <label>
+                                        <input onclick="updateExpires()" id="expires" type="checkbox" />
+                                        <span>Expires</span>
+                                        </label>
+                                    </p>
+                                </div>
+                                <div class="col s1 m2"></div>
+
+                                <!-- Food tags -->
+                                <div class="col s12 green lighten-4" style="border-radius: 10px;">
+                                    <h5 class="center">Food Tags</h5>
+                                </div>
+                                <div class="col s12">
+                                    <div class="card-panel green z-depth-0 lighten-5">
+                                      <span class="black-text">Just like general tags these are tags specific to food items though 
+                                        you can use them entirely to your own wills. These have been seperated by <b>food groups</b> and 
+                                        <b>ingrediants</b>.
+                                      </span>
+                                    </div>
+                                </div>
+                                <div id="food_groups_container" class="col s12 chips chips-initial">
+                                    <!-- This holds open for food groups pills -->
+                                </div>
+                                <div id="ingrediants_container" class="col s12 chips">
+                                    <!-- This holds all the ingrediants pills -->
+                                </div>
+                                <div class="divider col s12"></div>
+                                <div id="nutrients_container" class="col s12">
+                                    <div class="row" style="gap: 10px; padding-top: 10px;">
+                                        <!-- nutrients -->
+                                        <div class="col s12 green lighten-4" style="border-radius: 10px;">
+                                            <h5 class="center">Nutriments</h5>
+                                        </div>
+                                        <div class="col s12">
+                                            <div class="card-panel green z-depth-0 lighten-5">
+                                              <span class="black-text">Self explanitory, this is nutriments for this barcode/id for 
+                                                quick reference for foods. Not really used outside of food items, but if this info is 
+                                                set then other systems will use the info to calculate overall nutriments.
+                                              </span>
+                                            </div>
+                                        </div>
+                                        <!-- serving size -->
+                                        <div class="col s1 m1"></div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" class="right-align" id="serving" type="text" placeholder="" name="serving" value="">
+                                            <label for="serving">Serving</label>
+                                        </div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" id="serving_unit" type="text" placeholder="" name="serving_unit" value="">
+                                            <label for="serving_unit">Unit</label>
+                                        </div>
+                                        <div class="col s1 m1"></div>
+                                        <!-- calories -->
+                                        <div class="col s1 m1"></div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" class="right-align" id="calories" type="text" placeholder="" name="calories" value="">
+                                            <label for="calories">Calories</label>
+                                        </div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" id="calories_unit" type="text" placeholder="" name="calories_unit" value="serving" disabled="">
+                                            <label for="calories_unit">Unit</label>
+                                        </div>
+                                        <div class="col s1 m1"></div>
+                                        <!-- Proteins -->
+                                        <div class="col s1 m1"></div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" class="right-align" id="proteins" type="text" placeholder="" name="proteins" value="10.94">
+                                            <label for="proteins">Proteins</label>
+                                        </div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" id="proteins_unit" type="text" placeholder="" name="proteins_unit" value="g">
+                                            <label for="proteins_unit">Unit</label>
+                                        </div>
+                                        <div class="col s1 m1"></div>
+                                        <!-- Fats -->
+                                        <div class="col s1 m1"></div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" class="right-align" id="fats" type="text" placeholder="" name="fats" value="">
+                                            <label for="fats">Fats</label>
+                                        </div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" id="fats_unit" type="text" placeholder="" name="fats_unit" value="">
+                                            <label for="fats_unit">Unit</label>
+                                        </div>
+                                        <div class="col s1 m1"></div>
+                                        <!-- Carbohydrates -->
+                                        <div class="col s1 m1"></div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" class="right-align" id="carbohydrates" type="text" placeholder="" name="carbohydrates" value="60.94">
+                                            <label for="carbohydrates">Carbs</label>
+                                        </div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" id="carbohydrates_unit" type="text" placeholder="" name="carbohydrates_unit" value="g">
+                                            <label for="carbohydrates_unit">Unit</label>
+                                        </div>
+                                        <div class="col s1 m1"></div>
+                                        <!-- Sugars -->
+                                        <div class="col s1 m1"></div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" class="right-align" id="sugars" type="text" placeholder="" name="sugars" value="3.12">
+                                            <label for="sugars">Sugars</label>
+                                        </div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" id="sugars_unit" type="text" placeholder="" name="sugars_unit" value="g">
+                                            <label for="sugars_unit">Unit</label>
+                                        </div>
+                                        <div class="col s1 m1"></div>
+                                        <!-- Sodium -->
+                                        <div class="col s1 m1"></div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" class="right-align" id="sodium" type="text" placeholder="" name="sodium" value="1.859">
+                                            <label for="sodium">Sodium</label>
+                                        </div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" id="sodium_unit" type="text" placeholder="" name="sodium_unit" value="mg">
+                                            <label for="sodium_unit">Unit</label>
+                                        </div>
+                                        <div class="col s1 m1"></div>
+                                        <!-- Fibers -->
+                                        <div class="col s1 m1"></div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" class="right-align" id="fibers" type="text" placeholder="" name="fibers" value="">
+                                            <label for="fibers">Fibers</label>
+                                        </div>
+                                        <div class="col s5 m2 input-field outlined">
+                                            <input onchange="updateNutrients()" id="fibers_unit" type="text" placeholder="" name="fibers_unit" value="">
+                                            <label for="fibers_unit">Unit</label>
+                                        </div>
+                                </div>
+                                </div>                           
                             </div>
-                            <div id="ingrediants_container" class="col s12 chips">
-                                <!-- This holds all the ingrediants pills -->
-                            </div>
-                            <div id="nutrients_container" class="col s12">
-                                <!-- This holds all the nutrients tables -->
-                            </div>                           
                         </div>
+                        <div id="logistics_info" class="col s12">
+                            <div class="row grey lighten-5 p-3" style="gap: 10px; padding-top: 10px;">
+                                <div class="col s12 green lighten-4" style="border-radius: 10px;">
+                                    <h5 class="center">Primary/Auto-Issue</h5>
+                                </div>
+                                <div class="col s12">
+                                    <div class="card-panel green z-depth-0 lighten-5">
+                                      <span class="black-text">Here is where you will assign this barcode/id's primary zone, primary
+                                        location, auto-issue zone, and auto-issue location. Essentially the <b>Primary</b> is where 
+                                        the item will be adjusted into by default and the <b>Auto-Issue</b> will be where it is 
+                                        adjusted out of by default. This data is madatory for all items and the admin will have 
+                                        set up defaults for these.
+                                      </span>
+                                    </div>
+                                </div>
+                                <div class="s12 m6" style="margin-right: 5px;">
+                                    <label for="primary_zone">Primary Zone</label>
+                                    <select onchange="loadPrimaryLocations()" id="primary_zone" class="browser-default" >
+                                        <option value="" disabled selected>Choose your option</option>
+                                    </select>
+                                </div>
+                                <div class="s12 m6" style="margin-right: 5px;">
+                                    <label for="primary_location">Primary Location</label>
+                                    <select onchange="updatePrimaryLocation()" id="primary_location" class="browser-default" >
+                                        <option value="" disabled selected>Choose your option</option>
+                                    </select>
+                                </div>
+                                <div class="s12 m6" style="margin-right: 5px;">
+                                    <label for="issue_zone">Auto-Issue Zone</label>
+                                    <select onchange="loadIssueLocations()" id="issue_zone" class="browser-default" >
+                                        <option value="" disabled selected>Choose your option</option>
+                                    </select>
+                                </div>
+                                <div class="s12 m6" style="margin-right: 5px;">
+                                    <label for="issue_location">Auto-Issue Location</label>
+                                    <select onchange="updateIssueLocation()" id="issue_location" class="browser-default" >
+                                        <option value="" disabled selected>Choose your option</option>
+                                        <option value="single">Single</option>
+                                        <option value="linked">Linked</option>
+                                    </select>
+                                </div>
+                                <div class="col s12 green lighten-4" style=" margin-top: 10px; border-radius: 10px;">
+                                    <h5 class="center">Locations</h5>
+                                </div>
+                                <div class="col s12">
+                                    <div class="card-panel green z-depth-0 lighten-5">
+                                      <span class="black-text">Here is a general table of where this barcode/id has
+                                        quantities on hand in the system.
+                                      </span>
+                                    </div>
+                                </div>
+                                <div class="col s12">
+                                    <table class="" id="locations_table">
+                                        <thead>
+                                            <tr>
+                                            <th class="center">Zone</th>
+                                            <th class="center">Location</th>
+                                            <th class="center">QOH</th> 
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="linked_items" class="col s12 disabled">Linked Items</div>
                     </div>
-                    <div id="logistics_info" class="col s12">Logistics Info</div>
-                    <div id="linked_items" class="col s12 disabled">Linked Items</div>
-                  </div>
-            </div>
+                </div>
+                </div>
             </div>
         </div>
         <div id="web-modal" class="modal">
@@ -199,22 +476,48 @@
               <button onclick="addLink()" class="waves-effect green lighten-4 btn-flat">Add</button>
             </div>
         </div>
+        
+        <div class="fixed-action-btn show-on-med-and-up hide-on-small-only">
+            <button class="btn-floating btn-large" onclick="saveItem()">
+              <i class="large material-icons">save</i>
+            </button>
+        </div>
     </body>
     <script src="{{ url_for('static', filename='itemHandler.js') }}"></script>
     <script>
     
-    var item = {{ item|tojson }};
+    const item_id = {{id|tojson}}
+    let item;
     var reference_state = 1
-    let links = {};
-    let updated = {};
-    let item_info = {};
-    let food_info = {};
-    let logistics_info = {};
+    let zones;
+    let primary_locations;
+    let issue_locations;
+    
+    let updated = {}; // updated columns in the item table
+    let item_info = {}; // updated columns in the item_info table
+    let food_info = {}; // updated columns in the food_info table
+    let logistics_info = {}; // updated columns in the logistics_info table
+    
     let food_groups = [];
+    let food_groups_changed = false;
+    
     let ingrediants = [];
+    let ingrediants_changed = false;
+
     let tags = [];
+    let tags_changed = false;
+
+    let links = {};
+    let links_changed = false;
+
+    let nutrients = {};
+    let nutrients_changed = false;
 
     document.addEventListener('DOMContentLoaded', async function() {
+        await fetchItem()
+        await fetchZones()
+        await setupZones()
+       
         document.getElementById("title").innerHTML = String(item[2])
 
         var elemsSelects = document.querySelectorAll('select');
@@ -226,53 +529,89 @@
         var elems = document.querySelectorAll('.modal');
         var instances = M.Modal.init(elems, {});
 
-        await propagateInfo()
-
+        M.AutoInit();
 
         var elem = document.getElementById('food_groups_container');
         M.Chips.init(elem, {
             placeholder: 'Add Group...',
             secondaryPlaceholder: 'Add Group...',
-            onChipDelete: deleteFoodGroup,
-            onChipAdd: addFoodGroup,
+            onChipDelete: deleteChip,
+            onChipAdd: addChip,
         });
         var elem = document.getElementById('ingrediants_container');
         M.Chips.init(elem, {
             placeholder: 'Add Ingrediant...',
             secondaryPlaceholder: 'Add Ingrediant...',
-            onChipDelete: deleteIngrediant,
-            onChipAdd: addIngrediant,
+            onChipDelete: deleteChip,
+            onChipAdd: addChip,
         });
 
         var elem = document.getElementById('tags_container');
         M.Chips.init(elem, {
             placeholder: 'Add Tag...',
             secondaryPlaceholder: 'Add Tag...',
-            onChipDelete: deleteTag,
-            onChipAdd: addTag,
+            onChipDelete: deleteChip,
+            onChipAdd: addChip,
         });
 
         await propagateInfo()
-        //refreshFoodGroups()
-        refreshChips('food_groups_container', food_groups, item[33])
-        refreshChips('ingrediants_container', ingrediants, item[34])
-        populateReferences(item[23], 'shopping_list')
-        populateReferences(item[24], 'recipe')
-        populateReferences(item[25], 'group')
+        await propagateLinks()
+        await populateLocations()
+        console.log(updated)
 
     });
-    
 
     async function propagateInfo(){
+        document.getElementById('item_name').innerHTML = item[2];
+        document.getElementById('database_id').innerHTML = `Database ID: ${item[0]}`;
+        document.getElementById('barcode').innerHTML = `Barcode: ${item[1]}`;
+
         const entryType = document.getElementById('entry_type');
         entryType.value = item[10];
         const itemType = document.getElementById('item_type');
         itemType.value = item[11];
-        await propagateLinks()
 
-        //food_groups = item[33];
-        //ingrediants = item[34];
-        tags = item[5];
+        if (item[6]){
+            links = item[6];
+        } else {
+            links = {};
+        };
+
+        refreshChips('food_groups_container', food_groups, item[33])
+        refreshChips('ingrediants_container', ingrediants, item[34])
+        refreshChips('tags_container', tags, item[5])
+        await propagateItemInfo()
+        await propagateNutrients()
+
+        let primary = item[15].split('@')
+        let issue = item[16].split('@')
+        console.log(primary)
+        await setPrimaryLocation(primary[0], primary[1])
+        await setIssueLocation(issue[0], issue[1])
+
+        food_groups_changed = false;
+        ingrediants_changed = false;
+        tags_changed = false;
+        nutrients_changed = false;
+        links_changed = false;
+
+        M.toast({html: "Item has been loaded successfully!", classes: "rounded green lighten-4 black-text flow-text"});
+
+    };
+
+    async function setPrimaryLocation(zone, location){
+        console.log(zone)
+        document.getElementById('primary_zone').value = zone
+        await loadPrimaryLocations()
+        console.log(location)
+        document.getElementById('primary_location').value = location
+    };
+
+    async function setIssueLocation(zone, location){
+        console.log(zone)
+        document.getElementById('issue_zone').value = zone
+        await loadIssueLocations()
+        document.getElementById('issue_location').value = location
     };
 
     function refreshChips(elem_id, chips_array, initial_chips){
@@ -283,42 +622,43 @@
         }
     };
 
-    
-    function addFoodGroup(e, chip){
+    function addChip(e, chip){
         chipText = chip.textContent.replace('close', '').trim()
-        console.log(chipText)
-        food_groups.push(chipText)
-        console.log(food_groups)
-    }
-
-    function addIngrediant(e, chip){
-        chipText = chip.textContent.replace('close', '').trim()
-        console.log(chipText)
-        ingrediants.push(chipText)
-        console.log(ingrediants)
-    }
-
-    function addTag(e, chip){
-        chipText = chip.textContent.replace('close', '').trim()
-        console.log(chipText)
-        tags.push(chipText)
-        console.log(tags)
-    }
-
-    function deleteFoodGroup(e, chip){
-        chipText = chip.textContent.replace('close', '').trim()
-        food_groups = food_groups.filter(chip => chip !== chipText);
+        if (e[0].id == "food_groups_container"){
+            food_groups.push(chipText)
+            food_groups_changed = true;
+            console.log(food_groups)
+        };
+        if (e[0].id == "ingrediants_container"){
+            ingrediants.push(chipText)
+            ingrediants_changed = true;
+            console.log(ingrediants)
+        };
+        if (e[0].id == "tags_container"){
+            tags.push(chipText)
+            tags_changed = true;
+            console.log(tags)
+        };
     };
 
-    function deleteIngrediant(e, chip){
+    function deleteChip(e, chip){
         chipText = chip.textContent.replace('close', '').trim()
-        ingrediants = ingrediants.filter(chip => chip !== chipText);
-    }
-
-    function deleteTag(e, chip){
-        chipText = chip.textContent.replace('close', '').trim()
-        tags = tags.filter(chip => chip !== chipText);
-    }
+        if (e[0].id == "food_groups_container"){
+            food_groups = food_groups.filter(chip => chip !== chipText);
+            food_groups_changed = true;
+            console.log(food_groups)
+        };
+        if (e[0].id == "ingrediants_container"){
+            ingrediants = ingrediants.filter(chip => chip !== chipText);
+            ingrediants_changed = true;
+            console.log(ingrediants)
+        };
+        if (e[0].id == "tags_container"){
+            tags = tags.filter(chip => chip !== chipText);
+            tags_changed = true;
+            console.log(tags)
+        };
+    };
 
     async function propagateLinks(){
         var element = document.getElementById("weblinks");
@@ -335,16 +675,46 @@
             link.href = links[key];
             element.appendChild(link);
         }
-    }
+    };
 
-    async function addLink(){
-        event.preventDefault()
-        let key = document.getElementById('link_name').value;
-        let link = document.getElementById('link').value;
-        links[key] = link;
-        console.log(links)
-        await propagateLinks()
-    }
+    async function propagateItemInfo(){
+        document.getElementById('packaging').value = item[26]
+        document.getElementById('uom').value = item[27]
+        document.getElementById('cost').value = item[28]
+        document.getElementById('safety_stock').value = item[29]
+        document.getElementById('lead_time_days').value = item[30]
+        // ai_pickable
+        document.getElementById('ai_pickable').checked = item[31];
+        document.getElementById('expires').checked = item[36];
+
+        populateReferences(item[23], 'shopping_list')
+        populateReferences(item[24], 'recipe')
+        populateReferences(item[25], 'group')
+    };
+
+    async function propagateNutrients(){
+        if (item[35]){
+            nutrients = item[35];
+        } else {
+            nutrients = {};
+        };
+        document.getElementById('serving').value = nutrients['serving']
+        document.getElementById('serving_unit').value = nutrients['serving_unit']
+        document.getElementById('calories').value = nutrients['calories']
+        document.getElementById('calories_unit').value = nutrients['calories_unit']
+        document.getElementById('proteins').value = nutrients['proteins']
+        document.getElementById('proteins_unit').value = nutrients['proteins_unit']
+        document.getElementById('fats').value = nutrients['fats']
+        document.getElementById('fats_unit').value = nutrients['fats_unit']
+        document.getElementById('carbohydrates').value = nutrients['carbohydrates']
+        document.getElementById('carbohydrates_unit').value = nutrients['carbohydrates_unit']
+        document.getElementById('sugars').value = nutrients['sugars']
+        document.getElementById('sugars_unit').value = nutrients['sugars_unit']
+        document.getElementById('sodium').value = nutrients['sodium']
+        document.getElementById('sodium_unit').value = nutrients['sodium_unit']
+        document.getElementById('fibers').value = nutrients['fibers']
+        document.getElementById('fibers_unit').value = nutrients['fibers_unit']
+    };
 
     function populateReferences(references, reference_type){
         var table = document.getElementById("reference_table")
@@ -361,8 +731,42 @@
                 row.style = "background-color: gainsboro;"
             }
             reference_state++
-        }
-    }
+        };
+    };
+
+    async function populateLocations(){
+        var table = document.getElementById("locations_table")
+        console.log(item[18])
+        
+        let colorstate = 1;
+
+        for (let key in item[18]){
+            console.log(item[18][key])
+            
+            this_location = key.split("@")
+            qty = item[18][key]
+
+            var row = table.insertRow();
+            
+            var row_type = row.insertCell();
+            var row_name = row.insertCell();
+            var row_qty = row.insertCell();
+
+            row_type.classList.add("center")
+            row_name.classList.add("center")
+            row_qty.classList.add("center")
+
+
+            row_type.innerHTML = this_location[0]
+            row_name.innerHTML = this_location[1]
+            row_qty.innerHTML = qty
+
+            if ((colorstate % 2) == 0){
+                row.style = "background-color: gainsboro;"
+            }
+            colorstate++
+        };
+    };
 
     </script>
 </html>

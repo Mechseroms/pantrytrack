@@ -30,7 +30,7 @@ WHERE test_items.id=%s;
 22 - linked_items
 23 - shopping_lists
 24 - recipes
-25 - groups <--
+25 - groups
 26 - packaging
 27 - uom
 28 - cost

@@ -248,6 +248,8 @@ def add_food_item(site_name: str, barcode: str, name: str, payload: dict):
 	payload["logistics_info"]["primary_location"] = uuid
 	payload["logistics_info"]["auto_issue_location"] = uuid
 
+	tags = lst2pgarr([])
+	links = json.dumps({})
 
 	database_config = config()
 	with psycopg2.connect(**database_config) as conn:
@@ -261,7 +263,7 @@ def add_food_item(site_name: str, barcode: str, name: str, payload: dict):
 		if not food_info_id:
 			return False
 
-		sqltwo = f"INSERT INTO {site_name}_items(barcode, item_name, item_info_id, logistics_info_id, food_info_id, row_type, item_type, search_string) VALUES('{barcode}', '{name}', {item_info_id}, {logistics_info_id}, {food_info_id}, 'item', 'FOOD', '{barcode}%{name}') RETURNING *;"
+		sqltwo = f"INSERT INTO {site_name}_items(barcode, item_name, tags, links, item_info_id, logistics_info_id, food_info_id, row_type, item_type, search_string) VALUES('{barcode}', '{name}', '{tags}', '{links}', {item_info_id}, {logistics_info_id}, {food_info_id}, 'single', 'FOOD', '{barcode}%{name}') RETURNING *;"
 		row = None
 		try:
 			with conn.cursor() as cur:
@@ -398,7 +400,24 @@ payload_food_item = {
 	"food_info": {
 		"food_groups": [],
 		"ingrediants": [],
-		"nutrients": {},
+		"nutrients": {
+			'serving': '',
+			'serving_unit': '',
+			'calories': '',
+			'calories_unit': 'serving',
+			'proteins': '',
+			'proteins_unit': '',
+			'fats': '',
+			'fats_unit': '',
+			'carbohydrates': '',
+			'carbohydrates_unit': '',
+			'sugars': '',
+			'sugars_unit': '',
+			'sodium': '',
+			'sodium_unit': '',
+			'fibers': '',
+			'fibers_unit': ''
+		},
 		"expires": False
 	},
 	"logistics_info":{
@@ -426,7 +445,7 @@ def parse_csv(path_to_csv):
 				if line[17] != "None":
 					payload["item_info"]["safety_stock"] = line[17]
 				qty = float(line[30])
-				add_food_item(site_name="main", barcode=line[1], name=line[2], qty=qty, payload=payload)
+				add_food_item(site_name="main", barcode=line[1], name=line[2], payload=payload)
 
 			
 
@@ -444,3 +463,4 @@ if __name__ == "__main__":
 				print(f"{k}: {v}")
 	"""
 	parse_csv(r"C:\\Users\\jadow\\Documents\\code\\postgresql python\\postgresql-python\\2024-10-02-Pantry.csv")
+

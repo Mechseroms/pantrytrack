@@ -155,6 +155,73 @@ def pagninate_items():
 
     return jsonify({'items': pantry_inventory, "end": math.ceil(count/limit)})
 
+@database_api.route("/getTransactions")
+def pagninate_transactions():
+    item_id = request.args.get('id', 1)
+    page = int(request.args.get('page', 1))
+    limit = int(request.args.get('limit', 10))
+    site_name = session['selected_site']
+
+    offset = (page - 1) * limit
+    count = 0
+    transactions = []
+
+    database_config = config()
+    with psycopg2.connect(**database_config) as conn:
+        try:
+            with conn.cursor() as cur:
+
+                cur.execute(f"SELECT logistics_info_id FROM {site_name}_items WHERE id={item_id};")
+                logistics_info_id = cur.fetchone()[0]
+                sql = f"SELECT * FROM {site_name}_transactions WHERE logistics_info_id={logistics_info_id} LIMIT {limit} OFFSET {offset};"
+                count = f"SELECT COUNT(*) FROM {site_name}_transactions WHERE logistics_info_id={logistics_info_id};"
+                cur.execute(sql)
+                transactions = cur.fetchall()
+                cur.execute(count)
+                count = cur.fetchone()[0]
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+
+    return jsonify({'transactions': transactions, "end": math.ceil(count/limit)})
+
+@database_api.route("/getLocations")
+def get_locations():
+    zone_name = request.args.get('zone', 1)
+    database_config = config()
+    site_name = session['selected_site']
+    locations = []
+    with psycopg2.connect(**database_config) as conn:
+        try:
+            with conn.cursor() as cur:
+                sql = f"SELECT id FROM {site_name}_zones WHERE name=%s;"
+                cur.execute(sql, (zone_name,))
+                zone_id = cur.fetchone()[0]
+
+                sqltwo = f"SELECT name FROM {site_name}_locations WHERE zone_id=%s;"
+                cur.execute(sqltwo, (zone_id, ))
+                locations = [location[0] for location in cur.fetchall()]            
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+    
+    print(locations)
+    return jsonify(locations=locations)
+
+@database_api.route("/getZones")
+def get_zones():
+    database_config = config()
+    site_name = session['selected_site']
+    zones = []
+    with psycopg2.connect(**database_config) as conn:
+        try:
+            with conn.cursor() as cur:
+                sql = f"SELECT name FROM {site_name}_zones;"
+                cur.execute(sql)
+                zones = [zone[0] for zone in cur.fetchall()]
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+    print(zones)
+    return jsonify(zones=zones)
+
 @database_api.route("/getItem")
 def get_item():
     id = int(request.args.get('id', 1))
@@ -181,7 +248,7 @@ def get_item():
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
 
-    return render_template(f"items/item.html", item=item, current_site=site_name, sites=sites['sites'])
+    return jsonify(item=item)
 
 @database_api.route("/addItem")
 def addItem():
@@ -201,6 +268,8 @@ def addItem():
     payload["logistics_info"]["primary_location"] = uuid
     payload["logistics_info"]["auto_issue_location"] = uuid
 
+    tags = main.lst2pgarr([])
+    links = json.dumps({})
 
     database_config = config()
     with psycopg2.connect(**database_config) as conn:
@@ -214,7 +283,7 @@ def addItem():
         if not food_info_id:
             return jsonify({'state': str(food_info_id)})
 
-        sqltwo = f"INSERT INTO {site_name}_items(barcode, item_name, description, item_info_id, logistics_info_id, food_info_id, row_type, item_type, search_string) VALUES('{barcode}', '{name}', '{description}', {item_info_id}, {logistics_info_id}, {food_info_id}, '{item_type}', '{subtype}', '{barcode}%{name}') RETURNING *;"
+        sqltwo = f"INSERT INTO {site_name}_items(barcode, item_name, tags, links, item_info_id, logistics_info_id, food_info_id, row_type, item_type, search_string) VALUES('{barcode}', '{name}', '{tags}', '{links}', {item_info_id}, {logistics_info_id}, {food_info_id}, 'single', 'FOOD', '{barcode}%{name}') RETURNING *;"
         row = None
         try:
             with conn.cursor() as cur:
@@ -236,6 +305,76 @@ def addItem():
     
 
     return jsonify({'state': "SUCCESS"})
+
+@database_api.route("/updateItem", methods=['POST'])
+def updateItem():
+    def transformValues(values):
+        v = []
+        for value in values:
+            if isinstance(value, dict):
+                v.append(json.dumps(value))
+            elif isinstance(value, list):
+                v.append(main.lst2pgarr(value))
+            else:
+                v.append(value)
+        return v
+    
+    def manufactureSQL(keys, item_id, table):
+        if len(keys) > 1:
+            x = f"({', '.join(keys)})"
+            y = f"({', '.join(['%s' for _ in keys])})"
+        else:
+            x = f"{', '.join(keys)}"
+            y = f"{', '.join(['%s' for _ in keys])}"
+
+        sql = f"UPDATE {table} SET {x} = {y} WHERE id={item_id};"
+        return sql
+    
+    if request.method == "POST":
+        site_name = session['selected_site']
+        
+        item_id = request.get_json()['id']
+        logistics_info_id = request.get_json()['logistics_info_id']
+        food_info_id = request.get_json()['food_info_id']
+        item_info_id = request.get_json()['item_info_id']
+        updated = request.get_json()['updated']
+        item_info = request.get_json()['item_info']
+        food_info = request.get_json()['food_info']
+        logistics_info = request.get_json()['logistics_info']
+        
+        database_config = config()
+        
+        with psycopg2.connect(**database_config) as conn:
+            try:
+                with conn.cursor() as cur:
+                    if updated != {}:                
+                        values = transformValues(updated.values())
+                        sql = manufactureSQL(updated.keys(), item_id, f"{site_name}_items")
+                        cur.execute(sql, values)
+                    if item_info != {}:
+                        values = transformValues(item_info.values())
+                        sql = manufactureSQL(item_info.keys(), item_info_id, f"{site_name}_item_info")
+                        cur.execute(sql, values)
+                    if food_info != {}:
+                        values = transformValues(food_info.values())
+                        sql = manufactureSQL(food_info.keys(), food_info_id, f"{site_name}_food_info")
+                        cur.execute(sql, values)
+                    if logistics_info != {}:
+                        values = transformValues(logistics_info.values())
+                        sql = manufactureSQL(logistics_info.keys(), logistics_info_id, f"{site_name}_logistics_info")
+                        cur.execute(sql, values)
+
+                    cur.execute(f"SELECT barcode FROM {site_name}_items WHERE id={item_id};")
+                    barcode = cur.fetchone()[0]
+                    print(barcode)
+                    main.add_transaction(site_name, barcode, 0, 1, "SYSTEM", "Item data was update!", data=request.get_json())
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+                conn.rollback()
+        
+        return jsonify({"state": "SUCCESS"})
+
+    return jsonify({"status": "FAILED"})
 
 @database_api.route("/addGroup")
 def addGroup():

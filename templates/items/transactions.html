@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title id="title"></title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    </head>
+    <style>
+        header, main, footer, body {
+            padding-left: 300px;
+            }
+        
+            @media only screen and (max-width : 992px) {
+            header, main, footer, body {
+                padding-left: 0;
+            }
+            }
+        .dropdown-disabled {
+            pointer-events: none;
+            opacity: 0.5; /* or your desired degree of transparency */
+          }
+    </style>
+    <ul id='dropdown1' class='dropdown-content'>
+        {% for site in sites %}
+            <li><button class="btn transparent black-text z-depth-0" onclick="changeSite('{{ site }}')">{{site}}</button></li>
+        {% endfor %}
+    </ul>
+    <ul id="slide-out" class="sidenav sidenav-fixed green lighten-4" style="width: 250px;">
+        <li>
+            <div class="user-view">
+                <!-- <div class="background">
+                    <img src="images/office.jpg">
+                </div> -->
+                <!-- <a href="#user"><img class="circle" src="images/yuna.jpg"></a> -->
+                <a href="#name"><span class="black-text name">John Doe</span></a>
+                <a href="#email"><span class="black-text email">jdoe@example.com</span></a>
+            </div>
+        </li>
+        <li><a class="dropdown-trigger dropdown-disabled" data-target="dropdown1">Current Site > {{current_site}}<i class="material-icons right">arrow_drop_down</i></a></li>
+        <li><div class="divider grey darken-1" style="margin-left: 5px; margin-right: 10px;"></div></li>
+        <li><a href="/items">Site Items</a></li>
+        <li><a href="/groups">Site Groups</a></li>
+        <li><a href="/shopping-lists">Site Shopping Lists</a></li>
+    </ul>
+    <body style="margin-bottom: 80px;">
+        <div class="container section">
+            <div class="row g-4">
+                <div class="col s6">
+                    <a href="#" data-target="slide-out" class="sidenav-trigger hide-on-large-only left btn green lighten-4 black-text btn-flat"><i class="material-icons">menu</i></a>
+                </div>
+                <div class="col s6">
+                    <button class="btn btn-flat grey right white-text hide-on-med-and-up show-on-small-only" onclick="saveItem()"><i class="large material-icons">save</i></button>
+                </div>
+                <div class="col s12">
+                    <table id="transaction_table">
+                        <thead>
+                        </thead>
+                        <tbody id="table_body">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col s12 center" id="pagination_list">
+                    <ul class="pagination">
+                        <li id="first" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">first_page</i></a></li>
+                        <li id="back" class="waves-effect hand-pointer" ><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_left</i></a></li>
+                        <li id="current_page" style="padding-top: 7px; padding-left: 5px; padding-right: 5px; font-size: 18px;">page_number</li>
+                        <li id="forward" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_right</i></a></li>
+                        <li id="last" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">last_page</i></a></li>
+                    </ul>
+                </div>  
+                <div class="fixed-action-btn">
+                    <a class="btn-floating btn-large">
+                      <i class="large material-icons">more_vert</i>
+                    </a>
+                    <ul>
+                      <li><a class="btn-floating blue darken-1 modal-trigger" href="#modal1"><i class="material-icons">playlist_add</i></a></li>
+                      <li><a class="btn-floating green darken-1"><i class="material-icons">download</i></a></li>
+                    </ul>
+                </div>
+        </div>
+    </body>
+    <script>
+    const item_id = {{id|tojson}}
+    let current_page = 1
+    let end_page;
+    let limit = 50
+    
+    document.addEventListener('DOMContentLoaded', async function() {
+        await fetchTransactions();
+    });
+
+    async function fetchTransactions(){
+        console.log(current_page)
+        if (current_page === 1){
+            document.getElementById('back').classList.add("disabled")
+            document.getElementById('back').classList.remove("waves-effect")
+            document.getElementById('first').classList.add("disabled")
+            document.getElementById('first').classList.remove("waves-effect")
+
+        } else { 
+            document.getElementById('back').classList.remove("disabled")
+            document.getElementById('back').classList.add("waves-effect")
+            document.getElementById('first').classList.remove("disabled")
+            document.getElementById('first').classList.add("waves-effect")
+        };
+        const url = new URL('/getTransactions', window.location.origin);
+        url.searchParams.append('id', item_id);
+        url.searchParams.append('page', current_page);
+        url.searchParams.append('limit', limit);
+        await fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            
+            end_page = parseInt(data.end)
+            if (current_page === end_page){
+                document.getElementById('forward').classList.add("disabled")
+                document.getElementById('forward').classList.remove("waves-effect")
+                document.getElementById('last').classList.add("disabled")
+                document.getElementById('last').classList.remove("waves-effect")
+
+            } else {
+                document.getElementById('forward').classList.remove("disabled")
+                document.getElementById('forward').classList.add("waves-effect")
+                document.getElementById('last').classList.remove("disabled")
+                document.getElementById('last').classList.add("waves-effect")
+            };
+            console.log(data)
+            var table = document.getElementById("transaction_table")
+            while (table.rows.length > 0) {
+                table.deleteRow(0);
+            }
+
+            const header = table.createTHead();
+            const row = header.insertRow(0);
+                        
+            var header_id = row.insertCell();
+            header_id.classList.add('center')
+            header_id.classList.add('hide-on-med-and-down')
+            var header_stamp = row.insertCell();
+            header_stamp.classList.add('center')
+            var header_barcode = row.insertCell();
+            header_barcode.classList.add('center')
+            var header_name = row.insertCell();
+            header_name.classList.add('center')
+            header_name.classList.add('hide-on-med-and-down')
+            var header_type = row.insertCell();
+            header_type.classList.add('center')
+            header_type.classList.add('hide-on-small-only')
+            var header_qty = row.insertCell();
+            header_qty.classList.add('center')
+            var header_desc = row.insertCell();
+            header_desc.classList.add('center')
+            header_desc.classList.add('hide-on-med-and-down')
+            var header_user = row.insertCell();
+            header_user.classList.add('center')
+            header_user.classList.add('hide-on-med-and-down')
+            
+            header_id.innerHTML = `<b>Database ID</b>`;
+            header_stamp.innerHTML = `<b>Timestamp</b>`;
+            header_barcode.innerHTML = `<b>Barcode</b>`;
+            header_name.innerHTML = `<b>Name</b>`;
+            header_type.innerHTML = `<b>Type</b>`;
+            header_qty.innerHTML = `<b>Qty</b>`;
+            header_desc.innerHTML = `<b>Description</b>`;
+            header_user.innerHTML = `<b>UserID</b>`;
+
+            let colorstate = 1;
+            data.transactions.forEach(transaction => {
+                console.log(transaction)
+                table.c
+                var row = table.insertRow();
+                
+                var row_id = row.insertCell();
+                row_id.classList.add('center')
+                row_id.classList.add('hide-on-med-and-down')
+                var row_stamp = row.insertCell();
+                row_stamp.classList.add('center')
+                var row_barcode = row.insertCell();
+                row_barcode.classList.add('center')
+                var row_name = row.insertCell();
+                row_name.classList.add('hide-on-med-and-down')
+                row_name.classList.add('center')
+                var row_type = row.insertCell();
+                row_type.classList.add('center')
+                row_type.classList.add('hide-on-small-only')
+                var row_qty = row.insertCell();
+                row_qty.classList.add('center')
+                var row_desc = row.insertCell();
+                row_desc.classList.add('center')
+                row_desc.classList.add('hide-on-med-and-down')
+                var row_user = row.insertCell();
+                row_user.classList.add('center')
+                row_user.classList.add('hide-on-med-and-down')
+
+                row_id.innerHTML = transaction[0];
+                row_stamp.innerHTML = transaction[1];
+                row_barcode.innerHTML = transaction[3];
+                row_name.innerHTML = transaction[4];
+                row_type.innerHTML = transaction[5];
+                row_qty.innerHTML = transaction[6];
+                row_desc.innerHTML = transaction[7];
+                row_user.innerHTML = transaction[8];
+
+
+                if ((colorstate % 2) == 0){
+                    row.classList.add('green')
+                    row.classList.add('lighten-5')
+                }
+                colorstate++
+            });
+            document.getElementById("current_page").innerHTML = `${String(current_page)} / ${String(end_page)}`
+        });
+                
+    };
+
+    document.getElementById('forward').addEventListener('click', async () =>{
+        if (!(document.getElementById("forward").classList.contains("disabled"))){
+            current_page++
+            await fetchTransactions();
+        };
+    });
+
+    document.getElementById('back').addEventListener('click', async () =>{
+        if (!(document.getElementById("back").classList.contains("disabled"))){
+            current_page--
+            await fetchTransactions();
+        }
+    });
+
+    document.getElementById('last').addEventListener('click', async () =>{
+        if(!(document.getElementById("last").classList.contains("disabled"))){
+            current_page = end_page
+            await fetchTransactions();
+            };
+    });
+
+    document.getElementById('first').addEventListener('click', async () =>{
+        if (!(document.getElementById("first").classList.contains("disabled"))){
+            current_page = 1
+            await fetchTransactions();
+        };
+    }); 
+    </script>
+</html>

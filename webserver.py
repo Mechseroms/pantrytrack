@@ -9,6 +9,18 @@ def group(id):
     sites = config.sites_config()
     return render_template("groups/group.html", id=id, current_site=session['selected_site'], sites=sites['sites'])
 
+@app.route("/transactions/<id>")
+def transactions(id):
+    sites = config.sites_config()
+    return render_template("items/transactions.html", id=id, current_site=session['selected_site'], sites=sites['sites'])
+
+
+@app.route("/item/<id>")
+def item(id):
+    sites = config.sites_config()
+    return render_template("items/item.html", id=id, current_site=session['selected_site'], sites=sites['sites'])
+
+
 @app.route("/workshop")
 def workshop():
     sites = config.sites_config()
