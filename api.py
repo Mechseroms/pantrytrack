@@ -184,6 +184,25 @@ def pagninate_transactions():
 
     return jsonify({'transactions': transactions, "end": math.ceil(count/limit)})
 
+@database_api.route("/getTransaction")
+def get_transaction():
+    id = int(request.args.get('id', 1))
+    database_config = config()
+    site_name = session['selected_site']
+
+    transaction = []
+    with psycopg2.connect(**database_config) as conn:
+        try:
+            with conn.cursor() as cur:
+                sql = f"SELECT * FROM {site_name}_transactions WHERE id=%s;"
+                cur.execute(sql, (id, ))
+                transaction = list(cur.fetchone())        
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+    
+    print(transaction)
+    return jsonify(transaction=transaction)
+
 @database_api.route("/getLocations")
 def get_locations():
     zone_name = request.args.get('zone', 1)
@@ -298,9 +317,39 @@ def addItem():
 
 
         conn.commit()
+    with psycopg2.connect(**database_config) as conn:
+        try:
+            with conn.cursor() as cur:
 
+                cur.execute(f"SELECT primary_location FROM {site_name}_logistics_info WHERE id={logistics_info_id};")
+                location = cur.fetchone()[0]
+                payload = [
+                        datetime.datetime.now(),
+                        logistics_info_id,
+                        barcode,
+                        name,
+                        "SYSTEM",
+                        0.0,
+                        "Item Added to System!",
+                        1,
+                        json.dumps({'location': location})
+                        ]
+                
+                main.addTransaction(
+                    conn=conn,
+                    site_name=site_name, 
+                    payload=payload,
+                    location=location,
+                    logistics_info_id=logistics_info_id,
+                    barcode=barcode,
+                    qty=0.0)
 
-    main.add_transaction(site_name, barcode, qty=0, user_id=1, description="Added Item to System!")
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+            conn.rollback()
+            return jsonify({'state': str(error)})
+    
+
 
     
 
@@ -328,19 +377,30 @@ def updateItem():
             y = f"{', '.join(['%s' for _ in keys])}"
 
         sql = f"UPDATE {table} SET {x} = {y} WHERE id={item_id};"
-        return sql
+        sqltwo = f"SELECT {', '.join(keys)} FROM {table} WHERE id={item_id};"
+        return sql, sqltwo
     
     if request.method == "POST":
         site_name = session['selected_site']
-        
         item_id = request.get_json()['id']
-        logistics_info_id = request.get_json()['logistics_info_id']
+        data = request.get_json()
+        logistics_info_id = request.get_json()['logistics_info_id']        
         food_info_id = request.get_json()['food_info_id']
         item_info_id = request.get_json()['item_info_id']
         updated = request.get_json()['updated']
         item_info = request.get_json()['item_info']
         food_info = request.get_json()['food_info']
-        logistics_info = request.get_json()['logistics_info']
+        logistics_info = data['logistics_info']
+        
+        save_data = {}
+        for k, v in updated.items():
+            save_data[f"{k}_new"] = v;
+        for k, v in item_info.items():
+            save_data[f"{k}_new"] = v;
+        for k, v in food_info.items():
+            save_data[f"{k}_new"] = v;
+        for k, v in logistics_info.items():
+            save_data[f"{k}_new"] = v;
         
         database_config = config()
         
@@ -349,25 +409,64 @@ def updateItem():
                 with conn.cursor() as cur:
                     if updated != {}:                
                         values = transformValues(updated.values())
-                        sql = manufactureSQL(updated.keys(), item_id, f"{site_name}_items")
+                        sql, sqltwo = manufactureSQL(updated.keys(), item_id, f"{site_name}_items")
+                        cur.execute(sqltwo)
+                        old_data = dict(zip(updated.keys(), cur.fetchone()))
+                        for k, v in old_data.items():
+                            save_data[f"{k}_old"] = v;
                         cur.execute(sql, values)
+                    
                     if item_info != {}:
                         values = transformValues(item_info.values())
-                        sql = manufactureSQL(item_info.keys(), item_info_id, f"{site_name}_item_info")
+                        sql, sqltwo = manufactureSQL(item_info.keys(), item_info_id, f"{site_name}_item_info")
+                        cur.execute(sqltwo)
+                        old_data = dict(zip(item_info.keys(), cur.fetchone()))
+                        for k, v in old_data.items():
+                            save_data[f"{k}_old"] = v;
                         cur.execute(sql, values)
+                    
                     if food_info != {}:
                         values = transformValues(food_info.values())
-                        sql = manufactureSQL(food_info.keys(), food_info_id, f"{site_name}_food_info")
+                        sql, sqltwo = manufactureSQL(food_info.keys(), food_info_id, f"{site_name}_food_info")
+                        cur.execute(sqltwo)
+                        old_data = dict(zip(food_info.keys(), cur.fetchone()))
+                        for k, v in old_data.items():
+                            save_data[f"{k}_old"] = v;
                         cur.execute(sql, values)
+                    
                     if logistics_info != {}:
                         values = transformValues(logistics_info.values())
-                        sql = manufactureSQL(logistics_info.keys(), logistics_info_id, f"{site_name}_logistics_info")
+                        sql, sqltwo = manufactureSQL(logistics_info.keys(), logistics_info_id, f"{site_name}_logistics_info")
+                        cur.execute(sqltwo)
+                        old_data = dict(zip(logistics_info.keys(), cur.fetchone()))
+                        for k, v in old_data.items():
+                            save_data[f"{k}_old"] = v;
                         cur.execute(sql, values)
 
-                    cur.execute(f"SELECT barcode FROM {site_name}_items WHERE id={item_id};")
-                    barcode = cur.fetchone()[0]
-                    print(barcode)
-                    main.add_transaction(site_name, barcode, 0, 1, "SYSTEM", "Item data was update!", data=request.get_json())
+                    cur.execute(f"SELECT {site_name}_items.barcode, {site_name}_items.item_name, {site_name}_logistics_info.primary_location FROM {site_name}_items LEFT JOIN {site_name}_logistics_info ON {site_name}_items.logistics_info_id = {site_name}_logistics_info.id WHERE {site_name}_items.id={item_id};")
+                    barcode, name, primary_location = cur.fetchone()
+                    payload = [
+                        datetime.datetime.now(),
+                        logistics_info_id,
+                        barcode,
+                        name,
+                        "SYSTEM",
+                        0.0,
+                        "Updated Item!",
+                        1,
+                        json.dumps(save_data)
+                        ]
+                    
+                    main.addTransaction(
+                        conn=conn,
+                        site_name=site_name,
+                        payload=payload,
+                        location=primary_location,
+                        logistics_info_id=logistics_info_id,
+                        barcode=barcode,
+                        qty=0.0
+                    )
+                    
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)
                 conn.rollback()

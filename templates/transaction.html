@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title id="title"></title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    </head>
+    <style>
+        .custom_row:hover{
+            background-color: rgb(230, 230, 230) !important;
+            cursor: pointer;
+        }
+    </style>
+    <body>
+        <div class="container section">
+            <div class="row">
+                <div class="col s12">
+                    <a href='{{ proto['referrer'] }}' class="left btn green lighten-4 black-text btn-flat"><i class="material-icons">arrow_back</i></a>
+                </div>
+                <div class="col s12">
+                    <h5 class="center">Enter Transaction Receipt</h5>
+                </div>
+                <div class="col s11 m4 input-field outlined m-2">
+                    <input id="database_id" type="text" placeholder=" " maxlength="20">
+                    <label for="database_id">Database ID</label>
+                    <!--<span class="supporting-text">Supporting Text</span>-->
+                </div>
+                <div class="col s1" style="margin-top: 15px;">
+                    <a class="btn btn-flat green lighten-4 modal-trigger" href="#item_modal" style="display: flex; align-items: center; width: 120px;"><i class="material-symbols-outlined" style="padding-right: 10px;">search</i>Lookup</a>
+                </div>
+                <div class="col m7"> </div>
+                <div class="col s12 m6 input-field outlined m-2">
+                    <input id="barcode" type="text" placeholder=" " maxlength="20">
+                    <label for="barcode">Item Barcode</label>
+                    <!--<span class="supporting-text">Supporting Text</span>-->
+                </div>
+                <div class="col s12 m6 input-field outlined m-2">
+                    <input id="name" type="text" placeholder="" disabled>
+                    <label for="name">Item Name</label>
+                </div>
+                <div class="col s7 m4 input-field outlined m-2">
+                    <input id="QOH" type="text" placeholder="" disabled>
+                    <label for="QOH">Quantity on Hand</label>
+                </div>
+                <div class="col s2" style="margin-top: 15px;">
+                    <a class="btn btn-flat green lighten-4 modal-trigger" href="#locations" style="display: flex; align-items: center; width: 180px;"><i class="material-symbols-outlined" style="padding-right: 10px;">event_list</i>Item Locations</a>
+                </div>
+                <div class="col s12 divider"></div>
+                <div class="col s12 m6 m-2">
+                    <label for="trans_type">Transaction Type</label>
+                    <select id="trans_type" class="browser-default">
+                    <option value="" disabled selected>Choose your option</option>
+                    <option value="In">Adjust In</option>
+                    <option value="Out">Adjust Out</option>    
+                    </select>
+                </div>
+                <div class="col s6 m3 m-2">
+                    <label onchange="loadLocations()" for="zone">Zone</label>
+                    <select id="zone" class="browser-default">
+                    <option value="" disabled selected>Choose your option</option>
+                    </select>
+                </div>
+                <div class="col s6 m3 m-2">
+                    <label for="location">Location</label>
+                    <select id="location" class="browser-default">
+                    <option value="" disabled selected>Choose your option</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="item_modal" class="modal">
+            <div class="modal-content">
+                <div class="row" style="gap: 5px;">
+                    <div class="col s12">
+                        <h4>Add Items...</h4>
+                    </div>
+                    <div class="col s12">
+                        <div class="card-panel grey lighten-4 z-depth-0">
+                          <span class="black-text"> Here is where you can search, add, and remove items from this group by checking or unchecking the items below. You can select
+                            multiple at a time or simply one. Utilize the search bar to filter down quickly to items you need or simply scroll to your hearts content.
+                            <br><br>
+                            <b>WARNING:</b> clicking the checkbox will not save the changes right off the bat! You <b>MUST</b> click the Update Items button!
+                            <br><br>
+                          </span>
+                        </div>
+                    </div>
+                    
+                    <div class="col s9 m6 offset-m3 input-field outlined align-center">
+                        <i class="material-icons prefix">search</i>
+                        <input style="border-radius: 20px; border: 1px solid #ccc;" id="search" name="search" type="search" placeholder="Search Items" value="">
+                    </div>
+                    <div class="col s12 center">
+                        <a id="back" class="btn icon-left purple lighten-4 black-text z-depth-0"><i class="material-icons">chevron_left</i></a>
+                        <a id="update_items" class="btn purple lighten-4 black-text z-depth-0">Update Items</a>
+                        <a id="forward" class="btn icon-right purple lighten-4 black-text z-depth-0"><i class="material-icons">chevron_right</i></a>
+                    </div>
+                    <div class="divider col s12"></div>
+                    <div id="table-container" class="col s12">
+                        <table id="item_table">
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script src="{{ url_for('static', filename='transactionHandler.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            await fetchZones()
+            await setupZones()
+
+            var elems = document.querySelectorAll('.modal');
+            var instances = M.Modal.init(elems, {
+            // specify options here
+            });
+        });
+    </script>

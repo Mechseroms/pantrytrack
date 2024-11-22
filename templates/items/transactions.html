@@ -30,6 +30,15 @@
             pointer-events: none;
             opacity: 0.5; /* or your desired degree of transparency */
           }
+        .custom_row:hover{
+            background-color: rgb(230, 230, 230) !important;
+            cursor: pointer;
+        }
+        .fixed-bottom {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+          }
     </style>
     <ul id='dropdown1' class='dropdown-content'>
         {% for site in sites %}
@@ -52,6 +61,12 @@
         <li><a href="/items">Site Items</a></li>
         <li><a href="/groups">Site Groups</a></li>
         <li><a href="/shopping-lists">Site Shopping Lists</a></li>
+        <div class="fixed-bottom">
+            <li><a href="/transaction">Add Transaction</a></li>
+            <li class="disabled"><a href="/admin" class="disabled">Admin</a></li>
+            <li><a href="/logout" disabled>Logout</a></li>
+        </div>
+
     </ul>
     <body style="margin-bottom: 80px;">
         <div class="container section">
@@ -89,6 +104,41 @@
                     </ul>
                 </div>
         </div>
+        <div id="transaction_view" class="modal">
+            <div class="modal-content">
+                <div class="row">
+                    <div class="col s12 green lighten-4">
+                        <h5 class="center" style="border-radius: 10px;">Transaction Receipt</h5>
+                    </div>
+                    <div class="col s12">
+
+                        <p id="trans_barcode"></p>
+                    </div>
+                    <div class="col s12">
+                        <p id="trans_database_id"></p>
+                    </div>
+                    <div class="col s12">
+                        <p id="trans_timestamp"></p>
+                    </div>
+                    <div class="col s12">
+                        <p id="trans_name"></p>
+                    </div>
+                    <div class="col s12">
+                        <p id="trans_type"></p>
+                    </div>
+                    <div class="col s12">
+                        <p id="trans_qty"></p>
+                    </div>
+                    <div class="col s12">
+                        <p id="trans_description"></p>
+                    </div>
+                    <div class="col s12">
+                        <table id="transaction_data_table">
+                        </table>
+                    </div>
+            </div>
+            </div>
+        </div>
     </body>
     <script>
     const item_id = {{id|tojson}}
@@ -98,6 +148,11 @@
     
     document.addEventListener('DOMContentLoaded', async function() {
         await fetchTransactions();
+
+        var elems = document.querySelectorAll('.modal');
+        var instances = M.Modal.init(elems, {});    
+
+
     });
 
     async function fetchTransactions(){
@@ -178,7 +233,6 @@
             let colorstate = 1;
             data.transactions.forEach(transaction => {
                 console.log(transaction)
-                table.c
                 var row = table.insertRow();
                 
                 var row_id = row.insertCell();
@@ -217,11 +271,79 @@
                     row.classList.add('green')
                     row.classList.add('lighten-5')
                 }
+                row.classList.add("custom_row")
+                row.addEventListener('click', function(){
+                    test(transaction[0])
+                })
                 colorstate++
             });
             document.getElementById("current_page").innerHTML = `${String(current_page)} / ${String(end_page)}`
         });
                 
+    };
+
+    async function fetchTransaction(transaction_id){
+        const url = new URL('/getTransaction', window.location.origin);
+        url.searchParams.append('id', transaction_id);
+        const response = await fetch(url);
+        data =  await response.json();
+        return data.transaction;
+    }
+
+    async function test(transaction_id){
+        console.log(transaction_id)
+        let el = document.getElementById('transaction_view')
+        let modal = M.Modal.getInstance(el)
+        transaction = await fetchTransaction(transaction_id)
+        console.log(transaction)
+        document.getElementById('trans_barcode').innerHTML = `<b>Barcode:</b> ${transaction[3]}`;
+        document.getElementById('trans_database_id').innerHTML = `<b>Database ID:</b> ${transaction[0]}`;
+        document.getElementById('trans_timestamp').innerHTML = `<b>Timestamp:</b> ${transaction[1]}`;
+        document.getElementById('trans_name').innerHTML = `<b>Item Name:</b> ${transaction[4]}`;
+        document.getElementById('trans_type').innerHTML = `<b>Transaction Type:</b> ${transaction[5]}`;
+        document.getElementById('trans_qty').innerHTML = `<b>Qty:</b> ${transaction[6]}`;
+        document.getElementById('trans_description').innerHTML = `<b>Desription:</b> ${transaction[7]}`;
+
+        var table = document.getElementById("transaction_data_table")
+        while (table.rows.length > 0) {
+            table.deleteRow(0);
+        }
+
+        var header = table.createTHead();
+        var row = header.insertRow(0);
+                    
+        var header_key = row.insertCell();
+        header_key.classList.add('center')
+        var header_value = row.insertCell();
+        header_value.classList.add('center')
+        
+        
+        header_key.innerHTML = `<b>Key</b>`;
+        header_value.innerHTML = `<b>Value</b>`;
+        
+        let colorstate = 1;
+
+        for(let key in transaction[9]){
+            console.log(key)
+            var row_trans = table.insertRow();
+                
+            var row_key = row_trans.insertCell();
+            row_key.classList.add('center')
+            var row_value = row_trans.insertCell();
+            row_value.classList.add('center')
+            
+
+            row_key.innerHTML = key;
+            row_value.innerHTML = JSON.stringify(transaction[9][key]);
+            
+
+            if ((colorstate % 2) == 0){
+                row_trans.classList.add('green')
+                row_trans.classList.add('lighten-5')
+            };
+            colorstate++
+        };
+        modal.open()
     };
 
     document.getElementById('forward').addEventListener('click', async () =>{

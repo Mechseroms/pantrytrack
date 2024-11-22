@@ -159,84 +159,108 @@ def add_zone(site_name, name):
 			conn.rollback()
 			return error
 
-def add_transaction(site_name, barcode, qty, user_id, transaction_type = "info", description = "", data = {}, location=None):
-	database_config = config()
-	with psycopg2.connect(**database_config) as conn:
+def setLogisticsDataTransaction(conn, site_name, location, logistics_info_id, qty):
+	"""Sets the logistic_info for site at info_id
+
+	Args:
+		conn (Object): psycopg2.connector
+		site_name (str): name of site where data is manipulated
+		location (str): location to be add or append to data
+		logistics_info_id (int): logistics data to be manipulated
+		qty (float): qty to be added or appended
+
+	Returns:
+		str: success/error
+	"""
+	with open(f"sites/{site_name}/sql/unique/logistics_transactions.sql", "r+") as file:
+		sql = file.read()
+	try:
 		with conn.cursor() as cur:
-			cur.execute(f"SELECT item_name, logistics_info_id FROM {site_name}_items WHERE barcode=%s;", (barcode, ))
-			item = cur.fetchone()
+			cur.execute(f"SELECT quantity_on_hand, location_data FROM {site_name}_logistics_info WHERE id=%s;", (logistics_info_id, ))
+			quantity_on_hand, location_data = cur.fetchone()
+			location_data[location] = location_data.get(location, 0) + qty
+			quantity_on_hand = float(quantity_on_hand + qty)
+			cur.execute(sql, (quantity_on_hand, json.dumps(location_data), logistics_info_id))
+	except Exception as error:
+		conn.rollback()
+		return error
+	return "success"
 
+def setLocationData(conn, site_name, location, barcode, qty):
+	"""Sets location data to include barcode: qty as k:v pair
+
+	Args:
+		site_name (string): Name of the site to manipulate location data on
+		location (string): location in said site to manipulate locationd data on
+		barcode (string): Barcode to add or append to
+		qty (float): quantity to add or append to
+
+	Returns:
+		str: error/success
+	"""
+	with open(f"sites/{site_name}/sql/unique/set_location_data.sql", "r+") as file:
+		sql = file.read()
+	try:
 		with conn.cursor() as cur:
-			cur.execute(f"SELECT location_data, quantity_on_hand, primary_location, barcode FROM {site_name}_logistics_info WHERE id=%s;", (item[1],))
-			logistics_info = cur.fetchone()
+			cur.execute(f"SELECT id, items FROM {site_name}_locations WHERE uuid=%s;", (location, ))
+			loc_id, items = cur.fetchone()
+			items[barcode] = items.get(barcode, 0) + qty
+			cur.execute(sql, (json.dumps(items), loc_id))
+	except Exception as error:
+		conn.rollback()
+		return error
+	return "success"
 
-	new_trans = copy.deepcopy(transaction_payload)
-	new_trans["timestamp"] = datetime.datetime.now()
-	new_trans["logistics_info_id"] = item[1]
-	new_trans["barcode"] = barcode
-	new_trans["user_id"] = user_id
-	new_trans["name"] = item[0]
-	new_trans["transaction_type"] = transaction_type
-	new_trans["description"] = description
-	new_trans["quantity"] = qty
-	new_trans["data"] = data
+def insertTransaction(conn, site_name, payload):
+	"""Insert a transaction into the site name using a payload
 
+	[timestamp, logistics_info_id, barcode, name, transaction_type, 
+	quantity, description, user_id, data]
 
-	sql = f"INSERT INTO {site_name}_transactions(timestamp, logistics_info_id, barcode, name, transaction_type, quantity, description, user_id, data) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
-	database_config = config()
-	with psycopg2.connect(**database_config) as conn:
-		try:
-			with conn.cursor() as cur:
-				cur.execute(sql, (new_trans["timestamp"], new_trans["logistics_info_id"], new_trans["barcode"], new_trans["name"], new_trans["transaction_type"], 
-					new_trans["quantity"], new_trans["description"], new_trans["user_id"], json.dumps(new_trans["data"])))
-		except (Exception, psycopg2.DatabaseError) as error:
-			print(error)
-			conn.rollback()
-			return error
-		
-		if not location:
-			mover = logistics_info[2]
-		else:
-			mover = location
+	Args:
+		site_name (str): _description_
+		payload (list): list of values to insert into database
 
-		location_items = None
-		location_id = None
-		try:
-			with conn.cursor() as cur:
-				cur.execute(f"SELECT id, items FROM {site_name}_locations WHERE uuid=%s;", (mover, ))
-				location = cur.fetchone()
-				if location:
-					location_id = location[0]
-					location_items = location[1]
-		except (Exception, psycopg2.DatabaseError) as error:
-			print(error)
-			conn.rollback()
-			return error
+	Returns:
+		_type_: _description_
+	"""
+	with open(f"sites/{site_name}/sql/unique/insert_transaction.sql", "r+") as file:
+		sql = file.read()
+	try:
+		with conn.cursor() as cur:
+			cur.execute(sql, payload)
+	except Exception as error:
+		conn.rollback()
+		return error
 
-		if logistics_info[3] in location_items.keys():
-			location_items[logistics_info[3]] = location_items[logistics_info[3]] + qty
-		else:
-			location_items[logistics_info[3]] = qty
+	return "success"
 
-		if mover in logistics_info[0].keys():
-			logistics_info[0][mover] = logistics_info[0][mover] + qty 
-		else:
-			logistics_info[0][mover] = qty 
+def addTransaction(*, conn, site_name, payload, location, logistics_info_id, barcode, qty):
+	"""a complete function for adding a transaction to the system
+	
+	payload = [timestamp, logistics_info_id, barcode, name, transaction_type, 
+	quantity, description, user_id, data]
+	
+	Args:
+		conn (object): psycopg2.connector
+		site_name (str): The site to which will have a transaction added
+		payload (list): transaction payload
+		location (str): location in the site that will be manipulated
+		logistics_info_id (int): logistic_info id to be mainpulated
+		barcode (str): barcode in the site to be manipulated
+		qty (float): qty to be added or appened to the transaction
 
-		qty = logistics_info[1] + qty
-
-		set_location_data = f"UPDATE {site_name}_locations SET items = %s WHERE id = %s;"
-		set_quantity_on_hand = f"UPDATE {site_name}_logistics_info SET quantity_on_hand = %s, location_data = %s WHERE id = %s;"
-		try:
-			with conn.cursor() as cur:
-				cur.execute(set_quantity_on_hand, (qty, json.dumps(logistics_info[0]), new_trans["logistics_info_id"]))
-				cur.execute(set_location_data, (json.dumps(location_items), location_id))
-		except (Exception, psycopg2.DatabaseError) as error:
-			print(error)
-			conn.rollback()
-			return error
-
-		conn.commit()
+	Returns:
+		str: success/error
+	"""
+	try:
+		insertTransaction(conn, site_name, payload)
+		setLocationData(conn, site_name, location, barcode, qty)
+		setLogisticsDataTransaction(conn, site_name, location, logistics_info_id, qty)
+	except (Exception, psycopg2.DatabaseError) as error:
+		print(error)
+		conn.rollback()
+		return error
 
 def add_food_item(site_name: str, barcode: str, name: str, payload: dict):
 
@@ -276,11 +300,10 @@ def add_food_item(site_name: str, barcode: str, name: str, payload: dict):
 			conn.rollback()
 			return False
 
-
 		conn.commit()
 
-
-	add_transaction(site_name, barcode, qty=0, user_id=1, description="Added Item to System!")
+		payload = [datetime.datetime.now(), logistics_info_id, barcode, name, "SYSTEM", 0.0, "Item added to system!", 1, json.dumps({})]
+		addTransaction(conn=conn, site_name=site_name,payload=payload, location=uuid, logistics_info_id=logistics_info_id,barcode=barcode, qty=0.0)
 
 def drop_table(sql_file: str):
 	database_config = config()
@@ -369,8 +392,6 @@ def create_site(site_name):
 
 		conn.commit()
 
-
-
 transaction_payload = {
 	"timestamp": None,
 	"logistics_info_id": 0,
@@ -382,7 +403,6 @@ transaction_payload = {
 	"user_id": 0,
 	"data": {}
 }
-
 
 payload_food_item = {
 	"item_info": {
@@ -447,20 +467,6 @@ def parse_csv(path_to_csv):
 				qty = float(line[30])
 				add_food_item(site_name="main", barcode=line[1], name=line[2], payload=payload)
 
-			
-
-
 if __name__ == "__main__":
-	#print(add_readitem(site_name="main", barcode="1235", name="testone"))
-	"""database_config = config()
-	sql = "SELECT items FROM test_locations WHERE id=1;"
-	with psycopg2.connect(**database_config) as conn:
-		with conn.cursor() as cur:
-			cur.execute(sql)
-
-			items = cur.fetchone()[0]
-			for k, v in items.items():
-				print(f"{k}: {v}")
-	"""
 	parse_csv(r"C:\\Users\\jadow\\Documents\\code\\postgresql python\\postgresql-python\\2024-10-02-Pantry.csv")
 

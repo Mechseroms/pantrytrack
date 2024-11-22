@@ -91,6 +91,7 @@ function updatePrimaryLocation(){
         document.getElementById('primary_location').style = ""
         logistics_info['primary_location'] = `${primary_zone}@${primary_location}`
     };
+    console.log(logistics_info)
 };
 
 function updateIssueLocation(){
@@ -201,6 +202,8 @@ async function saveItem() {
         updated['links'] = links;
     };
 
+    console.log(`going into fetch ${logistics_info}`)
+
     await fetch(`/updateItem`, {
         method: 'POST',
         headers: {
@@ -213,8 +216,8 @@ async function saveItem() {
             item_info_id: item[7],
             updated: updated,
             item_info: item_info,
-            food_info: food_info,
             logistics_info: logistics_info,
+            food_info: food_info,
         }),
     });
     M.toast({html: "Item has been saved successfully!", classes: "rounded green lighten-4 black-text"});

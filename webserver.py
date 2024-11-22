@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session, request
 import api, config
 app = Flask(__name__)
 app.secret_key = '11gs22h2h1a4h6ah8e413a45'
@@ -20,6 +20,11 @@ def item(id):
     sites = config.sites_config()
     return render_template("items/item.html", id=id, current_site=session['selected_site'], sites=sites['sites'])
 
+@app.route("/transaction")
+def transaction():
+    print(request.referrer)
+    sites = config.sites_config()
+    return render_template("transaction.html", current_site=session['selected_site'], sites=sites['sites'], proto={'referrer': request.referrer})
 
 @app.route("/workshop")
 def workshop():
