@@ -1,1 +1,0 @@
-DROP TABLE test2_shopping_lists CASCADE;

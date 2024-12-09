@@ -35,7 +35,6 @@
                 pointer-events: none;
                 opacity: 0.5; /* or your desired degree of transparency */
               }
-        
     </style>
     <ul id='dropdown1' class='dropdown-content'>
         {% for site in sites %}
@@ -58,6 +57,7 @@
         <li class="active"><a href="/items">Site Items</a></li>
         <li><a href="/groups">Site Groups</a></li>
         <li><a href="/shopping-lists">Site Shopping Lists</a></li>
+        <li><a href="/receipts">Site Receipts</a></li>
     </ul>
     <body>
         <div class="container section" style="padding-bottom: 72px;">
@@ -90,6 +90,12 @@
                             <label>
                                 <input name="group3" type="radio" onclick="changeView(1)"/>
                                 <span>Non Zero Items</span>
+                            </label>
+                        </div>
+                        <div class="col s6 m4 l2">
+                            <label>
+                                <input name="group3" type="radio" onclick="changeView(2)"/>
+                                <span>Hidden Items</span>
                             </label>
                         </div>
                         <div class="col s12 divider"></div>
@@ -176,7 +182,6 @@
                         <li id="current_page" style="padding-top: 7px; padding-left: 5px; padding-right: 5px; font-size: 18px;">page_number</li>
                         <li id="forward" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_right</i></a></li>
                         <li id="last" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">last_page</i></a></li>
-
                     </ul>
                 </div>  
             </div>
@@ -321,8 +326,6 @@
             url.searchParams.append('search_text', searchText);
             url.searchParams.append('sort_order', sort_order);
             url.searchParams.append('view', view);
-
-
 
             await fetch(url)
             .then(response => response.json())

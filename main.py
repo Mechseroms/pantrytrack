@@ -1,10 +1,14 @@
 #!/usr/bin/python 
 import psycopg2 
 from config import config 
-import json, datetime, copy, csv
+import json, datetime, copy, csv, ast
 
 def lst2pgarr(alist):
     return '{' + ','.join(alist) + '}'
+
+def unfoldCostLayers(cost_layers: str):
+	cost_layers:list = [ast.literal_eval(item) for item in ast.literal_eval(cost_layers.replace('{', '[').replace('}', ']'))]
+	return cost_layers
 
 def update_item_primary(site_name, barcode, new_primary: str):
 	zone, location = new_primary.split("@")
@@ -182,11 +186,54 @@ def setLogisticsDataTransaction(conn, site_name, location, logistics_info_id, qt
 			quantity_on_hand = float(quantity_on_hand + qty)
 			cur.execute(sql, (quantity_on_hand, json.dumps(location_data), logistics_info_id))
 	except Exception as error:
-		conn.rollback()
 		return error
 	return "success"
 
-def setLocationData(conn, site_name, location, barcode, qty):
+
+def handleNegativeQuantityOnHand(qty, cost_layers):
+	cost_layers = [ast.literal_eval(item) for item in ast.literal_eval(cost_layers.replace('{', '[').replace('}', ']'))]
+	dummy_quantity = qty
+	while dummy_quantity > 0 and len(cost_layers) > 0:
+		layer: list = list(cost_layers[0])
+		if layer[0] < 0:
+			layer[0] = layer[0] + 1
+			dummy_quantity = dummy_quantity - 1
+			cost_layers[0] = tuple(layer)
+		if layer[0] == 0.0:
+			cost_layers.pop(0)
+			if dummy_quantity > 0 and len(cost_layers) > 0:
+				layer = list(cost_layers[0])
+	
+	if dummy_quantity > 0 and len(cost_layers) == 0:
+		cost_layers.append((dummy_quantity, 0.0))
+
+	string_t = "ARRAY["
+	string_y = ', '.join([f"'{layer_tuple}'::cost_layer" for layer_tuple in cost_layers])
+	string_t += string_y + "]::cost_layer[]"
+	return string_t
+
+def handleNegativeQuantity(qty, cost_layers):
+	cost_layers = [ast.literal_eval(item) for item in ast.literal_eval(cost_layers.replace('{', '[').replace('}', ']'))]
+	dummy_quantity = qty
+	while dummy_quantity < 0 and len(cost_layers) > 0:
+		layer: list = list(cost_layers[0])
+		layer[0] = layer[0] - 1
+		dummy_quantity = dummy_quantity + 1
+		cost_layers[0] = tuple(layer)
+		if layer[0] == 0.0:
+			cost_layers.pop(0)
+			if dummy_quantity < 0 and len(cost_layers) > 0:
+				layer = list(cost_layers[0])
+	
+	if dummy_quantity < 0 and len(cost_layers) == 0:
+		cost_layers.append((dummy_quantity, 0.0))
+
+	string_t = "ARRAY["
+	string_y = ', '.join([f"'{layer_tuple}'::cost_layer" for layer_tuple in cost_layers])
+	string_t += string_y + "]::cost_layer[]"
+	return string_t
+
+def setLocationData(conn, site_name, location, item_id, qty, cost):
 	"""Sets location data to include barcode: qty as k:v pair
 
 	Args:
@@ -198,16 +245,31 @@ def setLocationData(conn, site_name, location, barcode, qty):
 	Returns:
 		str: error/success
 	"""
-	with open(f"sites/{site_name}/sql/unique/set_location_data.sql", "r+") as file:
-		sql = file.read()
+	#with open(f"sites/{site_name}/sql/unique/set_location_data.sql", "r+") as file:
+	#	sql = file.read()
+	sql = f"UPDATE %sitename%_locations SET quantity_on_hand = %s WHERE id = %s;"
 	try:
 		with conn.cursor() as cur:
-			cur.execute(f"SELECT id, items FROM {site_name}_locations WHERE uuid=%s;", (location, ))
-			loc_id, items = cur.fetchone()
-			items[barcode] = items.get(barcode, 0) + qty
-			cur.execute(sql, (json.dumps(items), loc_id))
+			cur.execute(f"SELECT id FROM {site_name}_locations WHERE uuid=%s;", (location, ))
+			loc_id = cur.fetchone()
+			cur.execute(f"SELECT id, quantity_on_hand, cost_layers FROM {site_name}_item_locations WHERE part_id = %s AND location_id = %s;", (item_id, loc_id))
+			x = cur.fetchone()
+			# maybe a while loop that will pull the cost_layers out and then go
+			# through each 1 by 1 until qty is at 0...
+			qty_on_hand = float(x[1]) + float(qty)
+			if x[1] < 0 and qty > 0:
+				# do thing
+				cost_layers_string = handleNegativeQuantityOnHand(qty, x[2])
+				cur.execute(f"UPDATE {site_name}_item_locations SET quantity_on_hand = %s, cost_layers = {cost_layers_string} WHERE id = %s;", (qty_on_hand, x[0]))
+			elif qty < 0:
+				print("ding")
+				cost_layers_string = handleNegativeQuantity(qty, x[2])
+				print(cost_layers_string)
+				cur.execute(f"UPDATE {site_name}_item_locations SET quantity_on_hand = %s, cost_layers = {cost_layers_string} WHERE id = %s;", (qty_on_hand, x[0]))
+			else:
+				cur.execute(f"UPDATE {site_name}_item_locations SET quantity_on_hand = %s, cost_layers = cost_layers || ({qty}, {cost})::cost_layer WHERE id = %s;", (qty_on_hand, x[0]))
 	except Exception as error:
-		conn.rollback()
+		print(error)
 		return error
 	return "success"
 
@@ -230,12 +292,11 @@ def insertTransaction(conn, site_name, payload):
 		with conn.cursor() as cur:
 			cur.execute(sql, payload)
 	except Exception as error:
-		conn.rollback()
 		return error
 
 	return "success"
 
-def addTransaction(*, conn, site_name, payload, location, logistics_info_id, barcode, qty):
+def addTransaction(*, conn, site_name, payload, location, logistics_info_id, item_id, qty, cost):
 	"""a complete function for adding a transaction to the system
 	
 	payload = [timestamp, logistics_info_id, barcode, name, transaction_type, 
@@ -255,8 +316,9 @@ def addTransaction(*, conn, site_name, payload, location, logistics_info_id, bar
 	"""
 	try:
 		insertTransaction(conn, site_name, payload)
-		setLocationData(conn, site_name, location, barcode, qty)
-		setLogisticsDataTransaction(conn, site_name, location, logistics_info_id, qty)
+		if qty != 0.0:
+			setLocationData(conn, site_name, location, item_id, qty, cost)
+		#setLogisticsDataTransaction(conn, site_name, location, logistics_info_id, qty)
 	except (Exception, psycopg2.DatabaseError) as error:
 		print(error)
 		conn.rollback()
@@ -286,8 +348,18 @@ def add_food_item(site_name: str, barcode: str, name: str, payload: dict):
 		food_info_id = create_food_info(conn, site_name, payload["food_info"])
 		if not food_info_id:
 			return False
+		try:
+			with conn.cursor() as cur:
+				cur.execute(f"SELECT id FROM {site_name}_locations WHERE uuid=%s;", (uuid, ))
+				location_id = cur.fetchone()[0]
+				print(location_id)
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
 
 		sqltwo = f"INSERT INTO {site_name}_items(barcode, item_name, tags, links, item_info_id, logistics_info_id, food_info_id, row_type, item_type, search_string) VALUES('{barcode}', '{name}', '{tags}', '{links}', {item_info_id}, {logistics_info_id}, {food_info_id}, 'single', 'FOOD', '{barcode}%{name}') RETURNING *;"
+		sqlthree = f"INSERT INTO {site_name}_item_locations(part_id, location_id, quantity_on_hand, cost_layers) VALUES (%s, %s, %s, %s);"
 		row = None
 		try:
 			with conn.cursor() as cur:
@@ -295,6 +367,8 @@ def add_food_item(site_name: str, barcode: str, name: str, payload: dict):
 				rows = cur.fetchone()
 				if rows:
 					row = rows[:]
+					print(row)
+				cur.execute(sqlthree, (row[0], location_id, 0.0, lst2pgarr([])))
 		except (Exception, psycopg2.DatabaseError) as error:
 			print(error)
 			conn.rollback()
@@ -303,7 +377,7 @@ def add_food_item(site_name: str, barcode: str, name: str, payload: dict):
 		conn.commit()
 
 		payload = [datetime.datetime.now(), logistics_info_id, barcode, name, "SYSTEM", 0.0, "Item added to system!", 1, json.dumps({})]
-		addTransaction(conn=conn, site_name=site_name,payload=payload, location=uuid, logistics_info_id=logistics_info_id,barcode=barcode, qty=0.0)
+		addTransaction(conn=conn, site_name=site_name,payload=payload, location=uuid, logistics_info_id=logistics_info_id,item_id=row[0], qty=0.0, cost=0.0)
 
 def drop_table(sql_file: str):
 	database_config = config()
@@ -339,6 +413,7 @@ def delete_site(site_name):
 	drop_table(f'sites/{site_name}/sql/drop/receipts.sql')
 	drop_table(f'sites/{site_name}/sql/drop/recipes.sql')
 	drop_table(f'sites/{site_name}/sql/drop/shopping_lists.sql')
+	drop_table(f'sites/{site_name}/sql/drop/item_locations.sql')
 
 def create_site(site_name):
 
@@ -356,15 +431,16 @@ def create_site(site_name):
 	create_table(f'sites/{site_name}/sql/create/zones.sql')
 	create_table(f'sites/{site_name}/sql/create/locations.sql')
 	create_table(f'sites/{site_name}/sql/create/vendors.sql')
-	create_table(f'sites/{site_name}/sql/create/receipt_items.sql')
 	create_table(f'sites/{site_name}/sql/create/receipts.sql')
+	create_table(f'sites/{site_name}/sql/create/receipt_items.sql')
 	create_table(f'sites/{site_name}/sql/create/recipes.sql')
 	create_table(f'sites/{site_name}/sql/create/shopping_lists.sql')
+	create_table(f'sites/{site_name}/sql/create/item_locations.sql')
 	
 
 	sql = f"INSERT INTO {site_name}_zones(name) VALUES (%s) RETURNING id;"
 	sqltwo = f"INSERT INTO {site_name}_locations(uuid, name, zone_id, items) VALUES (%s, %s, %s, %s);"
-
+	sqlthree = f"INSERT INTO {site_name}_vendors(vendor_name, creation_date, created_by) VALUES (%s, %s, %s);"
 	database_config = config()
 	with psycopg2.connect(**database_config) as conn:
 		zone_id = None
@@ -384,6 +460,14 @@ def create_site(site_name):
 		try:
 			with conn.cursor() as cur:
 				cur.execute(sqltwo, (uuid, site_config["default_primary_location"], zone_id, json.dumps({})))
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+		
+		try:
+			with conn.cursor() as cur:
+				cur.execute(sqlthree, ("None", str(datetime.datetime.now()), 1))
 		except (Exception, psycopg2.DatabaseError) as error:
 			print(error)
 			conn.rollback()

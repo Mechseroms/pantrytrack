@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title>My Pantry - Items</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
+    </head>
+    <style>
+        .hand-pointer {
+            cursor: pointer;
+        }
+        [type="radio"]:checked + span:after {
+            border: 2px solid rgb(0 128 0 / 30%); /* Outline color */
+            background-color: rgb(0 128 0 / 30%); /* Fill color */
+        }
+        header, main, footer, body {
+            padding-left: 300px;
+            }
+        
+            @media only screen and (max-width : 992px) {
+            header, main, footer, body {
+                padding-left: 0;
+            }
+            }
+            .dropdown-disabled {
+                pointer-events: none;
+                opacity: 0.5; /* or your desired degree of transparency */
+              }
+              
+        .disabled-row {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .custom_row:hover{
+            background-color: rgb(230, 230, 230) !important;
+            cursor: pointer;
+        }
+              
+    </style>
+    <ul id='dropdown1' class='dropdown-content'>
+        {% for site in sites %}
+            <li><button class="btn transparent black-text z-depth-0" onclick="changeSite('{{ site }}')">{{site}}</button></li>
+        {% endfor %}
+    </ul>
+    <ul id="slide-out" class="sidenav sidenav-fixed green lighten-4" style="width: 250px;">
+        <li>
+            <div class="user-view">
+                <!-- <div class="background">
+                    <img src="images/office.jpg">
+                </div> -->
+                <!-- <a href="#user"><img class="circle" src="images/yuna.jpg"></a> -->
+                <a href="#name"><span class="black-text name">John Doe</span></a>
+                <a href="#email"><span class="black-text email">jdoe@example.com</span></a>
+            </div>
+        </li>
+        <li><a class="dropdown-trigger" data-target="dropdown1">Current Site > {{current_site}}<i class="material-icons right">arrow_drop_down</i></a></li>
+        <li><div class="divider grey darken-1" style="margin-left: 5px; margin-right: 10px;"></div></li>
+        <li class="active"><a href="/items">Site Items</a></li>
+        <li><a href="/groups">Site Groups</a></li>
+        <li><a href="/shopping-lists">Site Shopping Lists</a></li>
+        <li><a href="/receipts">Site Receipts</a></li>
+    </ul>
+    <body>
+        <div class="container section">
+            <div class="row">
+                <div class="col s12">
+                    <h3 id="receipt_id"></h3>
+                </div>
+                <div class="col s6">
+                    <h5 id="database_id"></h5>
+                </div>
+                <div class="col s6 right">
+                    <h5 class="right" id="status"></h5>
+                </div>
+                <div class="col s12">
+                    <p id="created"></p>
+                </div>
+
+                <!-- Vendor info starts here -->
+                <div class="col s12 green lighten-4" style="border-radius: 10px;">
+                    <h5 class="center">Vendor</h5>
+                </div>
+                <div class="col s12 divider"></div>
+                <div class="row col s12" style="gap: 15px; margin-top: 10px;">
+                    <div class="col s12 m8 input-field outlined">
+                        <input id="vendor_name" type="text" placeholder=" " disabled>
+                        <label for="vendor_name">Name</label>
+                    </div>
+                    <div class="col s12 m4 l3">
+                        <button class="btn btn-flat green lighten-4" onclick="populateVendors()" style="display: flex; align-items: center;"><i class="material-symbols-outlined" style="padding-right: 10px;">event_list</i>Vendors</button>
+                    </div>
+                    <div class="col s12 input-field outlined">
+                        <input id="vendor_number" type="text" placeholder=" " disabled>
+                        <label for="vendor_number">Phone Number</label>
+                    </div>
+                    <div class="col s12 input-field">
+                        <input id="vendor_address" class="materialize-textarea" placeholder=" " disabled>
+                        <label for="vendor_address">Address</label>
+                    </div>
+                </div>
+                <!-- Receipt Items start here -->
+                <div class="col s12 green lighten-4" style="border-radius: 10px; margin-top: 10px;">
+                    <h5 class="center">Receipt Items</h5>
+                </div>
+                <div class="col s12">
+                    <div class="card-panel green z-depth-0 lighten-5">
+                      <span class="black-text">Below are the line items on this receipt. By clicking on the row you can modify, save, delete, void, resolve the lines.
+                      </span>
+                    </div>
+                </div>
+                <div class="col s12 divider"></div>
+                <div class="col s12">
+                    <table class="" id="item_table">
+                        <thead>
+                            <tr>
+                            <th>type</th>
+                            <th>barcode</th>
+                            <th>name</th>
+                            <th>qty</th>
+                            <th>cost</th>
+                            <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Modal code for modifying an item -->
+            <div id="modify_item" class="modal">
+                <div class="modal-content">
+                    <div class="row" style="gap: 15px;">
+                        <div class="col s12 green lighten-4">
+                            <h5 class="center" style="border-radius: 10px;">Modify Item</h5>
+                        </div>
+                        <div class="row col s12" style="gap: 15px;">
+                            <div class="s12 m6 input-field outlined">
+                                <input id="item_barcode" type="text" placeholder=" ">
+                                <label for="item_barcode">Line Barcode</label>
+                                <span class="supporting-text">Barcode must be in the system surrounded by %%s</span>
+                            </div>
+                            <div class="s12 m6 input-field outlined">
+                                <input id="item_database_id" type="text" placeholder=" " disabled>
+                                <label for="item_database_id">Database ID</label>
+                                <!--<span class="supporting-text">Supporting Text</span>-->
+                            </div>
+                            <div class="s12 m6 input-field outlined">
+                                <input id="item_type" type="text" placeholder=" " disabled>
+                                <label for="item_type">Line Type</label>
+                                <!--<span class="supporting-text">Supporting Text</span>-->
+                            </div>
+                            <div class="s12 m6 input-field outlined">
+                                <input id="item_name" type="text" placeholder=" " disabled>
+                                <label for="item_name">Line Name</label>
+                                <!--<span class="supporting-text">Supporting Text</span>-->
+                            </div>
+                            <div class="s12 m6 input-field outlined">
+                                <input id="item_qty" type="text" placeholder=" ">
+                                <label for="item_qty">Line Quantity</label>
+                                <!--<span class="supporting-text">Supporting Text</span>-->
+                            </div>
+                            <div class="s12 m6 input-field outlined">
+                                <input id="item_cost" type="text" placeholder=" ">
+                                <label for="item_cost">Line Cost</label>
+                                <!--<span class="supporting-text">Supporting Text</span>-->
+                            </div>
+                            <div class="col s12 divider"></div>
+                            <div class="row col s12" style="gap: 5px;">
+                                <button onclick="saveItem()" class="waves-effect btn-flat right blue white-text tooltipped" data-position="bottom" data-tooltip="Save Changes to Line Item">
+                                    <i class="material-icons">save</i></button>
+                                <button onclick="voidItem()" class="waves-effect btn-flat right black white-text tooltipped" data-position="bottom" data-tooltip="Void Line Item">
+                                    <i class="material-icons">cancel</i></button>
+                                <button onclick="deleteItem()" class="waves-effect btn-flat right red white-text tooltipped" data-position="bottom" data-tooltip="Delete Line Item">
+                                    <i class="material-icons">delete</i></button>
+                                <button onclick="resolveItem()" class="waves-effect btn-flat right green white-text tooltipped" data-position="bottom" data-tooltip="Resolve Line Item">
+                                    <i class="material-icons">check</i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal code for selecting a vendor -->
+            <div id="vendors" class="modal">
+                <div class="modal-content">
+                    <div class="row" style="gap: 5px;">
+                        <div class="col s12">
+                            <h4>Vendors</h4>
+                        </div>
+                        <div class="col s12">
+                            <div class="card-panel grey lighten-4 z-depth-0">
+                              <span class="black-text">Listed below is all the Vendors avaiable to select for this receipt. </span>
+                            </div>
+                        </div>
+                        <div class="divider col s12"></div>
+                        <div id="vendors-table-container" class="col s12">
+                            <table id="vendors_table">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script src="{{ url_for('static', filename='receiptHandler.js') }}"></script>
+    <script>
+        const receipt_id = {{id|tojson}}
+    </script>
+</html>

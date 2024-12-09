@@ -15,14 +15,18 @@ CREATE TABLE IF NOT EXISTS main_items(
     UNIQUE(barcode, item_info_id),
     CONSTRAINT fk_item_info
         FOREIGN KEY(item_info_id) 
-        REFERENCES main_item_info(id),
+        REFERENCES main_item_info(id)
+        ON DELETE CASCADE,
     CONSTRAINT fk_food_info
         FOREIGN KEY(food_info_id)
-        REFERENCES main_food_info(id),
+        REFERENCES main_food_info(id)
+        ON DELETE CASCADE,
     CONSTRAINT fk_brand
         FOREIGN KEY(brand)
-        REFERENCES main_brands(id),
+        REFERENCES main_brands(id)
+        ON DELETE CASCADE,
     CONSTRAINT fk_logistics_info
         FOREIGN KEY(logistics_info_id)
         REFERENCES main_logistics_info(id)
+        ON DELETE CASCADE
 );

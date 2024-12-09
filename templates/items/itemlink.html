@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+    <title>My Pantry</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
+  </head>
+
+  <body class="grey lighten-5">
+    <div class="container col s12">
+      <div class="section">
+        <div id="editLinkedItem" class="row" style="gap: 1em;">
+            <div class="col s12">
+                <a href='{{ proto['referrer'] }}' class="left btn green lighten-4 black-text btn-flat"><i class="material-icons">arrow_back</i></a>
+            </div>
+            <div class="s12 m6 input-field">
+                <input id="barcode" type="text" name="barcode" value="" placeholder=" " maxlength="20" disabled />
+                <label for="barcode">Barcode</label>
+                <span class="supporting-text">Item Barcode</span>
+            </div>
+            <div class="s12 m6 input-field">
+                <input id="LinkID" type="text" name="LinkID" placeholder=" " value="" maxlength="20" disabled />
+                <label for="LinkID">LinkID</label>
+                <span class="supporting-text">Pantry Item this is linked to.</span>
+            </div>
+            <div class="s12 m6 input-field">
+                <input id="conversion" name="conversion" type="text" placeholder=" " value="" maxlength="20" />
+                <label for="conversion">Conversion Factor</label>
+                <span class="supporting-text">Conversion Factor for scanning adjustments.</span>
+            </div>
+            <div class="input-field col s12">
+                <textarea id="itemdata" class="materialize-textarea" name="itemdata" placeholder=" "></textarea>
+                <label for="itemdata">Saved Data</label>
+            </div>
+            <div class="divider s12"></div>
+            <div class="col s12">
+                <button class="btn icon-right waves-effect waves-light right" type="submit" name="action">Update</button>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    const id = {{id|tojson}}
+    let linked_item;
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        await fetchLinkedItem()
+        await populateForm()
+        });
+
+    async function fetchLinkedItem(){
+        const url = new URL('/getLinkedItem', window.location.origin);
+        url.searchParams.append('id', id);
+        const response = await fetch(url);
+        data =  await response.json();
+        linked_item = data.linked_item;
+    }
+
+    async function populateForm(){
+        document.getElementById('barcode').value = linked_item[1];
+        document.getElementById('LinkID').value = linked_item[2];
+        document.getElementById('conversion').value = linked_item[4];
+        document.getElementById('itemdata').value = JSON.stringify(linked_item[3]);
+        M.Forms.textareaAutoResize(document.querySelector('#itemdata'));
+    }
+  </script>
+</html>

@@ -108,6 +108,7 @@ if __name__ == "__main__":
             main.create_site(sys.argv[3])
         
         if func_name == "delete" and argument == "site":
+            print(func_name, argument)
             main.delete_site(sys.argv[3])
             shutil.rmtree(f"sites/{sys.argv[3]}")
             cfg.delete_site(sys.argv[3])

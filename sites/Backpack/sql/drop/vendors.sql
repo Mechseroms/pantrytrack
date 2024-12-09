@@ -1,0 +1,1 @@
+DROP TABLE Backpack_vendors CASCADE;

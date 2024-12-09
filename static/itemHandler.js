@@ -4,6 +4,7 @@ async function fetchItem() {
     const response = await fetch(url);
     data =  await response.json();
     item = data.item;
+    linked_items = data.linked_items;
 };
 
 async function fetchZones() {
@@ -91,7 +92,6 @@ function updatePrimaryLocation(){
         document.getElementById('primary_location').style = ""
         logistics_info['primary_location'] = `${primary_zone}@${primary_location}`
     };
-    console.log(logistics_info)
 };
 
 function updateIssueLocation(){
@@ -108,54 +108,45 @@ function updateIssueLocation(){
 
 function updateEntryType(){
     updated['row_type'] = document.getElementById('entry_type').value;
-    console.log(updated)
 };
 
 function updateItemType(){
     updated['item_type'] = document.getElementById('item_type').value;
-    console.log(updated)
 };
 
 function updatePackaging(){
     let packaging = document.getElementById('packaging').value;
     item_info['packaging'] = packaging;
-    console.log(item_info)
 };
 
 function updateUOM(){
     let uom = document.getElementById('uom').value;
     item_info['uom'] = uom;
-    console.log(item_info)
 };
 
 function updateCost(){
     let cost = document.getElementById('cost').value;
     item_info['cost'] = parseFloat(cost);
-    console.log(item_info)
 };
 
 function updateSafetyStock(){
     let safety_stock = document.getElementById('safety_stock').value;
     item_info['safety_stock'] = parseFloat(safety_stock);
-    console.log(item_info)
 };
 
 function updateLeadTimeDays(){
     let lead_time_days = document.getElementById('lead_time_days').value;
     item_info['lead_time_days'] = parseFloat(lead_time_days);
-    console.log(item_info)
 };
 
 function updateAiPickable(){
     let ai_pick = document.getElementById('ai_pickable');
     item_info['ai_pick'] = ai_pick.checked;
-    console.log(item_info)
 };
 
 function updateExpires(){
     let expires = document.getElementById('expires');
     food_info['expires'] = expires.checked;
-    console.log(food_info)
 };
 
 function updateNutrients(){
@@ -177,10 +168,7 @@ function updateNutrients(){
         fibers: document.getElementById('fibers').value,
         fibers_unit: document.getElementById('fibers_unit').value
     };
-    console.log(nutrients)
     nutrients_changed = true;
-    
-
 }
 
 async function saveItem() {
@@ -201,8 +189,6 @@ async function saveItem() {
     if (links_changed){
         updated['links'] = links;
     };
-
-    console.log(`going into fetch ${logistics_info}`)
 
     await fetch(`/updateItem`, {
         method: 'POST',

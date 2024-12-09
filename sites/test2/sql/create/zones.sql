@@ -1,5 +1,0 @@
-CREATE TABLE IF NOT EXISTS test2_zones(
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(32) NOT NULL,
-    UNIQUE(name)
-);
