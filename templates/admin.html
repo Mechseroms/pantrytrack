@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title>Admin</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+        <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
+        <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+    </head>
+    <style>
+        header, main, footer, body {
+            padding-left: 300px;
+            }
+        
+            @media only screen and (max-width : 992px) {
+            header, main, footer, body {
+                padding-left: 0;
+            }
+            }
+            .dropdown-disabled {
+                pointer-events: none;
+            }
+            .item :hover{
+                cursor: pointer;
+                background-color: whitesmoke;
+            } 
+        
+        .custom_row:hover{
+            background-color: rgb(230, 230, 230) !important;
+            cursor: pointer;
+        }
+        .my_btn:hover{
+            background-color: rgb(230, 230, 230) !important;
+            cursor: pointer;
+        }
+    </style>
+    <ul id="slide-out" class="sidenav sidenav-fixed z-depth-0" style="width: 250px; border-right: 2px;">
+        <div class="center-align" style="padding-top: 10px; padding-bottom: 10px;">
+            <img src="{{ url_for('static', filename='pictures/logo.jpg') }}" alt="Description" class="responsive-img circle center-align" style="width: 30%; height: auto;">
+        </div>
+        <li><a onclick="openSection('sites')">Sites</a></li>
+        <li><a onclick="openSection('roles')">Roles</a></li>
+        <li><a onclick="openSection('users')">Users</a></li>
+        <li><a href="#!">Instance Settings</a></li>
+    </ul>
+    <body>
+        <div class="container">
+            <div class="section">
+                <div class="row">
+                    <div class="col s12">
+                        <button class="btn btn-flat sidenav-trigger hide-on-large-only" data-target="slide-out"><i class="material-symbols-outlined">side_navigation</i></button>
+                        <a href="/items" class="btn btn-flat right">home</a>
+                        <a href="/profile" class="btn btn-flat right">Profile</a>
+                    </div>              
+                    <div class="col s12" id="main_body">
+                        <div id="sites" class="row hide">
+                            <div class="col s12">
+                                <h1>Your Sites</h1>
+                            </div>
+                            <div class="col s12">
+                                <p class="flow-text">Listed below are all the sites within your instance of MyPantry. Clicking on one will allow you
+                                    edit most of the attributes inherited by the site.</p>
+                                </div>
+                                <div class="col s12" id="sites_div">
+                                    <table id="sites_table">
+                                        <tr>
+                                            <th>Site</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </table>
+                                </div>
+                            <div class="col s12 center-align" style="padding-top: 10px;">
+                                <span class="center-align"><button data-target="add_site"class="btn btn-flat center-align modal-trigger" style="width: 100%; border-radius: 10px;"><i class="large material-symbols-outlined" style="font-size: 2rem;">add_circle</i></button></span>
+                            </div>
+                        </div>
+                        <div id="roles" class="row hide">
+                            <div class="col s12">
+                                <h1>Your Roles</h1>
+                            </div>
+                            <div class="col s12">
+                                <p class="flow-text">Listed below are all the roles within your instance of MyPantry. Clicking on one will allow you
+                                    edit most of the attributes inherited by the role.</p>
+                                </div>
+                            <div class="col s12" id="roles_div">
+                                <table id="roles_table">
+                                    <tr>
+                                        <th>Site</th>
+                                        <th>Role</th>
+                                        <th>Role Description</th>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col s12 center-align" style="padding-top: 10px;">
+                                <span class="center-align"><button data-target="add_role"class="btn btn-flat center-align modal-trigger" style="width: 100%; border-radius: 10px;"><i class="large material-symbols-outlined" style="font-size: 2rem;">add_circle</i></button></span>
+                            </div>
+                        </div>
+                        <div id="users" class="row hide">
+                            <div class="col s12">
+                                <h1>Your Users</h1>
+                            </div>
+                            <div class="col s12">
+                                <p class="flow-text">Listed below is all the users that have access to your instance.</p>
+                                </div>
+                            <div class="col s12" id="users_div">
+                                <table id="users_table">
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col s12 center-align" style="padding-top: 10px;">
+                                <span class="center-align"><button data-target="add_role"class="btn btn-flat center-align modal-trigger" style="width: 100%; border-radius: 10px;"><i class="large material-symbols-outlined" style="font-size: 2rem;">add_circle</i></button></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="add_site" class="modal">
+            <div class="modal-content">
+                <h4>Create Site</h4>
+                <div class="card-panel green lighten-4 z-depth-0">
+                    <span class="black-text">A site is a main component to your instance. Each site is a boudry property meaning that all parts
+                        made within the site is not accessible within other sites beyond cross-site features. Think of them like <b>House A</b>, 
+                        <b>Garage</b>, or <b>Warehouse</b>.
+                    </span>
+                </div>
+                <div class="row" style="gap: 10px;">
+                    <div class="s12 m6 input-field">
+                        <input id="site_name" type="text" placeholder="main" maxlength="20">
+                        <label for="site_name">Site Name</label>
+                        <span class="supporting-text">Supporting Text</span>
+                    </div>
+                    <div class="s12 m6 input-field">
+                        <i class="material-icons prefix">account_circle</i>
+                        <input id="site_owner" type="text" placeholder=" " value="{{username}}" disabled>
+                        <label for="site_owner">Site Ownser</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <textarea id="site_description" class="materialize-textarea" placeholder=" "></textarea>
+                        <label for="site_description">Site Description</label>
+                    </div>
+                    <div class="s12 m6 input-field">
+                        <input id="default_zone" type="text" placeholder="DEFAULT" value="DEFAULT" maxlength="20">
+                        <label for="default_zone">Default Zone</label>
+                    </div>
+                    <div class="s12 m6 input-field">
+                        <input id="default_location" type="text" placeholder="ALL" value="ALL" maxlength="20">
+                        <label for="default_location">Default Location</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button onclick="addSite()" class="modal-close waves-effect btn-flat green lighten-4">Submit</button>
+            </div>
+        </div>
+
+        <div id="add_role" class="modal">
+            <div class="modal-content">
+                <h4>Create Role</h4>
+                <div class="card-panel green lighten-4 z-depth-0">
+                    <span class="black-text">A Site Role is used to define and assign general permissions to users for that specific site. This could be important 
+                        as a user's permission to access certain sites is determined by their roles.
+
+                    </span>
+                </div>
+                <div class="row" style="gap: 10px;">
+                    <div class="s12 m6 input-field">
+                        <input id="role_name" type="text" placeholder="main" maxlength="20">
+                        <label for="role_name">Role Name</label>
+                        <span class="supporting-text">Supporting Text</span>
+                    </div>
+                    <div class="s12 m6 input-field">
+                        <select id="selected_site">
+                            <option value="" disabled selected>Choose your option</option>
+                            <option value="1">Option 1</option>
+                            <option value="2">Option 2</option>
+                            <option value="3">Option 3</option>
+                          </select>
+                          <label for="selected_site">Role's Site</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <textarea id="role_description" class="materialize-textarea" placeholder=" "></textarea>
+                        <label for="role_description">Role Description</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button onclick="addRole()" class="modal-close waves-effect btn-flat green lighten-4">Submit</button>
+            </div>
+        </div>
+        <div id="edit_role" class="modal">
+            <div class="modal-content">
+                <h4>Edit Role</h4>
+                <div class="card-panel green lighten-4 z-depth-0">
+                    <span class="black-text">A Site Role is used to define and assign general permissions to users for that specific site. This could be important 
+                        as a user's permission to access certain sites is determined by their roles.
+                    </span>
+                </div>
+                <div class="row" style="gap: 10px;">
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="" class="modal-close waves-effect btn-flat red lighten-4">Delete</button>
+                <button onclick="" class="modal-close waves-effect btn-flat green lighten-4">Update</button>
+            </div>
+        </div>
+
+
+    </body>
+    <script src="{{ url_for('static', filename='adminHandler.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            var elems = document.querySelectorAll('.sidenav');
+            var instances = M.Sidenav.init(elems);
+            var elems = document.querySelectorAll('.dropdown-trigger');
+            var instances = M.Dropdown.init(elems, {});
+            var elems = document.querySelectorAll('.collapsible');
+            var instances = M.Collapsible.init(elems, {});
+            var elems = document.querySelectorAll('.modal');
+            var instances = M.Modal.init(elems, {});
+            var elems = document.querySelectorAll('select');
+            var instances = M.FormSelect.init(elems, {})
+            M.AutoInit();
+            await openSection('sites')
+          });
+
+        async function openSection(section){
+            let sections = ['sites', 'roles', 'users']
+            for (i=0; i < sections.length; i++){
+                document.getElementById(sections[i]).classList.add("hide");
+            }
+            document.getElementById(section).classList.remove("hide");
+            if (section == "sites"){
+                var sites = await fetchSites()
+                await populateSites(sites)
+            } else if (section == "roles") {
+                await fetchPopulateRoles()
+            } else if (section == "users"){
+                var users = await fetchUsers(50, 1)
+                await populateUsers(users)
+            }
+        }
+
+        async function fetchPopulateSites(){
+            const url = new URL('/admin/getSites', window.location.origin);
+            await fetch(url)
+            .then(response => response.json())
+            .then(data => {
+
+                const collection = document.getElementById('sites_collection')
+                collection.innerHTML = ""
+                data.sites.forEach(site => {
+                    console.log(site)
+
+                    let list_item = document.createElement('li')
+                    list_item.classList.add('collection-item')
+                    list_item.classList.add('avatar')
+                    list_item.onclick = function(){
+                        selectSite(site[0])
+                    };
+                    list_item.id = site[0]
+                    list_item.style = "border-radius: 10px;"
+                    list_item.innerHTML = `
+                    <i class="material-icons circle green">insert_chart</i>                    
+                    <span class="title" style="font-size:16pt;">${site[1]}</span>
+                    <p>${site[3]}<br>${site[2]}</p>`
+                    collection.append(list_item)
+                })
+            })
+        }
+
+        async function populateSites(sites){
+            const table = document.getElementById("sites_table")
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            };
+            
+            let reference_state = 1
+            for(let i = 0; i < sites.length; i++){
+                var row = table.insertRow();
+                
+                var row_name = row.insertCell();
+                var row_desc = row.insertCell();
+                row_name.style = "display: inline-flex; align-items: center;"
+
+
+                row_name.innerHTML = `<i class="material-symbols-outlined" style="padding-right: 5px;">wysiwyg</i>${sites[i][1]}`
+                row_desc.innerHTML = `${sites[i][2]}`
+
+                
+                if ((reference_state % 2) == 0){
+                    row.classList.add('green')
+                    row.classList.add('lighten-5')
+                }
+                row.classList.add("custom_row")
+                row.addEventListener('click', function(){
+                    clickRoleRow(sites[i][0])
+                })
+                reference_state++
+            }
+        }
+
+        async function populateUsers(users){
+            const table = document.getElementById("users_table")
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            };
+            let reference_state = 1
+            for(let i = 0; i < users.length; i++){
+                var row = table.insertRow();
+                var row_username = row.insertCell();
+                var row_email = row.insertCell();
+
+
+                row_username.style = "display: inline-flex; align-items: center;"
+                row_username.innerHTML = `<i class="material-symbols-outlined" style="padding-right: 5px;">person</i>${users[i][1]}`
+                row_email.innerHTML = `${users[i][3]}`
+
+
+                if ((reference_state % 2) == 0){
+                    row.classList.add('green')
+                    row.classList.add('lighten-5')
+                }
+                row.classList.add("custom_row")
+                row.addEventListener('click', function(){
+                    clickRoleRow(users[i][0])
+                })
+                reference_state++
+            }
+        }
+
+        async function fetchPopulateRoles(){
+            const Rolesurl = new URL('/getRoles', window.location.origin);
+            await fetch(Rolesurl)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.sites)
+                
+                const table = document.getElementById("roles_table")
+
+                while (table.rows.length > 1) {
+                    table.deleteRow(1);
+                };
+
+                let reference_state = 1
+
+                for (let key in data.sites){
+                    for (let i = 0; i < data.sites[key].length; i++){
+                        var row = table.insertRow();
+                        var row_site = row.insertCell();
+                        var row_name = row.insertCell();
+                        var row_description = row.insertCell();
+
+                        row_site.style = "display: inline-flex; align-items: center;"
+
+                        row_site.innerHTML = `<i class="material-symbols-outlined" style="padding-right: 5px;">group</i>${key}`
+                        row_name.innerHTML = `${data.sites[key][i][1]}`
+                        row_description.innerHTML = `${data.sites[key][i][2]}`
+
+
+                        if ((reference_state % 2) == 0){
+                            row.classList.add('green')
+                            row.classList.add('lighten-5')
+                        }
+                        row.classList.add("custom_row")
+                        row.addEventListener('click', function(){
+                            clickRoleRow(data.sites[key][i][0])
+                        })
+                        reference_state++
+                        
+                    }
+                }
+            })
+
+            var selectElement = document.getElementById('selected_site');
+            selectElement.innerHTML = '';
+
+            const SitesURL = new URL('/admin/getSites', window.location.origin);
+            await fetch(SitesURL)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                data.sites.forEach(site => {
+                    var newOption = document.createElement('option')
+                    newOption.value = site[0];
+                    newOption.text = site[1];
+                    selectElement.appendChild(newOption);
+                })
+            })
+            M.FormSelect.init(selectElement);
+
+        }
+
+        function selectSite(id){
+            console.log(id)
+        }
+
+        
+        async function addSite(){
+            var site_name = document.getElementById('site_name').value
+            var site_description = document.getElementById('site_description').value
+            var default_zone = document.getElementById('default_zone').value
+            var default_location = document.getElementById('default_location').value
+            
+            await fetch(`/addSite`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    site_name: site_name,
+                    site_description: site_description,
+                    default_zone: default_zone,
+                    default_location: default_location,
+                }),
+            });
+
+            // var sites = await fetchSites()
+            // await populateSites(sites)
+            location.reload()
+            M.toast({text: "Site has been added Successfully!", classes: "rounded green lighten-4 black-text"});
+        }
+
+        async function addRole(){
+            var role_name = document.getElementById('role_name').value
+            var role_description = document.getElementById('role_description').value
+            var selected_site_id = Number(document.getElementById('selected_site').value)
+            
+            await fetch(`/addRole`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    role_name: role_name,
+                    role_description: role_description,
+                    site_id: selected_site_id
+                }),
+            });
+            await fetchPopulateRoles()
+            M.toast({text: "Role has been added Successfully!", classes: "rounded green lighten-4 black-text"});
+        }
+    </script>
+</html>

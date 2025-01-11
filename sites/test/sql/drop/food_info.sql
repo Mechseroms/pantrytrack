@@ -1,1 +1,0 @@
-DROP TABLE test_food_info CASCADE;

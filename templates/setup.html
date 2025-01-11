@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+    <title>My Pantry - Setup</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
+  </head>
+<body>
+    <div class="container section">
+        <div class="s12 row">
+            <form class="s12 row" style="gap: 1em;" action="/setup" method="post" enctype="multipart/form-data">
+                <div class="s12">
+                    <h5>Database Setup</h5>
+                    <p> Setup your Postgresql database settings here! </p>
+                </div>
+                <div class="s12 input-field">
+                    <input id="database_address" name="database_address" type="text" placeholder=" ">
+                    <label for="database_address">Database Host</label>
+                </div>
+                <div class="s12 input-field ">
+                    <input id="database_port" name="database_port" type="text" placeholder=" ">
+                    <label for="database_port">Database Port</label>
+                </div>
+                <div class="s12 input-field">
+                    <input id="database_name" name="database_name" type="text" placeholder=" ">
+                    <label for="database_name">Database Name</label>
+                </div>
+                <div class="s12 input-field">
+                    <input id="database_user" name="database_user" type="text" placeholder=" ">
+                    <label for="database_user">Database User</label>
+                </div>
+                <div class="s12 input-field">
+                    <input id="database_password" type="password" name="database_password" placeholder=" ">
+                    <label for="database_password">Database Password</label>
+                </div>
+                <div class="s12">
+                    <h5>Admin Account</h5>
+                    <p> Setup your first admin account! This will be your main account to edit sites
+                        and other instance wide settings! Other users will later be able to be made admins
+                        as well </p>
+                </div>
+                <div class="s12 input-field">
+                    <input id="email" name="email" type="email" placeholder=" ">
+                    <label for="email">Email</label>
+                </div>
+                <div class="s12 input-field">
+                    <input id="username" name="username" type="text" placeholder=" ">
+                    <label for="username">Username</label>
+                </div>
+                <div class="s12 input-field">
+                    <input id="password" type="password" name="password" placeholder=" ">
+                    <label for="password">Password</label>
+                </div>
+                <div class="s12 input-field">
+                    <input id="password_verification" type="password" name="password_verification" placeholder=" ">
+                    <label for="password_verification">Retype Password</label>
+                </div>
+                <div class="s12">
+                    <h5>First Site</h5>
+                    <p> Setup your first Site! This will be your main site in this instance to start out. 
+                        later you will be able to add more sites beyond this one or even delete this site! NOTE:
+                        you must have atleast one site.
+                    </p>
+                </div>
+                <div class="s12 input-field">
+                    <input id="site_name" name="site_name" type="text" placeholder=" ">
+                    <label for="site_name">Site Name</label>
+                </div>
+                <div class="input-field col s12">
+                    <textarea id="site_description" name="site_description" class="materialize-textarea" placeholder=" " value="This is your first site!"></textarea>
+                    <label for="site_description">Site Description</label>
+                </div>
+                <div class="s12 input-field">
+                    <input id="site_default_zone" name="site_default_zone" type="text" placeholder=" ">
+                    <label for="site_default_zone">Default Zone</label>
+                </div>
+                <div class="s12 input-field">
+                    <input id="site_default_location" name="site_default_location" type="text" placeholder=" ">
+                    <label for="site_default_location">Default Location</label>
+                </div>
+                <div class="s12 input-field">
+                    <button class="btn btn-flat green lighten-4 icon-right waves-effect waves-light right" type="submit" name="action">
+                        Submit<i class="material-icons right">send</i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>       
+</body>

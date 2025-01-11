@@ -116,8 +116,11 @@ def paginate_groups():
                     print(group[3])
                     for item_id in group[3]:
                         cur.execute(sql_item, (item_id,))
-                        item_row = cur.fetchone()
-                        qty += float(item_row[2])
+                        item_row = list(cur.fetchone())
+                        cur.execute(f"SELECT quantity_on_hand FROM {site_name}_item_locations WHERE part_id=%s;", (item_id, ))
+                        item_locations = cur.fetchall()[0]
+                        qty += float(sum(item_locations))
+                        item_row[2] = sum(item_locations)
                         items.append(item_row)
                     group[3] = items
                     group.append(qty)
@@ -1060,10 +1063,15 @@ def paginate_lists():
                     custom_items = shopping_list[4]
                     list_length = len(custom_items)
 
+                    sqlfile = open(f"sites/{site_name}/sql/unique/shopping_lists_safetystock_count.sql", "r+")
+                    sql = "\n".join(sqlfile.readlines())
+                    sqlfile.close()
+                    print(sql)
                     if shopping_list[10] == 'calculated':
-                        item_sql = f"SELECT COUNT(*) FROM {site_name}_items LEFT JOIN {site_name}_logistics_info ON {site_name}_items.logistics_info_id = {site_name}_logistics_info.id LEFT JOIN {site_name}_item_info ON {site_name}_items.item_info_id = {site_name}_item_info.id LEFT JOIN {site_name}_food_info ON {site_name}_items.food_info_id = {site_name}_food_info.id WHERE {site_name}_logistics_info.quantity_on_hand < {site_name}_item_info.safety_stock AND shopping_lists @> ARRAY[%s];"
-                        cur.execute(item_sql, (shopping_list[0], ))
+                        print(shopping_list[0])
+                        cur.execute(sql, (shopping_list[0], ))
                         list_length += cur.fetchone()[0]
+                        
                     else:
                         list_length += len(pantry_items)
 
@@ -1089,13 +1097,17 @@ def get_list_view():
                 shopping_list = list(cur.fetchone())
 
                 if shopping_list[10] == "calculated":
-                    itemSQL = f"SELECT {site_name}_items.id, {site_name}_items.barcode, {site_name}_items.item_name, {site_name}_items.links, {site_name}_logistics_info.quantity_on_hand, {site_name}_item_info.safety_stock, {site_name}_item_info.uom FROM {site_name}_items LEFT JOIN {site_name}_logistics_info ON {site_name}_items.logistics_info_id = {site_name}_logistics_info.id LEFT JOIN {site_name}_item_info ON {site_name}_items.item_info_id = {site_name}_item_info.id LEFT JOIN {site_name}_food_info ON {site_name}_items.food_info_id = {site_name}_food_info.id WHERE {site_name}_logistics_info.quantity_on_hand < {site_name}_item_info.safety_stock AND shopping_lists @> ARRAY[%s];"
+                    sqlfile = open(f"sites/{site_name}/sql/unique/shopping_lists_safetystock.sql", "r+")
+                    sql = "\n".join(sqlfile.readlines())
+                    sqlfile.close()
                 else:
-                    itemSQL = f"SELECT {site_name}_items.id, {site_name}_items.barcode, {site_name}_items.item_name, {site_name}_items.links, {site_name}_logistics_info.quantity_on_hand, {site_name}_item_info.safety_stock, {site_name}_item_info.uom FROM {site_name}_items LEFT JOIN {site_name}_logistics_info ON {site_name}_items.logistics_info_id = {site_name}_logistics_info.id LEFT JOIN {site_name}_item_info ON {site_name}_items.item_info_id = {site_name}_item_info.id LEFT JOIN {site_name}_food_info ON {site_name}_items.food_info_id = {site_name}_food_info.id WHERE shopping_lists @> ARRAY[%s];"
-
-                cur.execute(itemSQL, (id, ))
+                    sqlfile = open(f"sites/{site_name}/sql/unique/shopping_lists_safetystock_uncalculated.sql", "r+")
+                    sql = "\n".join(sqlfile.readlines())
+                    sqlfile.close()
+                    
+                cur.execute(sql, (id, ))
                 shopping_list[3] = list(cur.fetchall())
-                print(shopping_list)
+                print(shopping_list[4])
 
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)

@@ -1,1 +1,0 @@
-DROP TABLE test_receipt_items CASCADE;

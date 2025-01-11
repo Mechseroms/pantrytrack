@@ -189,7 +189,6 @@ def setLogisticsDataTransaction(conn, site_name, location, logistics_info_id, qt
 		return error
 	return "success"
 
-
 def handleNegativeQuantityOnHand(qty, cost_layers):
 	cost_layers = [ast.literal_eval(item) for item in ast.literal_eval(cost_layers.replace('{', '[').replace('}', ']'))]
 	dummy_quantity = qty
@@ -415,11 +414,12 @@ def delete_site(site_name):
 	drop_table(f'sites/{site_name}/sql/drop/shopping_lists.sql')
 	drop_table(f'sites/{site_name}/sql/drop/item_locations.sql')
 
-def create_site(site_name):
-
-	site_config = config(f"sites/{site_name}/site.ini", 'defaults')
+def create_site(site_name, admin_user: tuple, default_zone, default_primary, default_auto, description):
 
 	create_table(f'sites/{site_name}/sql/create/logins.sql')
+	create_table(f"sites/{site_name}/sql/create/sites.sql")
+	create_table(f"sites/{site_name}/sql/create/roles.sql")
+	
 	create_table(f'sites/{site_name}/sql/create/groups.sql')
 	create_table(f'sites/{site_name}/sql/create/linked_items.sql')
 	create_table(f'sites/{site_name}/sql/create/brands.sql')
@@ -437,16 +437,69 @@ def create_site(site_name):
 	create_table(f'sites/{site_name}/sql/create/shopping_lists.sql')
 	create_table(f'sites/{site_name}/sql/create/item_locations.sql')
 	
-
+	add_admin_sql = f"INSERT INTO logins(username, password, email) VALUES(%s, %s, %s) RETURNING id;"
+	add_site_sql = f"INSERT INTO sites(site_name, creation_date, site_owner_id, flags, default_zone, default_auto_issue_location, default_primary_location, site_description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"
+	add_admin_role = f"INSERT INTO roles(role_name, site_id) VALUES(%s, %s) RETURNING id;"
+	
 	sql = f"INSERT INTO {site_name}_zones(name) VALUES (%s) RETURNING id;"
 	sqltwo = f"INSERT INTO {site_name}_locations(uuid, name, zone_id, items) VALUES (%s, %s, %s, %s);"
 	sqlthree = f"INSERT INTO {site_name}_vendors(vendor_name, creation_date, created_by) VALUES (%s, %s, %s);"
+	
 	database_config = config()
 	with psycopg2.connect(**database_config) as conn:
+		try:
+			with conn.cursor() as cur:
+				cur.execute(add_admin_sql, admin_user)
+				rows = cur.fetchone()
+				if rows:
+					user_id = rows[0]
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+		print(user_id)
+
+		# set up site in database
+		try:
+			with conn.cursor() as cur:
+				data = (site_name, str(datetime.datetime.now()), user_id, json.dumps({}), default_zone, default_auto, default_primary, description)
+				cur.execute(add_site_sql, data)
+				rows = cur.fetchone()
+				if rows:
+					site_id = rows[0]
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+		
+		# add admin role for site
+		try:
+			with conn.cursor() as cur:
+				data = ('Admin', site_id)
+				cur.execute(add_admin_role, data)
+				rows = cur.fetchone()
+				if rows:
+					role_id = rows[0]
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+
+		# update user with site_id and admin role.
+		try:
+			with conn.cursor() as cur:
+				data = (site_id, role_id, user_id)
+				cur.execute(f"UPDATE logins SET sites = sites || %s, site_roles = site_roles || %s WHERE id=%s;", data)
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+
+		# setup the default zone.
 		zone_id = None
 		try:
 			with conn.cursor() as cur:
-				cur.execute(sql, (site_config["default_zone"], ))
+				cur.execute(sql, (default_zone, ))
 				rows = cur.fetchone()
 				if rows:
 					zone_id = rows[0]
@@ -455,11 +508,11 @@ def create_site(site_name):
 			conn.rollback()
 			return False
 		
-		uuid = f"{site_config["default_zone"]}@{site_config["default_primary_location"]}"
+		uuid = f"{default_zone}@{default_primary}"
 
 		try:
 			with conn.cursor() as cur:
-				cur.execute(sqltwo, (uuid, site_config["default_primary_location"], zone_id, json.dumps({})))
+				cur.execute(sqltwo, (uuid, default_primary, zone_id, json.dumps({})))
 		except (Exception, psycopg2.DatabaseError) as error:
 			print(error)
 			conn.rollback()
@@ -473,8 +526,170 @@ def create_site(site_name):
 			conn.rollback()
 			return False
 
+		conn.commit()
+
+async def create_site_secondary(site_name, user_id, default_zone, default_primary, default_auto, description):
+
+	create_table(f'sites/{site_name}/sql/create/logins.sql')
+	create_table(f"sites/{site_name}/sql/create/sites.sql")
+	create_table(f"sites/{site_name}/sql/create/roles.sql")
+	
+	create_table(f'sites/{site_name}/sql/create/groups.sql')
+	create_table(f'sites/{site_name}/sql/create/linked_items.sql')
+	create_table(f'sites/{site_name}/sql/create/brands.sql')
+	create_table(f'sites/{site_name}/sql/create/food_info.sql')
+	create_table(f'sites/{site_name}/sql/create/item_info.sql')
+	create_table(f'sites/{site_name}/sql/create/logistics_info.sql')
+	create_table(f'sites/{site_name}/sql/create/transactions.sql')
+	create_table(f'sites/{site_name}/sql/create/item.sql')
+	create_table(f'sites/{site_name}/sql/create/zones.sql')
+	create_table(f'sites/{site_name}/sql/create/locations.sql')
+	create_table(f'sites/{site_name}/sql/create/vendors.sql')
+	create_table(f'sites/{site_name}/sql/create/receipts.sql')
+	create_table(f'sites/{site_name}/sql/create/receipt_items.sql')
+	create_table(f'sites/{site_name}/sql/create/recipes.sql')
+	create_table(f'sites/{site_name}/sql/create/shopping_lists.sql')
+	create_table(f'sites/{site_name}/sql/create/item_locations.sql')
+	
+	add_site_sql = f"INSERT INTO sites(site_name, creation_date, site_owner_id, flags, default_zone, default_auto_issue_location, default_primary_location, site_description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"
+	add_admin_role = f"INSERT INTO roles(role_name, site_id, role_description) VALUES(%s, %s, %s) RETURNING id;"
+	
+	sql = f"INSERT INTO {site_name}_zones(name) VALUES (%s) RETURNING id;"
+	sqltwo = f"INSERT INTO {site_name}_locations(uuid, name, zone_id, items) VALUES (%s, %s, %s, %s);"
+	sqlthree = f"INSERT INTO {site_name}_vendors(vendor_name, creation_date, created_by) VALUES (%s, %s, %s);"
+	
+	database_config = config()
+	with psycopg2.connect(**database_config) as conn:
+		# set up site in database
+		try:
+			with conn.cursor() as cur:
+				data = (site_name, str(datetime.datetime.now()), user_id, json.dumps({}), default_zone, default_auto, default_primary, description)
+				cur.execute(add_site_sql, data)
+				rows = cur.fetchone()
+				if rows:
+					site_id = rows[0]
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+		
+		# add admin role for site
+		try:
+			with conn.cursor() as cur:
+				data = ('Admin', site_id, f"This is the admin role for {site_name}.")
+				cur.execute(add_admin_role, data)
+				rows = cur.fetchone()
+				if rows:
+					role_id = rows[0]
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+
+		# update user with site_id and admin role.
+		try:
+			with conn.cursor() as cur:
+				data = (site_id, role_id, user_id)
+				cur.execute(f"UPDATE logins SET sites = sites || %s, site_roles = site_roles || %s WHERE id=%s;", data)
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+
+		# setup the default zone.
+		zone_id = None
+		try:
+			with conn.cursor() as cur:
+				cur.execute(sql, (default_zone, ))
+				rows = cur.fetchone()
+				if rows:
+					zone_id = rows[0]
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+		
+		uuid = f"{default_zone}@{default_primary}"
+
+		try:
+			with conn.cursor() as cur:
+				cur.execute(sqltwo, (uuid, default_primary, zone_id, json.dumps({})))
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+		
+		try:
+			with conn.cursor() as cur:
+				cur.execute(sqlthree, ("None", str(datetime.datetime.now()), 1))
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
 
 		conn.commit()
+
+	return True
+
+
+def getUser(username, password):
+	database_config = config()
+	with psycopg2.connect(**database_config) as conn:
+		try:
+			with conn.cursor() as cur:
+				sql = f"SELECT * FROM logins WHERE username=%s;"
+				cur.execute(sql, (username,))
+				user = cur.fetchone()
+				if user and user[2] == password:
+					return list(user)
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+	return []
+
+def setSystemAdmin(user_id: int):
+	database_config = config()
+	with psycopg2.connect(**database_config) as conn:
+		try:
+			with conn.cursor() as cur:
+				cur.execute(f"UPDATE logins SET system_admin = TRUE WHERE id=%s;", (user_id, ))
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+
+def get_roles(site_id):
+	database_config = config()
+	with psycopg2.connect(**database_config) as conn:
+		try:
+			with conn.cursor() as cur:
+				cur.execute(f"SELECT * FROM roles WHERE site_id=%s;", (site_id, ))
+				roles = cur.fetchall()
+				return roles
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+
+
+def get_sites(sites=[]):
+	database_config = config()
+	with psycopg2.connect(**database_config) as conn:
+		try:
+			with conn.cursor() as cur:
+				site_rows = []
+				for each  in sites:
+					cur.execute(f"SELECT * FROM sites WHERE id=%s;", (each, ))
+					site_rows.append(cur.fetchone())
+				print(site_rows)
+				return site_rows
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+
+
+
 
 transaction_payload = {
 	"timestamp": None,

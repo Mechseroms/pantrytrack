@@ -55,19 +55,7 @@ def rename_create_sql(site_name):
         with open(f"sites/{site_name}/sql/create/{file_name}", "w") as file:
             file.write(words)
 
-def create():
-    site_name = input("Site Name: ")
-    site_owner = input("Site Owner: ")
-    email = input("Contact Email: ")
-    
-    default_zone_name = input("Set Default Zone Name (default): ").strip()
-    if default_zone_name == "":
-        default_zone_name = "default"
-
-    print(f"Now you will set the default location that you wish for things to be received into (primary location) and used from (auto-issue).")
-    default_location_name = input("Set Default Location (all): ").strip()
-    if default_location_name == "":
-        default_location_name = "all"
+def create(site_name, owner_name, default_zone_name, default_location_name, email=""):
 
     if not os.path.exists(f"sites/{site_name}"):
         print(f"Creating {site_name} site...")
@@ -82,7 +70,7 @@ def create():
         with open(f"sites/{site_name}/site.ini", "w+") as config:
             config.write(f"[site]\n")
             config.write(f"site_name={site_name}\n")
-            config.write(f"site_owner={site_owner}\n")
+            config.write(f"site_owner={owner_name}\n")
             config.write(f"email={email}\n")
             config.write(f"\n")
 

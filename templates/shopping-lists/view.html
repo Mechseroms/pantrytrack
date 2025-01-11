@@ -92,7 +92,6 @@
 
             await populateInfo()
             await populateReferences()
-            console.log(quantities)
         })
 
         async function fetchList(){
@@ -129,7 +128,6 @@
             var tbl_body = document.createElement('tbody')
             
             let inventory_items = shoppingList[3];
-            console.log(inventory_items)
 
             // if it is plain then we want to grab the qty from the quantities dictionary
 
@@ -138,17 +136,16 @@
                 var row = document.createElement('tr')
 
                 let name_cell = document.createElement('td')
-                if (inventory_items[i][3]){
-                    name_cell.innerHTML = `<a href=${inventory_items[i][3].main} target="_blank">${inventory_items[i][2]}</a>`
+                if (inventory_items[i][6]){
+                    name_cell.innerHTML = `<a href=${inventory_items[i][6].main} target="_blank">${inventory_items[i][2]}</a>`
                 } else {
                     name_cell.innerHTML = `${inventory_items[i][2]}`
                 }
                 
-                console.log(inventory_items[i])
                 let qty_uom_cell = document.createElement('td')
                 if(shoppingList[10] == 'calculated'){
-                    qty = Number(inventory_items[i][5]) - Number(inventory_items[i][4])
-                    uom = inventory_items[i][6]
+                    qty = Number(inventory_items[i][22]) - Number(inventory_items[i][26])
+                    uom = inventory_items[i][20]
                 } else {
                     qty = quantities[`${inventory_items[i][0]}@item`]['qty']
                     uom = quantities[`${inventory_items[i][0]}@item`]['uom']
@@ -162,6 +159,26 @@
             };
 
             // all custom items will pull quantities form the quantities dictionary.
+            console.log(quantities)
+
+            for(let key in shoppingList[4]){
+                var row = document.createElement('tr')
+
+                let name = key
+                let tag = `${key}@custom`
+                qty = quantities[tag]['qty']
+                uom = quantities[tag]['uom']
+
+                let name_cell = document.createElement('td')
+                name_cell.innerHTML = `<a href=${shoppingList[4][key][3].main} target="_blank">${shoppingList[4][key][2]}</a>`
+                let qty_uom_cell = document.createElement('td')
+                qty_uom_cell.innerHTML = `${qty} ${uom}`
+
+                row.appendChild(name_cell)
+                row.appendChild(qty_uom_cell)
+
+                tbl_body.appendChild(row)
+            }
 
             references_table.appendChild(tbl_header)
             references_table.appendChild(tbl_body)

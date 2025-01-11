@@ -27,20 +27,33 @@ def sites_config(filename='database.ini', section='manage'):
     parser.read(filename) 
   
     # get section, default to postgresql 
-    sites = {} 
+    instance_config = {}
+    first_setup = False
     if parser.has_section(section): 
-        params = parser.items(section) 
+        params = parser.items(section)
+        print(params)
         for param in params: 
-            sites[param[0]] = param[1].split(',')
+            instance_config[param[0]] = param[1].split(',')
     else: 
         raise Exception('Section {0} not found in the {1} file'.format(section, filename)) 
     
-    return sites
+    instance_config['first_setup'] = parser.getboolean('manage', 'first_setup')
+    instance_config['signup_enabled'] = parser.getboolean('manage', 'signup_enabled')
 
+
+    print(instance_config)
+    return instance_config
+
+def setFirstSetupDone():
+    config = ConfigParser()
+    config.read('database.ini')
+    config.set('manage', 'first_setup', 'False')
+    with open('database.ini', 'w') as configFile:
+        config.write(configFile)
 
 def write_new_site(site_name):
 
-    old_value = sites_config()['sites']
+    old_value = [site for site in sites_config()['sites'] if site != ""]
     print(old_value)
 
     old_value.append(site_name)
