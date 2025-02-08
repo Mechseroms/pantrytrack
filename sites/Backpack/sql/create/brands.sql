@@ -1,4 +1,0 @@
-CREATE TABLE IF NOT EXISTS Backpack_brands (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255)
-);

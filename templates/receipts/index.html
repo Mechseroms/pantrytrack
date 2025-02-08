@@ -36,28 +36,33 @@
                 opacity: 0.5; /* or your desired degree of transparency */
               }
     </style>
+    <div class="navbar-fixed">
+        <nav class="blue lighten-4 text-black z-depth-0">
+            <div class="nav-wrapper">
+            <ul id="nav-mobile" class="left hide-on-med-and-down black-text">
+                <li><a class="dropdown-trigger black-text" data-target="dropdown1">Current Site > {{current_site}}<i class="material-icons right">arrow_drop_down</i></a></li>
+                <li><a href="/items" class="black-text">Site Items</a></li>
+                <li><a href="/groups" class="black-text">Site Groups</a></li>
+                <li><a href="/shopping-lists" class="black-text">Site Shopping Lists</a></li>
+                <li class="active"><a href="/receipts" class="black-text">Site Receipts</a></li>
+            </ul>
+            <ul class="right">
+                <li><a class="dropdown-trigger hide-on-med-and-down black-text" data-target="username_dropdown">{{username}}<i class="material-icons right">arrow_drop_down</i></a></li>
+            </ul>
+            </div>
+        </nav>
+    </div>
     <ul id='dropdown1' class='dropdown-content'>
         {% for site in sites %}
             <li><button class="btn transparent black-text z-depth-0" onclick="changeSite('{{ site }}')">{{site}}</button></li>
         {% endfor %}
     </ul>
-    <ul id="slide-out" class="sidenav sidenav-fixed green lighten-4" style="width: 250px;">
-        <li>
-            <div class="user-view">
-                <!-- <div class="background">
-                    <img src="images/office.jpg">
-                </div> -->
-                <!-- <a href="#user"><img class="circle" src="images/yuna.jpg"></a> -->
-                <a href="#name"><span class="black-text name">John Doe</span></a>
-                <a href="#email"><span class="black-text email">jdoe@example.com</span></a>
-            </div>
-        </li>
-        <li><a class="dropdown-trigger" data-target="dropdown1">Current Site > {{current_site}}<i class="material-icons right">arrow_drop_down</i></a></li>
-        <li><div class="divider grey darken-1" style="margin-left: 5px; margin-right: 10px;"></div></li>
-        <li class="active"><a href="/items">Site Items</a></li>
-        <li><a href="/groups">Site Groups</a></li>
-        <li><a href="/shopping-lists">Site Shopping Lists</a></li>
-        <li><a href="/receipts">Site Receipts</a></li>
+    <ul id='username_dropdown' class='dropdown-content'>
+        <li><a href="/profile" class="hide-on-med-and-down black-text">Profile</a></li>
+        {% if system_admin == True %}
+            <li><a href="/admin" class="hide-on-med-and-down black-text">Administration</a></li>
+        {% endif %}
+        <li><a href="/logout" class="hide-on-med-and-down black-text">Logout</a></li>
     </ul>
     <body>
         <div class="container section">
@@ -66,11 +71,11 @@
                 </div>
                 <div class="col s12 center" id="pagination_list">
                     <ul class="pagination">
-                        <li id="first" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">first_page</i></a></li>
-                        <li id="back" class="waves-effect hand-pointer" ><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_left</i></a></li>
+                        <li id="first" class="waves-effect hand-pointer"><a class="blue lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">first_page</i></a></li>
+                        <li id="back" class="waves-effect hand-pointer" ><a class="blue lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_left</i></a></li>
                         <li id="current_page" style="padding-top: 7px; padding-left: 5px; padding-right: 5px; font-size: 18px;">page_number</li>
-                        <li id="forward" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_right</i></a></li>
-                        <li id="last" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">last_page</i></a></li>
+                        <li id="forward" class="waves-effect hand-pointer"><a class="blue lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_right</i></a></li>
+                        <li id="last" class="waves-effect hand-pointer"><a class="blue lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">last_page</i></a></li>
                     </ul>
                 </div>  
             </div>

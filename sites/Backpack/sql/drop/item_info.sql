@@ -1,1 +1,0 @@
-DROP TABLE Backpack_item_info CASCADE;

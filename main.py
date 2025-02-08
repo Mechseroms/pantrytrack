@@ -400,6 +400,7 @@ def delete_site(site_name):
 	drop_table(f'sites/{site_name}/sql/drop/item_info.sql')
 	drop_table(f'sites/{site_name}/sql/drop/items.sql')
 	drop_table(f'sites/{site_name}/sql/drop/groups.sql')
+	drop_table(f'sites/{site_name}/sql/drop/cost_layers.sql')
 	drop_table(f'sites/{site_name}/sql/drop/linked_items.sql')
 	drop_table(f'sites/{site_name}/sql/drop/transactions.sql')
 	drop_table(f'sites/{site_name}/sql/drop/brands.sql')
@@ -421,6 +422,7 @@ def create_site(site_name, admin_user: tuple, default_zone, default_primary, def
 	create_table(f"sites/{site_name}/sql/create/roles.sql")
 	
 	create_table(f'sites/{site_name}/sql/create/groups.sql')
+	create_table(f'sites/{site_name}/sql/create/cost_layers.sql')
 	create_table(f'sites/{site_name}/sql/create/linked_items.sql')
 	create_table(f'sites/{site_name}/sql/create/brands.sql')
 	create_table(f'sites/{site_name}/sql/create/food_info.sql')

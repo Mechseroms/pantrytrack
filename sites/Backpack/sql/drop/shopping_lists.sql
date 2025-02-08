@@ -1,1 +1,0 @@
-DROP TABLE Backpack_shopping_lists CASCADE;

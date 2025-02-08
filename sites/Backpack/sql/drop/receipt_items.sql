@@ -1,1 +1,0 @@
-DROP TABLE Backpack_receipt_items CASCADE;
