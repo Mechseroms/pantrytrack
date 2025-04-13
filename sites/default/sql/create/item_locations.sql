@@ -7,10 +7,8 @@ CREATE TABLE IF NOT EXISTS %sitename%_item_locations(
     UNIQUE(part_id, location_id),
     CONSTRAINT fk_part_id
         FOREIGN KEY(part_id) 
-        REFERENCES %sitename%_items(id)
-        ON DELETE CASCADE,
+        REFERENCES %sitename%_items(id),
     CONSTRAINT fk_location_id
         FOREIGN KEY(location_id) 
         REFERENCES %sitename%_locations(id)
-        ON DELETE CASCADE
 );

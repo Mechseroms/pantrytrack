@@ -7,10 +7,8 @@ CREATE TABLE IF NOT EXISTS main_item_locations(
     UNIQUE(part_id, location_id),
     CONSTRAINT fk_part_id
         FOREIGN KEY(part_id) 
-        REFERENCES main_items(id)
-        ON DELETE CASCADE,
+        REFERENCES main_items(id),
     CONSTRAINT fk_location_id
         FOREIGN KEY(location_id) 
         REFERENCES main_locations(id)
-        ON DELETE CASCADE
 );

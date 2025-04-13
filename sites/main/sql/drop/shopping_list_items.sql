@@ -1,0 +1,1 @@
+DROP TABLE main_shopping_list_items CASCADE;

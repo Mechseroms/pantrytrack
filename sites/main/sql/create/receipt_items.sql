@@ -10,4 +10,5 @@ CREATE TABLE IF NOT EXISTS main_receipt_items (
     CONSTRAINT fk_receipt
         FOREIGN KEY(receipt_id) 
         REFERENCES main_receipts(id)
+        ON DELETE CASCADE
 );

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template, redirect, session, url_for, send_file, jsonify, Response
-import psycopg2, math, json, datetime, main, copy, requests, html_factory
+import psycopg2, math, json, datetime, main, copy, requests
 from config import config, sites_config
 from main import unfoldCostLayers, get_sites, get_roles, create_site_secondary, getUser
 from manage import create

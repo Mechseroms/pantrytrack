@@ -412,6 +412,7 @@ def delete_site(site_name):
 	drop_table(f'sites/{site_name}/sql/drop/receipt_items.sql')
 	drop_table(f'sites/{site_name}/sql/drop/receipts.sql')
 	drop_table(f'sites/{site_name}/sql/drop/recipes.sql')
+	drop_table(f'sites/{site_name}/sql/drop/shopping_list_items.sql')
 	drop_table(f'sites/{site_name}/sql/drop/shopping_lists.sql')
 	drop_table(f'sites/{site_name}/sql/drop/item_locations.sql')
 
@@ -437,16 +438,17 @@ def create_site(site_name, admin_user: tuple, default_zone, default_primary, def
 	create_table(f'sites/{site_name}/sql/create/receipt_items.sql')
 	create_table(f'sites/{site_name}/sql/create/recipes.sql')
 	create_table(f'sites/{site_name}/sql/create/shopping_lists.sql')
+	create_table(f'sites/{site_name}/sql/create/shopping_list_items.sql')
 	create_table(f'sites/{site_name}/sql/create/item_locations.sql')
 	
 	add_admin_sql = f"INSERT INTO logins(username, password, email) VALUES(%s, %s, %s) RETURNING id;"
 	add_site_sql = f"INSERT INTO sites(site_name, creation_date, site_owner_id, flags, default_zone, default_auto_issue_location, default_primary_location, site_description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"
 	add_admin_role = f"INSERT INTO roles(role_name, site_id) VALUES(%s, %s) RETURNING id;"
-	
 	sql = f"INSERT INTO {site_name}_zones(name) VALUES (%s) RETURNING id;"
 	sqltwo = f"INSERT INTO {site_name}_locations(uuid, name, zone_id, items) VALUES (%s, %s, %s, %s);"
 	sqlthree = f"INSERT INTO {site_name}_vendors(vendor_name, creation_date, created_by) VALUES (%s, %s, %s);"
-	
+	sqlfour = f"INSERT INTO {site_name}_brands(name) VALUES (%s);"
+
 	database_config = config()
 	with psycopg2.connect(**database_config) as conn:
 		try:
@@ -512,6 +514,7 @@ def create_site(site_name, admin_user: tuple, default_zone, default_primary, def
 		
 		uuid = f"{default_zone}@{default_primary}"
 
+		#setup loaction
 		try:
 			with conn.cursor() as cur:
 				cur.execute(sqltwo, (uuid, default_primary, zone_id, json.dumps({})))
@@ -520,9 +523,19 @@ def create_site(site_name, admin_user: tuple, default_zone, default_primary, def
 			conn.rollback()
 			return False
 		
+		#setup vendor
 		try:
 			with conn.cursor() as cur:
 				cur.execute(sqlthree, ("None", str(datetime.datetime.now()), 1))
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+		
+		# setup brand
+		try:
+			with conn.cursor() as cur:
+				cur.execute(sqlfour, ("None", ))
 		except (Exception, psycopg2.DatabaseError) as error:
 			print(error)
 			conn.rollback()
@@ -537,6 +550,7 @@ async def create_site_secondary(site_name, user_id, default_zone, default_primar
 	create_table(f"sites/{site_name}/sql/create/roles.sql")
 	
 	create_table(f'sites/{site_name}/sql/create/groups.sql')
+	create_table(f'sites/{site_name}/sql/create/cost_layers.sql')
 	create_table(f'sites/{site_name}/sql/create/linked_items.sql')
 	create_table(f'sites/{site_name}/sql/create/brands.sql')
 	create_table(f'sites/{site_name}/sql/create/food_info.sql')
@@ -551,6 +565,7 @@ async def create_site_secondary(site_name, user_id, default_zone, default_primar
 	create_table(f'sites/{site_name}/sql/create/receipt_items.sql')
 	create_table(f'sites/{site_name}/sql/create/recipes.sql')
 	create_table(f'sites/{site_name}/sql/create/shopping_lists.sql')
+	create_table(f'sites/{site_name}/sql/create/shopping_list_items.sql')
 	create_table(f'sites/{site_name}/sql/create/item_locations.sql')
 	
 	add_site_sql = f"INSERT INTO sites(site_name, creation_date, site_owner_id, flags, default_zone, default_auto_issue_location, default_primary_location, site_description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"
@@ -559,7 +574,9 @@ async def create_site_secondary(site_name, user_id, default_zone, default_primar
 	sql = f"INSERT INTO {site_name}_zones(name) VALUES (%s) RETURNING id;"
 	sqltwo = f"INSERT INTO {site_name}_locations(uuid, name, zone_id, items) VALUES (%s, %s, %s, %s);"
 	sqlthree = f"INSERT INTO {site_name}_vendors(vendor_name, creation_date, created_by) VALUES (%s, %s, %s);"
-	
+	sqlfour = f"INSERT INTO {site_name}_brands(name) VALUES (%s);"
+
+
 	database_config = config()
 	with psycopg2.connect(**database_config) as conn:
 		# set up site in database
@@ -628,6 +645,14 @@ async def create_site_secondary(site_name, user_id, default_zone, default_primar
 			print(error)
 			conn.rollback()
 			return False
+		
+		try:
+			with conn.cursor() as cur:
+				cur.execute(sqlfour, ("Unknown", ))
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
 
 		conn.commit()
 
@@ -683,7 +708,6 @@ def get_sites(sites=[]):
 				for each  in sites:
 					cur.execute(f"SELECT * FROM sites WHERE id=%s;", (each, ))
 					site_rows.append(cur.fetchone())
-				print(site_rows)
 				return site_rows
 		except (Exception, psycopg2.DatabaseError) as error:
 			print(error)

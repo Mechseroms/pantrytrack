@@ -1,0 +1,86 @@
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+  }
+
+.chip.uk-label {
+    background-color: grey;
+    transition: background-color 0.3s, transform 0.3s;
+    user-select: none;
+    text-transform: none !important;
+}
+
+.chip:hover {
+  background-color:rgb(212, 78, 78);
+  animation: shake 0.5s;
+  cursor: pointer;
+}
+.tag-zone {
+    border: 1px solid #ccc;
+    border-color: lightgray;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+
+.floating-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    height: 40px;
+  }
+
+.dark-mode-body {
+  background-color: #121212;
+  min-height: 100vh;
+}
+
+.dark-mode-element {
+  background-color: #323232;
+}
+
+.dark-mode-nav {
+  background-color: #222222;
+}
+
+.dark-mode-primary {
+  background-color: rgb(199, 165, 199);
+}
+
+.selectableRow :hover {
+  cursor: pointer;
+}
+
+.pantry-row-error {
+  background-color: darkred;
+}
+
+.instruction-card{
+  background: #f0f0f0; 
+  margin: 10px 0; 
+  padding: 10px; 
+  border-radius: 5px;
+  position: relative;
+}
+
+.instruction-button{
+  background: none;
+  border: none;
+  color: red;
+  font-size: 1.2em;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.instruction-list{
+  list-style-type: none; 
+  padding: 0;
+}

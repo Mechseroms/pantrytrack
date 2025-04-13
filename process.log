@@ -1,0 +1,421 @@
+
+2025-04-07 18:07:48.193728 --- CAUTION --- 0
+                                         {"Plural": "pinches", " Single": " pinch", " Fullname": " Pinch", " Description": " Less than 1/8 teaspoon."}
+2025-04-07 18:07:48.198811 --- CAUTION --- 0
+                                         {"Plural": "tsp", " Single": " tsp", " Fullname": " Teaspoon", " Description": " 5 millilitres in Australia New Zealand UK Canada and the US but approximately 4.93 millilitres in the US."}
+2025-04-07 18:07:48.202723 --- CAUTION --- 0
+                                         {"Plural": "dsp", " Single": " dsp", " Fullname": " Dessertspoon", " Description": " 10 millilitres in Australia."}
+2025-04-07 18:07:48.205733 --- CAUTION --- 0
+                                         {"Plural": "tbsp", " Single": " tbsp", " Fullname": " Tablespoon", " Description": " 20 millilitres in Australia or 15 millilitres in New Zealand the UK Canada and the US."}
+2025-04-07 18:07:48.208306 --- CAUTION --- 0
+                                         {"Plural": "fl oz", " Single": " fl oz", " Fullname": " Fluid ounce", " Description": " 28.41 millilitres in the UK or approximately 29.57 millilitres in the US."}
+2025-04-07 18:07:48.212832 --- CAUTION --- 0
+                                         {"Plural": "cups", " Single": " cup", " Fullname": " Cup", " Description": " 250 millilitres in Australia and New Zealand or approximately 170.48 millilitres in the UK or approximately 227.31 millilitres in Canada and approximately 236.59 millilitres in the US."}
+2025-04-07 18:07:48.215843 --- CAUTION --- 0
+                                         {"Plural": "pt", " Single": " pt", " Fullname": " Pint", " Description": " 570 millilitres in Australia approximately 568.26 millilitres in New Zealand the UK and Canada and approximately 473.18 millilitres in the US."}
+2025-04-07 18:07:48.219306 --- CAUTION --- 0
+                                         {"Plural": "qt", " Single": " qt", " Fullname": " Quart", " Description": " Approximately 1136.52 millilitres in Australia New Zealand the UK and Canada and approximately 946.35 millilitres in the US."}
+2025-04-07 18:07:48.222204 --- CAUTION --- 0
+                                         {"Plural": "gal", " Single": " gal", " Fullname": " Gallon", " Description": " Approximately 4546.09 millilitres in Australia New Zealand the UK and Canada and approximately 3785.41 millilitres in the US."}
+2025-04-07 18:07:48.226717 --- CAUTION --- 0
+                                         {"Plural": "jiggers", " Single": " jigger", " Fullname": " Jigger", " Description": " 1.5 fluid ounces."}
+2025-04-07 18:07:48.230038 --- CAUTION --- 0
+                                         {"Plural": "oz", " Single": " oz", " Fullname": " Ounce", " Description": " 1/4 lb for butter which can also be measured as 3 tablespoons."}
+2025-04-07 18:07:48.233496 --- CAUTION --- 0
+                                         {"Plural": "L", " Single": " L", " Fullname": " Liter", " Description": " Commonly used for volume measurement in the metric system."}
+2025-04-07 18:07:48.236507 --- CAUTION --- 0
+                                         {"Plural": "mL", " Single": " mL", " Fullname": " Milliliter", " Description": " Commonly used for volume measurement in the metric system."}
+2025-04-07 18:07:48.240296 --- CAUTION --- 0
+                                         {"Plural": "dm3", " Single": " dm3", " Fullname": " Cubic decimeter", " Description": " Equivalent to 1 liter."}
+2025-04-07 18:07:48.242309 --- CAUTION --- 0
+                                         {"Plural": "g", " Single": " g", " Fullname": " Gram", " Description": " Commonly used for weight measurement in the metric system."}
+2025-04-07 18:07:48.246896 --- CAUTION --- 0
+                                         {"Plural": "kg", " Single": " kg", " Fullname": " Kilogram", " Description": " Commonly used for weight measurement in the metric system."}
+2025-04-07 18:07:48.250308 --- CAUTION --- 0
+                                         {"Plural": "lbs", " Single": " lb", " Fullname": " Pound", " Description": " Used for weight measurement in the US."}
+2025-04-07 18:07:48.253557 --- CAUTION --- 0
+                                         {"Plural": "fluid scruples", " Single": " fluid scruple", " Fullname": " Fluid scruple", " Description": " A unit used in the apothecaries' system but not commonly used in cooking."}
+2025-04-07 18:07:48.257236 --- CAUTION --- 0
+                                         {"Plural": "cm3", " Single": " cm3", " Fullname": " Cubic centimeter", " Description": " Equivalent to 1 milliliter."}
+2025-04-07 18:07:48.261287 --- CAUTION --- 0
+                                         {"Plural": "breakfast cups", " Single": " breakfast cup", " Fullname": " Breakfast cup", " Description": " Similar in size to the US customary cup and the metric cup."}
+2025-04-07 18:07:48.263881 --- CAUTION --- 0
+                                         {"Plural": "tumblers", " Single": " tumbler", " Fullname": " Tumblerful", " Description": " A unit used in British cookery books and recipes."}
+2025-04-07 18:07:48.266919 --- CAUTION --- 0
+                                         {"Plural": "winefulls", " Single": " winefull", " Fullname": " Wineglassful", " Description": " A unit used in British cookery books and recipes."}
+2025-04-07 18:07:48.270307 --- CAUTION --- 0
+                                         {"Plural": "coffee cups", " Single": " coffee cup", " Fullname": " Coffee cup", " Description": " Can vary from 100 to 200 millilitres."}
+2025-04-07 18:07:48.273839 --- CAUTION --- 0
+                                         {"Plural": "sticks of butter", " Single": " stick of butter", " Fullname": " Stick of butter", " Description": " 1/4 lb or 3 tablespoons."}
+2025-04-07 18:07:48.277370 --- CAUTION --- 0
+                                         {"Plural": "smidgens", " Single": " smidgen", " Fullname": " Smidgen", " Description": " An approximate unit of measure."}
+2025-04-07 18:07:48.280470 --- CAUTION --- 0
+                                         {"Plural": "dashes", " Single": " dash", " Fullname": " Dash", " Description": " An approximate unit of measure."}
+2025-04-07 18:07:48.283908 --- CAUTION --- 0
+                                         {"Plural": "drops", " Single": " drop", " Fullname": " Drop", " Description": " An approximate unit of measure."}
+2025-04-07 18:07:48.286954 --- CAUTION --- 0
+                                         {"Plural": "eaches", " Single": " each", " Fullname": " Each", " Description": " A single unit."}
+2025-04-07 18:07:48.290199 --- CAUTION --- 0
+                                         {"Plural": "boxes", " Single": " box", " Fullname": " Box", " Description": " A Single box of a unit."}
+2025-04-07 18:07:48.293848 --- CAUTION --- 0
+                                         {"Plural": "crates", " Single": " crate", " Fullname": " Crate", " Description": " a single crate of a unit."}
+2025-04-07 18:07:48.297999 --- CAUTION --- 0
+                                         {"Plural": "jars", " Single": " jar", " Fullname": " Jar", " Description": " A single Jar of a unit."}
+2025-04-07 18:07:48.301330 --- CAUTION --- 0
+                                         {"Plural": "cans", " Single": " can", " Fullname": " Can", " Description": " A Single Can of a unit."}
+2025-04-07 18:07:48.304665 --- CAUTION --- 0
+                                         {"Plural": "bars", " Single": " bar", " Fullname": " Bars", " Description": " A Single bar of a unit."}
+2025-04-07 18:07:48.307969 --- CAUTION --- 0
+                                         {"Plural": "loaves", " Single": " loaf", " Fullname": " Loaf", " Description": " A single loaf of a unit."}
+2025-04-07 18:07:48.311119 --- CAUTION --- 0
+                                         {"Plural": "packs", " Single": " pack", " Fullname": " Pack", " Description": " A Single Pack of a unit."}
+2025-04-07 18:08:49.486023 --- CAUTION --- 0
+                                         {"Plural": "pinches", " Single": " pinch", " Fullname": " Pinch", " Description": " Less than 1/8 teaspoon."}
+2025-04-07 18:08:49.492309 --- CAUTION --- 0
+                                         {"Plural": "tsp", " Single": " tsp", " Fullname": " Teaspoon", " Description": " 5 millilitres in Australia New Zealand UK Canada and the US but approximately 4.93 millilitres in the US."}
+2025-04-07 18:08:49.496834 --- CAUTION --- 0
+                                         {"Plural": "dsp", " Single": " dsp", " Fullname": " Dessertspoon", " Description": " 10 millilitres in Australia."}
+2025-04-07 18:08:49.500191 --- CAUTION --- 0
+                                         {"Plural": "tbsp", " Single": " tbsp", " Fullname": " Tablespoon", " Description": " 20 millilitres in Australia or 15 millilitres in New Zealand the UK Canada and the US."}
+2025-04-07 18:08:49.504607 --- CAUTION --- 0
+                                         {"Plural": "fl oz", " Single": " fl oz", " Fullname": " Fluid ounce", " Description": " 28.41 millilitres in the UK or approximately 29.57 millilitres in the US."}
+2025-04-07 18:08:49.508006 --- CAUTION --- 0
+                                         {"Plural": "cups", " Single": " cup", " Fullname": " Cup", " Description": " 250 millilitres in Australia and New Zealand or approximately 170.48 millilitres in the UK or approximately 227.31 millilitres in Canada and approximately 236.59 millilitres in the US."}
+2025-04-07 18:08:49.512009 --- CAUTION --- 0
+                                         {"Plural": "pt", " Single": " pt", " Fullname": " Pint", " Description": " 570 millilitres in Australia approximately 568.26 millilitres in New Zealand the UK and Canada and approximately 473.18 millilitres in the US."}
+2025-04-07 18:08:49.514519 --- CAUTION --- 0
+                                         {"Plural": "qt", " Single": " qt", " Fullname": " Quart", " Description": " Approximately 1136.52 millilitres in Australia New Zealand the UK and Canada and approximately 946.35 millilitres in the US."}
+2025-04-07 18:08:49.519512 --- CAUTION --- 0
+                                         {"Plural": "gal", " Single": " gal", " Fullname": " Gallon", " Description": " Approximately 4546.09 millilitres in Australia New Zealand the UK and Canada and approximately 3785.41 millilitres in the US."}
+2025-04-07 18:08:49.522787 --- CAUTION --- 0
+                                         {"Plural": "jiggers", " Single": " jigger", " Fullname": " Jigger", " Description": " 1.5 fluid ounces."}
+2025-04-07 18:08:49.526796 --- CAUTION --- 0
+                                         {"Plural": "oz", " Single": " oz", " Fullname": " Ounce", " Description": " 1/4 lb for butter which can also be measured as 3 tablespoons."}
+2025-04-07 18:08:49.529796 --- CAUTION --- 0
+                                         {"Plural": "L", " Single": " L", " Fullname": " Liter", " Description": " Commonly used for volume measurement in the metric system."}
+2025-04-07 18:08:49.533807 --- CAUTION --- 0
+                                         {"Plural": "mL", " Single": " mL", " Fullname": " Milliliter", " Description": " Commonly used for volume measurement in the metric system."}
+2025-04-07 18:08:49.537268 --- CAUTION --- 0
+                                         {"Plural": "dm3", " Single": " dm3", " Fullname": " Cubic decimeter", " Description": " Equivalent to 1 liter."}
+2025-04-07 18:08:49.541002 --- CAUTION --- 0
+                                         {"Plural": "g", " Single": " g", " Fullname": " Gram", " Description": " Commonly used for weight measurement in the metric system."}
+2025-04-07 18:08:49.544953 --- CAUTION --- 0
+                                         {"Plural": "kg", " Single": " kg", " Fullname": " Kilogram", " Description": " Commonly used for weight measurement in the metric system."}
+2025-04-07 18:08:49.548961 --- CAUTION --- 0
+                                         {"Plural": "lbs", " Single": " lb", " Fullname": " Pound", " Description": " Used for weight measurement in the US."}
+2025-04-07 18:08:49.551999 --- CAUTION --- 0
+                                         {"Plural": "fluid scruples", " Single": " fluid scruple", " Fullname": " Fluid scruple", " Description": " A unit used in the apothecaries' system but not commonly used in cooking."}
+2025-04-07 18:08:49.556000 --- CAUTION --- 0
+                                         {"Plural": "cm3", " Single": " cm3", " Fullname": " Cubic centimeter", " Description": " Equivalent to 1 milliliter."}
+2025-04-07 18:08:49.560003 --- CAUTION --- 0
+                                         {"Plural": "breakfast cups", " Single": " breakfast cup", " Fullname": " Breakfast cup", " Description": " Similar in size to the US customary cup and the metric cup."}
+2025-04-07 18:08:49.564002 --- CAUTION --- 0
+                                         {"Plural": "tumblers", " Single": " tumbler", " Fullname": " Tumblerful", " Description": " A unit used in British cookery books and recipes."}
+2025-04-07 18:08:49.567064 --- CAUTION --- 0
+                                         {"Plural": "winefulls", " Single": " winefull", " Fullname": " Wineglassful", " Description": " A unit used in British cookery books and recipes."}
+2025-04-07 18:08:49.571455 --- CAUTION --- 0
+                                         {"Plural": "coffee cups", " Single": " coffee cup", " Fullname": " Coffee cup", " Description": " Can vary from 100 to 200 millilitres."}
+2025-04-07 18:08:49.574950 --- CAUTION --- 0
+                                         {"Plural": "sticks of butter", " Single": " stick of butter", " Fullname": " Stick of butter", " Description": " 1/4 lb or 3 tablespoons."}
+2025-04-07 18:08:49.578958 --- CAUTION --- 0
+                                         {"Plural": "smidgens", " Single": " smidgen", " Fullname": " Smidgen", " Description": " An approximate unit of measure."}
+2025-04-07 18:08:49.582103 --- CAUTION --- 0
+                                         {"Plural": "dashes", " Single": " dash", " Fullname": " Dash", " Description": " An approximate unit of measure."}
+2025-04-07 18:08:49.584615 --- CAUTION --- 0
+                                         {"Plural": "drops", " Single": " drop", " Fullname": " Drop", " Description": " An approximate unit of measure."}
+2025-04-07 18:08:49.589280 --- CAUTION --- 0
+                                         {"Plural": "eaches", " Single": " each", " Fullname": " Each", " Description": " A single unit."}
+2025-04-07 18:08:49.592278 --- CAUTION --- 0
+                                         {"Plural": "boxes", " Single": " box", " Fullname": " Box", " Description": " A Single box of a unit."}
+2025-04-07 18:08:49.595790 --- CAUTION --- 0
+                                         {"Plural": "crates", " Single": " crate", " Fullname": " Crate", " Description": " a single crate of a unit."}
+2025-04-07 18:08:49.599333 --- CAUTION --- 0
+                                         {"Plural": "jars", " Single": " jar", " Fullname": " Jar", " Description": " A single Jar of a unit."}
+2025-04-07 18:08:49.603568 --- CAUTION --- 0
+                                         {"Plural": "cans", " Single": " can", " Fullname": " Can", " Description": " A Single Can of a unit."}
+2025-04-07 18:08:49.607011 --- CAUTION --- 0
+                                         {"Plural": "bars", " Single": " bar", " Fullname": " Bars", " Description": " A Single bar of a unit."}
+2025-04-07 18:08:49.611167 --- CAUTION --- 0
+                                         {"Plural": "loaves", " Single": " loaf", " Fullname": " Loaf", " Description": " A single loaf of a unit."}
+2025-04-07 18:08:49.614706 --- CAUTION --- 0
+                                         {"Plural": "packs", " Single": " pack", " Fullname": " Pack", " Description": " A Single Pack of a unit."}
+2025-04-07 18:10:43.995134 --- CAUTION --- DatabaseError(message='duplicate key value violates unique constraint "units_plural_key"DETAIL:  Key (plural)=(pinches) already exists.', payload=('pinches', ' pinch', ' Pinch', ' Less than 1/8 teaspoon.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["pinches", " pinch", " Pinch", " Less than 1/8 teaspoon."]
+2025-04-07 18:10:44.005096 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('tsp', ' tsp', ' Teaspoon', ' 5 millilitres in Australia New Zealand UK Canada and the US but approximately 4.93 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["tsp", " tsp", " Teaspoon", " 5 millilitres in Australia New Zealand UK Canada and the US but approximately 4.93 millilitres in the US."]
+2025-04-07 18:10:44.012695 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('dsp', ' dsp', ' Dessertspoon', ' 10 millilitres in Australia.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["dsp", " dsp", " Dessertspoon", " 10 millilitres in Australia."]
+2025-04-07 18:10:44.020587 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('tbsp', ' tbsp', ' Tablespoon', ' 20 millilitres in Australia or 15 millilitres in New Zealand the UK Canada and the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["tbsp", " tbsp", " Tablespoon", " 20 millilitres in Australia or 15 millilitres in New Zealand the UK Canada and the US."]
+2025-04-07 18:10:44.027752 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('fl oz', ' fl oz', ' Fluid ounce', ' 28.41 millilitres in the UK or approximately 29.57 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["fl oz", " fl oz", " Fluid ounce", " 28.41 millilitres in the UK or approximately 29.57 millilitres in the US."]
+2025-04-07 18:10:44.036113 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('cups', ' cup', ' Cup', ' 250 millilitres in Australia and New Zealand or approximately 170.48 millilitres in the UK or approximately 227.31 millilitres in Canada and approximately 236.59 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["cups", " cup", " Cup", " 250 millilitres in Australia and New Zealand or approximately 170.48 millilitres in the UK or approximately 227.31 millilitres in Canada and approximately 236.59 millilitres in the US."]
+2025-04-07 18:10:44.043799 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('pt', ' pt', ' Pint', ' 570 millilitres in Australia approximately 568.26 millilitres in New Zealand the UK and Canada and approximately 473.18 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["pt", " pt", " Pint", " 570 millilitres in Australia approximately 568.26 millilitres in New Zealand the UK and Canada and approximately 473.18 millilitres in the US."]
+2025-04-07 18:10:44.051856 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('qt', ' qt', ' Quart', ' Approximately 1136.52 millilitres in Australia New Zealand the UK and Canada and approximately 946.35 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["qt", " qt", " Quart", " Approximately 1136.52 millilitres in Australia New Zealand the UK and Canada and approximately 946.35 millilitres in the US."]
+2025-04-07 18:10:44.059206 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('gal', ' gal', ' Gallon', ' Approximately 4546.09 millilitres in Australia New Zealand the UK and Canada and approximately 3785.41 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["gal", " gal", " Gallon", " Approximately 4546.09 millilitres in Australia New Zealand the UK and Canada and approximately 3785.41 millilitres in the US."]
+2025-04-07 18:10:44.067014 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('jiggers', ' jigger', ' Jigger', ' 1.5 fluid ounces.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["jiggers", " jigger", " Jigger", " 1.5 fluid ounces."]
+2025-04-07 18:10:44.074033 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('oz', ' oz', ' Ounce', ' 1/4 lb for butter which can also be measured as 3 tablespoons.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["oz", " oz", " Ounce", " 1/4 lb for butter which can also be measured as 3 tablespoons."]
+2025-04-07 18:10:44.081603 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('L', ' L', ' Liter', ' Commonly used for volume measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["L", " L", " Liter", " Commonly used for volume measurement in the metric system."]
+2025-04-07 18:10:44.089592 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('mL', ' mL', ' Milliliter', ' Commonly used for volume measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["mL", " mL", " Milliliter", " Commonly used for volume measurement in the metric system."]
+2025-04-07 18:10:44.097342 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('dm3', ' dm3', ' Cubic decimeter', ' Equivalent to 1 liter.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["dm3", " dm3", " Cubic decimeter", " Equivalent to 1 liter."]
+2025-04-07 18:10:44.104724 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('g', ' g', ' Gram', ' Commonly used for weight measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["g", " g", " Gram", " Commonly used for weight measurement in the metric system."]
+2025-04-07 18:10:44.112144 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('kg', ' kg', ' Kilogram', ' Commonly used for weight measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["kg", " kg", " Kilogram", " Commonly used for weight measurement in the metric system."]
+2025-04-07 18:10:44.120135 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('lbs', ' lb', ' Pound', ' Used for weight measurement in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["lbs", " lb", " Pound", " Used for weight measurement in the US."]
+2025-04-07 18:10:44.127804 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('fluid scruples', ' fluid scruple', ' Fluid scruple', " A unit used in the apothecaries' system but not commonly used in cooking."), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["fluid scruples", " fluid scruple", " Fluid scruple", " A unit used in the apothecaries' system but not commonly used in cooking."]
+2025-04-07 18:10:44.135113 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('cm3', ' cm3', ' Cubic centimeter', ' Equivalent to 1 milliliter.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["cm3", " cm3", " Cubic centimeter", " Equivalent to 1 milliliter."]
+2025-04-07 18:10:44.142675 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('breakfast cups', ' breakfast cup', ' Breakfast cup', ' Similar in size to the US customary cup and the metric cup.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["breakfast cups", " breakfast cup", " Breakfast cup", " Similar in size to the US customary cup and the metric cup."]
+2025-04-07 18:10:44.151374 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('tumblers', ' tumbler', ' Tumblerful', ' A unit used in British cookery books and recipes.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["tumblers", " tumbler", " Tumblerful", " A unit used in British cookery books and recipes."]
+2025-04-07 18:10:44.158807 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('winefulls', ' winefull', ' Wineglassful', ' A unit used in British cookery books and recipes.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["winefulls", " winefull", " Wineglassful", " A unit used in British cookery books and recipes."]
+2025-04-07 18:10:44.167004 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('coffee cups', ' coffee cup', ' Coffee cup', ' Can vary from 100 to 200 millilitres.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["coffee cups", " coffee cup", " Coffee cup", " Can vary from 100 to 200 millilitres."]
+2025-04-07 18:10:44.174449 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('sticks of butter', ' stick of butter', ' Stick of butter', ' 1/4 lb or 3 tablespoons.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["sticks of butter", " stick of butter", " Stick of butter", " 1/4 lb or 3 tablespoons."]
+2025-04-07 18:10:44.183729 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('smidgens', ' smidgen', ' Smidgen', ' An approximate unit of measure.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["smidgens", " smidgen", " Smidgen", " An approximate unit of measure."]
+2025-04-07 18:10:44.191339 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('dashes', ' dash', ' Dash', ' An approximate unit of measure.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["dashes", " dash", " Dash", " An approximate unit of measure."]
+2025-04-07 18:10:44.198886 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('drops', ' drop', ' Drop', ' An approximate unit of measure.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["drops", " drop", " Drop", " An approximate unit of measure."]
+2025-04-07 18:10:44.206287 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('eaches', ' each', ' Each', ' A single unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["eaches", " each", " Each", " A single unit."]
+2025-04-07 18:10:44.213758 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('boxes', ' box', ' Box', ' A Single box of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["boxes", " box", " Box", " A Single box of a unit."]
+2025-04-07 18:10:44.221833 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('crates', ' crate', ' Crate', ' a single crate of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["crates", " crate", " Crate", " a single crate of a unit."]
+2025-04-07 18:10:44.229839 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('jars', ' jar', ' Jar', ' A single Jar of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["jars", " jar", " Jar", " A single Jar of a unit."]
+2025-04-07 18:10:44.237064 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('cans', ' can', ' Can', ' A Single Can of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["cans", " can", " Can", " A Single Can of a unit."]
+2025-04-07 18:10:44.244118 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('bars', ' bar', ' Bars', ' A Single bar of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["bars", " bar", " Bars", " A Single bar of a unit."]
+2025-04-07 18:10:44.252959 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('loaves', ' loaf', ' Loaf', ' A single loaf of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["loaves", " loaf", " Loaf", " A single loaf of a unit."]
+2025-04-07 18:10:44.260249 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('packs', ' pack', ' Pack', ' A Single Pack of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["packs", " pack", " Pack", " A Single Pack of a unit."]
+2025-04-07 18:11:11.901876 --- CAUTION --- DatabaseError(message='duplicate key value violates unique constraint "units_plural_key"DETAIL:  Key (plural)=(pinches) already exists.', payload=('pinches', ' pinch', ' Pinch', ' Less than 1/8 teaspoon.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["pinches", " pinch", " Pinch", " Less than 1/8 teaspoon."]
+2025-04-07 18:11:11.913095 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('tsp', ' tsp', ' Teaspoon', ' 5 millilitres in Australia New Zealand UK Canada and the US but approximately 4.93 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["tsp", " tsp", " Teaspoon", " 5 millilitres in Australia New Zealand UK Canada and the US but approximately 4.93 millilitres in the US."]
+2025-04-07 18:11:11.920834 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('dsp', ' dsp', ' Dessertspoon', ' 10 millilitres in Australia.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["dsp", " dsp", " Dessertspoon", " 10 millilitres in Australia."]
+2025-04-07 18:11:11.928118 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('tbsp', ' tbsp', ' Tablespoon', ' 20 millilitres in Australia or 15 millilitres in New Zealand the UK Canada and the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["tbsp", " tbsp", " Tablespoon", " 20 millilitres in Australia or 15 millilitres in New Zealand the UK Canada and the US."]
+2025-04-07 18:11:11.935834 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('fl oz', ' fl oz', ' Fluid ounce', ' 28.41 millilitres in the UK or approximately 29.57 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["fl oz", " fl oz", " Fluid ounce", " 28.41 millilitres in the UK or approximately 29.57 millilitres in the US."]
+2025-04-07 18:11:11.943995 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('cups', ' cup', ' Cup', ' 250 millilitres in Australia and New Zealand or approximately 170.48 millilitres in the UK or approximately 227.31 millilitres in Canada and approximately 236.59 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["cups", " cup", " Cup", " 250 millilitres in Australia and New Zealand or approximately 170.48 millilitres in the UK or approximately 227.31 millilitres in Canada and approximately 236.59 millilitres in the US."]
+2025-04-07 18:11:11.951271 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('pt', ' pt', ' Pint', ' 570 millilitres in Australia approximately 568.26 millilitres in New Zealand the UK and Canada and approximately 473.18 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["pt", " pt", " Pint", " 570 millilitres in Australia approximately 568.26 millilitres in New Zealand the UK and Canada and approximately 473.18 millilitres in the US."]
+2025-04-07 18:11:11.958833 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('qt', ' qt', ' Quart', ' Approximately 1136.52 millilitres in Australia New Zealand the UK and Canada and approximately 946.35 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["qt", " qt", " Quart", " Approximately 1136.52 millilitres in Australia New Zealand the UK and Canada and approximately 946.35 millilitres in the US."]
+2025-04-07 18:11:11.966926 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('gal', ' gal', ' Gallon', ' Approximately 4546.09 millilitres in Australia New Zealand the UK and Canada and approximately 3785.41 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["gal", " gal", " Gallon", " Approximately 4546.09 millilitres in Australia New Zealand the UK and Canada and approximately 3785.41 millilitres in the US."]
+2025-04-07 18:11:11.974434 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('jiggers', ' jigger', ' Jigger', ' 1.5 fluid ounces.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["jiggers", " jigger", " Jigger", " 1.5 fluid ounces."]
+2025-04-07 18:11:11.982214 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('oz', ' oz', ' Ounce', ' 1/4 lb for butter which can also be measured as 3 tablespoons.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["oz", " oz", " Ounce", " 1/4 lb for butter which can also be measured as 3 tablespoons."]
+2025-04-07 18:11:11.989518 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('L', ' L', ' Liter', ' Commonly used for volume measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["L", " L", " Liter", " Commonly used for volume measurement in the metric system."]
+2025-04-07 18:11:11.997321 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('mL', ' mL', ' Milliliter', ' Commonly used for volume measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["mL", " mL", " Milliliter", " Commonly used for volume measurement in the metric system."]
+2025-04-07 18:11:12.005157 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('dm3', ' dm3', ' Cubic decimeter', ' Equivalent to 1 liter.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["dm3", " dm3", " Cubic decimeter", " Equivalent to 1 liter."]
+2025-04-07 18:11:12.012662 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('g', ' g', ' Gram', ' Commonly used for weight measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["g", " g", " Gram", " Commonly used for weight measurement in the metric system."]
+2025-04-07 18:11:12.020544 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('kg', ' kg', ' Kilogram', ' Commonly used for weight measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["kg", " kg", " Kilogram", " Commonly used for weight measurement in the metric system."]
+2025-04-07 18:11:12.028832 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('lbs', ' lb', ' Pound', ' Used for weight measurement in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["lbs", " lb", " Pound", " Used for weight measurement in the US."]
+2025-04-07 18:11:12.035928 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('fluid scruples', ' fluid scruple', ' Fluid scruple', " A unit used in the apothecaries' system but not commonly used in cooking."), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["fluid scruples", " fluid scruple", " Fluid scruple", " A unit used in the apothecaries' system but not commonly used in cooking."]
+2025-04-07 18:11:12.044169 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('cm3', ' cm3', ' Cubic centimeter', ' Equivalent to 1 milliliter.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["cm3", " cm3", " Cubic centimeter", " Equivalent to 1 milliliter."]
+2025-04-07 18:11:12.051848 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('breakfast cups', ' breakfast cup', ' Breakfast cup', ' Similar in size to the US customary cup and the metric cup.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["breakfast cups", " breakfast cup", " Breakfast cup", " Similar in size to the US customary cup and the metric cup."]
+2025-04-07 18:11:12.059081 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('tumblers', ' tumbler', ' Tumblerful', ' A unit used in British cookery books and recipes.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["tumblers", " tumbler", " Tumblerful", " A unit used in British cookery books and recipes."]
+2025-04-07 18:11:12.067370 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('winefulls', ' winefull', ' Wineglassful', ' A unit used in British cookery books and recipes.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["winefulls", " winefull", " Wineglassful", " A unit used in British cookery books and recipes."]
+2025-04-07 18:11:12.074897 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('coffee cups', ' coffee cup', ' Coffee cup', ' Can vary from 100 to 200 millilitres.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["coffee cups", " coffee cup", " Coffee cup", " Can vary from 100 to 200 millilitres."]
+2025-04-07 18:11:12.082570 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('sticks of butter', ' stick of butter', ' Stick of butter', ' 1/4 lb or 3 tablespoons.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["sticks of butter", " stick of butter", " Stick of butter", " 1/4 lb or 3 tablespoons."]
+2025-04-07 18:11:12.090585 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('smidgens', ' smidgen', ' Smidgen', ' An approximate unit of measure.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["smidgens", " smidgen", " Smidgen", " An approximate unit of measure."]
+2025-04-07 18:11:12.099307 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('dashes', ' dash', ' Dash', ' An approximate unit of measure.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["dashes", " dash", " Dash", " An approximate unit of measure."]
+2025-04-07 18:11:12.106924 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('drops', ' drop', ' Drop', ' An approximate unit of measure.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["drops", " drop", " Drop", " An approximate unit of measure."]
+2025-04-07 18:11:12.114986 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('eaches', ' each', ' Each', ' A single unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["eaches", " each", " Each", " A single unit."]
+2025-04-07 18:11:12.123785 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('boxes', ' box', ' Box', ' A Single box of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["boxes", " box", " Box", " A Single box of a unit."]
+2025-04-07 18:11:12.132171 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('crates', ' crate', ' Crate', ' a single crate of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["crates", " crate", " Crate", " a single crate of a unit."]
+2025-04-07 18:11:12.140032 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('jars', ' jar', ' Jar', ' A single Jar of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["jars", " jar", " Jar", " A single Jar of a unit."]
+2025-04-07 18:11:12.148143 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('cans', ' can', ' Can', ' A Single Can of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["cans", " can", " Can", " A Single Can of a unit."]
+2025-04-07 18:11:12.157037 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('bars', ' bar', ' Bars', ' A Single bar of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["bars", " bar", " Bars", " A Single bar of a unit."]
+2025-04-07 18:11:12.165175 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('loaves', ' loaf', ' Loaf', ' A single loaf of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["loaves", " loaf", " Loaf", " A single loaf of a unit."]
+2025-04-07 18:11:12.172983 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('packs', ' pack', ' Pack', ' A Single Pack of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["packs", " pack", " Pack", " A Single Pack of a unit."]
+2025-04-07 18:12:49.005060 --- CAUTION --- DatabaseError(message='duplicate key value violates unique constraint "units_plural_key"DETAIL:  Key (plural)=(Plural) already exists.', payload=('Plural', ' Single', ' Fullname', ' Description'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["Plural", " Single", " Fullname", " Description"]
+2025-04-07 18:12:49.018692 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('tsp', ' tsp', ' Teaspoon', ' 5 millilitres in Australia New Zealand UK Canada and the US but approximately 4.93 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["tsp", " tsp", " Teaspoon", " 5 millilitres in Australia New Zealand UK Canada and the US but approximately 4.93 millilitres in the US."]
+2025-04-07 18:12:49.026767 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('dsp', ' dsp', ' Dessertspoon', ' 10 millilitres in Australia.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["dsp", " dsp", " Dessertspoon", " 10 millilitres in Australia."]
+2025-04-07 18:12:49.035142 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('tbsp', ' tbsp', ' Tablespoon', ' 20 millilitres in Australia or 15 millilitres in New Zealand the UK Canada and the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["tbsp", " tbsp", " Tablespoon", " 20 millilitres in Australia or 15 millilitres in New Zealand the UK Canada and the US."]
+2025-04-07 18:12:49.043176 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('fl oz', ' fl oz', ' Fluid ounce', ' 28.41 millilitres in the UK or approximately 29.57 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["fl oz", " fl oz", " Fluid ounce", " 28.41 millilitres in the UK or approximately 29.57 millilitres in the US."]
+2025-04-07 18:12:49.052311 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('cups', ' cup', ' Cup', ' 250 millilitres in Australia and New Zealand or approximately 170.48 millilitres in the UK or approximately 227.31 millilitres in Canada and approximately 236.59 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["cups", " cup", " Cup", " 250 millilitres in Australia and New Zealand or approximately 170.48 millilitres in the UK or approximately 227.31 millilitres in Canada and approximately 236.59 millilitres in the US."]
+2025-04-07 18:12:49.060527 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('pt', ' pt', ' Pint', ' 570 millilitres in Australia approximately 568.26 millilitres in New Zealand the UK and Canada and approximately 473.18 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["pt", " pt", " Pint", " 570 millilitres in Australia approximately 568.26 millilitres in New Zealand the UK and Canada and approximately 473.18 millilitres in the US."]
+2025-04-07 18:12:49.068511 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('qt', ' qt', ' Quart', ' Approximately 1136.52 millilitres in Australia New Zealand the UK and Canada and approximately 946.35 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["qt", " qt", " Quart", " Approximately 1136.52 millilitres in Australia New Zealand the UK and Canada and approximately 946.35 millilitres in the US."]
+2025-04-07 18:12:49.076951 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('gal', ' gal', ' Gallon', ' Approximately 4546.09 millilitres in Australia New Zealand the UK and Canada and approximately 3785.41 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["gal", " gal", " Gallon", " Approximately 4546.09 millilitres in Australia New Zealand the UK and Canada and approximately 3785.41 millilitres in the US."]
+2025-04-07 18:12:49.086062 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('jiggers', ' jigger', ' Jigger', ' 1.5 fluid ounces.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["jiggers", " jigger", " Jigger", " 1.5 fluid ounces."]
+2025-04-07 18:12:49.095057 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('oz', ' oz', ' Ounce', ' 1/4 lb for butter which can also be measured as 3 tablespoons.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["oz", " oz", " Ounce", " 1/4 lb for butter which can also be measured as 3 tablespoons."]
+2025-04-07 18:12:49.102906 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('L', ' L', ' Liter', ' Commonly used for volume measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["L", " L", " Liter", " Commonly used for volume measurement in the metric system."]
+2025-04-07 18:12:49.111927 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('mL', ' mL', ' Milliliter', ' Commonly used for volume measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["mL", " mL", " Milliliter", " Commonly used for volume measurement in the metric system."]
+2025-04-07 18:12:49.119508 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('dm3', ' dm3', ' Cubic decimeter', ' Equivalent to 1 liter.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["dm3", " dm3", " Cubic decimeter", " Equivalent to 1 liter."]
+2025-04-07 18:12:49.128094 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('g', ' g', ' Gram', ' Commonly used for weight measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["g", " g", " Gram", " Commonly used for weight measurement in the metric system."]
+2025-04-07 18:12:49.136293 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('kg', ' kg', ' Kilogram', ' Commonly used for weight measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["kg", " kg", " Kilogram", " Commonly used for weight measurement in the metric system."]
+2025-04-07 18:12:49.144897 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('lbs', ' lb', ' Pound', ' Used for weight measurement in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["lbs", " lb", " Pound", " Used for weight measurement in the US."]
+2025-04-07 18:12:49.153354 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('fluid scruples', ' fluid scruple', ' Fluid scruple', " A unit used in the apothecaries' system but not commonly used in cooking."), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["fluid scruples", " fluid scruple", " Fluid scruple", " A unit used in the apothecaries' system but not commonly used in cooking."]
+2025-04-07 18:12:49.162476 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('cm3', ' cm3', ' Cubic centimeter', ' Equivalent to 1 milliliter.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["cm3", " cm3", " Cubic centimeter", " Equivalent to 1 milliliter."]
+2025-04-07 18:12:49.170611 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('breakfast cups', ' breakfast cup', ' Breakfast cup', ' Similar in size to the US customary cup and the metric cup.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["breakfast cups", " breakfast cup", " Breakfast cup", " Similar in size to the US customary cup and the metric cup."]
+2025-04-07 18:12:49.178357 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('tumblers', ' tumbler', ' Tumblerful', ' A unit used in British cookery books and recipes.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["tumblers", " tumbler", " Tumblerful", " A unit used in British cookery books and recipes."]
+2025-04-07 18:12:49.186429 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('winefulls', ' winefull', ' Wineglassful', ' A unit used in British cookery books and recipes.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["winefulls", " winefull", " Wineglassful", " A unit used in British cookery books and recipes."]
+2025-04-07 18:12:49.195941 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('coffee cups', ' coffee cup', ' Coffee cup', ' Can vary from 100 to 200 millilitres.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["coffee cups", " coffee cup", " Coffee cup", " Can vary from 100 to 200 millilitres."]
+2025-04-07 18:12:49.205197 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('sticks of butter', ' stick of butter', ' Stick of butter', ' 1/4 lb or 3 tablespoons.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["sticks of butter", " stick of butter", " Stick of butter", " 1/4 lb or 3 tablespoons."]
+2025-04-07 18:12:49.212492 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('smidgens', ' smidgen', ' Smidgen', ' An approximate unit of measure.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["smidgens", " smidgen", " Smidgen", " An approximate unit of measure."]
+2025-04-07 18:12:49.221728 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('dashes', ' dash', ' Dash', ' An approximate unit of measure.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["dashes", " dash", " Dash", " An approximate unit of measure."]
+2025-04-07 18:12:49.231128 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('drops', ' drop', ' Drop', ' An approximate unit of measure.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["drops", " drop", " Drop", " An approximate unit of measure."]
+2025-04-07 18:12:49.239584 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('eaches', ' each', ' Each', ' A single unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["eaches", " each", " Each", " A single unit."]
+2025-04-07 18:12:49.248671 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('boxes', ' box', ' Box', ' A Single box of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["boxes", " box", " Box", " A Single box of a unit."]
+2025-04-07 18:12:49.257268 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('crates', ' crate', ' Crate', ' a single crate of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["crates", " crate", " Crate", " a single crate of a unit."]
+2025-04-07 18:12:49.266294 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('jars', ' jar', ' Jar', ' A single Jar of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["jars", " jar", " Jar", " A single Jar of a unit."]
+2025-04-07 18:12:49.275199 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('cans', ' can', ' Can', ' A Single Can of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["cans", " can", " Can", " A Single Can of a unit."]
+2025-04-07 18:12:49.282805 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('bars', ' bar', ' Bars', ' A Single bar of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["bars", " bar", " Bars", " A Single bar of a unit."]
+2025-04-07 18:12:49.291482 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('loaves', ' loaf', ' Loaf', ' A single loaf of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["loaves", " loaf", " Loaf", " A single loaf of a unit."]
+2025-04-07 18:12:49.301205 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('packs', ' pack', ' Pack', ' A Single Pack of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["packs", " pack", " Pack", " A Single Pack of a unit."]
+2025-04-07 18:13:10.286385 --- CAUTION --- DatabaseError(message='duplicate key value violates unique constraint "units_plural_key"DETAIL:  Key (plural)=(Plural) already exists.', payload=('Plural', ' Single', ' Fullname', ' Description'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["Plural", " Single", " Fullname", " Description"]
+2025-04-07 18:13:10.298389 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('tsp', ' tsp', ' Teaspoon', ' 5 millilitres in Australia New Zealand UK Canada and the US but approximately 4.93 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["tsp", " tsp", " Teaspoon", " 5 millilitres in Australia New Zealand UK Canada and the US but approximately 4.93 millilitres in the US."]
+2025-04-07 18:13:10.307226 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('dsp', ' dsp', ' Dessertspoon', ' 10 millilitres in Australia.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["dsp", " dsp", " Dessertspoon", " 10 millilitres in Australia."]
+2025-04-07 18:13:10.316278 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('tbsp', ' tbsp', ' Tablespoon', ' 20 millilitres in Australia or 15 millilitres in New Zealand the UK Canada and the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["tbsp", " tbsp", " Tablespoon", " 20 millilitres in Australia or 15 millilitres in New Zealand the UK Canada and the US."]
+2025-04-07 18:13:10.324427 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('fl oz', ' fl oz', ' Fluid ounce', ' 28.41 millilitres in the UK or approximately 29.57 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["fl oz", " fl oz", " Fluid ounce", " 28.41 millilitres in the UK or approximately 29.57 millilitres in the US."]
+2025-04-07 18:13:10.333981 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('cups', ' cup', ' Cup', ' 250 millilitres in Australia and New Zealand or approximately 170.48 millilitres in the UK or approximately 227.31 millilitres in Canada and approximately 236.59 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["cups", " cup", " Cup", " 250 millilitres in Australia and New Zealand or approximately 170.48 millilitres in the UK or approximately 227.31 millilitres in Canada and approximately 236.59 millilitres in the US."]
+2025-04-07 18:13:10.343232 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('pt', ' pt', ' Pint', ' 570 millilitres in Australia approximately 568.26 millilitres in New Zealand the UK and Canada and approximately 473.18 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["pt", " pt", " Pint", " 570 millilitres in Australia approximately 568.26 millilitres in New Zealand the UK and Canada and approximately 473.18 millilitres in the US."]
+2025-04-07 18:13:10.350877 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('qt', ' qt', ' Quart', ' Approximately 1136.52 millilitres in Australia New Zealand the UK and Canada and approximately 946.35 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["qt", " qt", " Quart", " Approximately 1136.52 millilitres in Australia New Zealand the UK and Canada and approximately 946.35 millilitres in the US."]
+2025-04-07 18:13:10.359701 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('gal', ' gal', ' Gallon', ' Approximately 4546.09 millilitres in Australia New Zealand the UK and Canada and approximately 3785.41 millilitres in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["gal", " gal", " Gallon", " Approximately 4546.09 millilitres in Australia New Zealand the UK and Canada and approximately 3785.41 millilitres in the US."]
+2025-04-07 18:13:10.367839 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('jiggers', ' jigger', ' Jigger', ' 1.5 fluid ounces.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["jiggers", " jigger", " Jigger", " 1.5 fluid ounces."]
+2025-04-07 18:13:10.376504 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('oz', ' oz', ' Ounce', ' 1/4 lb for butter which can also be measured as 3 tablespoons.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["oz", " oz", " Ounce", " 1/4 lb for butter which can also be measured as 3 tablespoons."]
+2025-04-07 18:13:10.384509 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('L', ' L', ' Liter', ' Commonly used for volume measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["L", " L", " Liter", " Commonly used for volume measurement in the metric system."]
+2025-04-07 18:13:10.392478 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('mL', ' mL', ' Milliliter', ' Commonly used for volume measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["mL", " mL", " Milliliter", " Commonly used for volume measurement in the metric system."]
+2025-04-07 18:13:10.401408 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('dm3', ' dm3', ' Cubic decimeter', ' Equivalent to 1 liter.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["dm3", " dm3", " Cubic decimeter", " Equivalent to 1 liter."]
+2025-04-07 18:13:10.410222 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('g', ' g', ' Gram', ' Commonly used for weight measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["g", " g", " Gram", " Commonly used for weight measurement in the metric system."]
+2025-04-07 18:13:10.418352 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('kg', ' kg', ' Kilogram', ' Commonly used for weight measurement in the metric system.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["kg", " kg", " Kilogram", " Commonly used for weight measurement in the metric system."]
+2025-04-07 18:13:10.426544 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('lbs', ' lb', ' Pound', ' Used for weight measurement in the US.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["lbs", " lb", " Pound", " Used for weight measurement in the US."]
+2025-04-07 18:13:10.435351 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('fluid scruples', ' fluid scruple', ' Fluid scruple', " A unit used in the apothecaries' system but not commonly used in cooking."), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["fluid scruples", " fluid scruple", " Fluid scruple", " A unit used in the apothecaries' system but not commonly used in cooking."]
+2025-04-07 18:13:10.444346 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('cm3', ' cm3', ' Cubic centimeter', ' Equivalent to 1 milliliter.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["cm3", " cm3", " Cubic centimeter", " Equivalent to 1 milliliter."]
+2025-04-07 18:13:10.452199 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('breakfast cups', ' breakfast cup', ' Breakfast cup', ' Similar in size to the US customary cup and the metric cup.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["breakfast cups", " breakfast cup", " Breakfast cup", " Similar in size to the US customary cup and the metric cup."]
+2025-04-07 18:13:10.461058 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('tumblers', ' tumbler', ' Tumblerful', ' A unit used in British cookery books and recipes.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["tumblers", " tumbler", " Tumblerful", " A unit used in British cookery books and recipes."]
+2025-04-07 18:13:10.469292 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('winefulls', ' winefull', ' Wineglassful', ' A unit used in British cookery books and recipes.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["winefulls", " winefull", " Wineglassful", " A unit used in British cookery books and recipes."]
+2025-04-07 18:13:10.478094 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('coffee cups', ' coffee cup', ' Coffee cup', ' Can vary from 100 to 200 millilitres.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["coffee cups", " coffee cup", " Coffee cup", " Can vary from 100 to 200 millilitres."]
+2025-04-07 18:13:10.486368 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('sticks of butter', ' stick of butter', ' Stick of butter', ' 1/4 lb or 3 tablespoons.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["sticks of butter", " stick of butter", " Stick of butter", " 1/4 lb or 3 tablespoons."]
+2025-04-07 18:13:10.494021 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('smidgens', ' smidgen', ' Smidgen', ' An approximate unit of measure.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["smidgens", " smidgen", " Smidgen", " An approximate unit of measure."]
+2025-04-07 18:13:10.502494 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('dashes', ' dash', ' Dash', ' An approximate unit of measure.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["dashes", " dash", " Dash", " An approximate unit of measure."]
+2025-04-07 18:13:10.510827 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('drops', ' drop', ' Drop', ' An approximate unit of measure.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["drops", " drop", " Drop", " An approximate unit of measure."]
+2025-04-07 18:13:10.519133 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('eaches', ' each', ' Each', ' A single unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["eaches", " each", " Each", " A single unit."]
+2025-04-07 18:13:10.528226 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('boxes', ' box', ' Box', ' A Single box of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["boxes", " box", " Box", " A Single box of a unit."]
+2025-04-07 18:13:10.537276 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('crates', ' crate', ' Crate', ' a single crate of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["crates", " crate", " Crate", " a single crate of a unit."]
+2025-04-07 18:13:10.544973 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('jars', ' jar', ' Jar', ' A single Jar of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["jars", " jar", " Jar", " A single Jar of a unit."]
+2025-04-07 18:13:10.554072 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('cans', ' can', ' Can', ' A Single Can of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["cans", " can", " Can", " A Single Can of a unit."]
+2025-04-07 18:13:10.561977 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('bars', ' bar', ' Bars', ' A Single bar of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["bars", " bar", " Bars", " A Single bar of a unit."]
+2025-04-07 18:13:10.570396 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('loaves', ' loaf', ' Loaf', ' A single loaf of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["loaves", " loaf", " Loaf", " A single loaf of a unit."]
+2025-04-07 18:13:10.579705 --- CAUTION --- DatabaseError(message='current transaction is aborted, commands ignored until end of transaction block', payload=('packs', ' pack', ' Pack', ' A Single Pack of a unit.'), sql='INSERT INTO units(plural, single, fullname, description) VALUES (%s, %s, %s, %s) RETURNING *;')
+                                         ["packs", " pack", " Pack", " A Single Pack of a unit."]

@@ -1,0 +1,1 @@
+DROP TABLE %sitename%_shopping_list_items CASCADE;

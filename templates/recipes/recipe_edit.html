@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="main_html">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title id="title">Recipes</title>
+        
+        
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
+        
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/pantry.css') }}"/>
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}" disabled/>
+
+
+        <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
+    </head>
+    <body>
+        <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+            <nav id="navbar" class="uk-navbar-container">
+                <div class="uk-container uk-container-expand">
+                    <div uk-navbar="dropbar: true">
+                        <div id="offcanvas-slide" uk-offcanvas="mode: slide; overlay: true">
+                            <div class="uk-offcanvas-bar uk-flex uk-flex-column">
+                                <ul class="uk-nav uk-nav-secondary">  
+                                    <img class="uk-align-center uk-border-circle" data-src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 150px; height: auto;" uk-img />
+                                    <li class="uk-nav-header">Apps</li>
+                                    <li><a href="/shopping-lists">Shopping Lists</a></li>
+                                    <li>
+                                        <a href="/recipes">
+                                            <div class="uk-active">Recipes<div class="uk-nav-subtitle" disabled>You are currently Editing a Recipe here...</div></div>
+                                        </a>
+                                    <li class="uk-nav-header">Logistics</li>
+                                    <li><a href="/items">Items</a></li>
+                                    <li><a href="/transaction">Add Transaction</a></li>
+                                    <li><a href="/receipts">Receipts</a></li>
+                                    <li class="uk-nav-header">System Management</li>
+                                    {% if system_admin %}
+                                    <li><a href="/admin">Administration</a></li>
+                                    {% endif %}
+                                    <li><a href="" class="">{{username}}</a></li>
+                                </ul>
+                                <button class="uk-button uk-margin-small uk-position-top-right" uk-icon="icon: close" href=""></button>
+                            </div>
+                        </div>
+                        <div class="uk-navbar-left uk-margin-small">
+                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle> Menu</a>
+                        </div>
+                        <div class="uk-navbar-center uk-margin-small uk-visible@m">
+                            <ul class="uk-breadcrumb">
+                                <li style="cursor: default; user-select: none;" class="uk-disabled"><span><strong>{{current_site}}</strong></span></li>
+                                <li style="cursor: default; user-select: none;" class="uk-disabled"><span>Apps</span></li>
+                                <li style="cursor: default; user-select: none;" class="uk-disabled"><span>Recipes</span></li>
+                                <li style="cursor: default; user-select: none;" class="uk-disabled"><span id="breadcrumb"></span></li>
+                            </ul>
+                        </div>
+                        <div class="uk-navbar-right">
+                            <div>
+                                <a onclick="toggleDarkMode()" class="uk-button uk-button-small"><span id="modeToggle" class="uk-flex material-symbols-outlined">dark_mode</span></a>
+                            </div>
+                            <div>
+                                <a href="" class="" uk-icon="icon: user" uk-toggle>{{username}}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="uk-container">
+            <div class="uk-section">
+                <div uk-grid>
+                    <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="recipeName">Recipe Name</label>
+                                <input onchange="updateName()" id="recipeName" class="uk-input uk-form-large" type="text" placeholder="" aria-label="">
+                            </div>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <div class="uk-margin">
+                            <label class="uk-form-label" for="recipeCreationDate">Recipe Creation Date</label>
+                            <input id="recipeCreationDate" class="uk-input uk-disabled" type="text" placeholder="" aria-label="">
+                        </div>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <div class="uk-margin">
+                            <label class="uk-form-label" for="recipeAuthor">Recipe Author</label>
+                            <input id="recipeAuthor" class="uk-input uk-disabled" type="text" placeholder="" aria-label="">
+                        </div>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <div class="uk-margin">
+                            <label class="uk-form-label" for="recipeDescription">Recipe Description</label>
+                            <textarea id="recipeDescription" class="uk-textarea" rows="5" placeholder="" aria-label=""></textarea>
+                        </div>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <ul uk-tab>
+                            <li><a href="#">Instructions</a></li>
+                            <li><a href="#">Ingrediants</a></li>
+                            <li><a href="">File</a></li>
+                        </ul>
+                        
+                        <div class="uk-switcher uk-margin">
+                            <div>
+                                <div uk-grid>
+                                    <div class="uk-width-1-1">
+                                        <p class="uk-text-meta">
+                                            Recipes need instructions so the end user is able to replicate them but apart of that requires work.
+                                            Below you will type each "bullet" of instructions that will be view'd by the user and to follow along with.
+                                            if this is a new recipe we have provided an example that can be cleared off for your own use.
+                                        </p>
+                                    </div>
+                                    <div class="uk-width-1-1 uk-margin-small-top">
+                                        <textarea id="addInstruction" class="uk-textarea" type="text" placeholder="" aria-label=""></textarea>
+                                        <button onclick="addInstruction()" class="uk-button uk-button-default uk-width-shrink uk-margin-small-top">Add Instruction</button>
+                                    </div>
+                                    <div class="uk-width-1-1 uk-margin-small-top">
+                                        <hr class="uk-divider-icon">
+                                    </div>
+                                    <div class="uk-width-1-1 uk-margin-small-top">
+                                        <ul id="instructions_list" class="instruction-list"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div uk-grid>
+                                    <div class="uk-width-1-1">
+                                        <p class="uk-text-meta">
+                                            Recipes need ingredients so the end user knows what they need to purchase to make your recipe. Below you can
+                                            add custom ingredients (which i recommend providing a link to for ease of purchase) and from your pantry. You
+                                            will need to provide a qty and unit of measurement so they also know how much they need.
+                                        </p>
+                                    </div>
+                                    <div class="uk-width-1-1 uk-margin-small-top" uk-grid>
+                                        <div class="uk-button-group  class="uk-width-expand" ">
+                                            <button uk-toggle="target: #addCustomItem" type="button" id="addCustom" class="uk-button uk-button-default">Add Custom</button>
+                                            <button id="addSku" onclick="openSKUModal()" class="uk-button uk-button-default">Add SKU</button>
+                                        </div>
+                                    </div>
+                                    <div class="uk-width-1-1 uk-margin-small-top">
+                                        <hr class="uk-divider-icon">
+                                    </div>
+                                    <div class="uk-width-1-1 uk-margin-small-top">
+                                        <table class="uk-table uk-table-striped">
+                                            <caption>Here is the table of all the ingrediants added to the recipe</caption>
+                                            <thead>
+                                                <tr>
+                                                    <th>Type</th>
+                                                    <th>Name</th>
+                                                    <th>Qty</th>
+                                                    <th>UOM</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="ingrediantsTableBody">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div uk-grid>
+                                    <div class="uk-width-1-1 uk-margin" uk-margin>
+                                        <div uk-form-custom="target: true">
+                                            <input type="file" aria-label="Custom controls">
+                                            <input class="uk-input" type="text" placeholder="Select file" aria-label="Custom controls" disabled>
+                                        </div>
+                                        <button onclick="updateImage()" class="uk-button uk-button-default">Submit</button>
+                                    </div>
+                                    <div id="imgDiv" class="uk-width-1-1 uk-width-1-4@m uk-flex uk-flex-center">
+                                        <img id="recipeImage" alt="" src="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button id="saveButton" onclick="postUpdate()" class="uk-button uk-button-primary floating-button"><span class="uk-flex material-icons">save</span></button>
+
+        <!-- Line Item Edit Modal-->
+        <div id="editLineItem" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 id="lineHeader" class="uk-modal-title">Edit line item</h2>
+                </div>
+                <div class="uk-modal-body">
+                    <div class="uk-margin-small">
+                        <p class="uk-text-meta">You are editing a line item. In most cases your recipe will have certain ingrediants associated with them and this is where you would
+                            do your best to use the system along with custom entered items to portray what is needed in a recipe. Take note any SKU items can be auto-issued in the
+                            system when you select to complete a recipe in the app.
+                        </p>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="lineType">Item Type</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input uk-disabled" id="lineType" type="text" placeholder="">
+                        </div>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="lineName">Item Name</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="lineName" type="text" placeholder="">
+                        </div>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="lineQty">Quantity</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="lineQty" type="text" placeholder="">
+                        </div>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="lineUOM">Unit of Measure</label>
+                        <select id="lineUOM" class="uk-select" aria-label="Select">
+                        </select>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="lineWeblink">Weblink</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="lineWeblink" type="text" placeholder="">
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-modal-footer uk-text-right">
+                    <button id="deleteLineItemButton" class="uk-button uk-button-default" type="button">Delete</button>
+                    <button id="saveLineItemButton" class="uk-button uk-button-primary" type="button">Save</button>
+                </div>
+            </div>
+        </div>
+        <!-- add Custom Line Modal-->
+        <div id="addCustomItem" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 id="lineHeader" class="uk-modal-title">Add Custom Item...</h2>
+                </div>
+                <div class="uk-modal-body">
+                    <div class="uk-margin-small">
+                        <p class="uk-text-meta">A Custom item can be added to a recipe but will not be tracked or auto-issued from the system on recipe completion. Even then
+                            custom items are useful for things that are hard to track or you just dont want to track.
+                        </p>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="customType">Item Type</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input uk-disabled" id="customType" type="text" placeholder="" value="custom">
+                        </div>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="customName">Item Name</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="customName" type="text" placeholder="">
+                        </div>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="customQty">Quantity</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="customQty" type="text" placeholder="">
+                        </div>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="customUOM">Unit of Measure</label>
+                        <select id="customUOM" class="uk-select" aria-label="Select">
+                            {% for unit in units %}
+                                <option value="{{unit['id']}}">{{unit['fullname']}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="customWeblink">Weblink</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="customWeblink" type="text" placeholder="">
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-modal-footer uk-text-right">
+                    <button onclick="addCustomItem()" class="uk-button uk-button-primary" type="button">Add</button>
+                </div>
+            </div>
+        </div>
+        <!-- Items modal lookup -->
+        <div id="itemsModal" uk-modal>
+            <div id="itemsModalInner" class="uk-modal-dialog uk-modal-body " uk-overflow-auto>
+                <h2 class="uk-modal-title">Select Item</h2>
+                <p>Select an Item from the system...</p>
+                <div id="searchItemsForm" onkeydown="searchItemTable(event)" class="uk-search uk-search-default uk-align-center">
+                    <input id="searchItemsInput" class="uk-border-pill uk-search-input" type="search" placeholder="" aria-label="">
+                    <span class="uk-search-icon-flip" uk-search-icon></span>
+                </div>
+                <nav aria-label="Pagination">
+                    <ul id="itemsPage" class="uk-pagination uk-flex-center" uk-margin>
+                        <li><a href="#"><span uk-pagination-previous></span></a></li>
+                        <li><a href="#">1</a></li>
+                        <li class="uk-disabled"><span>…</span></li>
+                        <li><a href="#">5</a></li>
+                        <li><a href="#">6</a></li>
+                        <li class="uk-active"><span aria-current="page">7</span></li>
+                        <li><a href="#">8</a></li>
+                        <li><a href="#"><span uk-pagination-next></span></a></li>
+                    </ul>
+                </nav>
+                <table class="uk-table uk-table-striped uk-table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Barcode</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </body>
+    <script>
+        const session = {{session|tojson}}
+        const recipe_id = {{recipe_id|tojson}}
+        const units = {{units|tojson}}
+    </script>
+    <script src="{{ url_for('static', filename='handlers/recipeEditHandler.js') }}"></script>
+</html>

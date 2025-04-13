@@ -1,4 +1,4 @@
 INSERT INTO logins
-(username, password, email) 
-VALUES (%s, %s, %s) 
+(username, password, email, row_type) 
+VALUES (%s, %s, %s, %s) 
 RETURNING *;

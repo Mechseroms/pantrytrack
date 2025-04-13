@@ -23,8 +23,7 @@ CREATE TABLE IF NOT EXISTS main_items(
         ON DELETE CASCADE,
     CONSTRAINT fk_brand
         FOREIGN KEY(brand)
-        REFERENCES main_brands(id)
-        ON DELETE CASCADE,
+        REFERENCES main_brands(id),
     CONSTRAINT fk_logistics_info
         FOREIGN KEY(logistics_info_id)
         REFERENCES main_logistics_info(id)

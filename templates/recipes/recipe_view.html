@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="main_html">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title id="title">Recipes</title>
+        
+        
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
+        
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/pantry.css') }}"/>
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}" disabled/>
+
+
+        <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
+    </head>
+    <style>
+        #recipeImage{
+            width:200px;
+            height:200px;
+            border-radius: 50%;
+        }
+    </style>
+    <body>
+        <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+            <nav id="navbar" class="uk-navbar-container">
+                <div class="uk-container uk-container-expand">
+                    <div uk-navbar="dropbar: true">
+                        <div id="offcanvas-slide" uk-offcanvas="mode: slide; overlay: true">
+                            <div class="uk-offcanvas-bar uk-flex uk-flex-column">
+                                <ul class="uk-nav uk-nav-secondary">  
+                                    <img class="uk-align-center uk-border-circle" data-src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 150px; height: auto;" uk-img />
+                                    <li class="uk-nav-header">Apps</li>
+                                    <li><a href="/shopping-lists">Shopping Lists</a></li>
+                                    <li>
+                                        <a href="/recipes">
+                                            <div class="uk-active">Recipes<div class="uk-nav-subtitle" disabled>You are currently Viewing a Recipe here...</div></div>
+                                        </a>
+                                    <li class="uk-nav-header">Logistics</li>
+                                    <li><a href="/items">Items</a></li>
+                                    <li><a href="/transaction">Add Transaction</a></li>
+                                    <li><a href="/receipts">Receipts</a></li>
+                                    <li class="uk-nav-header">System Management</li>
+                                    {% if system_admin %}
+                                    <li><a href="/admin">Administration</a></li>
+                                    {% endif %}
+                                    <li><a href="" class="">{{username}}</a></li>
+                                </ul>
+                                <button class="uk-button uk-margin-small uk-position-top-right" uk-icon="icon: close" href=""></button>
+                            </div>
+                        </div>
+                        <div class="uk-navbar-left uk-margin-small">
+                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle> Menu</a>
+                        </div>
+                        <div class="uk-navbar-center uk-margin-small uk-visible@m">
+                            <ul class="uk-breadcrumb">
+                                <li style="cursor: default; user-select: none;" class="uk-disabled"><span><strong>{{current_site}}</strong></span></li>
+                                <li style="cursor: default; user-select: none;" class="uk-disabled"><span>Apps</span></li>
+                                <li style="cursor: default; user-select: none;" class="uk-disabled"><span>Recipes</span></li>
+                                <li style="cursor: default; user-select: none;" class="uk-disabled"><span id="breadcrumb"></span></li>
+                            </ul>
+                        </div>
+                        <div class="uk-navbar-right">
+                            <div>
+                                <a onclick="toggleDarkMode()" class="uk-button uk-button-small"><span id="modeToggle" class="uk-flex material-symbols-outlined">dark_mode</span></a>
+                            </div>
+                            <div>
+                                <a href="" class="" uk-icon="icon: user" uk-toggle>{{username}}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="uk-container">
+            <div class="uk-section">
+                <div uk-grid>
+                    <div class="uk-width-1-1">
+                        <div class="uk-grid-small" uk-grid>
+                            <div id="imgDiv" class="uk-width-1-1 uk-width-1-4@m uk-hidden uk-flex uk-flex-center">
+                                <img style="width: 300px; height: 300px;" id="recipeImage" alt="" src="">
+                            </div>
+                            <div id="titleDiv" class="uk-width-1-1 uk-flex uk-flex-middle">
+                                <div class="uk-width-1-1 uk-flex uk-flex-middle">
+                                    <div class="uk-text-center uk-width-1-1">
+                                        <h2 id="recipeTitle" class="uk-heading-medium uk-text-bold uk-text-uppercase" style="margin-bottom: 10px;"></h2>
+                                        <h6 id="recipeAuthor" class="uk-text-lead" style="margin-top: -10px;"></h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-width-1-1 uk-text-center">
+                        <p id="recipeDescription" class="uk-text-meta"></p>
+                    </div>
+                    <div class="uk-width-1-2@l">
+                        <table class="uk-table uk-table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Ingrediant</th>
+                                    <th>Qty/UOM</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ingrediantsTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="tileList" class="uk-width-1-2@l uk-child-width-1-1 uk-grid-collapse">
+                    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        const session = {{session|tojson}}
+        const recipe_id = {{recipe_id|tojson}}
+    </script>
+    <script src="{{ url_for('static', filename='handlers/recipeViewHandler.js') }}"></script>
+</html>

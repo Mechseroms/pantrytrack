@@ -10,4 +10,5 @@ CREATE TABLE IF NOT EXISTS %sitename%_receipt_items (
     CONSTRAINT fk_receipt
         FOREIGN KEY(receipt_id) 
         REFERENCES %sitename%_receipts(id)
+        ON DELETE CASCADE
 );

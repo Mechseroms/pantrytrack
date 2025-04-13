@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" id="main_html">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
-        <title>My Pantry - Items</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+        <title id="title"></title>
+        
+        
         <!-- Material Icons -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
         <!-- Material Symbols - Outlined Set -->
@@ -12,503 +13,185 @@
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
         <!-- Material Symbols - Sharp Set -->
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
-        <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
-    </head>
-    <style>
-        .hand-pointer {
-            cursor: pointer;
-        }
-        [type="radio"]:checked + span:after {
-            border: 2px solid rgb(0 128 0 / 30%);
-            background-color: rgb(0 128 0 / 30%);
-        }
         
-        .dropdown-disabled {
-            pointer-events: none;
-            opacity: 0.5;
-            }
-    </style>
-    <div class="navbar-fixed">
-        <nav class="green lighten-4 text-black z-depth-0">
-            <div class="nav-wrapper">
-            <ul id="nav-mobile" class="left hide-on-med-and-down black-text">
-                <li><a class="dropdown-trigger black-text" data-target="dropdown1">Current Site > {{current_site}}<i class="material-icons right">arrow_drop_down</i></a></li>
-                <li class="active"><a href="/items" class="black-text">Site Items</a></li>
-                <li><a href="/groups" class="black-text">Site Groups</a></li>
-                <li><a href="/shopping-lists" class="black-text">Site Shopping Lists</a></li>
-                <li><a href="/receipts" class="black-text">Site Receipts</a></li>
-            </ul>
-            <ul class="right">
-                <li><a class="dropdown-trigger hide-on-med-and-down black-text" data-target="username_dropdown">{{username}}<i class="material-icons right">arrow_drop_down</i></a></li>
-            </ul>
-            </div>
-        </nav>
-    </div>
-    <ul id='dropdown1' class='dropdown-content'>
-        {% for site in sites %}
-            <li><button class="btn transparent black-text z-depth-0" onclick="changeSite('{{ site }}')">{{site}}</button></li>
-        {% endfor %}
-    </ul>
-    <ul id='username_dropdown' class='dropdown-content'>
-        <li><a href="/profile" class="hide-on-med-and-down black-text">Profile</a></li>
-        {% if system_admin == True %}
-            <li><a href="/admin" class="hide-on-med-and-down black-text">Administration</a></li>
-        {% endif %}
-        <li><a href="/logout" class="hide-on-med-and-down black-text">Logout</a></li>
-    </ul>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}" disabled/>
+
+        <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
+
+    </head>
     <body>
-        <div class="container section" style="padding-bottom: 72px;">
-            <div class="row">
-                <div class="row col s12">
-                    <div class="col-s3">
-                        <a href="#" data-target="slide-out" class="sidenav-trigger hide-on-large-only left"><i class="material-icons">menu</i></a>
-                    </div>
-                    <div class="col s6 m6 offset-m3 input-field outlined align-center">
-                        <i class="material-icons prefix">search</i>
-                        <input style="border-radius: 20px; border: 1px solid #ccc;" id="search" name="search" type="search" placeholder="Search Items" value="">
-                    </div>
-                    <div class="col s3">
-                        <a class="btn waves-effect waves-light center-align right tooltipped green lighten-3 black-text text-darken-2 z-depth-0" data-position="bottom" data-tooltip="Open up filter options." style="margin-right: 5px; margin-top:0px; border-radius: 20px 10px 20px 10px;" onclick="hideFilters()"><i class="material-icons">tune</i></a>
-                    </div>
-                </div>
-                <div class="col s12 hide" id="filter_options" style="padding: 20px">
-                    <!-- This is for basic views -->
-                    <div class="row center">
-                        <div class="col s12">
-                            <p>Change Views</p>
-                        </div>
-                        <div class="col s6 m4 l2">
-                            <label>
-                                <input name="group3" type="radio" checked onclick="changeView(0)"/>
-                                <span>All</span>
-                            </label>
-                        </div>
-                        <div class="col s6 m4 l2">
-                            <label>
-                                <input name="group3" type="radio" onclick="changeView(1)"/>
-                                <span>Non Zero Items</span>
-                            </label>
-                        </div>
-                        <div class="col s6 m4 l2">
-                            <label>
-                                <input name="group3" type="radio" onclick="changeView(2)"/>
-                                <span>Hidden Items</span>
-                            </label>
-                        </div>
-                        <div class="col s12 divider"></div>
-                    </div>
-                    <!-- This is for sorting values -->
-                    <div class="row center">
-                        <div class="col s12">
-                            <p>Sort Items By</p>
-                        </div>
-                        <div class="col s6 m4 l2">
-                            <label>
-                                <input name="group2" type="radio" onclick="changeSort(0)"/>
-                                <span>Barcode</span>
-                            </label>
-                        </div>
-                        <div class="col s6 m4 l2">
-                            <label>
-                                <input name="group2" type="radio" checked onclick="changeSort(1)"/>
-                                <span>Item Name</span>
-                            </label>
-                        </div>
-                        <div class="col s6 m4 l2">
-                            <label>
-                                <input name="group2" type="radio" onclick="changeSort(2)"/>
-                                <span>Quantity on Hand</span>
-                            </label>
-                        </div>
-                        <div class="col s12 divider"></div>
-                    </div>
-                    <!-- Set the number of items -->
-                    <div class="row center">
-                            <div class="col s12">
-                                <p>Set Items Per Page</p>
+        <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+            <nav id="navbar" class="uk-navbar-container">
+                <div class="uk-container uk-container-expand">
+                    <div uk-navbar="dropbar: true">
+                        <div id="offcanvas-slide" uk-offcanvas="mode: slide; overlay: true">
+                            <div class="uk-offcanvas-bar uk-flex uk-flex-column">
+                                <ul class="uk-nav uk-nav-secondary">  
+                                    <img class="uk-align-center uk-border-circle" data-src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 150px; height: auto;" uk-img />
+                                    <li class="uk-nav-header">Apps</li>
+                                    <li><a href="/shopping-lists">Shopping Lists</a></li>
+                                    <li><a href="/groups">Groups</a></li>
+                                    <li><a href="/recipes">Recipes</a></li>
+                                    <li class="uk-nav-header">Logistics</li>
+                                    <li>
+                                        <a href="/items">
+                                            <div class="uk-active">Items<div class="uk-nav-subtitle" disabled>You are currently browsing items here...</div>
+                                        </div>
+                                    </a>
+                                    <li><a href="/transaction">Add Transaction</a></li>
+                                    <li><a href="/receipts">Receipts</a></li>
+                                    <li class="uk-nav-header">System Management</li>
+                                    {% if system_admin %}
+                                    <li><a href="/admin">Administration</a></li>
+                                    {% endif %}
+                                    <li><a href="" class="">{{username}}</a></li>
+                                </ul>
+                                <button class="uk-button uk-margin-small uk-position-top-right" uk-icon="icon: close" href=""></button>
                             </div>
-                            <div class="col s6 m4 l2">
-                            <label>
-                                <input name="group1" type="radio" checked onclick="changeLimit(25)"/>
-                                <span>25 items</span>
-                            </label>
+                        </div>
+                        <div class="uk-navbar-left uk-margin-small">
+                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle></a>
+                        </div>
+                        <div class="uk-navbar-center uk-margin-small uk-visible@m">
+                            <ul class="uk-breadcrumb">
+                                <li style="cursor: default;"><span><strong>{{current_site}}</strong></span>
+                                    <div uk-dropdown="mode: hover">
+                                        <ul class="uk-nav uk-dropdown-nav">
+                                            {% for site in sites %}
+                                            {% if site == current_site  %}
+                                            <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                            {% else %}
+                                            <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li style="cursor: default; user-select: none;"><span>Logistics</span></li>
+                                <li class="uk-disabled"><span>Items</span></li>
+                            </ul>
+                        </div>
+                        <div class="uk-navbar-right">
+                            <div>
+                                <a onclick="toggleDarkMode()" class="uk-button uk-button-small"><span id="modeToggle" class="uk-flex material-symbols-outlined">dark_mode</span></a>
                             </div>
-                            <div class="col s6 m4 l2">
-                                <label>
-                                <input name="group1" type="radio" onclick="changeLimit(50)"/>
-                                <span>50 items</span>
-                            </label>
+                            <div>
+                                <a href="" class="" uk-icon="icon: user" uk-toggle>{{username}}</a>
                             </div>
-                            <div class="col s6 m4 l2">
-                                <label>
-                                    <input name="group1" type="radio"  onclick="changeLimit(75)"/>
-                                    <span>75 itesm</span>
-                                </label>
-                            </div>
-                            <div class="col s6 m4 l2">
-                                <label>
-                                    <input name="group1" type="radio" onclick="changeLimit(100)"/>
-                                    <span>100 items</span>
-                                </label>
-                            </div>
-                            <div class="col s6 m4 l2">
-                                <label>
-                                    <input name="group1" type="radio" onclick="changeLimit(150)"/>
-                                    <span>150 items</span>
-                                </label>
-                            </div>
-                            <div class="col s6 m4 l2">
-                                <label>
-                                    <input name="group1" type="radio" onclick="changeLimit(200)"/>
-                                    <span>200 items</span>
-                                </label>
-                            </div>
-                            <div class="col s12 divider"></div>
-                    </div>
-
-                </div>
-                <div class="col s12 z-depth-0">
-                    <div class="z-depth-0" id="cards">
-
+                        </div>
                     </div>
                 </div>
-                <div class="col s12 center" id="pagination_list">
-                    <ul class="pagination">
-                        <li id="first" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">first_page</i></a></li>
-                        <li id="back" class="waves-effect hand-pointer" ><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_left</i></a></li>
-                        <li id="current_page" style="padding-top: 7px; padding-left: 5px; padding-right: 5px; font-size: 18px;">page_number</li>
-                        <li id="forward" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_right</i></a></li>
-                        <li id="last" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">last_page</i></a></li>
-                    </ul>
-                </div>  
+            </nav>
+        </div>
+        <div class="uk-container">
+            <div class="uk-section">
+                <div uk-grid>
+                    <div class="uk-width-1-1@m">
+                        <ul class="uk-iconnav uk-flex-center uk-flex-left@m">
+                            <li><a onclick="openAddItemModal()" uk-icon="icon: plus">Add Item</a></li>
+                            <li><a onclick="openAddPrefixModal()" uk-icon="icon: plus">Add Prefix</a></li>
+                            <li><a href="#" uk-icon="icon: cloud-download">download</a></li>
+                        </ul>
+                        <ul class="uk-iconnav uk-flex-center uk-flex-right@m">
+                            <li><a id="view_mode_toggle" onclick="setViewMode()" uk-icon="icon: thumbnails">Cards</a></li>
+                        </ul>
+                    </div>
+                    <div class="uk-width-1-1 uk-flex uk-flex-center">
+                        <div style="margin-right: 10px;">
+                            <form id="searchForm" onsubmit="searchItems(event)" class="uk-search uk-search-default">
+                                <input id="searchInput" class="uk-border-pill uk-search-input" type="search" placeholder="" aria-label="">
+                                <span class="uk-search-icon-flip" uk-search-icon></span>
+                            </form>
+                        </div>
+                        <div class="">
+                            <button onclick="toggleSettings()" class="uk-button uk-button-default"><span uk-icon="icon: settings"></span></button>
+                        </div>
+                    </div>
+                </div>
+                <div id="settings" class="uk-width-1-1" hidden>
+                    This is some test text
+                </div>
+                <div class="uk-width-1-1 uk-flex uk-flex-center uk-padding-small">
+                    <nav aria-label="Pagination">
+                        <ul id="paginationElement" class="uk-pagination" uk-margin>
+                            <li><a href="#"><span uk-pagination-previous></span></a></li>
+                            <li><a href="#">1</a></li>
+                            <li class="uk-disabled"><span>…</span></li>
+                            <li><a href="#">5</a></li>
+                            <li><a href="#">6</a></li>
+                            <li class="uk-active"><span aria-current="page">7</span></li>
+                            <li><a href="#">8</a></li>
+                            <li><a href="#"><span uk-pagination-next></span></a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="uk-width-1-1">
+                    <div id="items_list">
+                        <!-- populates through javascript -->
+                    </div>
+                    <a class="uk-margin" href="" uk-totop uk-scroll></a>
+                </div>
             </div>
         </div>
-        <div class="fixed-action-btn">
-            <a class="btn-floating btn-large">
-              <i class="large material-icons">more_vert</i>
-            </a>
-            <ul>
-              <li><a class="btn-floating blue darken-1 modal-trigger" href="#modal1"><i class="material-icons">playlist_add</i></a></li>
-              <li><a class="btn-floating green darken-1"><i class="material-icons">download</i></a></li>
-            </ul>
-        </div>
-        <div id="modal1" class="modal">
-            <div class="modal-content">
-                <h4>Adding a Item...</h4>
-                <div class="row">
-                    <div class="col s12">
-                        <div class="card-panel green lighten-4">
-                            <span>Adding an item is the main feature of your inventory. Items are used to store information and the most pertinant variables
-                                around the items in your system and act as the foundation of all other aspects and features of this system. To create an Item 
-                                the 4 most important fields you need is the barcode (this is the unique number the item is tracked under), a name, an item type, 
-                                and finally a subtype.
-                            <br><br>There are two item types of items you can create: 
-                            <br><br>
-                            <b>Single Item</b> - These are the bare bone item as you might think it to be. Its a barcode that gets moved about your system and tracked by that
-                            barcode.
-                            <br><br>
-                            <b>Linked Item</b> - Linked Items are a more advanced feature that allows you to chain together barcodes into one. Whenever one of those barcodes 
-                            are transacted on it is instead replaced with its linked barcode. This allows you to chain together the same types of items together if you want. 
-                            I.E. you have multiple barcodes for Chicken Noodle Soup and want them all to be the same item instead of seperate items in your system.
-                            <br><br>
-                        </span>
-                        </div>
+        <!-- Add Item Modal -->
+        <div id="addItemModal" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 class="uk-modal-title">Add Item...</h2>
+                </div>
+                <div class="uk-modal-body">
+                    <p class="uk-text-meta">Add a blank item to the system by providing a barcode (without the nesting % symbols), a name for the item, and the type of item to be added.</p>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addBarcode">Barcode</label>
+                        <input id="addBarcode" class="uk-input" type="text" placeholder="" aria-label="Input">
                     </div>
-                    <div class="col s12 m6 input-field p-2">
-                        <input id="barcode" type="text" placeholder=" " maxlength="64">
-                        <label for="barcode">Barcode</label>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addName">Item Name</label>
+                        <input id="addName" class="uk-input" type="text" placeholder="" aria-label="Input">
                     </div>
-                    <div class="col s12 m6 input-field p-2">
-                        <input id="item_name" type="text" placeholder=" " maxlength="64">
-                        <label for="item_name">Item Name</label>
-                    </div>
-                    <div class="input-field col s12 m6 p-2">
-                        <select id="item_type">
-                            <option value="single" selected>Single Item</option>
-                            <option value="linked">Linked Item</option>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="subtype_select">Item Type</label>
+                        <select id="subtype_select" class="uk-select" aria-label="Select">
                         </select>
-                        <label for="item_type">Item Type</label>
-                    </div>
-                    <div class="input-field col s12 m6 p-2">
-                        <select id="sub_type">
-                            <option value="FOOD" selected>Food</option>
-                            <option value="OTHER">Other</option>
-                        </select>
-                        <label for="sub_type">Sub Type</label>
-                    </div>                          
-                    <div class="input-field col s12 p-2">
-                        <textarea id="item_description" class="materialize-textarea" placeholder="A short description for what this group represents..."></textarea>
-                        <label for="item_description">Item Description</label>
                     </div>
                 </div>
+                <div class="uk-modal-footer">
+                    <button onclick="addBlankItem()" class="uk-button uk-button-default uk-align-right" type="button">Add Item</button>
+                </div>
             </div>
-            <div class="modal-footer">
-              <a onclick="addItem()" class="waves-effect btn green lighten-4">Add</a>
+        </div>
+        <!-- add prefix modal -->
+        <div id="addPrefixModal" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 class="uk-modal-title">Add Prefix...</h2>
+                </div>
+                <div class="uk-modal-body">
+                    <p class="uk-text-meta">Add a Prefix to the system by providing a uuid, a name for the item, and a general description.</p>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addUUID">UUID</label>
+                        <input id="addUUID" class="uk-input" type="text" placeholder="" aria-label="Input">
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addGroupName">Group Name</label>
+                        <input id="addPrefixName" class="uk-input" type="text" placeholder="" aria-label="Input">
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addGroupDescription">Group Description</label>
+                        <textarea id="addPrefixDescription" class="uk-textarea"></textarea>
+                    </div>
+                </div>
+                <div class="uk-modal-footer">
+                    <button onclick="addSKUPrefix()" class="uk-button uk-button-default uk-align-right" type="button">Add Prefix</button>
+                </div>
             </div>
         </div>
 
     </body>
-    <script>
-        let current_page = 1
-        let end_page = 10
-        let sort_order = 1
-        let view = 0
-        let limit = 50
-        let filter_state = "hidden"
-        let searchText = ""
-        let site = {{ current_site|tojson }}
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-            var elems = document.querySelectorAll('.collapsible');
-            var instances = M.Collapsible.init(elems, {
-            // specify options here
-            });
-        });
-          
-        document.addEventListener('DOMContentLoaded', function() {
-            var elems = document.querySelectorAll('.fixed-action-btn');
-            var instances = M.FloatingActionButton.init(elems, {
-            // specify options here
-            });
-        });
-        document.addEventListener('DOMContentLoaded', function() {
-            var elems = document.querySelectorAll('.dropdown-trigger');
-            var instances = M.Dropdown.init(elems, {
-                alignment: 'right',
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', async function() {
-            await update_list()
-        });
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            var elems = document.querySelectorAll('.modal');
-            var instances = M.Modal.init(elems, {
-              // specify options here
-            });
-            M.AutoInit();
-        });
-        
-        async function changeSite(new_site){
-            console.log(`current_site: ${site}`)
-            console.log(`new site: ${new_site}`)
-            site = new_site
-            console.log(`current_site: ${site}`)
-            const url = new URL('/changeSite', window.location.origin);
-            url.searchParams.append('site', site)
-            await fetch(url)
-            location.reload();
-        }
-
-        async function update_list(){
-            console.log(current_page)
-            if (current_page === 1){
-                document.getElementById('back').classList.add("disabled")
-                document.getElementById('back').classList.remove("waves-effect")
-                document.getElementById('first').classList.add("disabled")
-                document.getElementById('first').classList.remove("waves-effect")
-
-            } else { 
-                document.getElementById('back').classList.remove("disabled")
-                document.getElementById('back').classList.add("waves-effect")
-                document.getElementById('first').classList.remove("disabled")
-                document.getElementById('first').classList.add("waves-effect")
-            };
-
-            const url = new URL('/getItems', window.location.origin);
-            url.searchParams.append('page', current_page);
-            url.searchParams.append('limit', limit);
-            url.searchParams.append('search_text', searchText);
-            url.searchParams.append('sort_order', sort_order);
-            url.searchParams.append('view', view);
-
-            await fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                
-                end_page = parseInt(data.end)
-                if (current_page === end_page){
-                    document.getElementById('forward').classList.add("disabled")
-                    document.getElementById('forward').classList.remove("waves-effect")
-                    document.getElementById('last').classList.add("disabled")
-                    document.getElementById('last').classList.remove("waves-effect")
-
-                } else {
-                    document.getElementById('forward').classList.remove("disabled")
-                    document.getElementById('forward').classList.add("waves-effect")
-                    document.getElementById('last').classList.remove("disabled")
-                    document.getElementById('last').classList.add("waves-effect")
-                };
-                
-                //<ul class="collapsible">
-                  //  <li>
-                    //  <div class="collapsible-header"><i class="material-icons">filter_drama</i>First</div>
-                      //<div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
-                   // </li>
-                    
-                  //</ul>
-
-                const cards = document.getElementById("cards")
-                const dummy_div = document.createElement('div')
-                const list_collapsible = document.createElement('ul')
-                list_collapsible.classList.add("collapsible")
-                list_collapsible.classList.add("popout")
-                list_collapsible.style = "background: white;"
-
-                data.items.forEach(item => {
-                    let qty = item[19]
-                    let roundedQty = qty.toFixed(2)
-                    var list_item = document.createElement('li')
-                    list_item.classList.add("z-depth-0")
-                    list_item.style = "background: white;"
-
-                    var header = document.createElement("div")
-                    header.classList.add("collapsible-header")
-                    header.style = "box-shadow: none !important; background: white; border: 1px solid rgb(150 150 150 / 30%); border-radius: 10px 10px 0px 0px;"
-                    header.innerHTML = `<i class='material-symbols-outlined'>grocery</i>${item[2]}
-                    <span class="badge green lighten-4 black-text text-darken-2 z-depth-0" style="border-radius: 5px;">Qty: ${roundedQty}</span>`
-
-                    var body = document.createElement('div')
-                    body.classList.add("collapsible-body")
-                    body.style = "box-shadow: none !important; background: rgb(0 128 0 / 10%); border: 1px solid rgb(150 150 150 / 30%); border-radius: 0px 0px 10px 10px;"
-
-                    var description = document.createElement('div')
-                    description.classList.add("col")
-                    description.classList.add("s12")
-                    description.innerHTML = `
-                    <span>Lorem ipsum dolor sit amet. This is a description for ${item[2]}</span>
-                    <div class="divider s12" style="margin-bottom: 5px; margin-top: 5px;"></div>`
-                    var button_group = document.createElement('div')
-                    button_group.classList.add("row")
-                    button_group.style = "margin-bottom: 0px; padding-bottom: 0px;"
-                    button_group.innerHTML = `
-                    <div class="col s12" style="align-items: center;">
-                        <a href="/item/${item[0]}" class="btn right green lighten-3 black-text text-darken-2 z-depth-0 tooltipped" data-position="bottom" data-tooltip="Edit Item" style="display: inline-flex; border-radius: 20px 10px 20px 10px;">
-                            <i class='material-icons'>edit</i>
-                        </a>
-                        <a href="/transactions/${item[0]}" class="btn right green lighten-3 black-text text-darken-2 z-depth-0 tooltipped" data-position="left" data-tooltip="Transactions" style="display: inline-flex; margin-right: 5px; margin-top:0px; border-radius: 20px 10px 20px 10px;">
-                            <i class='material-icons'>list_alt</i>
-                        </a>
-                    </div>`
-
-                    body.appendChild(description)
-                    body.appendChild(button_group)
-
-                    list_item.appendChild(header)
-                    list_item.appendChild(body)
-
-                    list_collapsible.appendChild(list_item)
-                });
-
-                dummy_div.appendChild(list_collapsible)
-
-                cards.innerHTML = dummy_div.innerHTML
-
-                var elems = document.querySelectorAll('.collapsible');
-                var instances = M.Collapsible.init(elems, {
-                    // specify options here
-                });
-                var elems = document.querySelectorAll('.tooltipped');
-                var instances = M.Tooltip.init(elems, {
-                    // specify options here
-                });
-
-                document.getElementById("current_page").innerHTML = `${String(current_page)} / ${String(end_page)}`
-            })
-
-
-        };
-        
-        async function changeLimit(limit_value){
-            limit = limit_value
-            current_page = 1
-            await update_list()
-        };
-
-        async function changeSort(order){
-            sort_order = order
-            await update_list()
-        }
-
-        async function changeView(view_num){
-            view = view_num
-            await update_list()
-        }
-
-        function hideFilters(){
-            if (filter_state == "hidden"){
-                document.getElementById("filter_options").classList.remove("hide");
-                filter_state = "shown";
-            } else {
-                document.getElementById("filter_options").classList.add("hide");
-                filter_state = "hidden";
-            }
-        }
-
-        document.getElementById('forward').addEventListener('click', async () =>{
-            if (!(document.getElementById("forward").classList.contains("disabled"))){
-                current_page++
-                await update_list();
-            };
-        });
-    
-        document.getElementById('back').addEventListener('click', async () =>{
-            if (!(document.getElementById("back").classList.contains("disabled"))){
-                current_page--
-                await update_list();
-            }
-        });
-
-        document.getElementById('last').addEventListener('click', async () =>{
-            if(!(document.getElementById("last").classList.contains("disabled"))){
-                current_page = end_page
-                await update_list();
-                };
-        });
-    
-        document.getElementById('first').addEventListener('click', async () =>{
-            if (!(document.getElementById("first").classList.contains("disabled"))){
-                current_page = 1
-                await update_list();
-            };
-        }); 
-
-        document.querySelector("#search").addEventListener('change', async () => {
-            searchText = document.getElementById("search").value;
-            current_page = 1;
-            await update_list();
-        });
-        
-        async function addItem(){
-            let barcode = document.getElementById("barcode")
-            let item_name = document.getElementById("item_name")
-            let item_type = document.getElementById("item_type")
-            let sub_type = document.getElementById("sub_type")
-            let description = document.getElementById("item_description")
-
-            const url = new URL('/addItem', window.location.origin);
-            url.searchParams.append('barcode', barcode.value);
-            url.searchParams.append('item_name', item_name.value);
-            url.searchParams.append('item_type', item_type.value);
-            url.searchParams.append('sub_type', sub_type.value);
-            url.searchParams.append('item_description', description.value);
-
-
-            await fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                M.toast({text: `Adding ${name}: ${data.state}`});
-            })
-            await update_list()
-            var elem = document.getElementById("modal1");
-            var instance = M.Modal.getInstance(elem);
-            instance.close()
-
-
-        }
-
-    </script>
+    <script>const session = {{session|tojson}}</script>
+    <script src="{{ url_for('static', filename='handlers/itemListHandler.js') }}"></script>
 </html>
-    

@@ -1,0 +1,128 @@
+:root {
+    --base03: #fdf6e3;
+    --base02: #eee8d5;
+    --base01: #93a1a1;
+    --base00: #839496;
+    --base0: #657b83;
+    --base1: #586e75;
+    --base2: #073642;
+    --base3: #002b36;
+    --yellow: #b58900;
+    --orange: #cb4b16;
+    --red: #dc322f;
+    --magenta: #d33682;
+    --violet: #6c71c4;
+    --blue: #268bd2;
+    --cyan: #2aa198;
+    --green: #859900;
+  }
+  
+  /* Applying to body */
+  body {
+    background-color: var(--base3);
+    color: var(--base0);
+    font-family: 'Ubuntu Mono';
+  }
+  #navbar{
+    background-color: var(--base2);
+    color: var(--base0);
+  }
+
+  .uk-modal-title{
+    color: var(--base01)
+  }
+  .uk-modal-dialog{
+    background-color: var(--base2);
+    color: var(--base00)
+  }
+
+  .uk-button-default{
+    background-color: var(--base03);
+    color: var(--base00)
+  }
+  .uk-button-default:hover{
+    background-color: var(--base02);
+  }
+
+
+  .uk-table-striped tbody tr:nth-child(odd) {
+    background-color: var(--base2);
+  }
+
+  .uk-table-striped tbody tr:nth-child(odd):hover {
+    background-color: var(--base02);
+    cursor: pointer;
+  }
+
+  .uk-table-striped tbody tr:nth-child(even) {
+    background-color: var(--base3);
+  }
+
+  .uk-table-striped tbody tr:nth-child(even):hover {
+    background-color: var(--base03);
+    cursor: pointer;
+  }
+
+  .uk-button.delete_button{
+    background-color: var(--red);
+    color: var(--base3);
+    border-radius: 30px;
+    height: 30px;
+  }
+  
+  #saveButton{
+    background-color: var(--yellow);
+  }
+  
+  .uk-heading-medium{
+    color: var(--base01);
+    font-weight: bold;
+  }
+  .uk-text-meta{
+    color: var(--base0)
+  }
+  
+  .uk-form-label{
+    color: var(--base00);
+  }
+  
+  .uk-input{
+    background-color: var(--base02);
+    color: var(--base00);
+    border-color: var(--base02);
+  }
+  .uk-input:focus{
+    background-color: var(--base02);
+    color: var(--base00);
+    border-color: var(--base02);
+  }
+
+  .uk-select{
+    background-color: var(--base02);
+    color: var(--base00);
+    border-color: var(--base02);
+  }
+  .uk-select:focus{
+    background-color: var(--base02);
+    color: var(--base00);
+    border-color: var(--base02);
+  }
+  
+  .uk-form-blank {
+    /* Styles for unselected */
+    background-color: var(--base3);
+    border-color: var(--base3);
+  }
+  
+  .uk-form-blank:focus {
+    /* Styles for selected */
+    background-color: var(--base02);
+    border-color: var(--base02);
+  }
+  .uk-offcanvas-bar{
+    background-color: var(--base2);
+    color: var(--base00);
+  }
+  .uk-nav-secondary{
+    color:var(--base00)
+  }

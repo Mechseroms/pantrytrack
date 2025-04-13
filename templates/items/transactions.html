@@ -3,7 +3,8 @@
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
         <title id="title"></title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+        
+        
         <!-- Material Icons -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
         <!-- Material Symbols - Outlined Set -->
@@ -12,366 +13,107 @@
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
         <!-- Material Symbols - Sharp Set -->
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
-        <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+
+        <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
 
     </head>
-    <style>
-        header, main, footer, body {
-            padding-left: 300px;
-            }
-        
-            @media only screen and (max-width : 992px) {
-            header, main, footer, body {
-                padding-left: 0;
-            }
-            }
-        .dropdown-disabled {
-            pointer-events: none;
-            opacity: 0.5; /* or your desired degree of transparency */
-          }
-        .custom_row:hover{
-            background-color: rgb(230, 230, 230) !important;
-            cursor: pointer;
-        }
-        .fixed-bottom {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-          }
-    </style>
-    <ul id='dropdown1' class='dropdown-content'>
-        {% for site in sites %}
-            <li><button class="btn transparent black-text z-depth-0" onclick="changeSite('{{ site }}')">{{site}}</button></li>
-        {% endfor %}
-    </ul>
-    <ul id="slide-out" class="sidenav sidenav-fixed green lighten-4" style="width: 250px;">
-        <li>
-            <div class="user-view">
-                <!-- <div class="background">
-                    <img src="images/office.jpg">
-                </div> -->
-                <!-- <a href="#user"><img class="circle" src="images/yuna.jpg"></a> -->
-                <a href="#name"><span class="black-text name">John Doe</span></a>
-                <a href="#email"><span class="black-text email">jdoe@example.com</span></a>
-            </div>
-        </li>
-        <li><a class="dropdown-trigger dropdown-disabled" data-target="dropdown1">Current Site > {{current_site}}<i class="material-icons right">arrow_drop_down</i></a></li>
-        <li><div class="divider grey darken-1" style="margin-left: 5px; margin-right: 10px;"></div></li>
-        <li><a href="/items">Site Items</a></li>
-        <li><a href="/groups">Site Groups</a></li>
-        <li><a href="/shopping-lists">Site Shopping Lists</a></li>
-        <div class="fixed-bottom">
-            <li><a href="/transaction">Add Transaction</a></li>
-            <li class="disabled"><a href="/admin" class="disabled">Admin</a></li>
-            <li><a href="/logout" disabled>Logout</a></li>
+    <body>
+        <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+            <nav class="uk-navbar-container">
+                <div class="uk-container uk-container-expand">
+                    <div uk-navbar="dropbar: true">
+                        <div id="offcanvas-slide" uk-offcanvas="mode: slide; overlay: true">
+                            <div class="uk-offcanvas-bar uk-flex uk-flex-column">
+                                <ul class="uk-nav uk-nav-secondary">  
+                                    <img class="uk-align-center uk-border-circle" data-src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 150px; height: auto;" uk-img />
+                                    <li class="uk-nav-header">Apps</li>
+                                    <li><a href="/shopping-lists">Shopping Lists</a></li>
+                                    <li><a href="/groups">Groups</a></li>
+                                    <li><a href="/recipes">Recipes</a></li>
+                                    <li class="uk-nav-header">Logistics</li>
+                                    <li>
+                                    <a href="/items">
+                                        <div class="uk-active">Items<div class="uk-nav-subtitle" disabled>You are currently viewing transactions...</div>
+                                    </div>
+                                    </a>
+                                </li>
+                                    <li><a href="/add_transaction">Add Transaction</a></li>
+                                    <li><a href="/receipts">Receipts</a></li>
+                                    <li class="uk-nav-header">System Management</li>
+                                    {% if system_admin %}
+                                    <li><a href="/admin">Administration</a></li>
+                                    {% endif %}
+                                    <li><a href="" class="">{{username}}</a></li>
+                                </ul>
+                                <button class="uk-button uk-margin-small uk-position-top-right" uk-icon="icon: close" href=""></button>
+                            </div>
+                        </div>
+                        <div class="uk-navbar-left uk-margin-small">
+                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle></a>
+                        </div>
+                        <div class="uk-navbar-center uk-margin-small uk-visible@m">
+                            <ul class="uk-breadcrumb">
+                                <li style="cursor: default; user-select: none;"><span><strong>{{current_site}}</strong></span></li>
+                                <li style="cursor: default; user-select: none;"><span>Logistics</span></li>
+                                <li><a href="/items">Items</a></li>
+                                <li class="uk-disabled"><span>Viewing Transactions</span></li>
+                            </ul>
+                        </div>
+                        <div class="uk-navbar-right">
+                            <a href="" class="" uk-icon="icon: user" uk-toggle>{{username}}</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
         </div>
-
-    </ul>
-    <body style="margin-bottom: 80px;">
-        <div class="container section">
-            <div class="row g-4">
-                <div class="col s6">
-                    <a href="#" data-target="slide-out" class="sidenav-trigger hide-on-large-only left btn green lighten-4 black-text btn-flat"><i class="material-icons">menu</i></a>
-                </div>
-                <div class="col s6">
-                    <button class="btn btn-flat grey right white-text hide-on-med-and-up show-on-small-only" onclick="saveItem()"><i class="large material-icons">save</i></button>
-                </div>
-                <div class="col s12">
-                    <table id="transaction_table">
-                        <thead>
-                        </thead>
-                        <tbody id="table_body">
-                        </tbody>
-                    </table>
-                </div>
-                <div class="col s12 center" id="pagination_list">
-                    <ul class="pagination">
-                        <li id="first" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">first_page</i></a></li>
-                        <li id="back" class="waves-effect hand-pointer" ><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_left</i></a></li>
-                        <li id="current_page" style="padding-top: 7px; padding-left: 5px; padding-right: 5px; font-size: 18px;">page_number</li>
-                        <li id="forward" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_right</i></a></li>
-                        <li id="last" class="waves-effect hand-pointer"><a class="green lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">last_page</i></a></li>
+        <div class="uk-container">
+            <div class="uk-section">
+                <nav aria-label="Pagination">
+                    <ul id="paginationElement" class="uk-pagination uk-flex-center" uk-margin>
+                        <!-- populated by javascript updatePaginationElement -->
                     </ul>
-                </div>  
-                <div class="fixed-action-btn">
-                    <a class="btn-floating btn-large">
-                      <i class="large material-icons">more_vert</i>
-                    </a>
-                    <ul>
-                      <li><a class="btn-floating blue darken-1 modal-trigger" href="#modal1"><i class="material-icons">playlist_add</i></a></li>
-                      <li><a class="btn-floating green darken-1"><i class="material-icons">download</i></a></li>
-                    </ul>
-                </div>
-        </div>
-        <div id="transaction_view" class="modal">
-            <div class="modal-content">
-                <div class="row">
-                    <div class="col s12 green lighten-4">
-                        <h5 class="center" style="border-radius: 10px;">Transaction Receipt</h5>
-                    </div>
-                    <div class="col s12">
+                </nav>
+                <table id="transactionsTable" class="uk-table uk-table-striped uk-table-hover">
+                <!-- populated by javascript -->
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Barcode</th>
+                        <th>Name</th>
+                        <th>Transaction Type</th>
+                        <th>Quantity</th>
+                        <th>Description</th>
+                        <th>User ID</th>
+                    </tr>
+                </thead>
 
-                        <p id="trans_barcode"></p>
-                    </div>
-                    <div class="col s12">
-                        <p id="trans_database_id"></p>
-                    </div>
-                    <div class="col s12">
-                        <p id="trans_timestamp"></p>
-                    </div>
-                    <div class="col s12">
-                        <p id="trans_name"></p>
-                    </div>
-                    <div class="col s12">
-                        <p id="trans_type"></p>
-                    </div>
-                    <div class="col s12">
-                        <p id="trans_qty"></p>
-                    </div>
-                    <div class="col s12">
-                        <p id="trans_description"></p>
-                    </div>
-                    <div class="col s12">
-                        <table id="transaction_data_table">
-                        </table>
-                    </div>
+                <tbody id="transactionsTableBody"></tbody>
+                </table>
+                <a href="#" uk-totop uk-scroll></a>
             </div>
+        </div>
+        <div id="transactionModal" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <h2 class="uk-modal-title">Transaction Receipt</h2>
+                <p id="trans_barcode">...</p>
+                <p id="trans_database_id">...</p>
+                <p id="trans_timestamp">...</p>
+                <p id="trans_name">...</p>
+                <p id="trans_type">...</p>
+                <p id="trans_qty">...</p>
+                <p id="trans_description">...</p>
+                <p id="trans_user">...</p>
+                <table id="dataTable" class="uk-table uk-table-striped">
+                <!-- populated by javascript -->
+                 <thead><tr><th>Key</th><th>Value</th></tr></thead>
+                 <tbody id="receiptTableBody"></tbody>
+                </table>
             </div>
         </div>
     </body>
-    <script>
-    const item_id = {{id|tojson}}
-    let current_page = 1
-    let end_page;
-    let limit = 50
-    
-    document.addEventListener('DOMContentLoaded', async function() {
-        await fetchTransactions();
-
-        var elems = document.querySelectorAll('.modal');
-        var instances = M.Modal.init(elems, {});    
-
-
-    });
-
-    async function fetchTransactions(){
-        console.log(current_page)
-        if (current_page === 1){
-            document.getElementById('back').classList.add("disabled")
-            document.getElementById('back').classList.remove("waves-effect")
-            document.getElementById('first').classList.add("disabled")
-            document.getElementById('first').classList.remove("waves-effect")
-
-        } else { 
-            document.getElementById('back').classList.remove("disabled")
-            document.getElementById('back').classList.add("waves-effect")
-            document.getElementById('first').classList.remove("disabled")
-            document.getElementById('first').classList.add("waves-effect")
-        };
-        const url = new URL('/getTransactions', window.location.origin);
-        url.searchParams.append('id', item_id);
-        url.searchParams.append('page', current_page);
-        url.searchParams.append('limit', limit);
-        await fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            
-            end_page = parseInt(data.end)
-            if (current_page === end_page){
-                document.getElementById('forward').classList.add("disabled")
-                document.getElementById('forward').classList.remove("waves-effect")
-                document.getElementById('last').classList.add("disabled")
-                document.getElementById('last').classList.remove("waves-effect")
-
-            } else {
-                document.getElementById('forward').classList.remove("disabled")
-                document.getElementById('forward').classList.add("waves-effect")
-                document.getElementById('last').classList.remove("disabled")
-                document.getElementById('last').classList.add("waves-effect")
-            };
-            console.log(data)
-            var table = document.getElementById("transaction_table")
-            while (table.rows.length > 0) {
-                table.deleteRow(0);
-            }
-
-            const header = table.createTHead();
-            const row = header.insertRow(0);
-                        
-            var header_id = row.insertCell();
-            header_id.classList.add('center')
-            header_id.classList.add('hide-on-med-and-down')
-            var header_stamp = row.insertCell();
-            header_stamp.classList.add('center')
-            var header_barcode = row.insertCell();
-            header_barcode.classList.add('center')
-            var header_name = row.insertCell();
-            header_name.classList.add('center')
-            header_name.classList.add('hide-on-med-and-down')
-            var header_type = row.insertCell();
-            header_type.classList.add('center')
-            header_type.classList.add('hide-on-small-only')
-            var header_qty = row.insertCell();
-            header_qty.classList.add('center')
-            var header_desc = row.insertCell();
-            header_desc.classList.add('center')
-            header_desc.classList.add('hide-on-med-and-down')
-            var header_user = row.insertCell();
-            header_user.classList.add('center')
-            header_user.classList.add('hide-on-med-and-down')
-            
-            header_id.innerHTML = `<b>Database ID</b>`;
-            header_stamp.innerHTML = `<b>Timestamp</b>`;
-            header_barcode.innerHTML = `<b>Barcode</b>`;
-            header_name.innerHTML = `<b>Name</b>`;
-            header_type.innerHTML = `<b>Type</b>`;
-            header_qty.innerHTML = `<b>Qty</b>`;
-            header_desc.innerHTML = `<b>Description</b>`;
-            header_user.innerHTML = `<b>UserID</b>`;
-
-            let colorstate = 1;
-            data.transactions.forEach(transaction => {
-                console.log(transaction)
-                var row = table.insertRow();
-                
-                var row_id = row.insertCell();
-                row_id.classList.add('center')
-                row_id.classList.add('hide-on-med-and-down')
-                var row_stamp = row.insertCell();
-                row_stamp.classList.add('center')
-                var row_barcode = row.insertCell();
-                row_barcode.classList.add('center')
-                var row_name = row.insertCell();
-                row_name.classList.add('hide-on-med-and-down')
-                row_name.classList.add('center')
-                var row_type = row.insertCell();
-                row_type.classList.add('center')
-                row_type.classList.add('hide-on-small-only')
-                var row_qty = row.insertCell();
-                row_qty.classList.add('center')
-                var row_desc = row.insertCell();
-                row_desc.classList.add('center')
-                row_desc.classList.add('hide-on-med-and-down')
-                var row_user = row.insertCell();
-                row_user.classList.add('center')
-                row_user.classList.add('hide-on-med-and-down')
-
-                row_id.innerHTML = transaction[0];
-                row_stamp.innerHTML = transaction[1];
-                row_barcode.innerHTML = transaction[3];
-                row_name.innerHTML = transaction[4];
-                row_type.innerHTML = transaction[5];
-                row_qty.innerHTML = transaction[6];
-                row_desc.innerHTML = transaction[7];
-                row_user.innerHTML = transaction[8];
-
-
-                if ((colorstate % 2) == 0){
-                    row.classList.add('green')
-                    row.classList.add('lighten-5')
-                }
-                row.classList.add("custom_row")
-                row.addEventListener('click', function(){
-                    test(transaction[0])
-                })
-                colorstate++
-            });
-            document.getElementById("current_page").innerHTML = `${String(current_page)} / ${String(end_page)}`
-        });
-                
-    };
-
-    async function fetchTransaction(transaction_id){
-        const url = new URL('/getTransaction', window.location.origin);
-        url.searchParams.append('id', transaction_id);
-        const response = await fetch(url);
-        data =  await response.json();
-        return data.transaction;
-    }
-
-    async function test(transaction_id){
-        console.log(transaction_id)
-        let el = document.getElementById('transaction_view')
-        let modal = M.Modal.getInstance(el)
-        transaction = await fetchTransaction(transaction_id)
-        console.log(transaction)
-        document.getElementById('trans_barcode').innerHTML = `<b>Barcode:</b> ${transaction[3]}`;
-        document.getElementById('trans_database_id').innerHTML = `<b>Database ID:</b> ${transaction[0]}`;
-        document.getElementById('trans_timestamp').innerHTML = `<b>Timestamp:</b> ${transaction[1]}`;
-        document.getElementById('trans_name').innerHTML = `<b>Item Name:</b> ${transaction[4]}`;
-        document.getElementById('trans_type').innerHTML = `<b>Transaction Type:</b> ${transaction[5]}`;
-        document.getElementById('trans_qty').innerHTML = `<b>Qty:</b> ${transaction[6]}`;
-        document.getElementById('trans_description').innerHTML = `<b>Desription:</b> ${transaction[7]}`;
-
-        var table = document.getElementById("transaction_data_table")
-        while (table.rows.length > 0) {
-            table.deleteRow(0);
-        }
-
-        var header = table.createTHead();
-        var row = header.insertRow(0);
-                    
-        var header_key = row.insertCell();
-        header_key.classList.add('center')
-        var header_value = row.insertCell();
-        header_value.classList.add('center')
-        
-        
-        header_key.innerHTML = `<b>Key</b>`;
-        header_value.innerHTML = `<b>Value</b>`;
-        
-        let colorstate = 1;
-
-        for(let key in transaction[9]){
-            console.log(key)
-            var row_trans = table.insertRow();
-                
-            var row_key = row_trans.insertCell();
-            row_key.classList.add('center')
-            var row_value = row_trans.insertCell();
-            row_value.classList.add('center')
-            
-
-            row_key.innerHTML = key;
-            row_value.innerHTML = JSON.stringify(transaction[9][key]);
-            
-
-            if ((colorstate % 2) == 0){
-                row_trans.classList.add('green')
-                row_trans.classList.add('lighten-5')
-            };
-            colorstate++
-        };
-        modal.open()
-    };
-
-    document.getElementById('forward').addEventListener('click', async () =>{
-        if (!(document.getElementById("forward").classList.contains("disabled"))){
-            current_page++
-            await fetchTransactions();
-        };
-    });
-
-    document.getElementById('back').addEventListener('click', async () =>{
-        if (!(document.getElementById("back").classList.contains("disabled"))){
-            current_page--
-            await fetchTransactions();
-        }
-    });
-
-    document.getElementById('last').addEventListener('click', async () =>{
-        if(!(document.getElementById("last").classList.contains("disabled"))){
-            current_page = end_page
-            await fetchTransactions();
-            };
-    });
-
-    document.getElementById('first').addEventListener('click', async () =>{
-        if (!(document.getElementById("first").classList.contains("disabled"))){
-            current_page = 1
-            await fetchTransactions();
-        };
-    }); 
-    </script>
-</html>
+    <script src="{{ url_for('static', filename='handlers/transactionsHandler.js') }}"></script>
+    <script>const item_id = {{id|tojson}}</script>
+    </html>

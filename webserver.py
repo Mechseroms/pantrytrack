@@ -1,14 +1,34 @@
 from flask import Flask, render_template, session, request, redirect
-import api, config, external_devices, user_api, psycopg2, main, admin
+from flask_assets import Environment, Bundle
+import api, config, user_api, psycopg2, main, admin, item_API, receipts_API, shopping_list_API, group_api, recipes_api
 from user_api import login_required
+from external_API import external_api
+import database
+import postsqldb
 
 app = Flask(__name__)
+UPLOAD_FOLDER = 'static/pictures'
+FILES_FOLDER = 'static/files'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['FILES_FOLDER'] = FILES_FOLDER
+assets = Environment(app)
 app.secret_key = '11gs22h2h1a4h6ah8e413a45'
 app.register_blueprint(api.database_api)
-app.register_blueprint(external_devices.external_api)
 app.register_blueprint(user_api.login_app)
 app.register_blueprint(admin.admin)
+app.register_blueprint(item_API.items_api)
+app.register_blueprint(external_api)
+app.register_blueprint(receipts_API.receipt_api)
+app.register_blueprint(shopping_list_API.shopping_list_api)
+app.register_blueprint(group_api.groups_api)
+app.register_blueprint(recipes_api.recipes_api)
 
+
+
+js = Bundle('js/uikit.min.js', 'js/uikit-icons.min.js', output='gen/main.js')
+assets.register('js_all', js)
+
+assets.init_app(app)
 
 @app.context_processor
 def inject_user():
@@ -17,107 +37,62 @@ def inject_user():
         with psycopg2.connect(**database_config) as conn:
             try:
                 with conn.cursor() as cur:
-                    sql = f"SELECT * FROM logins WHERE id=%s;"
+                    sql = f"SELECT id, username, sites, site_roles, system_admin, flags FROM logins WHERE id=%s;"
                     cur.execute(sql, (session['user_id'],))
                     user = cur.fetchone()
+                    user = database.tupleDictionaryFactory(cur.description, user)
                     session['user'] = user
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)
                 conn.rollback()
                 return dict(username="")
-
         return dict(
-            user_id=session.get('user')[0], 
-            username=session.get('user')[1],
-            system_admin=session.get('user')[15]
+            user_id=session.get('user')['id'], 
+            username=session.get('user')['username'],
+            system_admin=session.get('user')['system_admin']
             )
     
     return dict(username="")
 
 
-@app.route("/group/<id>")
-@login_required
-def group(id):
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
-    return render_template("groups/group.html", id=id, current_site=session['selected_site'], sites=sites)
-
 @app.route("/transactions/<id>")
 @login_required
 def transactions(id):
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
+    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     return render_template("items/transactions.html", id=id, current_site=session['selected_site'], sites=sites)
 
 
 @app.route("/item/<id>")
 @login_required
 def item(id):
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
-    return render_template("items/item.html", id=id, current_site=session['selected_site'], sites=sites)
-
-@app.route("/itemlink/<id>")
-@login_required
-def itemLink(id):
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
-    return render_template("items/itemlink.html", current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer}, id=id)
+    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    database_config = config.config()
+    with psycopg2.connect(**database_config) as conn:
+        units = postsqldb.UnitsTable.getAll(conn)
+    return render_template("items/item_new.html", id=id, units=units, current_site=session['selected_site'], sites=sites)
 
 @app.route("/transaction")
 @login_required
 def transaction():
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
-    return render_template("transaction.html", current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer})
+    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    database_config = config.config()
+    with psycopg2.connect(**database_config) as conn:
+        units = postsqldb.UnitsTable.getAll(conn)
+    return render_template("other/transaction.html", units=units, current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer})
 
 @app.route("/admin")
 @login_required
 def workshop():
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
-    if not session.get('user')[15]:
+    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    print(session.get('user')['system_admin'])
+    if not session.get('user')['system_admin']:
         return redirect('/logout')
     return render_template("admin.html", current_site=session['selected_site'], sites=sites)
-
-@app.route("/shopping-list/view/<id>")
-@login_required
-def shopping_lists_view(id):
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
-    return render_template("shopping-lists/view.html", id=id, current_site=session['selected_site'], sites=sites)
-
-@app.route("/shopping-list/edit/<id>")
-@login_required
-def shopping_lists_edit(id):
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
-    return render_template("shopping-lists/edit.html", id=id, current_site=session['selected_site'], sites=sites)
-
-@app.route("/shopping-lists")
-@login_required
-def shopping_lists():
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
-    return render_template("shopping-lists/index.html", current_site=session['selected_site'], sites=sites)
-
-@app.route("/receipt/<id>")
-@login_required
-def receipt(id):
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
-    return render_template("receipts/receipt.html", id=id, current_site=session['selected_site'], sites=sites)
-
-
-@app.route("/receipts")
-@login_required
-def receipts():
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
-    return render_template("receipts/index.html", current_site=session['selected_site'], sites=sites)
-
-
-@app.route("/groups")
-@login_required
-def groups():
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
-    return render_template("groups/index.html", 
-                           current_site=session['selected_site'], 
-                           sites=sites)
 
 @app.route("/items")
 @login_required
 def items():
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
+    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     return render_template("items/index.html", 
                            current_site=session['selected_site'], 
                            sites=sites)
@@ -125,10 +100,8 @@ def items():
 @app.route("/")
 @login_required
 def home():
-    print(session['user'][12])
-    sites = [site[1] for site in main.get_sites(session['user'][13])]
+    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     session['selected_site'] = sites[0]
     return redirect("/items")
-    return render_template("items/index.html", current_site=session['selected_site'], sites=sites)
 
 app.run(host="0.0.0.0", port=5810, debug=True)

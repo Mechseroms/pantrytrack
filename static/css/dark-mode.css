@@ -1,0 +1,222 @@
+:root {
+    --background: #121212;
+    --background-text: #ffffff;
+    
+    --surface: #121212;
+    --surface-text: #ffffff;
+
+    --error: #CF6679;
+    --error-text: #000000;
+    
+    --primary-color: #BB86FC;
+    --primary-text: #000000;
+
+    --secondary-color: #03DAC6;
+    --secondary-text: #000000;
+
+    --elevation-low: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --elevation-medium: 0 3px 6px rgba(0, 0, 0, 0.3);
+    --elevation-high: 0 10px 20px rgba(0, 0, 0, 0.4);
+
+    --radius: 10px;
+
+  }
+
+body, html {
+    background-color: var(--background);
+    color: var(--background-text);
+    border-color: var(--border-color);
+}
+
+select, option {
+    background-color: var(--surface);
+    color: var(--surface-text);
+    box-shadow: var(--elevation-low);
+}
+
+#navbar {
+    background: var(--surface);
+    color: var(--surface-text);
+    box-shadow: var(--elevation-medium);
+    
+}
+
+#navbar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.08);
+    pointer-events: none;
+}
+
+
+.uk-input.uk-disabled {
+    background-color: var(--background-secondary);
+}
+
+.uk-input {
+    border-color: var(--border-color);
+    box-shadow: var(--elevation-low);
+}
+
+.uk-button.uk-disabled {
+    background-color: var(--background-secondary);
+}
+
+.uk-label.uk-disabled {
+    background-color: var(--background-secondary);
+}
+
+.uk-modal-dialog{
+    background-color: var(--surface);
+    color: var(--surface-text);
+    box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);;
+    z-index: 0;
+    border-radius: var(--radius);
+}
+
+.uk-modal-body{
+    background-color: var(--surface);
+    color: var(--surface-text)
+}
+
+.uk-modal-header{
+    background-color: var(--surface);
+    color: var(--surface-text)
+}
+
+.uk-modal-footer{
+    background-color: var(--surface);
+    color: var(--surface-text)
+}
+
+.uk-modal-dialog::before {
+    content: '';
+    position: absolute;
+    border-radius: var(--radius);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.09);
+    pointer-events: none;
+}
+
+.uk-card.uk-card-hover:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+    box-shadow: var(--elevation-high);
+}
+
+.uk-card.uk-card-default {
+    background: var(--surface);
+    color: var(--surface-text);
+    box-shadow: var(--elevation-low);
+    border-radius: var(--radius);
+}
+
+.uk-card.uk-card-default::before {
+    content: '';
+    position: absolute;
+    border-radius: var(--radius);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+}
+
+.my-card.uk-card-title {
+    color: var(--surface-text);
+}
+
+.uk-dropdown {
+    background-color: var(--surface);
+    color: var(--surface-text);
+    box-shadow: var(--elevation-low);
+}
+
+.uk-dropdown::before {
+    content: '';
+    position: absolute;
+    border-radius: var(--radius);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+}
+
+.uk-offcanvas-bar {
+    background-color: var(--surface);
+    color: var(--surface-text);
+}
+
+.uk-offcanvas-bar::content {
+    content: '';
+    position: absolute;
+    height: 100%;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.16);
+    pointer-events: none;
+}
+
+.uk-tile.uk-tile-default{
+    background-color: var(--surface);
+    color: var(--surface-text)
+}
+
+.uk-tile.uk-tile-default::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.09);
+    pointer-events: none;
+}
+
+.instruction-card{
+    background: var(--surface); 
+    margin: 10px 0; 
+    padding: 10px; 
+    border-radius: 5px;
+    position: relative;
+}
+
+.instruction-card::before {
+    content: '';
+    position: absolute;
+    border-radius: var(--radius);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.09);
+    pointer-events: none;
+}
+
+.instruction-button{
+    background: none;
+    border: none;
+    color: red;
+    font-size: 1.2em;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.instruction-list{
+    list-style-type: none; 
+    padding: 0;
+}

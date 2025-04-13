@@ -1,1 +1,1 @@
-DROP TABLE main_brands CASCADE;
+DROP TABLE %%site_name%%_brands CASCADE;

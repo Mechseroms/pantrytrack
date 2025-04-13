@@ -23,8 +23,7 @@ CREATE TABLE IF NOT EXISTS %sitename%_items(
         ON DELETE CASCADE,
     CONSTRAINT fk_brand
         FOREIGN KEY(brand)
-        REFERENCES %sitename%_brands(id)
-        ON DELETE CASCADE,
+        REFERENCES %sitename%_brands(id),
     CONSTRAINT fk_logistics_info
         FOREIGN KEY(logistics_info_id)
         REFERENCES %sitename%_logistics_info(id)

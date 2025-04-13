@@ -2,41 +2,108 @@
 <html lang="en" dir="ltr">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
-    <title>My Pantry</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
-  </head>
+    <title id="title"></title>
+     <!-- Material Icons -->
+     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+     <!-- Material Symbols - Outlined Set -->
+     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+     <!-- Material Symbols - Rounded Set -->
+     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+     <!-- Material Symbols - Sharp Set -->
+     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
+     
+     <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+     <link rel="stylesheet" href="{{ url_for('static', filename='css/pantry.css') }}"/>
 
-  <body class="grey lighten-5">
-    <div class="container col s12">
-      <div class="section">
-        <div id="editLinkedItem" class="row" style="gap: 1em;">
-            <div class="col s12">
-                <a href='{{ proto['referrer'] }}' class="left btn green lighten-4 black-text btn-flat"><i class="material-icons">arrow_back</i></a>
+     <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
+     <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>  
+  
+    </head>
+
+  <body>
+    <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+      <!-- to color the navbar i have to stlye this element the nav element -->
+      <nav id="navbar" class="uk-navbar-container">
+          <div class="uk-container uk-container-expand">
+              <div uk-navbar="dropbar: true">
+                  <div id="offcanvas-slide" uk-offcanvas="mode: slide; overlay: true">
+                      <div class="uk-offcanvas-bar uk-flex uk-flex-column">
+                          <ul class="uk-nav uk-nav-secondary">  
+                              <img class="uk-align-center uk-border-circle" data-src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 150px; height: auto;" uk-img />
+                              <li class="uk-nav-header">Apps</li>
+                              <li><a href="/shopping-lists">Shopping Lists</a></li>
+                              <li><a href="/groups">Groups</a></li>
+                              <li><a href="/recipes">Recipes</a></li>
+                              <li class="uk-nav-header">Logistics</li>
+                              <li>
+                                  <a href="/items">
+                                      <div class="uk-active">Items<div class="uk-nav-subtitle" disabled>You are currently editing a linked item...</div>
+                                  </div>
+                              </a>
+                              <li><a href="/transaction">Add Transaction</a></li>
+                              <li><a href="/receipts">Receipts</a></li>
+                              <li class="uk-nav-header">System Management</li>
+                              {% if system_admin %}
+                              <li><a href="/admin">Administration</a></li>
+                              {% endif %}
+                              <li><a href="" class="">{{username}}</a></li>
+                          </ul>
+                          <button class="uk-button uk-margin-small uk-position-top-right" uk-icon="icon: close" href=""></button>
+                      </div>
+                  </div>
+                  <div class="uk-navbar-left uk-margin-small">
+                      <a href="#offcanvas-slide" class="uk-button uk-button-small" uk-icon="icon: menu" uk-toggle> menu</a>
+                  </div>
+                  <div class="uk-navbar-center uk-margin-small uk-visible@m">
+                      <ul class="uk-breadcrumb">
+                          <li style="cursor: default; user-select: none;"><span><strong>{{current_site}}</strong></span></li>
+                          <li style="cursor: default; user-select: none;"><span>Logistics</span></li>
+                          <li><a href="/items">Items</a></li>
+                          <li class="uk-disabled"><span>Editing Linked Item</span></li>
+                      </ul>
+                  </div>
+                  <div class="uk-navbar-right">
+                      <div>
+                          <a onclick="toggleDarkMode()" class="uk-button uk-button-small"><span id="modeToggle" class="uk-flex material-symbols-outlined">dark_mode</span></a>
+                      </div>
+                      <div>
+                          <a href="" class="" uk-icon="icon: user" uk-toggle>{{username}}</a>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </nav>
+  </div>
+
+
+
+  <div class="uk-container">
+      <div class="uk-section">
+        <div id="editLinkedItem" class="uk-grid-small" uk-grid>
+            <div class="uk-width-1-1">
+              <a href="{{ proto['referrer'] }}" class="uk-button uk-button-secondary" uk-icon="icon: arrow-left"></a>
             </div>
-            <div class="s12 m6 input-field">
-                <input id="barcode" type="text" name="barcode" value="" placeholder=" " maxlength="20" disabled />
-                <label for="barcode">Barcode</label>
-                <span class="supporting-text">Item Barcode</span>
+            <div class="uk-width-1-1">
+                <label class="uk-form-label" for="barcode">Barcode</label>
+                <input class="uk-input uk-disabled" id="barcode" type="text" name="barcode" value="" placeholder=" " maxlength="20"/>
             </div>
-            <div class="s12 m6 input-field">
-                <input id="LinkID" type="text" name="LinkID" placeholder=" " value="" maxlength="20" disabled />
-                <label for="LinkID">LinkID</label>
-                <span class="supporting-text">Pantry Item this is linked to.</span>
+            <div class="uk-width-1-1">
+                <label class="uk-form-label" for="LinkID">LinkID</label>
+                <input class="uk-input uk-disabled" id="LinkID" type="text" name="LinkID" placeholder=" " value="" maxlength="20" />
             </div>
-            <div class="s12 m6 input-field">
-                <input id="conversion" name="conversion" type="text" placeholder=" " value="" maxlength="20" />
-                <label for="conversion">Conversion Factor</label>
-                <span class="supporting-text">Conversion Factor for scanning adjustments.</span>
+            <div class="uk-width-1-1">
+                <label class="uk-form-label" for="conversion">Conversion Factor</label>
+                <input class="uk-input" id="conversion" name="conversion" type="text" placeholder=" " value="" maxlength="20" />
             </div>
-            <div class="input-field col s12">
-                <textarea id="itemdata" class="materialize-textarea" name="itemdata" placeholder=" "></textarea>
-                <label for="itemdata">Saved Data</label>
+            <div class="uk-width-1-1">
+                <label class="uk-form-label" for="itemdata">Saved Data</label>
+                <textarea name="itemdata" id="itemdata" class="uk-textarea uk-disabled" rows="10" placeholder="Textarea" aria-label="Textarea"></textarea>
             </div>
-            <div class="divider s12"></div>
-            <div class="col s12">
-                <button class="btn icon-right waves-effect waves-light right" type="submit" name="action">Update</button>
+            <div class="uk-width-1-1">
+              <hr class="uk-divider-icon">
+            </div>
+            <div class="uk-width-1-1">
+                <button onclick="postUpdate()" class="uk-button uk-button-default uk-align-right">Save</button>
             </div>
         </div>
       </div>
@@ -44,27 +111,56 @@
   </body>
   <script>
     const id = {{id|tojson}}
-    let linked_item;
+    var linked_item;
 
     document.addEventListener('DOMContentLoaded', async function() {
         await fetchLinkedItem()
         await populateForm()
-        });
+      });
 
     async function fetchLinkedItem(){
-        const url = new URL('/getLinkedItem', window.location.origin);
+        const url = new URL('/item/getLinkedItem', window.location.origin);
         url.searchParams.append('id', id);
         const response = await fetch(url);
         data =  await response.json();
         linked_item = data.linked_item;
+        console.log(linked_item)
     }
 
+    async function postUpdate(){
+      const response = await fetch(`/item/updateItemLink`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              id: parseInt(id),
+              conv_factor: parseFloat(document.getElementById('conversion').value),
+              barcode: document.getElementById('barcode').value,
+              old_conv: linked_item[4]
+          }),
+      });
+      data = await response.json()
+      transaction_status = 'success'
+      if(data.error){
+        transaction_status = 'danger'
+      }
+
+      UIkit.notification({
+        message: data.message,
+        status: transaction_status,
+        pos: 'top-right',
+        timeout: 5000
+      });
+
+    }
+    
     async function populateForm(){
-        document.getElementById('barcode').value = linked_item[1];
-        document.getElementById('LinkID').value = linked_item[2];
-        document.getElementById('conversion').value = linked_item[4];
-        document.getElementById('itemdata').value = JSON.stringify(linked_item[3]);
-        M.Forms.textareaAutoResize(document.querySelector('#itemdata'));
+        document.getElementById('title').innerHTML = `Linked Item - ${linked_item.barcode}`
+        document.getElementById('barcode').value = linked_item.barcode;
+        document.getElementById('LinkID').value = linked_item.link;
+        document.getElementById('conversion').value = linked_item.conv_factor;
+        document.getElementById('itemdata').value = JSON.stringify(linked_item.data);
     }
   </script>
 </html>

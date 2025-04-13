@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" id="main_html">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
-        <title>My Pantry</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+        <title id="title"></title>
+        
+        
         <!-- Material Icons -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
         <!-- Material Symbols - Outlined Set -->
@@ -12,327 +13,135 @@
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
         <!-- Material Symbols - Sharp Set -->
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
-        <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
+        
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}" disabled/>
+
+
+        <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
+
     </head>
-    <style>
-        .hand-pointer {
-            cursor: pointer;
-        }
-        [type="radio"]:checked + span:after {
-            border: 2px solid rgb(0 128 0 / 30%); /* Outline color */
-            background-color: rgb(0 128 0 / 30%); /* Fill color */
-        }
-        header, main, footer, body {
-            padding-left: 300px;
-            }
-        
-            @media only screen and (max-width : 992px) {
-            header, main, footer, body {
-                padding-left: 0;
-            }
-            }
-            .dropdown-disabled {
-                pointer-events: none;
-                opacity: 0.5; /* or your desired degree of transparency */
-              }
-        
-    </style>
-    <div class="navbar-fixed">
-        <nav class="orange lighten-4 text-black z-depth-0">
-            <div class="nav-wrapper">
-            <ul id="nav-mobile" class="left hide-on-med-and-down black-text">
-                <li><a class="dropdown-trigger black-text" data-target="dropdown1">Current Site > {{current_site}}<i class="material-icons right">arrow_drop_down</i></a></li>
-                <li><a href="/items" class="black-text">Site Items</a></li>
-                <li><a href="/groups" class="black-text">Site Groups</a></li>
-                <li class="active"><a href="/shopping-lists" class="black-text">Site Shopping Lists</a></li>
-                <li><a href="/receipts" class="black-text">Site Receipts</a></li>
-            </ul>
-            <ul class="right">
-                <li><a class="dropdown-trigger hide-on-med-and-down black-text" data-target="username_dropdown">{{username}}<i class="material-icons right">arrow_drop_down</i></a></li>
-            </ul>
-            </div>
-        </nav>
-    </div>
-    <ul id='dropdown1' class='dropdown-content'>
-        {% for site in sites %}
-            <li><button class="btn transparent black-text z-depth-0" onclick="changeSite('{{ site }}')">{{site}}</button></li>
-        {% endfor %}
-    </ul>
-    <ul id='username_dropdown' class='dropdown-content'>
-        <li><a href="/profile" class="hide-on-med-and-down black-text">Profile</a></li>
-        {% if system_admin == True %}
-            <li><a href="/admin" class="hide-on-med-and-down black-text">Administration</a></li>
-        {% endif %}
-        <li><a href="/logout" class="hide-on-med-and-down black-text">Logout</a></li>
-    </ul>
     <body>
-        <div class="container section" style="padding-bottom: 72px;">
-            <div class="row">
-                <div class="row col s12">
-                    <div class="col-s3">
-                        <a href="#" data-target="slide-out" class="sidenav-trigger hide-on-large-only left"><i class="material-icons">menu</i></a>
-                    </div>
-                    <div class="col s6 m6 offset-m3 input-field outlined align-center">
-                        <i class="material-icons prefix">search</i>
-                        <input style="border-radius: 20px; border: 1px solid #ccc;" id="search" name="search" type="search" placeholder="Search Items" value="">
-                    </div>
-                    <div class="col s3">
-                        <a class="btn waves-effect waves-light center-align right tooltipped orange lighten-4 black-text text-darken-2 z-depth-0" data-position="bottom" data-tooltip="Open up filter options." style="margin-right: 5px; margin-top:0px; border-radius: 20px 10px 20px 10px;" onclick="hideFilters()"><i class="material-icons">tune</i></a>
-                    </div>
-                </div>
-                <div class="col s12 hide" id="filter_options" style="padding: 20px">
-                    <!-- Set the number of items -->
-                    <div class="row center">
-                            <div class="col s12">
-                                <p>Set Items Per Page</p>
+        <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+            <nav id="navbar" class="uk-navbar-container">
+                <div class="uk-container uk-container-expand">
+                    <div uk-navbar="dropbar: true">
+                        <div id="offcanvas-slide" uk-offcanvas="mode: slide; overlay: true">
+                            <div class="uk-offcanvas-bar uk-flex uk-flex-column">
+                                <ul class="uk-nav uk-nav-secondary">  
+                                    <img class="uk-align-center uk-border-circle" data-src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 150px; height: auto;" uk-img />
+                                    <li class="uk-nav-header">Apps</li>
+                                    <li>
+                                        <a href="/shopping-lists">
+                                            <div class="uk-active">Shopping Lists<div class="uk-nav-subtitle" disabled>You are currently browsing shopping lists here...</div></div>
+                                        </a>
+                                    </li>
+                                    <li><a href="/groups">Groups</a></li>
+                                    <li><a href="/recipes">Recipes</a></li>
+                                    <li class="uk-nav-header">Logistics</li>
+                                    <li><a href="/items">Items</a></li>
+                                    <li><a href="/transaction">Add Transaction</a></li>
+                                    <li><a href="/receipts">Receipts</a></li>
+                                    <li class="uk-nav-header">System Management</li>
+                                    {% if system_admin %}
+                                    <li><a href="/admin">Administration</a></li>
+                                    {% endif %}
+                                    <li><a href="" class="">{{username}}</a></li>
+                                </ul>
+                                <button class="uk-button uk-margin-small uk-position-top-right" uk-icon="icon: close" href=""></button>
                             </div>
-                            <div class="col s6 m4 l2">
-                            <label>
-                                <input name="group1" type="radio" checked onclick="changeLimit(25)"/>
-                                <span>25 items</span>
-                            </label>
+                        </div>
+                        <div class="uk-navbar-left uk-margin-small">
+                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle></a>
+                        </div>
+                        <div class="uk-navbar-center uk-margin-small uk-visible@m">
+                            <ul class="uk-breadcrumb">
+                                <li style="cursor: pointer;"><span><strong>{{current_site}}</strong></span>
+                                    <div uk-dropdown="mode: hover">
+                                        <ul class="uk-nav uk-dropdown-nav">
+                                            {% for site in sites %}
+                                            {% if site == current_site  %}
+                                            <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                            {% else %}
+                                            <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li style="cursor: default; user-select: none;"><span>Apps</span></li>
+                                <li class="uk-disabled"><span>Shopping Lists</span></li>
+                            </ul>
+                        </div>
+                        <div class="uk-navbar-right">
+                            <div>
+                                <a onclick="toggleDarkMode()" class="uk-button uk-button-small"><span id="modeToggle" class="uk-flex material-symbols-outlined">dark_mode</span></a>
                             </div>
-                            <div class="col s6 m4 l2">
-                                <label>
-                                <input name="group1" type="radio" onclick="changeLimit(50)"/>
-                                <span>50 items</span>
-                            </label>
+                            <div>
+                                <a href="" class="" uk-icon="icon: user" uk-toggle>{{username}}</a>
                             </div>
-                            <div class="col s6 m4 l2">
-                                <label>
-                                    <input name="group1" type="radio"  onclick="changeLimit(75)"/>
-                                    <span>75 itesm</span>
-                                </label>
-                            </div>
-                            <div class="col s6 m4 l2">
-                                <label>
-                                    <input name="group1" type="radio" onclick="changeLimit(100)"/>
-                                    <span>100 items</span>
-                                </label>
-                            </div>
-                            <div class="col s6 m4 l2">
-                                <label>
-                                    <input name="group1" type="radio" onclick="changeLimit(150)"/>
-                                    <span>150 items</span>
-                                </label>
-                            </div>
-                            <div class="col s6 m4 l2">
-                                <label>
-                                    <input name="group1" type="radio" onclick="changeLimit(200)"/>
-                                    <span>200 items</span>
-                                </label>
-                            </div>
-                            <div class="col s12 divider"></div>
-                    </div>
-
-                </div>
-                <div class="col s12 z-depth-0">
-                    <div class="z-depth-0" id="cards">
-                    </div>
-                </div>
-                <div class="col s12 center" id="pagination_list">
-                    <ul class="pagination">
-                        <li id="first" class="waves-effect hand-pointer"><a class="orange lighten-4" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">first_page</i></a></li>
-                        <li id="back" class="waves-effect hand-pointer" ><a class="orange lighten-4" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_left</i></a></li>
-                        <li id="current_page" style="padding-top: 7px; padding-left: 5px; padding-right: 5px; font-size: 18px;">page_number</li>
-                        <li id="forward" class="waves-effect hand-pointer"><a class="orange lighten-4" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_right</i></a></li>
-                        <li id="last" class="waves-effect hand-pointer"><a class="orange lighten-4" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">last_page</i></a></li>
-                    </ul>
-                </div>  
-            </div>
-        </div>
-        <div class="fixed-action-btn">
-            <a class="btn-floating btn-large">
-              <i class="large material-icons">more_vert</i>
-            </a>
-            <ul>
-              <li><button class="btn-floating blue darken-1 modal-trigger" data-target="list_modal"><i class="material-icons">playlist_add</i></button></li>
-              <li><a class="btn-floating green darken-1"><i class="material-icons">download</i></a></li>
-            </ul>
-        </div>
-
-        <div id="list_modal" class="modal">
-            <div class="modal-content">
-                <h4>Adding a Shopping List...</h4>
-                <div class="row">
-                    <div class="col s12">
-                        <div class="card-panel orange lighten-4">
-                            <span>Shopping Lists are a main feature of this system as a provides a simple interface and way to track when something
-                                needs to be purchased either based on someone adding a custom item or through adding items from your inventory
-                                that will use the items safety stock or a set quantity to create the list dynamically.
-                            <br><br>There are two types of shopping lists you can create: 
-                            <br><br>
-                            <b>Plain</b> - This shopping list has no other extra features beyond being a place to keep a list of items that need to be
-                            purchsed and usually is a one time list or a list that isnt reoccuring.
-                            <br><br>
-                            <b>Safety Stock</b> - This list uses items added from the pantry to calculate the needed quantites based on what you have set 
-                            the safety stock to for said items. Usually used to create a reoccuring list that is calculated every time you open the list.
-                            <br><br>
-                        </span>
                         </div>
                     </div>
-                    <div class="col s12 m6 input-field p-2">
-                        <input id="list_name" type="text" placeholder=" " maxlength="64">
-                        <label for="list_name">List Name</label>
+                </div>
+            </nav>
+        </div>
+        <div class="uk-container">
+            <div class="uk-section">
+                <div uk-grid>
+                    <div class="uk-width-1-2@m">
+                        <ul class="uk-iconnav uk-flex-center uk-flex-left@m">
+                            <li><a onclick="openAddListModal()" uk-icon="icon: plus">Add List</a></li>
+                            <li><a href="#" uk-icon="icon: cloud-download">download</a></li>
+                        </ul>
                     </div>
-                    <div class="col s12 m6 p=2">
-                        <label for="list_type">List Type</label>
-                        <select id="list_type" class="browser-default">
-                            <option value="plain" selected>Plain Group</option>
-                            <option value="calculated">Safety Stock</option>
-                        </select>
-                    </div>                          
-                    <div class="input-field col s12 p-2">
-                        <textarea id="list_description" class="materialize-textarea" placeholder="A short description for what this shopping list represents..."></textarea>
-                        <label for="list_description">List Description</label>
+                    <div class="uk-width-1-1 uk-flex uk-flex-center uk-padding-small">
+                        <nav aria-label="Pagination">
+                            <ul id="paginationElement" class="uk-pagination" uk-margin>
+                                <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                <li><a href="#">1</a></li>
+                                <li class="uk-disabled"><span>…</span></li>
+                                <li><a href="#">5</a></li>
+                                <li><a href="#">6</a></li>
+                                <li class="uk-active"><span aria-current="page">7</span></li>
+                                <li><a href="#">8</a></li>
+                                <li><a href="#"><span uk-pagination-next></span></a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <div id="shopping_list_lists" class="uk-child-width-1-1">
+                            <!-- populates through javascript -->
+                        </div>
+                        <a class="uk-margin" href="" uk-totop uk-scroll></a>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-              <a onclick="addList()" class="waves-effect btn orange lighten-4 black-text">Add</a>
+            <!-- Add Item Modal -->
+            <div id="addListModal" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body">
+                    <h2 class="uk-modal-title">Adding Shopping List...</h2>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addListName">Name</label>
+                        <input id="addListName" class="uk-input" type="text" placeholder="Input" aria-label="Input">
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addListDescription">Description</label>
+                        <input id="addListDescription" class="uk-input" type="text" placeholder="Input" aria-label="Input">
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="list_type">Type</label>
+                        <select id="list_type" class="uk-select" aria-label="Select">
+                            <option value="plain">Plain List</option>
+                            <option class="uk-disabled" value="hybrid">Hybrid List</option>
+                            <option value="partial_calculated">Partial Calculated List</option>
+                            <option value="full_calculated">Full Calculated List</option>
+                        </select>
+                    </div>
+                    <button onclick="addList()" class="uk-button uk-button-default uk-flex-right" type="button">Add Item</button>
+                </div>
             </div>
         </div>
     </body>
-    <script>
-        let current_page = 1
-        let end_page = 10
-        let sort_order = 1
-        let view = 0
-        let limit = 10
-        let filter_state = "hidden"
-        let searchText = ""
-        let site = {{ current_site|tojson }}
-
-        document.addEventListener("DOMContentLoaded", async function(){
-            var elems = document.querySelectorAll('.dropdown-trigger');
-            var instances = M.Dropdown.init(elems, {});
-            M.AutoInit();
-            update_list()
-        });
-
-        async function changeSite(new_site){
-            console.log(`current_site: ${site}`)
-            console.log(`new site: ${new_site}`)
-            site = new_site
-            console.log(`current_site: ${site}`)
-            const url = new URL('/changeSite', window.location.origin);
-            url.searchParams.append('site', site)
-            await fetch(url)
-            location.reload();
-        }
-
-
-        function update_list(){
-            if (current_page === 1){
-                document.getElementById('back').classList.add("disabled")
-                document.getElementById('back').classList.remove("waves-effect")
-                document.getElementById('first').classList.add("disabled")
-                document.getElementById('first').classList.remove("waves-effect")
-
-            } else { 
-                document.getElementById('back').classList.remove("disabled")
-                document.getElementById('back').classList.add("waves-effect")
-                document.getElementById('first').classList.remove("disabled")
-                document.getElementById('first').classList.add("waves-effect")
-            };
-
-            const url = new URL('/getLists', window.location.origin);
-            url.searchParams.append('page', current_page);
-            url.searchParams.append('limit', limit);
-            url.searchParams.append('site', site)
-            fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                
-                end_page = parseInt(data.end)
-                if (current_page === end_page){
-                    document.getElementById('forward').classList.add("disabled")
-                    document.getElementById('forward').classList.remove("waves-effect")
-                    document.getElementById('last').classList.add("disabled")
-                    document.getElementById('last').classList.remove("waves-effect")
-
-                } else {
-                    document.getElementById('forward').classList.remove("disabled")
-                    document.getElementById('forward').classList.add("waves-effect")
-                    document.getElementById('last').classList.remove("disabled")
-                    document.getElementById('last').classList.add("waves-effect")
-                };
-
-                const cards = document.getElementById("cards")
-                cards.classList.add("row")
-                cards.style = "gap: 1em; padding-top: 10px;"
-                const dummy_div = document.createElement('div')
-                
-
-                data.lists.forEach(item => {
-                    let item_card = document.createElement('div')
-                    item_card.classList.add('card')
-                    item_card.classList.add('col')
-                    item_card.classList.add('s12')
-
-                    let card_content = document.createElement('div')
-                    card_content.classList.add('card-content')
-                    card_content.classList.add('orange')
-                    card_content.classList.add('lighten-4')
-                    card_content.innerHTML = `
-                    <span class="card-title">${item[1]}<span class="badge green lighten-1 white-text" data-badge-caption="Items" style="border-radius: 10px;">${item[11]}</span></span>
-                    <p>${item[2]}
-                    </p>`
-
-                    let card_action = document.createElement('div')
-                    card_action.classList.add('card-action')
-                    card_action.innerHTML = `
-                    <a class="left" style="color: black;">${item[9]}</a>
-                    <a class="transparent z-depth-0 left" href="#!">
-                        <i class="material-icons" style="color: white;">star</i>
-                        </a>
-                    <a class="right" href="/shopping-list/view/${item[0]}">View</a>
-                    <a class="right" href="/shopping-list/edit/${item[0]}">Edit</a>
-                    `
-
-                    item_card.appendChild(card_content)
-                    item_card.appendChild(card_action)
-
-                    dummy_div.appendChild(item_card)
-
-                });
-
-                cards.innerHTML = dummy_div.innerHTML
-
-                var elems = document.querySelectorAll('.collapsible');
-                var instances = M.Collapsible.init(elems, {
-                    // specify options here
-                });
-                var elems = document.querySelectorAll('.tooltipped');
-                var instances = M.Tooltip.init(elems, {
-                    // specify options here
-                });
-
-                document.getElementById("current_page").innerHTML = `${String(current_page)} / ${String(end_page)}`
-            })
-
-
-        };
-
-        async function addList(){
-            var name = document.getElementById("list_name").value
-            var description = document.getElementById("list_description").value
-            var type = document.getElementById("list_type").value
-            const url = new URL('/addList', window.location.origin);
-            url.searchParams.append('name', name);
-            url.searchParams.append('description', description);
-            url.searchParams.append('type', type);
-
-            await fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                M.toast({text: `Adding ${name}: ${data.state}`});
-            })
-            update_list()
-            var elem = document.getElementById("list_modal");
-            var instance = M.Modal.getInstance(elem);
-            instance.close()
-        };
-
-    </script>
+    <script src="{{ url_for('static', filename='handlers/shoppingListsHandler.js') }}"></script>
 </html>

@@ -1,5 +1,5 @@
-from flask import Blueprint, request, render_template, redirect, session, url_for
-import hashlib, psycopg2
+from flask import Blueprint, request, render_template, redirect, session, url_for, jsonify
+import hashlib, psycopg2, process, MyDataclasses
 from config import config, sites_config, setFirstSetupDone
 from functools import wraps
 from manage import create
@@ -25,23 +25,17 @@ def first_time_setup():
         database_user = request.form['database_user']
         database_password = request.form['database_address']
 
-        username = request.form['username']
-        email = request.form['email']
-        password = hashlib.sha256(request.form['password'].encode()).hexdigest()
-        
-        site_name = request.form['site_name']
-        site_description = request.form['site_description']
-        site_default_zone = request.form['site_default_zone']
-        site_default_location = request.form['site_default_location']
+        site_manager = MyDataclasses.SiteManager(
+            site_name=request.form['site_name'],
+            admin_user=(request.form['username'], hashlib.sha256(request.form['password'].encode()).hexdigest(), request.form['email']),
+            default_zone=request.form['site_default_zone'],
+            default_location=request.form['site_default_location'],
+            description=request.form['site_description']
+        )
 
-        print(email, site_description)
+        process.addSite(site_manager)
 
-        create(site_name, username, site_default_zone, site_default_location, email=email)
-        create_site(site_name, (username, password, email), site_default_zone, site_default_location, site_default_location, site_description)
         setFirstSetupDone()
-        user = getUser(username, password)
-        setSystemAdmin(user_id=user[0])
-        
 
         return redirect("/login")
     
@@ -59,14 +53,15 @@ def logout():
 def login():
     session.clear()
     instance_config = sites_config()
-    print(instance_config["first_setup"])
 
     if instance_config['first_setup']:
         return redirect('/setup')
 
     if request.method == "POST":
-        username = request.form['username']
-        password = hashlib.sha256(request.form['password'].encode()).hexdigest()
+        username = request.get_json()['username']
+        password = request.get_json()['password']
+
+        password = hashlib.sha256(password.encode()).hexdigest()
         database_config = config()
         with psycopg2.connect(**database_config) as conn:
             try:
@@ -75,41 +70,41 @@ def login():
                     cur.execute(sql, (username,))
                     user = cur.fetchone()
             except (Exception, psycopg2.DatabaseError) as error:
-             print(error)
-             conn.rollback()
-         
+                conn.rollback()
+                return jsonify({'error': True, 'message': str(error)})
+        
         if user and user[2] == password:
             session['user_id'] = user[0]
-            session['user'] = user
-            return redirect('/')
+            session['user'] = {'id': user[0], 'username': user[1], 'sites': user[13], 'site_roles': user[14], 'system_admin': user[15], 'flags': user[16]}
+            return jsonify({'error': False, 'message': 'Logged In Sucessfully!'})
+        else:
+            return jsonify({'error': True, 'message': 'Username or Password was incorrect!'})
+
     
     if 'user' not in session.keys():
         session['user'] = None
 
-    return render_template("login.html")
+    return render_template("other/login.html")
 
 @login_app.route('/signup', methods=['POST', 'GET'])
 def signup():
-
     instance_config = sites_config()
-    print(instance_config["signup_enabled"])
-
     if not instance_config['signup_enabled']:
-        return redirect('/login')
+        return jsonify({'error': True, 'message': 'It seems that Sign Ups are disabled by the server admin!'})
 
     if request.method == "POST":
-        username = request.form['username']
-        password = hashlib.sha256(request.form['password'].encode()).hexdigest()
+        username = request.get_json()['username']
+        password = request.get_json()['password']
+        email = request.get_json()['email']
+        password = hashlib.sha256(password.encode()).hexdigest()
         database_config = config()
         with psycopg2.connect(**database_config) as conn:
             try:
                 with conn.cursor() as cur:
-                    sql = f"INSERT INTO logins(username, password) VALUES(%s, %s);"
-                    cur.execute(sql, (username, password))
+                    sql = f"INSERT INTO logins(username, password, email, row_type) VALUES(%s, %s, %s, %s);"
+                    cur.execute(sql, (username, password, email, 'user'))
             except (Exception, psycopg2.DatabaseError) as error:
-             print(error)
-             conn.rollback()
-
-        return redirect("/login")
-    
-    return render_template("signup.html")
+                conn.rollback()
+                return jsonify({'error': True, 'message': str(error)})
+        return jsonify({'error': False, 'message': 'You have been signed up successfully, you will have to wait until the server admin finishes your onboarding!'})
+    return jsonify({'error': True, 'message': 'There was a problem with this POST request!'})

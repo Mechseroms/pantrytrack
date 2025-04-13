@@ -2,8 +2,9 @@
 <html lang="en" dir="ltr">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
-        <title>My Pantry - Receipts</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+        <title id="title"></title>
+        
+        
         <!-- Material Icons -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
         <!-- Material Symbols - Outlined Set -->
@@ -12,178 +13,92 @@
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
         <!-- Material Symbols - Sharp Set -->
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
-        <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
-    </head>
-    <style>
-        .hand-pointer {
-            cursor: pointer;
-        }
-        [type="radio"]:checked + span:after {
-            border: 2px solid rgb(0 128 0 / 30%); /* Outline color */
-            background-color: rgb(0 128 0 / 30%); /* Fill color */
-        }
-        header, main, footer, body {
-            padding-left: 300px;
-            }
         
-            @media only screen and (max-width : 992px) {
-            header, main, footer, body {
-                padding-left: 0;
-            }
-            }
-            .dropdown-disabled {
-                pointer-events: none;
-                opacity: 0.5; /* or your desired degree of transparency */
-              }
-    </style>
-    <div class="navbar-fixed">
-        <nav class="blue lighten-4 text-black z-depth-0">
-            <div class="nav-wrapper">
-            <ul id="nav-mobile" class="left hide-on-med-and-down black-text">
-                <li><a class="dropdown-trigger black-text" data-target="dropdown1">Current Site > {{current_site}}<i class="material-icons right">arrow_drop_down</i></a></li>
-                <li><a href="/items" class="black-text">Site Items</a></li>
-                <li><a href="/groups" class="black-text">Site Groups</a></li>
-                <li><a href="/shopping-lists" class="black-text">Site Shopping Lists</a></li>
-                <li class="active"><a href="/receipts" class="black-text">Site Receipts</a></li>
-            </ul>
-            <ul class="right">
-                <li><a class="dropdown-trigger hide-on-med-and-down black-text" data-target="username_dropdown">{{username}}<i class="material-icons right">arrow_drop_down</i></a></li>
-            </ul>
-            </div>
-        </nav>
-    </div>
-    <ul id='dropdown1' class='dropdown-content'>
-        {% for site in sites %}
-            <li><button class="btn transparent black-text z-depth-0" onclick="changeSite('{{ site }}')">{{site}}</button></li>
-        {% endfor %}
-    </ul>
-    <ul id='username_dropdown' class='dropdown-content'>
-        <li><a href="/profile" class="hide-on-med-and-down black-text">Profile</a></li>
-        {% if system_admin == True %}
-            <li><a href="/admin" class="hide-on-med-and-down black-text">Administration</a></li>
-        {% endif %}
-        <li><a href="/logout" class="hide-on-med-and-down black-text">Logout</a></li>
-    </ul>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+
+        <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
+
+    </head>
     <body>
-        <div class="container section">
-            <div class="row">
-                <div class="col s12 collection" id="collection">
+        <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+            <nav class="uk-navbar-container">
+                <div class="uk-container uk-container-expand">
+                    <div uk-navbar="dropbar: true">
+                        <div id="offcanvas-slide" uk-offcanvas="mode: slide; overlay: true">
+                            <div class="uk-offcanvas-bar uk-flex uk-flex-column">
+                                <ul class="uk-nav uk-nav-secondary">  
+                                    <img class="uk-align-center uk-border-circle" data-src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 150px; height: auto;" uk-img />
+                                    <li class="uk-nav-header">Apps</li>
+                                    <li><a href="/shopping-lists">Shopping Lists</a></li>
+                                    <li><a href="/groups">Groups</a></li>
+                                    <li><a href="/recipes">Recipes</a></li>
+                                    <li class="uk-nav-header">Logistics</li>
+                                    <li><a href="/items">Items</a></li>
+                                    <li><a href="/transaction">Add Transaction</a></li>
+                                    <li><a href="/receipts"><div class="uk-active">Receipts<div class="uk-nav-subtitle" disabled>You are currently viewing Receipts...</div></div></a></li>
+                                    <li class="uk-nav-header">System Management</li>
+                                    {% if system_admin %}
+                                    <li><a href="/admin">Administration</a></li>
+                                    {% endif %}
+                                    <li><a href="" class="">{{username}}</a></li>
+                                </ul>
+                                <button class="uk-button uk-margin-small uk-position-top-right" uk-icon="icon: close" href=""></button>
+                            </div>
+                        </div>
+                        <div class="uk-navbar-left uk-margin-small">
+                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle></a>
+                        </div>
+                        <div class="uk-navbar-center uk-margin-small uk-visible@m">
+                            <ul class="uk-breadcrumb">
+                                <li style="cursor: default; user-select: none;"><span><strong>{{current_site}}</strong></span></li>
+                                <li style="cursor: default; user-select: none;"><span>Logistics</span></li>
+                                <li class="uk-disabled"><span>Receipts</span></li>
+                            </ul>
+                        </div>
+                        <div class="uk-navbar-right">
+                            <a href="" class="" uk-icon="icon: user" uk-toggle>{{username}}</a>
+                        </div>
+                    </div>
                 </div>
-                <div class="col s12 center" id="pagination_list">
-                    <ul class="pagination">
-                        <li id="first" class="waves-effect hand-pointer"><a class="blue lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">first_page</i></a></li>
-                        <li id="back" class="waves-effect hand-pointer" ><a class="blue lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_left</i></a></li>
-                        <li id="current_page" style="padding-top: 7px; padding-left: 5px; padding-right: 5px; font-size: 18px;">page_number</li>
-                        <li id="forward" class="waves-effect hand-pointer"><a class="blue lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">chevron_right</i></a></li>
-                        <li id="last" class="waves-effect hand-pointer"><a class="blue lighten-3" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;"><i class="material-icons">last_page</i></a></li>
-                    </ul>
-                </div>  
+            </nav>
+        </div>
+        <div class="uk-container">
+            <div class="uk-section">
+                <div uk-grid>
+                    <div class="uk-width-1-2@m">
+                        <ul class="uk-iconnav uk-flex-center uk-flex-left@m">
+                            <li><a href="#" uk-icon="icon: plus">Open Receipt</a></li>
+                            <li><a href="#" uk-icon="icon: cloud-download">download</a></li>
+                        </ul>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                        <nav aria-label="Pagination">
+                            <ul id="paginationElement" class="uk-pagination uk-flex-center uk-flex-right@m" uk-margin>
+                                <!-- populated by javascript updatePaginationElement -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                <div class="uk-overflow-auto">
+                    <table id="receiptsTable" class="uk-table uk-table-striped uk-table-hover">
+                    <thead>
+                        <tr>
+                            <th>Receipt ID</th>
+                            <th>Receipt Status</th>
+                            <th class="uk-visible@m">Date Submitted</th>
+                            <th class="uk-visible@m">Submitted By</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="receiptsTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="uk-margin-small-top">
+                    <a href="" uk-totop uk-scroll></a>
+                </div>
             </div>
         </div>
+        <script type="text/javascript" src="/static/handlers/receiptsHandler.js"></script>
     </body>
-    <script>
-        let current_page = 1
-        let end_page = 10
-        let limit = 50
-        let site = {{ current_site|tojson }}
-
-        document.addEventListener('DOMContentLoaded', async function() {
-            await updateList()
-
-            var elems = document.querySelectorAll('.dropdown-trigger');
-            var instances = M.Dropdown.init(elems, {
-                alignment: 'right',
-            });
-        });
-
-        async function changeSite(new_site){
-            console.log(`current_site: ${site}`)
-            console.log(`new site: ${new_site}`)
-            site = new_site
-            console.log(`current_site: ${site}`)
-            const url = new URL('/changeSite', window.location.origin);
-            url.searchParams.append('site', site)
-            await fetch(url)
-            location.reload();
-        }
-
-
-        async function updateList(){
-            if (current_page === 1){
-                document.getElementById('back').classList.add("disabled")
-                document.getElementById('back').classList.remove("waves-effect")
-                document.getElementById('first').classList.add("disabled")
-                document.getElementById('first').classList.remove("waves-effect")
-
-            } else { 
-                document.getElementById('back').classList.remove("disabled")
-                document.getElementById('back').classList.add("waves-effect")
-                document.getElementById('first').classList.remove("disabled")
-                document.getElementById('first').classList.add("waves-effect")
-            };
-            const url = new URL('/getReceipts', window.location.origin);
-            url.searchParams.append('page', current_page);
-            url.searchParams.append('limit', limit);
-            await fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                end_page = parseInt(data.end)
-                if (current_page === end_page){
-                    document.getElementById('forward').classList.add("disabled")
-                    document.getElementById('forward').classList.remove("waves-effect")
-                    document.getElementById('last').classList.add("disabled")
-                    document.getElementById('last').classList.remove("waves-effect")
-
-                } else {
-                    document.getElementById('forward').classList.remove("disabled")
-                    document.getElementById('forward').classList.add("waves-effect")
-                    document.getElementById('last').classList.remove("disabled")
-                    document.getElementById('last').classList.add("waves-effect")
-                };
-                const collection = document.getElementById("collection")
-                const dummy = document.createElement('div')
-                data.receipts.forEach(receipt => {
-                    var item = document.createElement("a")
-                    if (receipt[2] == "Unresolved"){
-                        item.innerHTML = `<span class="badge red white-text" style="border-radius: 10px;">${receipt[2]}</span>${receipt[1]}`
-                    } else if (receipt[2] == "Resolved"){
-                        item.innerHTML = `<span class="badge green white-text" style="border-radius: 10px;">${receipt[2]}</span>${receipt[1]}`
-                    }
-                    item.classList.add("collection-item")
-                    item.href = `/receipt/${receipt[0]}`
-                    dummy.appendChild(item)
-                });
-                collection.innerHTML = dummy.innerHTML
-                document.getElementById("current_page").innerHTML = `${String(current_page)} / ${String(end_page)}`
-            });
-        }
-
-        document.getElementById('forward').addEventListener('click', async () =>{
-            if (!(document.getElementById("forward").classList.contains("disabled"))){
-                current_page++
-                await update_list();
-            };
-        });
-    
-        document.getElementById('back').addEventListener('click', async () =>{
-            if (!(document.getElementById("back").classList.contains("disabled"))){
-                current_page--
-                await update_list();
-            }
-        });
-
-        document.getElementById('last').addEventListener('click', async () =>{
-            if(!(document.getElementById("last").classList.contains("disabled"))){
-                current_page = end_page
-                await update_list();
-                };
-        });
-    
-        document.getElementById('first').addEventListener('click', async () =>{
-            if (!(document.getElementById("first").classList.contains("disabled"))){
-                current_page = 1
-                await update_list();
-            };
-        }); 
-    </script>
 </html>
