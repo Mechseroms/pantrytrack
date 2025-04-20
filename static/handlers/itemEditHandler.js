@@ -1,3 +1,34 @@
+var darkmode = false
+function toggleDarkMode(){
+    if (!darkmode){
+        document.body.classList.add('dark-mode-body')
+        document.body.classList.add('uk-light')
+        document.getElementById('navbar').classList.add('uk-light')
+        document.getElementById('navbar').style = "background-color: #121212;"
+        document.getElementById('weblinkModal').classList.add('dark-mode-element')
+        document.getElementById('weblinkModalFooter').classList.add('dark-mode-element')
+        document.getElementById('brandsModalinner').classList.add('dark-mode-element')
+        document.getElementById('locationsModalInner').classList.add('dark-mode-element')
+        document.getElementById('zonesModalInner').classList.add('dark-mode-element')
+        document.getElementById('modeToggle').innerHTML = "light_mode"
+
+        darkmode = true
+    } else {
+        document.body.classList.remove('dark-mode-body')
+        document.body.classList.remove('uk-light')
+        document.getElementById('navbar').classList.remove('uk-light')
+        document.getElementById('navbar').style = ""
+        document.getElementById('weblinkModal').classList.remove('dark-mode-element')
+        document.getElementById('weblinkModalFooter').classList.remove('dark-mode-element')
+        document.getElementById('brandsModalinner').classList.remove('dark-mode-element')
+        document.getElementById('locationsModalInner').classList.remove('dark-mode-element')
+        document.getElementById('zonesModalInner').classList.remove('dark-mode-element')
+        document.getElementById('modeToggle').innerHTML = "dark_mode"
+
+        darkmode=false
+    }
+}
+
 var item;
 var linked_items;
 var tags = new Set();
@@ -920,9 +951,10 @@ async function fetchItems() {
 
 let zones_limit = 20;
 async function fetchZones(){
-    const url = new URL('/item/getZones', window.location.origin);
+    const url = new URL('/item/getZonesBySku', window.location.origin);
     url.searchParams.append('page', current_page);
     url.searchParams.append('limit', zones_limit);
+    url.searchParams.append('item_id', item.id);
     const response = await fetch(url);
     data =  await response.json();
     return data;
@@ -930,13 +962,14 @@ async function fetchZones(){
 
 let locations_limit = 10;
 async function fetchLocations(logis) {
-    const url = new URL('/item/getLocations', window.location.origin);
+    const url = new URL('/item/getLocationsBySkuZone', window.location.origin);
     url.searchParams.append('page', current_page);
     url.searchParams.append('limit', locations_limit);
+    url.searchParams.append('part_id', item.id);
     if(logis=="primary_location"){
-        url.searchParams.append('id', primary_zone_id);
+        url.searchParams.append('zone_id', primary_zone_id);
     } else if (logis=="auto_issue_location"){
-        url.searchParams.append('id', auto_zone_id);
+        url.searchParams.append('zone_id', auto_zone_id);
     }
     const response = await fetch(url);
     data =  await response.json();
@@ -1332,33 +1365,156 @@ async function updatePrefixPaginationElement() {
     paginationElement.append(nextElement)
 }
 
-var darkmode = false
-function toggleDarkMode(){
-    if (!darkmode){
-        document.body.classList.add('dark-mode-body')
-        document.body.classList.add('uk-light')
-        document.getElementById('navbar').classList.add('uk-light')
-        document.getElementById('navbar').style = "background-color: #121212;"
-        document.getElementById('weblinkModal').classList.add('dark-mode-element')
-        document.getElementById('weblinkModalFooter').classList.add('dark-mode-element')
-        document.getElementById('brandsModalinner').classList.add('dark-mode-element')
-        document.getElementById('locationsModalInner').classList.add('dark-mode-element')
-        document.getElementById('zonesModalInner').classList.add('dark-mode-element')
-        document.getElementById('modeToggle').innerHTML = "light_mode"
+// Possible Locations functions
+var new_locations_current_page = 1
+var new_locations_end_page = 1
+var new_locations_limit = 25
+async function fetch_new_locations() {
+    const url = new URL('/item/getPossibleLocations', window.location.origin);
+    url.searchParams.append('page', new_locations_current_page);
+    url.searchParams.append('limit', new_locations_limit);
+    const response = await fetch(url);
+    data =  await response.json();
+    new_locations_end_page = data.end;
+    return data.locations
+};
 
-        darkmode = true
-    } else {
-        document.body.classList.remove('dark-mode-body')
-        document.body.classList.remove('uk-light')
-        document.getElementById('navbar').classList.remove('uk-light')
-        document.getElementById('navbar').style = ""
-        document.getElementById('weblinkModal').classList.remove('dark-mode-element')
-        document.getElementById('weblinkModalFooter').classList.remove('dark-mode-element')
-        document.getElementById('brandsModalinner').classList.remove('dark-mode-element')
-        document.getElementById('locationsModalInner').classList.remove('dark-mode-element')
-        document.getElementById('zonesModalInner').classList.remove('dark-mode-element')
-        document.getElementById('modeToggle').innerHTML = "dark_mode"
+async function postNewItemLocation(location_id) {
+    const response = await fetch(`/item/postNewItemLocation`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            item_id: parseInt(item_id),
+            location_id: parseInt(location_id)
+        }),
+    });
 
-        darkmode=false
+    data =  await response.json();
+    response_status = 'success'
+    if (data.error){
+        response_status = 'danger'
     }
+
+    UIkit.notification({
+        message: data.message,
+        status: response_status,
+        pos: 'top-right',
+        timeout: 5000
+    });
+    await fetchItem()
+    await updateLocationsTable()
+}
+
+async function replenishPossibleLocationsTableBody(locations){
+    let NewLocationsModalTableBody = document.getElementById('NewLocationsModalTableBody')
+    NewLocationsModalTableBody.innerHTML = ""
+
+    for(let i =0; i <locations.length; i++){
+        let tableRow = document.createElement('tr')
+
+        let zoneCell = document.createElement('td')
+        zoneCell.innerHTML = locations[i].zone.name
+
+        let locationCell = document.createElement('td')
+        locationCell.innerHTML = locations[i].name
+        
+        tableRow.onclick = async function() {
+            await postNewItemLocation(locations[i].id)
+        }
+
+        tableRow.append(zoneCell, locationCell)
+        NewLocationsModalTableBody.append(tableRow)
+    }
+}
+
+async function openPossibleLocationsModal() {
+    let locations = await fetch_new_locations()
+    await replenishPossibleLocationsTableBody(locations)
+    await updateNewLocationsPaginationElement()
+    UIkit.modal(document.getElementById('NewLocationsModal')).show()
+}
+
+
+async function setNewLocationPage(pageNumber){
+    new_locations_current_page = pageNumber; 
+    let locations = await fetch_new_locations()
+    await updatePrefixModalTableBody(locations)
+    await updateNewLocationsPaginationElement()
+}
+
+async function updateNewLocationsPaginationElement() {
+    let paginationElement = document.getElementById('NewLocationsModalPage');
+    paginationElement.innerHTML = "";
+    // previous
+    let previousElement = document.createElement('li')
+    if(new_locations_current_page<=1){
+        previousElement.innerHTML = `<a><span uk-pagination-previous></span></a>`;
+        previousElement.classList.add('uk-disabled');
+    }else {
+        previousElement.innerHTML = `<a onclick="setNewLocationPage(${new_locations_current_page-1})"><span uk-pagination-previous></span></a>`;
+    }
+    paginationElement.append(previousElement)
+    
+    //first
+    let firstElement = document.createElement('li')
+    if(new_locations_current_page<=1){
+        firstElement.innerHTML = `<a><strong>1</strong></a>`;
+        firstElement.classList.add('uk-disabled');
+    }else {
+        firstElement.innerHTML = `<a onclick="setNewLocationPage(1)">1</a>`;
+    }
+    paginationElement.append(firstElement)
+    
+    // ...
+    if(new_locations_current_page-2>1){
+        let firstDotElement = document.createElement('li')
+        firstDotElement.classList.add('uk-disabled')
+        firstDotElement.innerHTML = `<span>…</span>`;
+        paginationElement.append(firstDotElement)
+    }
+    // last
+    if(new_locations_current_page-2>0){
+        let lastElement = document.createElement('li')
+        lastElement.innerHTML = `<a onclick="setNewLocationPage(${new_locations_current_page-1})">${new_locations_current_page-1}</a>`
+        paginationElement.append(lastElement)
+    }
+    // current
+    if(new_locations_current_page!=1 && new_locations_current_page != new_locations_end_page){
+    let currentElement = document.createElement('li')
+    currentElement.innerHTML = `<li class="uk-active"><span aria-current="page"><strong>${new_locations_current_page}</strong></span></li>`
+    paginationElement.append(currentElement)
+    }
+    // next
+    if(new_locations_current_page+2<new_locations_end_page+1){
+        let nextElement = document.createElement('li')
+        nextElement.innerHTML = `<a onclick="setNewLocationPage(${new_locations_current_page+1})">${new_locations_current_page+1}</a>`
+        paginationElement.append(nextElement)
+    }
+    // ...
+    if(new_locations_current_page+2<=new_locations_end_page){
+        let secondDotElement = document.createElement('li')
+        secondDotElement.classList.add('uk-disabled')
+        secondDotElement.innerHTML = `<span>…</span>`;
+        paginationElement.append(secondDotElement)
+    }
+    //end
+    let endElement = document.createElement('li')
+    if(new_locations_current_page>=new_locations_end_page){
+        endElement.innerHTML = `<a><strong>${new_locations_end_page}</strong></a>`;
+        endElement.classList.add('uk-disabled');
+    }else {
+        endElement.innerHTML = `<a onclick="setNewLocationPage(${new_locations_end_page})">${new_locations_end_page}</a>`;
+    }
+    paginationElement.append(endElement)
+    //next button
+    let nextElement = document.createElement('li')
+    if(new_locations_current_page>=new_locations_end_page){
+        nextElement.innerHTML = `<a><span uk-pagination-next></span></a>`;
+        nextElement.classList.add('uk-disabled');
+    }else {
+        nextElement.innerHTML = `<a onclick="setNewLocationPage(${new_locations_current_page+1})"><span uk-pagination-next></span></a>`;
+    }
+    paginationElement.append(nextElement)
 }

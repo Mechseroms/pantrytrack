@@ -32,17 +32,30 @@
                                     <img class="uk-align-center uk-border-circle" data-src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 150px; height: auto;" uk-img />
                                     <li class="uk-nav-header">Apps</li>
                                     <li><a href="/shopping-lists">Shopping Lists</a></li>
-                                    <li><a href="/groups">Groups</a></li>
                                     <li><a href="/recipes">Recipes</a></li>
                                     <li class="uk-nav-header">Logistics</li>
                                     <li>
                                         <a href="/items">
                                             <div class="uk-active">Items<div class="uk-nav-subtitle" disabled>You are currently browsing items here...</div>
                                         </div>
-                                    </a>
+                                    </a></li>
                                     <li><a href="/transaction">Add Transaction</a></li>
+                                    <li><a href="/workshop">Workshop</a></li>
                                     <li><a href="/receipts">Receipts</a></li>
                                     <li class="uk-nav-header">System Management</li>
+                                    <li><a><div>{{current_site}}<div class="uk-nav-subtitle">This is the current site you are viewing...</div></div></a>
+                                        <div uk-dropdown="mode: click">
+                                            <ul class="uk-nav uk-dropdown-nav">
+                                                {% for site in sites %}
+                                                {% if site == current_site  %}
+                                                    <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                                {% else %}
+                                                    <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </li>
                                     {% if system_admin %}
                                     <li><a href="/admin">Administration</a></li>
                                     {% endif %}
@@ -52,7 +65,7 @@
                             </div>
                         </div>
                         <div class="uk-navbar-left uk-margin-small">
-                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle></a>
+                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle> Menu</a>
                         </div>
                         <div class="uk-navbar-center uk-margin-small uk-visible@m">
                             <ul class="uk-breadcrumb">
@@ -111,7 +124,23 @@
                     </div>
                 </div>
                 <div id="settings" class="uk-width-1-1" hidden>
-                    This is some test text
+                    <div uk-grid>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                                <p class="uk-text-meta">Order Items By</p>
+                                <label><input onchange="setSort('id')" class="uk-radio" type="radio" name="radio2" checked>ID</label>
+                                <label><input onchange="setSort('item_name')" class="uk-radio" type="radio" name="radio2">Name</label>
+                                <label><input onchange="setSort('total_qoh')" class="uk-radio" type="radio" name="radio2">Quantity On Hand</label>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                                <p class="uk-text-meta">Sort Item Direction</p>
+                                <label><input onchange="setOrder('ASC')" class="uk-radio" type="radio" name="order" checked>Ascending</label>
+                                <label><input onchange="setOrder('DESC')" class="uk-radio" type="radio" name="order">Descending</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="uk-width-1-1 uk-flex uk-flex-center uk-padding-small">
                     <nav aria-label="Pagination">

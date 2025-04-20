@@ -6,6 +6,7 @@ from threading import Thread
 from queue import Queue
 import time, process
 from user_api import login_required
+import webpush
 
 external_api = Blueprint('external', __name__)
 
@@ -22,7 +23,6 @@ def getItemLocations():
         database_config = config()
         with psycopg2.connect(**database_config) as conn:
             recordset, count = database.getItemLocations(conn, site_name, (item_id, limit, offset), convert=True)
-            print(count)
         return jsonify({"locations":recordset, "end":math.ceil(count/limit), "error":False, "message":"item fetched succesfully!"})
     return jsonify({"locations":recordset, "end": math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
@@ -47,8 +47,6 @@ def getItemBarcode():
         database_config = config()
         with psycopg2.connect(**database_config) as conn:
             record = database.getItemAllByBarcode(conn, site_name, (item_barcode, ), convert=True)
-
-        print(record)
         if record == {}:
             return jsonify({"item":None,  "error":True, "message":"Item either does not exist or there was a larger problem!"}) 
         else:
@@ -116,6 +114,7 @@ def post_receipt():
                     data=item['item']['data']
                 )
                 database.insertReceiptItemsTuple(conn, site_name, receipt_item.payload())
-
+            #webpush.push_notifications('New Receipt', f"Receipt {receipt['receipt_id']} was added to Site -> {site_name}!")
+            webpush.push_ntfy('New Receipt', f"Receipt {receipt['receipt_id']} was added to Site -> {site_name}!")
             return jsonify({"error":False, "message":"Transaction Complete!"})
     return jsonify({"error":True, "message":"There was an error with this POST statement"})

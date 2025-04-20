@@ -39,8 +39,22 @@
                                     <li class="uk-nav-header">Logistics</li>
                                     <li><a href="/items">Items</a></li>
                                     <li><a href="/transaction">Add Transaction</a></li>
+                                    <li><a href="/workshop">Workshop</a></li>
                                     <li><a href="/receipts">Receipts</a></li>
                                     <li class="uk-nav-header">System Management</li>
+                                    <li><a><div>{{current_site}}<div class="uk-nav-subtitle">This is the current site you are viewing...</div></div></a>
+                                        <div uk-dropdown="mode: click">
+                                            <ul class="uk-nav uk-dropdown-nav">
+                                                {% for site in sites %}
+                                                {% if site == current_site  %}
+                                                <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                                {% else %}
+                                                <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </li>
                                     {% if system_admin %}
                                     <li><a href="/admin">Administration</a></li>
                                     {% endif %}

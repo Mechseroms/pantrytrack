@@ -4,6 +4,32 @@ var defaqult_limit = 2;
 var pagination_end = 1;
 var item;
 
+async function changeSite(site){
+    console.log(site)
+    const response = await fetch(`/changeSite`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            site: site,
+        }),
+    });
+    data =  await response.json();
+    transaction_status = "success"
+    if (data.error){
+        transaction_status = "danger"
+    }
+
+    UIkit.notification({
+        message: data.message,
+        status: transaction_status,
+        pos: 'top-right',
+        timeout: 5000
+    });
+    location.reload(true)
+}
+
 async function replenishItemsTable(items) {
     let itemsTableBody = document.getElementById("itemsTableBody")
     itemsTableBody.innerHTML = ""

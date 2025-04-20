@@ -1,16 +1,22 @@
-from flask import Flask, render_template, session, request, redirect
+import celery.schedules
+from flask import Flask, render_template, session, request, redirect, jsonify
 from flask_assets import Environment, Bundle
 import api, config, user_api, psycopg2, main, admin, item_API, receipts_API, shopping_list_API, group_api, recipes_api
 from user_api import login_required
 from external_API import external_api
+from workshop_api import workshop_api
 import database
 import postsqldb
+from webpush import trigger_push_notifications_for_subscriptions
 
-app = Flask(__name__)
+app = Flask(__name__, instance_relative_config=True)
 UPLOAD_FOLDER = 'static/pictures'
 FILES_FOLDER = 'static/files'
+app.config.from_pyfile('application.cfg.py')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['FILES_FOLDER'] = FILES_FOLDER
+
+
 assets = Environment(app)
 app.secret_key = '11gs22h2h1a4h6ah8e413a45'
 app.register_blueprint(api.database_api)
@@ -18,6 +24,7 @@ app.register_blueprint(user_api.login_app)
 app.register_blueprint(admin.admin)
 app.register_blueprint(item_API.items_api)
 app.register_blueprint(external_api)
+app.register_blueprint(workshop_api)
 app.register_blueprint(receipts_API.receipt_api)
 app.register_blueprint(shopping_list_API.shopping_list_api)
 app.register_blueprint(group_api.groups_api)
@@ -80,15 +87,6 @@ def transaction():
         units = postsqldb.UnitsTable.getAll(conn)
     return render_template("other/transaction.html", units=units, current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer})
 
-@app.route("/admin")
-@login_required
-def workshop():
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    print(session.get('user')['system_admin'])
-    if not session.get('user')['system_admin']:
-        return redirect('/logout')
-    return render_template("admin.html", current_site=session['selected_site'], sites=sites)
-
 @app.route("/items")
 @login_required
 def items():
@@ -96,6 +94,24 @@ def items():
     return render_template("items/index.html", 
                            current_site=session['selected_site'], 
                            sites=sites)
+
+@app.route("/api/push-subscriptions", methods=["POST"])
+def create_push_subscription():
+    json_data = request.get_json()
+    database_config = config.config()
+    with psycopg2.connect(**database_config) as conn:
+        with conn.cursor() as cur:
+            cur.execute(f"SELECT * FROM push_subscriptions WHERE subscription_json = %s;", (json_data['subscription_json'],))
+            rows = cur.fetchone()
+            if rows is None:
+                cur.execute(f"INSERT INTO push_subscriptions (subscription_json) VALUES (%s);", (json_data['subscription_json'],))
+        return jsonify({
+            "status": "success"
+        })
+
+@app.route("/subscribe")
+def subscribe():
+    return render_template("subscribe.html")
 
 @app.route("/")
 @login_required

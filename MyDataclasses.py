@@ -63,18 +63,6 @@ class FoodInfoPayload:
             self.default_expiration
         )
 
-@dataclass
-class BrandsPayload:
-    name: str
-
-    def __post_init__(self):
-        if not isinstance(self.name, str):
-            return TypeError(f"brand name should be of type str; not {type(self.name)}")
-        
-    def payload(self):
-        return (
-            self.name,
-        )
     
 @dataclass
 class ItemsPayload:
@@ -107,27 +95,7 @@ class ItemsPayload:
             self.item_type,
             self.search_string
         )
-    
-@dataclass
-class ItemLocationPayload:
-    part_id: int
-    location_id: int
-    quantity_on_hand: float = 0.0
-    cost_layers: list = field(default_factory=list)
 
-    def __post_init__(self):
-        if not isinstance(self.part_id, int):
-            raise TypeError(f"part_id must be of type int; not {type(self.part_id)}")
-        if not isinstance(self.location_id, int):
-            raise TypeError(f"part_id must be of type int; not {type(self.part_id)}")
-
-    def payload(self):
-        return (
-            self.part_id,
-            self.location_id,
-            self.quantity_on_hand,
-            lst2pgarr(self.cost_layers)
-        )
     
 @dataclass
 class TransactionPayload:
@@ -171,65 +139,6 @@ class CostLayerPayload:
             self.currency_type,
             self.expires,
             self.vendor
-        )
-    
-@dataclass
-class LocationPayload:
-    uuid: str
-    name: str
-    zone_id: int
-
-    def __post_init__(self):
-        if not isinstance(self.uuid, str):
-            raise TypeError(f"uuid must be of type str; not {type(self.uuid)}")
-        if not isinstance(self.name, str):
-            raise TypeError(f"Location name must be of type str; not {type(self.name)}")
-        if not isinstance(self.zone_id, int):
-            raise TypeError(f"zone_id must be of type str; not {type(self.zone_id)}")
-    
-    def payload(self):
-        return (
-            self.uuid,
-            self.name,
-            self.zone_id
-        )
-    
-@dataclass
-class ZonePayload:
-    name: str
-    site_id: int
-
-    def __post_init__(self):
-        if not isinstance(self.name, str):
-            raise TypeError(f"Zone name should be of type str; not {type(self.name)}")
-        
-    def payload(self):
-        return (
-            self.name,
-            self.site_id
-        )
-    
-@dataclass
-class VendorPayload:
-    vendor_name: str
-    created_by: int
-    vendor_address: str = ""
-    creation_date: datetime.datetime = field(init=False)
-    phone_number: str = ""
-
-    def __post_init__(self):
-        if not isinstance(self.vendor_name, str):
-            raise TypeError(f"vendor_name should be of type str; not {type(self.vendor_name)}")
-        self.creation_date = datetime.datetime.now()
-
-
-    def payload(self):
-        return (
-            self.vendor_name,
-            self.vendor_address,
-            self.creation_date,
-            self.created_by,
-            self.phone_number
         )
     
 @dataclass

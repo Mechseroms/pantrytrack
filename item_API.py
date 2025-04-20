@@ -63,14 +63,20 @@ def pagninate_items():
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 10))
         search_string = str(request.args.get('search_text', ""))
-        sort_order = request.args.get('sort_order', "")
+        sort = request.args.get('sort', "")
+        order = request.args.get('order', "")
+
         view = request.args.get('view', "")
         site_name = session['selected_site']
         offset = (page - 1) * limit
-    
+        if sort == 'total_qoh':
+            sort_order = f"{sort} {order}"
+        else:
+            sort_order = f"{site_name}_items.{sort} {order}"
+        print(sort_order)
         database_config = config()
         with psycopg2.connect(**database_config) as conn:
-            pantry_inventory, count = database.getItemsWithQOH(conn, site_name, (search_string, limit, offset), convert=True)
+            pantry_inventory, count = database.getItemsWithQOH(conn, site_name, (search_string, limit, offset, sort_order), convert=True)
         
         return jsonify({'items': pantry_inventory, "end": math.ceil(count['count']/limit), 'error':False, 'message': 'Items Loaded Successfully!'})
     return jsonify({'items': pantry_inventory, "end": math.ceil(count['count']/limit), 'error':True, 'message': 'There was a problem loading the items!'})
@@ -106,7 +112,7 @@ def getModalPrefixes():
         database_config = config()
         with psycopg2.connect(**database_config) as conn:
             payload = (limit, offset)
-            recordset, count = postsqldb.SKUPrefixTable.getPrefixes(conn, site_name, payload, convert=True)
+            recordset, count = postsqldb.SKUPrefixTable.paginatePrefixes(conn, site_name, payload, convert=True)
         return jsonify({"prefixes":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"prefixes":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
@@ -126,9 +132,46 @@ def getZones():
     print(count, len(zones))
     return jsonify(zones=zones, endpage=math.ceil(count[0]/limit))
 
+
+@items_api.route('/item/getZonesBySku', methods=["GET"])
+def getZonesbySku():
+    if request.method == "GET":
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 1))
+        item_id = int(request.args.get('item_id'))
+        database_config = config()
+        site_name = session['selected_site']
+        zones = []
+        offset = (page - 1) * limit
+        payload = (item_id, limit, offset)
+        count = 0
+        with psycopg2.connect(**database_config) as conn:
+            zones, count = postsqldb.ZonesTable.paginateZonesBySku(conn, site_name, payload)
+            print(zones, count)
+        return jsonify(zones=zones, endpage=math.ceil(count/limit))
+
+@items_api.route('/item/getLocationsBySkuZone', methods=['get'])
+def getLocationsBySkuZone():
+    zone_id = int(request.args.get('zone_id', 1))
+    part_id = int(request.args.get('part_id', 1))
+    page = int(request.args.get('page', 1))
+    limit = int(request.args.get('limit', 1))
+
+    offset = (page-1)*limit
+    database_config = config()
+    site_name = session['selected_site']
+    locations = []
+    count=0
+    with psycopg2.connect(**database_config) as conn:
+        payload = (part_id, zone_id, limit, offset)
+        locations, count = postsqldb.LocationsTable.paginateLocationsBySkuZone(conn, site_name, payload)
+    return jsonify(locations=locations, endpage=math.ceil(count/limit))
+
+
 @items_api.route('/item/getLocations', methods=['get'])
 def getLocationsByZone():
-    zone_id = int(request.args.get('id', 1))
+    zone_id = int(request.args.get('zone_id', 1))
+    part_id = int(request.args.get('part_id', 1))
     page = int(request.args.get('page', 1))
     limit = int(request.args.get('limit', 1))
 
@@ -247,6 +290,19 @@ def updateItemLink():
             return jsonify(error=False, message="Linked Item was updated successfully")
     return jsonify(error=True, message="Unable to save this change, ERROR!")
 
+
+@items_api.route('/item/getPossibleLocations', methods=["GET"])
+@login_required
+def getPossibleLocations():
+    if request.method == "GET":
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 1))
+        offset = (page-1)*limit
+        database_config = config()
+        site_name = session['selected_site']
+        with psycopg2.connect(**database_config) as conn:
+            locations, count = postsqldb.LocationsTable.paginateLocationsWithZone(conn, site_name, (limit, offset))
+        return jsonify(locations=locations, end=math.ceil(count/limit))
 
 @items_api.route('/item/getLinkedItem', methods=["GET"])
 @login_required
@@ -472,3 +528,19 @@ def refreshSearchString():
 
             return jsonify(error=False, message="Search String was updated successfully")
     return jsonify(error=True, message="Unable to update this search string, ERROR!")
+
+@items_api.route('/item/postNewItemLocation', methods=['POST'])
+def postNewItemLocation():
+    if request.method == "POST":
+        item_id = request.get_json()['item_id']
+        location_id = request.get_json()['location_id']
+        database_config = config()
+        site_name = session['selected_site']
+        with psycopg2.connect(**database_config) as conn:
+            item_location = postsqldb.ItemLocationsTable.Payload(
+                item_id,
+                location_id
+            )
+            postsqldb.ItemLocationsTable.insert_tuple(conn, site_name, item_location.payload())
+            return jsonify(error=False, message="Location was added successfully")
+    return jsonify(error=True, message="Unable to save this location, ERROR!")

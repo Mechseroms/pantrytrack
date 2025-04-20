@@ -1,4 +1,4 @@
 INSERT INTO %%site_name%%_zones
-(name, site_id) 
-VALUES (%s, %s) 
+(name, description, site_id) 
+VALUES (%s, %s, %s) 
 RETURNING *;

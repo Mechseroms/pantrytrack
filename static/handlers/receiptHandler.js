@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 async function refreshReceipt() {
     let receipt = await getReceipt(receipt_id)
-    console.log(receipt)
     await replenishFields(receipt)
     await replenishLinesTable(receipt.receipt_items)
     await replenishFilesCards(receipt.files)
@@ -26,6 +25,14 @@ async function replenishFields(receipt) {
         document.getElementById('vendor_name').value = receipt.vendor.vendor_name
         document.getElementById('vendor_address').value = receipt.vendor.vendor_address
         document.getElementById('vendor_phone').value = receipt.vendor.phone_number
+        if(receipt.receipt_status=="Resolved"){
+            document.getElementById('resolveReceiptButton').hidden = true
+            document.getElementById('lineAddButton').hidden = true
+            document.getElementById('fileUploadButton').hidden = true
+            document.getElementById('fileUploadForm').hidden = true
+            document.getElementById('vendorSelectDiv').hidden = true
+            document.getElementById('vendorSelectButton').hidden = true
+        }
     }
 }
 
@@ -105,6 +112,14 @@ async function replenishLinesTable(receipt_items) {
             }
         }
 
+        let linkOp = document.createElement('a')
+        linkOp.style = "margin-right: 5px;"
+        linkOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
+        linkOp.setAttribute('uk-icon', 'icon: link')
+        linkOp.onclick = async function () {
+            await openLinksSelectModal(receipt_items[i].id)
+        }
+
         let editOp = document.createElement('a')
         editOp.style = "margin-right: 5px;"
         editOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
@@ -139,6 +154,11 @@ async function replenishLinesTable(receipt_items) {
 
         if (receipt_items[i].type === "new sku"){
             operationsCell.append(apiOp)
+            operationsCell.append(linkOp)
+        }
+
+        if (receipt_items[i].type === "api"){
+            operationsCell.append(linkOp)
         }
 
         operationsCell.append(editOp, resolveOp, denyOp, deleteOp)
@@ -501,6 +521,345 @@ async function updateItemsPaginationElement() {
         nextElement.classList.add('uk-disabled');
     }else {
         nextElement.innerHTML = `<a onclick="setPage(${pagination_current+1})"><span uk-pagination-next></span></a>`;
+        console.log(nextElement.innerHTML)
+    }
+    paginationElement.append(nextElement)
+}
+
+// Select Vedor functions
+let vendor_limit = 25
+let vendor_current_page = 1
+let vendor_end_page = 10
+async function getVendors() {
+    const url = new URL('/receipt/getVendors', window.location.origin);
+    url.searchParams.append('page', vendor_current_page);
+    url.searchParams.append('limit', vendor_limit);
+    const response = await fetch(url);
+    data =  await response.json();
+    vendor_end_page = data.end
+    return data.vendors;
+}
+
+async function postVendorUpdate(vendor_id) {
+    const response = await fetch(`/receipt/postVendorUpdate`, {
+        method: 'POST',
+        headers: {
+                'Content-Type': 'application/json',
+            },
+        body: JSON.stringify({
+            receipt_id: receipt_id,
+            vendor_id: vendor_id
+        }),
+    });
+    data = await response.json()
+    message_type = "primary"
+    if(data.error){
+        message_type = "danger"
+    }
+    UIkit.notification({
+        message: data.message,
+        status: message_type,
+        pos: 'top-right',
+        timeout: 5000
+    });
+    await refreshReceipt()
+    UIkit.modal(document.getElementById("vendorsModal")).hide();
+
+}
+
+async function openVendorsSelectModal() {
+    let vendors = await getVendors();
+    await replenishVendorsTableBody(vendors);
+    await updateVendorsPaginationElement()
+    UIkit.modal(document.getElementById("vendorsModal")).show();
+}
+
+async function replenishVendorsTableBody(vendors) {
+    let vendorsTableBody = document.getElementById('vendorsTableBody')
+    vendorsTableBody.innerHTML = ""
+
+    for(let i=0; i < vendors.length; i++){
+        let tableRow = document.createElement('tr')
+
+        let idCell = document.createElement('td')
+        idCell.innerHTML = vendors[i].id
+
+        let nameCell = document.createElement('td')
+        nameCell.innerHTML = vendors[i].vendor_name
+
+        let phoneCell = document.createElement('td')
+        phoneCell.innerHTML = vendors[i].phone_number
+
+        let addressCell = document.createElement('td')
+        addressCell.innerHTML = vendors[i].vendor_address
+
+        tableRow.onclick = async function() {
+            await postVendorUpdate(vendors[i].id)
+        }
+
+        tableRow.append(idCell,nameCell,phoneCell, addressCell)
+        vendorsTableBody.append(tableRow)
+    }
+
+}
+
+async function setVendorPage(pageNumber) {
+    vendor_current_page = pageNumber;
+    let vendors = await getVendors()
+    await updateVendorsPaginationElement()
+    await replenishVendorsTableBody(vendors)
+}
+
+async function updateVendorsPaginationElement() {
+    let paginationElement = document.getElementById("vendorsPage");
+    paginationElement.innerHTML = "";
+    // previous
+    let previousElement = document.createElement('li')
+    if(vendor_current_page<=1){
+        previousElement.innerHTML = `<a><span uk-pagination-previous></span></a>`;
+        previousElement.classList.add('uk-disabled');
+    }else {
+        previousElement.innerHTML = `<a onclick="setVendorPage(${vendor_current_page-1})"><span uk-pagination-previous></span></a>`;
+    }
+    paginationElement.append(previousElement)
+    
+    //first
+    let firstElement = document.createElement('li')
+    if(vendor_current_page<=1){
+        firstElement.innerHTML = `<a><strong>1</strong></a>`;
+        firstElement.classList.add('uk-disabled');
+    }else {
+        firstElement.innerHTML = `<a onclick="setVendorPage(1)">1</a>`;
+    }
+    paginationElement.append(firstElement)
+    
+    // ...
+    if(vendor_current_page-2>1){
+        let firstDotElement = document.createElement('li')
+        firstDotElement.classList.add('uk-disabled')
+        firstDotElement.innerHTML = `<span>…</span>`;
+        paginationElement.append(firstDotElement)
+    }
+    // last
+    if(vendor_current_page-2>0){
+        let lastElement = document.createElement('li')
+        lastElement.innerHTML = `<a onclick="setVendorPage(${vendor_current_page-1})">${vendor_current_page-1}</a>`
+        paginationElement.append(lastElement)
+    }
+    // current
+    if(vendor_current_page!=1 && vendor_current_page != vendor_end_page){
+    let currentElement = document.createElement('li')
+    currentElement.innerHTML = `<li class="uk-active"><span aria-current="page"><strong>${vendor_current_page}</strong></span></li>`
+    paginationElement.append(currentElement)
+    }
+    // next
+    if(vendor_current_page+2<vendor_end_page+1){
+        let nextElement = document.createElement('li')
+        nextElement.innerHTML = `<a onclick="setVendorPage(${vendor_current_page+1})">${vendor_current_page+1}</a>`
+        paginationElement.append(nextElement)
+    }
+    // ...
+    if(vendor_current_page+2<=vendor_end_page){
+        let secondDotElement = document.createElement('li')
+        secondDotElement.classList.add('uk-disabled')
+        secondDotElement.innerHTML = `<span>…</span>`;
+        paginationElement.append(secondDotElement)
+    }
+    //end
+    let endElement = document.createElement('li')
+    if(vendor_current_page>=vendor_end_page){
+        endElement.innerHTML = `<a><strong>${vendor_end_page}</strong></a>`;
+        endElement.classList.add('uk-disabled');
+    }else {
+        endElement.innerHTML = `<a onclick="setVendorPage(${vendor_end_page})">${vendor_end_page}</a>`;
+    }
+    paginationElement.append(endElement)
+    //next button
+    let nextElement = document.createElement('li')
+    if(vendor_current_page>=vendor_end_page){
+        nextElement.innerHTML = `<a><span uk-pagination-next></span></a>`;
+        nextElement.classList.add('uk-disabled');
+    }else {
+        nextElement.innerHTML = `<a onclick="setVendorPage(${vendor_current_page+1})"><span uk-pagination-next></span></a>`;
+        console.log(nextElement.innerHTML)
+    }
+    paginationElement.append(nextElement)
+}
+
+// Select Vedor functions
+let links_limit = 25
+let links_current_page = 1
+let links_end_page = 10
+async function getLinkedLists() {
+    const url = new URL('/receipt/getLinkedLists', window.location.origin);
+    url.searchParams.append('page', vendor_current_page);
+    url.searchParams.append('limit', vendor_limit);
+    const response = await fetch(url);
+    data =  await response.json();
+    links_end_page = data.end
+    return data.items;
+}
+
+async function postLinkedItem(receipt_item_id, link_list_id, conv_factor) {
+    const response = await fetch(`/receipt/postLinkedItem`, {
+        method: 'POST',
+        headers: {
+                'Content-Type': 'application/json',
+            },
+        body: JSON.stringify({
+            receipt_item_id: receipt_item_id,
+            link_list_id: link_list_id,
+            conv_factor: conv_factor
+        }),
+    });
+    data = await response.json()
+    message_type = "primary"
+    if(data.error){
+        message_type = "danger"
+    }
+    UIkit.notification({
+        message: data.message,
+        status: message_type,
+        pos: 'top-right',
+        timeout: 5000
+    });
+    await refreshReceipt()
+    UIkit.modal(document.getElementById("linksModal")).hide();
+}
+
+async function openLinksSelectModal(receipt_item_id) {
+    let links = await getLinkedLists();
+    await replenishLinksTableBody(links, receipt_item_id);
+    await updateLinksPaginationElement()
+    UIkit.modal(document.getElementById("linksModal")).show();
+}
+
+async function replenishLinksTableBody(links, receipt_item_id) {
+    let linksTableBody = document.getElementById('linksTableBody')
+    linksTableBody.innerHTML = ""
+
+    for(let i=0; i < links.length; i++){
+        let tableRow = document.createElement('tr')
+
+        let idCell = document.createElement('td')
+        idCell.innerHTML = links[i].id
+
+        let barcodeCell = document.createElement('td')
+        barcodeCell.innerHTML = links[i].barcode
+
+        let nameCell = document.createElement('td')
+        nameCell.innerHTML = links[i].item_name
+        
+        let convFactorCell = document.createElement('td')
+
+        let conv_factor_input = document.createElement('input')
+        conv_factor_input.setAttribute('class', 'uk-input')
+        conv_factor_input.setAttribute('id', `${links[i].id}_conv_factor`)
+
+        convFactorCell.append(conv_factor_input)
+
+        let addCell = document.createElement('td')
+
+        let addbutton = document.createElement('button')
+        addbutton.setAttribute('class', 'uk-button')
+        addbutton.innerHTML = "Select"
+        addbutton.onclick = async function() {
+            let conv = document.getElementById(`${links[i].id}_conv_factor`)
+            if (!conv.value == ""){
+                conv.classList.remove('uk-form-danger')
+                let conv_factor = parseFloat(conv.value)
+                await postLinkedItem(receipt_item_id, links[i].id, conv_factor)
+            } else {
+                conv.classList.add('uk-form-danger')
+            }
+        }
+
+        addCell.append(addbutton)
+
+        tableRow.append(idCell, barcodeCell, nameCell, convFactorCell, addCell)
+        linksTableBody.append(tableRow)
+    }
+
+}
+
+async function setLinksPage(pageNumber) {
+    links_current_page = pageNumber;
+    let links = await getLinkedLists()
+    await updateLinksPaginationElement()
+    await replenishLinksTableBody(links)
+}
+
+async function updateLinksPaginationElement() {
+    let paginationElement = document.getElementById("linksPage");
+    paginationElement.innerHTML = "";
+    // previous
+    let previousElement = document.createElement('li')
+    if(links_current_page<=1){
+        previousElement.innerHTML = `<a><span uk-pagination-previous></span></a>`;
+        previousElement.classList.add('uk-disabled');
+    }else {
+        previousElement.innerHTML = `<a onclick="setLinksPage(${links_current_page-1})"><span uk-pagination-previous></span></a>`;
+    }
+    paginationElement.append(previousElement)
+    
+    //first
+    let firstElement = document.createElement('li')
+    if(links_current_page<=1){
+        firstElement.innerHTML = `<a><strong>1</strong></a>`;
+        firstElement.classList.add('uk-disabled');
+    }else {
+        firstElement.innerHTML = `<a onclick="setLinksPage(1)">1</a>`;
+    }
+    paginationElement.append(firstElement)
+    
+    // ...
+    if(links_current_page-2>1){
+        let firstDotElement = document.createElement('li')
+        firstDotElement.classList.add('uk-disabled')
+        firstDotElement.innerHTML = `<span>…</span>`;
+        paginationElement.append(firstDotElement)
+    }
+    // last
+    if(links_current_page-2>0){
+        let lastElement = document.createElement('li')
+        lastElement.innerHTML = `<a onclick="setLinksPage(${links_current_page-1})">${links_current_page-1}</a>`
+        paginationElement.append(lastElement)
+    }
+    // current
+    if(links_current_page!=1 && links_current_page != links_end_page){
+    let currentElement = document.createElement('li')
+    currentElement.innerHTML = `<li class="uk-active"><span aria-current="page"><strong>${links_current_page}</strong></span></li>`
+    paginationElement.append(currentElement)
+    }
+    // next
+    if(links_current_page+2<links_end_page+1){
+        let nextElement = document.createElement('li')
+        nextElement.innerHTML = `<a onclick="setLinksPage(${links_current_page+1})">${links_current_page+1}</a>`
+        paginationElement.append(nextElement)
+    }
+    // ...
+    if(links_current_page+2<=links_end_page){
+        let secondDotElement = document.createElement('li')
+        secondDotElement.classList.add('uk-disabled')
+        secondDotElement.innerHTML = `<span>…</span>`;
+        paginationElement.append(secondDotElement)
+    }
+    //end
+    let endElement = document.createElement('li')
+    if(links_current_page>=links_end_page){
+        endElement.innerHTML = `<a><strong>${links_end_page}</strong></a>`;
+        endElement.classList.add('uk-disabled');
+    }else {
+        endElement.innerHTML = `<a onclick="setLinksPage(${links_end_page})">${links_end_page}</a>`;
+    }
+    paginationElement.append(endElement)
+    //next button
+    let nextElement = document.createElement('li')
+    if(links_current_page>=links_end_page){
+        nextElement.innerHTML = `<a><span uk-pagination-next></span></a>`;
+        nextElement.classList.add('uk-disabled');
+    }else {
+        nextElement.innerHTML = `<a onclick="setLinksPage(${links_current_page+1})"><span uk-pagination-next></span></a>`;
         console.log(nextElement.innerHTML)
     }
     paginationElement.append(nextElement)

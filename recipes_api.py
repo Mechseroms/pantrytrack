@@ -4,7 +4,7 @@ from config import config, sites_config
 from main import unfoldCostLayers
 from user_api import login_required
 import os
-import postsqldb
+import postsqldb, webpush
 
 recipes_api = Blueprint('recipes_api', __name__)
 
@@ -19,7 +19,6 @@ def recipes():
 @recipes_api.route("/recipe/<mode>/<id>")
 @login_required
 def recipe(mode, id):
-
     database_config = config()
     with psycopg2.connect(**database_config) as conn:
         units = postsqldb.UnitsTable.getAll(conn)
@@ -68,7 +67,8 @@ def addRecipe():
                 author=user_id,
                 description=recipe_description
             )
-            postsqldb.RecipesTable.insert_tuple(conn, site_name, recipe.payload())
+            recipe = postsqldb.RecipesTable.insert_tuple(conn, site_name, recipe.payload())
+            webpush.push_ntfy('New Recipe', f"New Recipe added to {site_name}; {recipe_name}!{recipe_description} http://test.treehousefullofstars.com/recipe/view/{recipe['id']} http://test.treehousefullofstars.com/recipe/edit/{recipe['id']}")
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Add Recipe successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': 'Add Recipe unsuccessful!'})
 

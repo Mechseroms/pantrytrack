@@ -49,7 +49,6 @@
                                     <img class="uk-align-center uk-border-circle" data-src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 150px; height: auto;" uk-img />
                                     <li class="uk-nav-header">Apps</li>
                                     <li><a href="/shopping-lists">Shopping Lists</a></li>
-                                    <li><a href="/groups">Groups</a></li>
                                     <li><a href="/recipes">Recipes</a></li>
                                     <li class="uk-nav-header">Logistics</li>
                                     <li>
@@ -58,6 +57,7 @@
                                         </div>
                                     </a>
                                     <li><a href="/transaction">Add Transaction</a></li>
+                                    <li><a href="/workshop">Workshop</a></li>
                                     <li><a href="/receipts">Receipts</a></li>
                                     <li class="uk-nav-header">System Management</li>
                                     {% if system_admin %}
@@ -363,6 +363,8 @@
                                         <tbody id="locationsTableBody">
                                         </tbody>
                                     </table>
+                                    <button onclick="openPossibleLocationsModal()" class="uk-button add-button"><i class="uk-flex-middle material-symbols-outlined" style="">add_circle</i></button>
+
                                 </div>
                             </div>
                             <!-- Linked Items -->
@@ -456,6 +458,7 @@
                 </table>
             </div>
         </div>
+        <!-- Location Select Modal -->
         <div id="LocationsModal" uk-modal>
             <div id="locationsModalInner" class="uk-modal-dialog uk-modal-body">
                 <h2 class="uk-modal-title">Select Location</h2>
@@ -627,6 +630,7 @@
                 </div>
             </div>
         </div>
+        <!-- Prefix Modal -->
         <div id="prefixesModal" uk-modal>
             <div id="prefixesModalInner" class="uk-modal-dialog uk-modal-body " uk-overflow-auto>
                 <h2 class="uk-modal-title">Select Item</h2>
@@ -655,6 +659,37 @@
                 </table>
             </div>
         </div>
+        <!-- Prefix Modal -->
+        <div id="NewLocationsModal" uk-modal>
+            <div id="NewLocationsModalInner" class="uk-modal-dialog uk-modal-body " uk-overflow-auto>
+                <h2 class="uk-modal-title">Select Item</h2>
+                <p>Select an Prefix from the system...</p>
+                <nav aria-label="Pagination">
+                    <ul id="NewLocationsModalPage" class="uk-pagination uk-flex-center" uk-margin>
+                        <li><a href="#"><span uk-pagination-previous></span></a></li>
+                        <li><a href="#">1</a></li>
+                        <li class="uk-disabled"><span>…</span></li>
+                        <li><a href="#">5</a></li>
+                        <li><a href="#">6</a></li>
+                        <li class="uk-active"><span aria-current="page">7</span></li>
+                        <li><a href="#">8</a></li>
+                        <li><a href="#"><span uk-pagination-next></span></a></li>
+                    </ul>
+                </nav>
+                <table class="uk-table uk-table-striped uk-table-hover">
+                    <thead>
+                        <tr>
+                            <th>Zone</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody id="NewLocationsModalTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
     </body>
     <script src="{{ url_for('static', filename='handlers/itemEditHandler.js') }}"></script>
     <script>const item_id = {{id|tojson}}</script>

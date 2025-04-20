@@ -1,3 +1,9 @@
+async function passwordEnter(event) {
+    if(event.key == "Enter"){
+        await loginUser()
+    }
+}
+
 async function loginUser() {
     let username = document.getElementById('login_username').value
     let password = document.getElementById('login_password').value

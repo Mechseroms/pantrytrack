@@ -74,7 +74,7 @@ async function replenishInstructions() {
         innerTile.setAttribute('class', 'uk-tile uk-tile-default uk-padding-small')
 
         let instruction = document.createElement('p')
-        instruction.innerHTML = `${recipe.instructions[i]}`
+        instruction.innerHTML = `<strong>Step ${i+1}:</strong> ${recipe.instructions[i]}`
 
 
         innerTile.append(instruction)

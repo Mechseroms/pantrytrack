@@ -185,7 +185,7 @@ async function updateTableElements(){
     let opsCell = document.createElement('th')
     opsCell.innerHTML = 'Operations'
 
-    head_row.append(nameCell, descriptionCell, opsCell)
+    head_row.append(nameCell, descriptionCell, qtyUOMCell, opsCell)
     table_head.append(head_row)
     main_table.append(table_head)
 
@@ -281,12 +281,27 @@ async function updateListElements(){
     items_list.append(main_list)
 }
 
+let sort = "id"
+async function setSort(sort_string) {
+    sort = sort_string
+    await getItems()
+    await reloadCards()
+}
+
+let order = "ASC"
+async function setOrder(order_string) {
+    order = order_string
+    await getItems()
+    await reloadCards()
+}
 async function getItems(){
+
     const url = new URL('/item/getItemsWithQOH', window.location.origin);
     url.searchParams.append('page', current_page);
     url.searchParams.append('limit', limit);
     url.searchParams.append('search_text', searchText);
-    url.searchParams.append('sort_order', sort_order);
+    url.searchParams.append('sort', sort);
+    url.searchParams.append('order', order);
     url.searchParams.append('view', view);
 
     await fetch(url)

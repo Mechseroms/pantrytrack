@@ -6,6 +6,7 @@ import openfoodfacts
 import postsqldb
 import mimetypes, os
 import pymupdf, PIL
+import webpush
 
 
 def create_pdf_preview(pdf_path, output_path, size=(600, 400)):
@@ -52,6 +53,38 @@ def getItems():
             recordset, count = database.getItemsWithQOH(conn, site_name, payload, convert=True)
         return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":True, "message":"There was an error with this GET statement"})
+
+@receipt_api.route('/receipt/getVendors', methods=["GET"])
+def getVendors():
+    recordset = []
+    count = 0
+    if request.method == "GET":
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        site_name = session['selected_site']
+        offset = (page - 1) * limit
+        database_config = config()
+        with psycopg2.connect(**database_config) as conn:
+            payload = (limit, offset)
+            recordset, count = postsqldb.VendorsTable.paginateVendors(conn, site_name, payload)
+        return jsonify({"vendors":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
+    return jsonify({"vendors":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
+
+@receipt_api.route('/receipt/getLinkedLists', methods=["GET"])
+def getLinkedLists():
+    recordset = []
+    count = 0
+    if request.method == "GET":
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        site_name = session['selected_site']
+        offset = (page - 1) * limit
+        database_config = config()
+        with psycopg2.connect(**database_config) as conn:
+            payload = (limit, offset)
+            recordset, count = postsqldb.ItemTable.paginateLinkedLists(conn, site_name, payload)
+        return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
+    return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
 @receipt_api.route('/receipts/getReceipts', methods=["GET"])
 def getReceipts():
@@ -158,7 +191,65 @@ def saveLine():
             database.__updateTuple(conn, site_name, f"{site_name}_receipt_items", {'id': line_id, 'update': payload})
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
-  
+
+@receipt_api.route('/receipt/postLinkedItem', methods=["POST"])
+def postLinkedItem():
+    if request.method == "POST":
+        receipt_item_id = int(request.get_json()['receipt_item_id'])
+        link_list_id = int(request.get_json()['link_list_id'])
+        conv_factor = float(request.get_json()['conv_factor'])
+
+        site_name = session['selected_site']
+        user_id = session['user_id']
+        database_config = config()
+        with psycopg2.connect(**database_config) as conn:
+            receipt_item = postsqldb.ReceiptTable.select_item_tuple(conn, site_name, (receipt_item_id,))
+            # get link list item
+            linked_list = postsqldb.ItemTable.getItemAllByID(conn, site_name, (link_list_id, ))
+            # add item to database
+            if receipt_item['type'] == 'api':
+                
+                data = {
+                    'barcode': receipt_item['barcode'], 
+                    'name': receipt_item['name'], 
+                    'subtype': 'FOOD'
+                }
+                process.postNewBlankItem(conn, site_name, user_id, data)
+
+            name = receipt_item['name']
+            if receipt_item['name'] == "unknown":
+                name = linked_list['item_name']
+            if receipt_item['type'] == "new sku":
+                data = {
+                    'barcode': receipt_item['barcode'], 
+                    'name': name, 
+                    'subtype': 'FOOD'
+                }
+                process.postNewBlankItem(conn, site_name, user_id, data)
+
+            new_item = postsqldb.ItemTable.getItemAllByBarcode(conn, site_name, (receipt_item['barcode'], ))
+            new_item = postsqldb.ItemTable.update_tuple(conn, site_name, {'id': new_item['id'], 'update':{'row_type': 'link'}})
+
+            # add item to link list
+            item_link = postsqldb.ItemLinksTable.Payload(
+                new_item['barcode'],
+                linked_list['id'],
+                new_item,
+                conv_factor
+            )
+            postsqldb.ItemLinksTable.insert_tuple(conn, site_name, item_link.payload())
+            # update line item with link list name and item_link with link list id
+            payload = {'id': receipt_item['id'], 'update': {
+                'barcode': linked_list['barcode'],
+                'name': linked_list['item_name'],
+                'uom': linked_list['item_info']['uom']['id'],
+                'qty': float(receipt_item['qty']*conv_factor),
+                'type': 'sku'
+            }}
+            postsqldb.ReceiptTable.update_receipt_item(conn, site_name, payload)
+            
+        return jsonify({'error': False, "message": "Line Saved Succesfully"})
+    return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
 @receipt_api.route('/receipts/resolveLine', methods=["POST"])
 def resolveLine():
@@ -248,14 +339,28 @@ def resolveLine():
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
+@receipt_api.route('/receipt/postVendorUpdate', methods=["POST"])
+def postVendorUpdate():
+    if request.method == "POST":
+        receipt_id = int(request.get_json()['receipt_id'])
+        vendor_id = int(request.get_json()['vendor_id'])
+        site_name = session['selected_site']
+        database_config = config()
+        with psycopg2.connect(**database_config) as conn:
+            postsqldb.ReceiptTable.update_receipt(conn, site_name, {'id': receipt_id, 'update': {'vendor_id': vendor_id}})
+            return jsonify({'error': False, "message": "Line Saved Succesfully"})
+    return jsonify({'error': True, "message": "Something went wrong while saving line!"})
+
 @receipt_api.route('/receipts/resolveReceipt', methods=["POST"])
 def resolveReceipt():
     if request.method == "POST":
         receipt_id = int(request.get_json()['receipt_id'])
         site_name = session['selected_site']
+        user= session['user']
         database_config = config()
         with psycopg2.connect(**database_config) as conn:
-            postsqldb.ReceiptTable.update_receipt(conn, site_name, {'id': receipt_id, 'update': {'receipt_status': 'Resolved'}})
+            receipt = postsqldb.ReceiptTable.update_receipt(conn, site_name, {'id': receipt_id, 'update': {'receipt_status': 'Resolved'}})
+            webpush.push_ntfy(title=f"Receipt '{receipt['receipt_id']}' Resolved", body=f"Receipt {receipt['receipt_id']} was completed by {user['username']}.")
             return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 

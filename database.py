@@ -1597,7 +1597,10 @@ def getItemsWithQOH(conn, site, payload, convert=True):
     recordset = []
     count = 0
     with open(f"sql/SELECT/getItemsWithQOH.sql", "r+") as file:
-        sql = file.read().replace("%%site_name%%", site)
+        sql = file.read().replace("%%site_name%%", site).replace("%%sort_order%%", payload[3])
+
+    payload = list(payload)
+    payload.pop(3)
     try:
         if convert:
             with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:

@@ -31,13 +31,26 @@
                                     <img class="uk-align-center uk-border-circle" data-src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 150px; height: auto;" uk-img />
                                     <li class="uk-nav-header">Apps</li>
                                     <li><a href="/shopping-lists">Shopping Lists</a></li>
-                                    <li><a href="/groups">Groups</a></li>
                                     <li><a href="/recipes">Recipes</a></li>
                                     <li class="uk-nav-header">Logistics</li>
                                     <li><a href="/items">Items</a></li>
                                     <li><a href="/transaction">Add Transaction</a></li>
+                                    <li><a href="/workshop">Workshop</a></li>
                                     <li><a href="/receipts"><div class="uk-active">Receipts<div class="uk-nav-subtitle" disabled>You are currently viewing Receipts...</div></div></a></li>
                                     <li class="uk-nav-header">System Management</li>
+                                    <li><a><div>{{current_site}}<div class="uk-nav-subtitle">This is the current site you are viewing...</div></div></a>
+                                        <div uk-dropdown="mode: click">
+                                            <ul class="uk-nav uk-dropdown-nav">
+                                                {% for site in sites %}
+                                                {% if site == current_site  %}
+                                                <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                                {% else %}
+                                                <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </li>
                                     {% if system_admin %}
                                     <li><a href="/admin">Administration</a></li>
                                     {% endif %}
@@ -47,11 +60,23 @@
                             </div>
                         </div>
                         <div class="uk-navbar-left uk-margin-small">
-                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle></a>
+                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle>Menu</a>
                         </div>
                         <div class="uk-navbar-center uk-margin-small uk-visible@m">
                             <ul class="uk-breadcrumb">
-                                <li style="cursor: default; user-select: none;"><span><strong>{{current_site}}</strong></span></li>
+                                <li style="cursor: default;"><span><strong>{{current_site}}</strong></span>
+                                    <div uk-dropdown="mode: hover">
+                                        <ul class="uk-nav uk-dropdown-nav">
+                                            {% for site in sites %}
+                                            {% if site == current_site  %}
+                                            <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                            {% else %}
+                                            <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </li>
                                 <li style="cursor: default; user-select: none;"><span>Logistics</span></li>
                                 <li class="uk-disabled"><span>Receipts</span></li>
                             </ul>

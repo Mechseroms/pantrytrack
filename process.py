@@ -1,5 +1,6 @@
 import database, MyDataclasses, psycopg2, datetime,json
 from config import config
+import postsqldb
 
 def dropSiteTables(conn, site_manager: MyDataclasses.SiteManager):
     try:
@@ -148,7 +149,7 @@ def postNewBlankItem(conn, site_name: str, user_id: int, data: dict):
             )
     
     # create item info
-    item_info = MyDataclasses.ItemInfoPayload(data['barcode'])
+    item_info = postsqldb.ItemInfoTable.Payload(data['barcode'])
 
     # create Food Info
     food_info = MyDataclasses.FoodInfoPayload()
@@ -190,7 +191,7 @@ def postNewBlankItem(conn, site_name: str, user_id: int, data: dict):
         location_id = cur.fetchone()[0]
 
         
-    item_location = MyDataclasses.ItemLocationPayload(item['id'], location_id)
+    item_location = postsqldb.ItemLocationsTable.Payload(item['id'], location_id)
     database.insertItemLocationsTuple(conn, site_name, item_location.payload())
 
 

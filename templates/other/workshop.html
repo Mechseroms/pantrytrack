@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="main_html">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title id="title"></title>
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/pantry.css') }}"/>
+
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}" disabled/>
+    </head>
+    <body>
+        <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+            <!-- to color the navbar i have to stlye this element the nav element -->
+            <nav id="navbar" class="uk-navbar-container">
+                <div class="uk-container uk-container-expand">
+                    <div uk-navbar="dropbar: true">
+                        <div id="offcanvas-slide" uk-offcanvas="mode: slide; overlay: true">
+                            <div class="uk-offcanvas-bar uk-flex uk-flex-column">
+                                <ul class="uk-nav uk-nav-secondary">  
+                                    <img class="uk-align-center uk-border-circle" data-src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 150px; height: auto;" uk-img />
+                                    <li class="uk-nav-header">Apps</li>
+                                    <li><a href="/shopping-lists">Shopping Lists</a></li>
+                                    <li><a href="/recipes">Recipes</a></li>
+                                    <li class="uk-nav-header">Logistics</li>
+                                    <li><a href="/items">Items</a></li>
+                                    <li><a href="/transaction">Add Transaction</a></li>
+                                    <li>
+                                        <a href="/workshop">
+                                            <div class="uk-active">Workshop<div class="uk-nav-subtitle" disabled>Building in the workshop...</div>
+                                        </div></a>
+                                    </li>
+                                    <li><a href="/receipts">Receipts</a></li>
+                                    <li class="uk-nav-header">System Management</li>
+                                    <li><a><div>{{current_site}}<div class="uk-nav-subtitle">This is the current site you are viewing...</div></div></a>
+                                        <div uk-dropdown="mode: click">
+                                            <ul class="uk-nav uk-dropdown-nav">
+                                                {% for site in sites %}
+                                                {% if site == current_site  %}
+                                                <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                                {% else %}
+                                                <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    {% if system_admin %}
+                                    <li><a href="/admin">Administration</a></li>
+                                    {% endif %}
+                                    <li><a href="" class="">{{username}}</a></li>
+                                </ul>
+                                <button class="uk-button uk-margin-small uk-position-top-right" uk-icon="icon: close" href=""></button>
+                            </div>
+                        </div>
+                        <div class="uk-navbar-left uk-margin-small">
+                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle> Menu</a>
+                        </div>
+                        <div class="uk-navbar-center uk-margin-small uk-visible@s">
+                            <ul class="uk-breadcrumb">
+                                <li style="cursor: default;"><span><strong>{{current_site}}</strong></span>
+                                    <div uk-dropdown="mode: hover">
+                                        <ul class="uk-nav uk-dropdown-nav">
+                                            {% for site in sites %}
+                                            {% if site == current_site  %}
+                                            <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                            {% else %}
+                                            <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li style="cursor: default; user-select: none;"><span>Logistics</span></li>
+                                <li class="uk-disabled"><span>Workshop</span></li>
+                            </ul>
+                        </div>
+                        <div class="uk-navbar-right">
+                            <div>
+                                <a onclick="toggleDarkMode()" class="uk-button uk-button-small"><span id="modeToggle" class="uk-flex material-symbols-outlined">dark_mode</span></a>
+                            </div>
+                            <div>
+                                <a href="" class="" uk-icon="icon: user" uk-toggle>{{username}}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="uk-section uk-margin-left">
+            <div class="uk-child-width-1-1" uk-grid>
+                <div>
+                    <div uk-grid>
+                        <div class="uk-width-auto">
+                            <ul class="uk-tab-left" uk-tab="connect: #component-tab-left; animation: uk-animation-fade">
+                                <li><a href="#">Zones</a></li>
+                                <li><a href="#">Locations</a></li>
+                                <li><a href="#">Vendors</a></li>
+                                <li><a href="#">Brands</a></li>
+                                <li><a href="#">Prefixes</a></li>
+                            </ul>
+                        </div>
+                        <div class="uk-width-expand">
+                            <div id="component-tab-left" class="uk-switcher">
+                                <!-- Zones -->
+                                <div class="uk-container">
+                                    <div uk-grid>
+                                        <div class="uk-width-1-1 uk-flex uk-flex-center">
+                                            <nav aria-label="Pagination">
+                                                <ul id="zonesPagination" class="uk-pagination" uk-margin>
+                                                    <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                                    <li><a href="#">1</a></li>
+                                                    <li class="uk-disabled"><span>…</span></li>
+                                                    <li><a href="#">5</a></li>
+                                                    <li><a href="#">6</a></li>
+                                                    <li class="uk-active"><span aria-current="page">7</span></li>
+                                                    <li><a href="#">8</a></li>
+                                                    <li><a href="#"><span uk-pagination-next></span></a></li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                        <div class="uk-width-1-1">
+                                            <caption class="uk-text-meta">Here are all the Zones that have been set up for the site <strong>{{current_site}}</strong></caption>
+                                            <table style="margin-bottom: 0px;" class="uk-table uk-table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Zone Name</th>
+                                                        <th>Description</th>
+                                                        <th>Operations</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="zonesTableBody">
+                                                </tbody>
+                                            </table>
+                                            <button onclick="openAddZoneModal()" class="uk-button add-button"><i class="uk-flex-middle material-symbols-outlined" style="">add_circle</i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Locations -->
+                                <div class="uk-container">
+                                    <div uk-grid>
+                                        <div class="uk-width-1-1 uk-flex uk-flex-center">
+                                            <nav aria-label="Pagination">
+                                                <ul id="locationsPagination" class="uk-pagination" uk-margin>
+                                                    <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                                    <li><a href="#">1</a></li>
+                                                    <li class="uk-disabled"><span>…</span></li>
+                                                    <li><a href="#">5</a></li>
+                                                    <li><a href="#">6</a></li>
+                                                    <li class="uk-active"><span aria-current="page">7</span></li>
+                                                    <li><a href="#">8</a></li>
+                                                    <li><a href="#"><span uk-pagination-next></span></a></li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                        <div class="uk-width-1-1">
+                                            <caption class="uk-text-meta">Here are all the locations that have been set up for the site <strong>{{current_site}}</strong></caption>
+                                            <table style="margin-bottom: 0px;" class="uk-table uk-table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>UUID</th>
+                                                        <th>Location Name</th>
+                                                        <th>Description</th>
+                                                        <th>Operations</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="locationsTableBody">
+                                                </tbody>
+                                            </table>
+                                            <button onclick="openAddLocationModal()" class="uk-button add-button"><i class="uk-flex-middle material-symbols-outlined" style="">add_circle</i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Vendors -->
+                                <div class="uk-container">
+                                    <div uk-grid>
+                                        <div class="uk-width-1-1 uk-flex uk-flex-center">
+                                            <nav aria-label="Pagination">
+                                                <ul id="vendorsPagination" class="uk-pagination" uk-margin>
+                                                    <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                                    <li><a href="#">1</a></li>
+                                                    <li class="uk-disabled"><span>…</span></li>
+                                                    <li><a href="#">5</a></li>
+                                                    <li><a href="#">6</a></li>
+                                                    <li class="uk-active"><span aria-current="page">7</span></li>
+                                                    <li><a href="#">8</a></li>
+                                                    <li><a href="#"><span uk-pagination-next></span></a></li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                        <div class="uk-width-1-1">
+                                            <caption class="uk-text-meta">Here are all the locations that have been set up for the site <strong>{{current_site}}</strong></caption>
+                                            <table style="margin-bottom: 0px;" class="uk-table uk-table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Vendor Name</th>
+                                                        <th>Created By</th>
+                                                        <th>Operations</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="vendorsTableBody">
+                                                </tbody>
+                                            </table>
+                                            <button onclick="openAddVendorsModal()" class="uk-button add-button"><i class="uk-flex-middle material-symbols-outlined" style="">add_circle</i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Brands -->                                
+                                <div class="uk-container">
+                                    <div uk-grid>
+                                        <div class="uk-width-1-1 uk-flex uk-flex-center">
+                                            <nav aria-label="Pagination">
+                                                <ul id="brandsPagination" class="uk-pagination" uk-margin>
+                                                    <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                                    <li><a href="#">1</a></li>
+                                                    <li class="uk-disabled"><span>…</span></li>
+                                                    <li><a href="#">5</a></li>
+                                                    <li><a href="#">6</a></li>
+                                                    <li class="uk-active"><span aria-current="page">7</span></li>
+                                                    <li><a href="#">8</a></li>
+                                                    <li><a href="#"><span uk-pagination-next></span></a></li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                        <div class="uk-width-1-1">
+                                            <caption class="uk-text-meta">Here are all the locations that have been set up for the site <strong>{{current_site}}</strong></caption>
+                                            <table style="margin-bottom: 0px;" class="uk-table uk-table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Brand Name</th>
+                                                        <th>Operations</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="brandsTableBody">
+                                                </tbody>
+                                            </table>
+                                            <button onclick="openAddBrandsModal()" class="uk-button add-button"><i class="uk-flex-middle material-symbols-outlined" style="">add_circle</i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Prefixes -->                                
+                                <div class="uk-container">
+                                    <div uk-grid>
+                                        <div class="uk-width-1-1 uk-flex uk-flex-center">
+                                            <nav aria-label="Pagination">
+                                                <ul id="prefixesPagination" class="uk-pagination" uk-margin>
+                                                    <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                                    <li><a href="#">1</a></li>
+                                                    <li class="uk-disabled"><span>…</span></li>
+                                                    <li><a href="#">5</a></li>
+                                                    <li><a href="#">6</a></li>
+                                                    <li class="uk-active"><span aria-current="page">7</span></li>
+                                                    <li><a href="#">8</a></li>
+                                                    <li><a href="#"><span uk-pagination-next></span></a></li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                        <div class="uk-width-1-1">
+                                            <caption class="uk-text-meta">Here are all the locations that have been set up for the site <strong>{{current_site}}</strong></caption>
+                                            <table style="margin-bottom: 0px;" class="uk-table uk-table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>UUID</th>
+                                                        <th>Name</th>
+                                                        <th>Description</th>
+                                                        <th>Operations</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="prefixesTableBody">
+                                                </tbody>
+                                            </table>
+                                            <button onclick="openAddPrefixModal()" class="uk-button add-button"><i class="uk-flex-middle material-symbols-outlined" style="">add_circle</i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modals -->
+        <!-- Zones ADD/EDIT -->
+        <div id="ZonesModal" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 id="ZonesModalHeader" class="uk-modal-title"></h2>
+                </div>
+                <div class="uk-modal-body">
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-1">
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="ZoneName">Zone Name</label>
+                                <input class="uk-input" id="ZoneName" type="text" placeholder="">
+                                
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="ZoneDescription">Text</label>
+                                <textarea id="ZoneDescription" class="uk-textarea" rows="5" placeholder="" aria-label="Textarea"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button id="ZonesModalSubmitButton" class="uk-button uk-button-primary" type="button"></button>
+                </div>
+            </div>
+        </div>
+        <!-- Locations ADD/EDIT -->
+        <div id="LocationsModal" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 id="LocationsModalHeader" class="uk-modal-title"></h2>
+                </div>
+                <div class="uk-modal-body">
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-1">
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="LocationZoneId">Location Zone</label>
+                                <select id="LocationZoneId" class="uk-select" aria-label="Select">
+                                    {% for zone in zones %}
+                                        <option id="locationzone_{{zone[0]}}" value="{{zone[0]}}">{{zone[1]}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="LocationName">Location Name</label>
+                                <input id="LocationName" class="uk-input" type="text">
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="LocationUUID">Location UUID</label>
+                                <input class="uk-input uk-disabled" id="LocationUUID" type="text" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button id="LocationsModalSubmitButton" class="uk-button uk-button-primary" type="button"></button>
+                </div>
+            </div>
+        </div>
+        <!-- Vendors ADD/EDIT -->
+        <div id="VendorsModal" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 id="VendorsModalHeader" class="uk-modal-title"></h2>
+                </div>
+                <div class="uk-modal-body">
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-1">
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="VendorName">Vendor Name</label>
+                                <input id="VendorName" class="uk-input" type="text">
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="VendorPhoneNumber">Vendor Phone Number</label>
+                                <input class="uk-input" id="VendorPhoneNumber" type="text" placeholder="">
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="VendorAddress">Vendor Address</label>
+                                <textarea id="VendorAddress" class="uk-textarea" rows="5" placeholder="" aria-label="Textarea"></textarea>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="vendor_created">Vendor Created</label>
+                                <input class="uk-input uk-disabled" id="vendor_created" type="text" placeholder="">
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="vendor_created_by">Vendor Created By</label>
+                                <input class="uk-input uk-disabled" id="vendor_created_by" type="text" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button id="VendorsModalSubmitButton" class="uk-button uk-button-primary" type="button"></button>
+                </div>
+            </div>
+        </div>
+        <!-- Brands ADD/EDIT -->
+        <div id="BrandsModal" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 id="BrandsModalHeader" class="uk-modal-title"></h2>
+                </div>
+                <div class="uk-modal-body">
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-1">
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="BrandName">Brand Name</label>
+                                <input id="BrandName" class="uk-input" type="text">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button id="BrandsModalSubmitButton" class="uk-button uk-button-primary" type="button"></button>
+                </div>
+            </div>
+        </div>
+        <!-- Prefixes ADD/EDIT -->
+        <div id="PrefixModal" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 id="PrefixModalHeader" class="uk-modal-title"></h2>
+                </div>
+                <div class="uk-modal-body">
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-1">
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="PrefixUUID">Prefix UUID</label>
+                                <input id="PrefixUUID" class="uk-input" type="text">
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="PrefixName">Prefix Name</label>
+                                <input id="PrefixName" class="uk-input" type="text">
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="PrefixDescription">Prefix Description</label>
+                                <textarea id="PrefixDescription" class="uk-textarea" rows="5" placeholder="" aria-label="Textarea"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button id="PrefixModalSubmitButton" class="uk-button uk-button-primary" type="button"></button>
+                </div>
+            </div>
+        </div>
+
+    </body>
+    {% assets "js_all" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    <script>const session = {{session|tojson}}</script>
+    <script src="{{ url_for('static', filename='handlers/workshopHandler.js') }}"></script>
+</html>
