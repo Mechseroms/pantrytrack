@@ -1,0 +1,1 @@
+SELECT COUNT(*) FROM %%site_name%%_recipes;

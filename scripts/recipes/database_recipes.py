@@ -23,3 +23,44 @@ def getModalSKUs(site, payload, convert=True):
             if rows and count:
                 return rows, count
     return [], 0
+
+def getRecipes(site:str, payload:tuple, convert=True):
+    recordset = []
+    count = 0
+    with open("scripts/recipes/sql/getRecipes.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    with open(f"scripts/recipes/sql/getRecipesCount.sql", "r+") as file:
+        sqlcount = file.read().replace("%%site_name%%", site)
+    try:
+        database_config = config.config()
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchall()
+                if rows and convert:
+                    recordset = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+                if rows and not convert:
+                    recordset = rows
+                cur.execute(sqlcount)
+                count = cur.fetchone()[0]
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+    return recordset, count
+
+def postRecipeUpdate(site, payload, convert=True):
+    database_config = config.config()
+    updated = ()
+    with psycopg2.connect(**database_config) as conn:
+        with conn.cursor() as cur:
+            set_clause, values = postsqldb.updateStringFactory(payload['update'])
+            with open("scripts/recipes/sql/postRecipeUpdate.sql") as file:
+                 sql = file.read().replace("%%site_name%%", site).replace("%%set_clause%%", set_clause)
+            values.append(payload['id'])
+            cur.execute(sql, values)
+
+            rows = cur.fetchone()
+            if rows and convert:
+                updated = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                updated = rows
+    return updated

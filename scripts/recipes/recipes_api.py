@@ -5,13 +5,22 @@ from main import unfoldCostLayers
 from user_api import login_required
 import os
 import postsqldb, webpush
+from flasgger import swag_from
 from scripts.recipes import database_recipes 
+from flask_restx import Api, fields
 
 recipes_api = Blueprint('recipes_api', __name__)
+model_api = Api(recipes_api)
 
 @recipes_api.route("/recipes")
 @login_required
 def recipes():
+    """This is the main endpoint to reach the webpage for a list of all recipes
+    ---
+    responses:
+        200:
+            description: returns recipes/index.html with sites, current_site.
+    """
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     return render_template("recipes/index.html", 
                            current_site=session['selected_site'], 
@@ -19,7 +28,24 @@ def recipes():
 
 @recipes_api.route("/recipe/<mode>/<id>")
 @login_required
-def recipe(mode, id):
+def recipe(id, mode='view'):
+    """This is the main endpoint to reach the webpage for a recipe's view or edit mode.
+    ---
+    parameters:
+      - name: mode
+        in: path
+        type: string
+        required: true
+        default: view
+      - name: id
+        in: path
+        type: integer
+        required: true
+        default: all
+    responses:
+      200:
+        description: Respondes with either the Edit or View webpage for the recipe.
+    """
     database_config = config()
     with psycopg2.connect(**database_config) as conn:
         units = postsqldb.UnitsTable.getAll(conn)
@@ -32,16 +58,22 @@ def recipe(mode, id):
 
 @recipes_api.route('/recipes/getRecipes', methods=["GET"])
 def getRecipes():
+    """ Get a subquery of recipes from the database by passing a page, limit
+    ---
+    responses:
+        200:
+            description: limit of rows passed returned to requester
+    """
     recipes = []
+    count=0
     if request.method == "GET":
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 1))
         offset = (page-1)*limit
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            recipes, count = postsqldb.RecipesTable.getRecipes(conn, site_name, (limit, offset), convert=True)
-    return jsonify({'recipes': recipes, 'end': math.ceil(count/limit), 'error': False, 'message': 'bleh'})
+        recipes, count = database_recipes.getRecipes(site_name, (limit, offset))
+        return jsonify({'recipes': recipes, 'end': math.ceil(count/limit), 'error': False, 'message': 'fetch was successful!'})
+    return jsonify({'recipes': recipes, 'end': math.ceil(count/limit), 'error': True, 'message': f'method is not allowed: {request.method}'})
 
 @recipes_api.route('/recipe/getRecipe', methods=["GET"])
 def getRecipe():
@@ -75,6 +107,12 @@ def addRecipe():
 
 @recipes_api.route('/recipe/getItems', methods=["GET"])
 def getItems():
+    """ Pass along a page, limit, and search strings to get a pagination of items from the system
+    ---
+    responses:
+        200:
+            description: Items were returned successfully!
+    """
     recordset = []
     count = {'count': 0}
     if request.method == "GET":
@@ -83,22 +121,35 @@ def getItems():
         search_string = request.args.get('search_string', 10)
         site_name = session['selected_site']
         offset = (page - 1) * limit
-        recordset, count = database_recipes.getModalSKUs(site_name, (limit, offset))
+        recordset, count = database_recipes.getModalSKUs(site_name, (search_string, limit, offset))
         print(recordset)
         return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
 
+update_model = model_api.model('model', {
+    'id': fields.Integer(min=1),
+    'update': fields.Raw(required=True, description="all the data to be updated!")
+})
+
 @recipes_api.route('/recipe/postUpdate', methods=["POST"])
+@model_api.expect(update_model)
 def postUpdate():
+    """ This is an endpoint for updating an RecipeTuple in the sites recipes table
+    ---
+    responses:
+        200:
+            description: The time was updated successfully!
+
+    Returns:
+        dict: returns a dictionary containing the updated recipe object, error status, and a message to post for notifications
+    """
     recipe = {}
     if request.method == "POST":
         recipe_id = int(request.get_json()['recipe_id'])
         update = request.get_json()['update']
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            recipe = postsqldb.RecipesTable.updateRecipe(conn, site_name, {'id': recipe_id, 'update': update}, convert=True)
+        recipe = database_recipes.postRecipeUpdate(site_name, {'id': recipe_id, 'update': update})
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Update of Recipe successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': 'Update of Recipe unsuccessful!'})
 

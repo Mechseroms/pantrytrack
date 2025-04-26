@@ -1,0 +1,1 @@
+UPDATE %%site_name%%_recipes SET %%set_clause%% WHERE id=%s RETURNING *;

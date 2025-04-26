@@ -9,8 +9,11 @@ import database
 import postsqldb
 from webpush import trigger_push_notifications_for_subscriptions
 from scripts.recipes import recipes_api
+from flasgger import Swagger
+
 
 app = Flask(__name__, instance_relative_config=True)
+swagger = Swagger(app)
 UPLOAD_FOLDER = 'static/pictures'
 FILES_FOLDER = 'static/files'
 app.config.from_pyfile('application.cfg.py')
@@ -66,6 +69,18 @@ def inject_user():
 @app.route("/transactions/<id>")
 @login_required
 def transactions(id):
+    """This is the main endpoint to reach the webpage for an items transaction history
+    ---
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+        default: all
+    responses:
+      200:
+        description: Returns the transactions.html webpage for the item with passed ID
+    """
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     return render_template("items/transactions.html", id=id, current_site=session['selected_site'], sites=sites)
 
