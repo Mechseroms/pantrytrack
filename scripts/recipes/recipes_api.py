@@ -7,6 +7,7 @@ import os
 import postsqldb, webpush
 from flasgger import swag_from
 from scripts.recipes import database_recipes 
+from scripts import postsqldb as db
 from flask_restx import Api, fields
 
 recipes_api = Blueprint('recipes_api', __name__)
@@ -93,6 +94,12 @@ def getRecipe():
 
 @recipes_api.route('/recipes/addRecipe', methods=["POST"])
 def addRecipe():
+    """ post a new recipe into the database by passing a recipe_name and recipe description
+    ---
+    responses:
+        200:
+            description: Recipe was added successfully into the system
+    """
     if request.method == "POST":
         recipe_name = request.get_json()['recipe_name']
         recipe_description = request.get_json()['recipe_description']
@@ -100,15 +107,15 @@ def addRecipe():
         site_name = session['selected_site']
         user_id = session['user_id']
         with psycopg2.connect(**database_config) as conn:
-            recipe = postsqldb.RecipesTable.Payload(
+            recipe = db.RecipesTable.Payload(
                 name=recipe_name,
                 author=user_id,
                 description=recipe_description
             )
-            recipe = postsqldb.RecipesTable.insert_tuple(conn, site_name, recipe.payload())
-            webpush.push_ntfy('New Recipe', f"New Recipe added to {site_name}; {recipe_name}!{recipe_description} http://test.treehousefullofstars.com/recipe/view/{recipe['id']} http://test.treehousefullofstars.com/recipe/edit/{recipe['id']}")
-        return jsonify({'recipe': recipe, 'error': False, 'message': 'Add Recipe successful!'})
-    return jsonify({'recipe': recipe, 'error': True, 'message': 'Add Recipe unsuccessful!'})
+            recipe = database_recipes.postRecipe(site_name, recipe.payload())
+            webpush.push_ntfy('New Recipe', f"New Recipe added to {site_name}; {recipe_name}! {recipe_description} \n http://test.treehousefullofstars.com/recipe/view/{recipe['id']} \n http://test.treehousefullofstars.com/recipe/edit/{recipe['id']}")
+        return jsonify({'recipe': recipe, 'error': False, 'message': 'Recipe added successful!'})
+    return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method}'})
 
 @recipes_api.route('/recipe/getItems', methods=["GET"])
 def getItems():
