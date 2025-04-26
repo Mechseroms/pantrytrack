@@ -1,130 +1,164 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" id="main_html">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
-        <title>Edit Role</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/css/materialize.min.css" />
+        <title id="title"></title>
+        <!-- Material Icons -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-        <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-alpha/dist/js/materialize.min.js"></script>
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/pantry.css') }}"/>
+
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}" disabled/>
     </head>
-    <style>
-        
-        .dropdown-disabled {
-            pointer-events: none;
-        }
-        .item :hover{
-            cursor: pointer;
-            background-color: whitesmoke;
-        } 
-        
-        .custom_row:hover{
-            background-color: rgb(230, 230, 230) !important;
-            cursor: pointer;
-        }
-    </style>
     <body>
-        <div class="container">
-            <div class="section">
-                <div class="row" style="gap: 1em;">
-                    <div class="col s12" style="padding-bottom: 10px;">
-                        <a href='{{ proto['referrer'] }}' class="left btn green lighten-4 black-text btn-flat"><i class="material-icons">arrow_back</i></a>
-                        <a href="/items" class="btn btn-flat right">Home</a>
-                        <a href="/profile" class="btn btn-flat right">Profile</a>
+        <div class="uk-container uk-section">
+            <div uk-grid>
+                <div class="uk-width-1-1" >
+                    <a href="/admin" class="uk-button uk-button-small"><span class="uk-flex material-symbols-outlined">arrow_back</span></a>
+                    <a onclick="toggleDarkMode()" class="uk-button uk-button-small uk-align-right"><span id="modeToggle" class="uk-flex material-symbols-outlined">dark_mode</span></a>
+                </div>
+                <div class="uk-width-1-1">
+                    <h3 class="uk-text-center">Role Form</h3>
+                </div>
+                <div class="uk-width-1-1">
+                    <p>Roles exist to harness a users/devices access to a sites specific apps and inputs. You use roles to better define a groups permissions
+                        within the app in order to control who has access to what. Specific User/Device permissions will overwrite any of their roles, permissions.</p>
+                </div>
+                <div class="uk-width-1-1">
+                    <hr class="uk-divider-icon">
+                </div>
+                <div class="uk-width-1-1">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="role_name">Role Name</label>
+                        <div class="uk-form-controls">
+                            <input id="role_name" class="uk-input" type="text">
+                        </div>
                     </div>
-                    <div class="s12 m6 input-field">
-                        <input id="role_name" type="text" placeholder=" " maxlength="20">
-                        <label for="role_name">Name</label>
+                </div>
+                <div class="uk-width-1-1">
+                    <label class="uk-form-label" for="role_description">Role Description</label>
+                    <div class="uk-margin">
+                        <textarea id="role_description" class="uk-textarea" rows="5" aria-label="Textarea"></textarea>
                     </div>
-                    <div class="input-field col s12">
-                        <select id="role_site">
-                          <option value="" disabled selected>Choose your option</option>
-                        </select>
-                        <label for="role_site">Site</label>
+                </div>
+                <div class="uk-width-1-1">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="site_id">Select</label>
+                        <div class="uk-form-controls">
+                            <select id="site_id" class="uk-select">
+                                {% for site in sites %}
+                                    <option value="{{site['id']}}">{{site['site_name']}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
-                    <div class="input-field col s12">
-                        <textarea id="role_description" class="materialize-textarea" placeholder=" "></textarea>
-                        <label for="role_description">Description</label>
-                    </div>
-                    <div class="col s12">
-                        <h4>Permissions</h4>
-                    </div>
-                    <div class="col s12">
-                        <h5>All</h5>
-                    </div>
-                    <div class="col s12 m6">
-                        <p>
-                        <label>
-                            <input type="checkbox" />
-                            <span>Edit</span>
-                        </label>
-                        </p>
-                        <p>
-                        <label>
-                            <input type="checkbox" />
-                            <span>Delete</span>
-                        </label>
-                        </p>
-                    </div>
-                    <div class="col s12 m6">
-                        <p>
-                        <label>
-                            <input type="checkbox" />
-                            <span>Create</span>
-                        </label>
-                        </p>
-                        <p>
-                        <label>
-                            <input type="checkbox" />
-                            <span>View</span>
-                        </label>
-                        </p>
-                    </div>
-                    <div class="col s12">
-                        <button class="btn btn-flat green lighten-4 right" onclick="updateRole()">Update</button>
-                        <button class="btn btn-flat red lighten-4 right" style="margin-right: 10px;" onclick="deleteRole()">Delete</button>
-                    </div>
+                </div>
+                <div class="uk-width-1-1">
+                    <hr class="uk-divider-icon">
+                </div>
+                <div class="uk-width-1-1">
+                    <button id="SubmitButton" class="uk-button uk-button-primary uk-align-right">Save</button>
                 </div>
             </div>
         </div>
     </body>
-    <script src="{{ url_for('static', filename='adminHandler.js') }}"></script>
+    {% assets "js_all" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
     <script>
         let role = {{role|tojson}}
+        const session = {{session|tojson}}
+        const path = window.location.pathname
         console.log(role)
 
         document.addEventListener('DOMContentLoaded', async function() {
-            var elems = document.querySelectorAll('select');
-            var instances = M.FormSelect.init(elems, {})
-            await populateRoleForm()
-          });
+            let mode = "edit"
+            if(path == "/admin/role/new"){
+                mode = "new"
+            }
+            await replenishForm(role, mode)
+        })
 
-        async function populateRoleForm() {
-            document.getElementById("role_name").value = role[1];
-            document.getElementById("role_description").value = role[2];
-            const selectElement = document.getElementById("role_site");
-            selectElement.innerHTML = "";
-
-            var sites = await fetchSites()
-            for (let i = 0; i < sites.length; i++){
-                let newOption = document.createElement("option");
-                newOption.value = sites[i][0];
-                newOption.text = sites[i][1];
-                selectElement.appendChild(newOption);
-            };
-            selectElement.value = role[3];
-            M.FormSelect.init(selectElement);
+        var mode = false
+        async function toggleDarkMode() {
+            let darkMode = document.getElementById("dark-mode");    
+            darkMode.disabled = !darkMode.disabled;
+            mode = !mode;
+            if(mode){
+                document.getElementById('modeToggle').innerHTML = "light_mode"
+                document.getElementById('main_html').classList.add('uk-light')
+            } else {
+                document.getElementById('modeToggle').innerHTML = "dark_mode"
+                document.getElementById('main_html').classList.remove('uk-light')
+            }
         }
 
-        async function deleteRole(){
-            const url = new URL('/deleteRole', window.location.origin);
-            await fetch(url, {
+        if(session.user.flags.darkmode){
+            toggleDarkMode()
+        }
+
+        async function replenishForm(role, mode){
+            document.getElementById('role_name').value = role.role_name
+            document.getElementById('role_description').value = role.role_description
+            document.getElementById('site_id').value = role.site_id
+
+            if(mode=="new"){
+                document.getElementById('site_id').classList.remove('uk-disabled')
+                document.getElementById('SubmitButton').innerHTML = "Add Role"
+                document.getElementById('SubmitButton').onclick = async function(){
+                    await postAddRole()
+                }
+            } else {
+                document.getElementById('site_id').classList.add('uk-disabled')
+                document.getElementById('SubmitButton').innerHTML = "Update Role"
+                document.getElementById('SubmitButton').onclick = async function(){
+                    await postEditRole()
+                }
+            }
+
+            
+        }
+
+        async function postAddRole(){
+            
+            let payload = {
+                role_name: document.getElementById('role_name').value,
+                role_description: document.getElementById('role_description').value,
+                site_id: document.getElementById('site_id').value,
+            }
+
+            const response = await fetch(`/admin/role/postAddRole`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json',},
-                body: JSON.stringify({role_id: role[0],}),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    payload: payload
+                }),
             });
-            const adminurl = new URL(`/admin`, window.location.origin);
-            window.location.href = adminurl.toString();
+        }
+
+        async function postEditRole(){
+            
+            let payload = {
+                id: role.id,
+                update: {role_name: document.getElementById('role_name').value, role_description: document.getElementById('role_description').value}
+            }
+
+            const response = await fetch(`/admin/role/postEditRole`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    payload: payload
+                }),
+            });
         }
 
     </script>

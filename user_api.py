@@ -4,8 +4,15 @@ from config import config, sites_config, setFirstSetupDone
 from functools import wraps
 from manage import create
 from main import create_site, getUser, setSystemAdmin
+import postsqldb
 
 login_app = Blueprint('login', __name__)
+
+def update_session_user():
+    database_config = config()
+    with psycopg2.connect(**database_config) as conn:
+        user = postsqldb.LoginsTable.get_washed_tuple(conn, (session['user_id'],))
+        session['user'] = user
 
 def login_required(func):
     @wraps(func)

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="main_html">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title id="title"></title>
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/pantry.css') }}"/>
+
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}" disabled/>
+    </head>
+    <body>
+        <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+            <!-- to color the navbar i have to stlye this element the nav element -->
+            <nav id="navbar" class="uk-navbar-container">
+                <div class="uk-container uk-container-expand">
+                    <div uk-navbar="dropbar: true">
+                        <div id="offcanvas-slide" uk-offcanvas="mode: slide; overlay: true">
+                            <div class="uk-offcanvas-bar uk-flex uk-flex-column">
+                                <ul class="uk-nav uk-nav-secondary">  
+                                    <img class="uk-align-center uk-border-circle" data-src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 150px; height: auto;" uk-img />
+                                    <li class="uk-nav-header">Apps</li>
+                                    <li><a href="/shopping-lists">Shopping Lists</a></li>
+                                    <li><a href="/recipes">Recipes</a></li>
+                                    <li class="uk-nav-header">Logistics</li>
+                                    <li><a href="/items">Items</a></li>
+                                    <li><a href="/transaction">Add Transaction</a></li>
+                                    <li>
+                                        <a href="/workshop">
+                                            <div class="uk-active">Workshop<div class="uk-nav-subtitle" disabled>Building in the workshop...</div>
+                                        </div></a>
+                                    </li>
+                                    <li><a href="/receipts">Receipts</a></li>
+                                    <li class="uk-nav-header">System Management</li>
+                                    <li class="uk-disabled" hidden><a><div>{{current_site}}<div class="uk-nav-subtitle">This is the current site you are viewing...</div></div></a>
+                                        <div uk-dropdown="mode: click">
+                                            <ul class="uk-nav uk-dropdown-nav">
+                                                {% for site in sites %}
+                                                {% if site == current_site  %}
+                                                <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                                {% else %}
+                                                <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    {% if system_admin %}
+                                    <li><a href="/admin">Administration</a></li>
+                                    {% endif %}
+                                    <li><a href="" class="">{{username}}</a></li>
+                                </ul>
+                                <button class="uk-button uk-margin-small uk-position-top-right" uk-icon="icon: close" href=""></button>
+                            </div>
+                        </div>
+                        <div class="uk-navbar-left uk-margin-small">
+                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle> Menu</a>
+                        </div>
+                        <div class="uk-navbar-center uk-margin-small uk-visible@s">
+                            <ul class="uk-breadcrumb">
+                                <li style="cursor: default;"><span><strong>Administration</strong></span></li>
+                            </ul>
+                        </div>
+                        <div class="uk-navbar-right">
+                            <div>
+                                <a onclick="toggleDarkMode()" class="uk-button uk-button-small"><span id="modeToggle" class="uk-flex material-symbols-outlined">dark_mode</span></a>
+                            </div>
+                            <div>
+                                <a href="" class="" uk-icon="icon: user" uk-toggle>{{username}}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="uk-section uk-margin-left">
+            <div class="uk-child-width-1-1" uk-grid>
+                <div>
+                    <div uk-grid>
+                        <div class="uk-width-auto uk-margin-left">
+                            <ul class="uk-tab-right" uk-tab="connect: #component-tab-left; animation: uk-animation-fade">
+                                <li><a href="#">Site</a></li>
+                                <li><a href="#">Roles</a></li>
+                                <li><a href="#">Users/Devices</a></li>
+                                <li><a href="#">Units of Measure</a></li>
+                            </ul>
+                        </div>
+                        <div class="uk-width-expand">
+                            <div id="component-tab-left" class="uk-switcher">
+                                <!-- sites -->
+                                <div class="uk-container">
+                                    <div uk-grid>
+                                        <div class="uk-width-1-1 uk-flex uk-flex-center">
+                                            <nav aria-label="Pagination">
+                                                <ul id="sitesPagination" class="uk-pagination" uk-margin>
+                                                    <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                                    <li><a href="#">1</a></li>
+                                                    <li class="uk-disabled"><span>…</span></li>
+                                                    <li><a href="#">5</a></li>
+                                                    <li><a href="#">6</a></li>
+                                                    <li class="uk-active"><span aria-current="page">7</span></li>
+                                                    <li><a href="#">8</a></li>
+                                                    <li><a href="#"><span uk-pagination-next></span></a></li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                        <div class="uk-width-1-1">
+                                            <caption class="uk-text-meta"></caption>
+                                            <table style="margin-bottom: 0px;" class="uk-table uk-table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Site Name</th>
+                                                        <th>Site Description</th>
+                                                        <th>Operations</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="sitesTableBody">
+                                                </tbody>
+                                            </table>
+                                            <a href="/admin/site/new" class="uk-button add-button"><i class="uk-flex-middle material-symbols-outlined" style="">add_circle</i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Roles -->
+                                <div class="uk-container">
+                                    <div uk-grid>
+                                        <div class="uk-width-1-1 uk-flex uk-flex-center">
+                                            <nav aria-label="Pagination">
+                                                <ul id="rolesPagination" class="uk-pagination" uk-margin>
+                                                    <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                                    <li><a href="#">1</a></li>
+                                                    <li class="uk-disabled"><span>…</span></li>
+                                                    <li><a href="#">5</a></li>
+                                                    <li><a href="#">6</a></li>
+                                                    <li class="uk-active"><span aria-current="page">7</span></li>
+                                                    <li><a href="#">8</a></li>
+                                                    <li><a href="#"><span uk-pagination-next></span></a></li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                        <div class="uk-width-1-1">
+                                            <caption class="uk-text-meta"></caption>
+                                            <table style="margin-bottom: 0px;" class="uk-table uk-table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Roles Name</th>
+                                                        <th>Role Description</th>
+                                                        <th>Site</th>
+                                                        <th>Operations</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="rolesTableBody">
+                                                </tbody>
+                                            </table>
+                                            <a href="/admin/role/new" class="uk-button add-button"><i class="uk-flex-middle material-symbols-outlined" style="">add_circle</i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Users/Devices -->
+                                <div class="uk-container">
+                                    <div uk-grid>
+                                        <div class="uk-width-1-1 uk-flex uk-flex-center">
+                                            <nav aria-label="Pagination">
+                                                <ul id="usersPagination" class="uk-pagination" uk-margin>
+                                                    <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                                    <li><a href="#">1</a></li>
+                                                    <li class="uk-disabled"><span>…</span></li>
+                                                    <li><a href="#">5</a></li>
+                                                    <li><a href="#">6</a></li>
+                                                    <li class="uk-active"><span aria-current="page">7</span></li>
+                                                    <li><a href="#">8</a></li>
+                                                    <li><a href="#"><span uk-pagination-next></span></a></li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                        <div class="uk-width-1-1">
+                                            <caption class="uk-text-meta"></caption>
+                                            <table style="margin-bottom: 0px;" class="uk-table uk-table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Username</th>
+                                                        <th>Email</th>
+                                                        <th>Type</th>
+                                                        <th>Operations</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="usersTableBody">
+                                                </tbody>
+                                            </table>
+                                            <a href="/admin/user/new" class="uk-button add-button"><i class="uk-flex-middle material-symbols-outlined" style="">add_circle</i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Units of Measure -->                                
+                                <div class="uk-container">
+                                    <div uk-grid>
+                                        <div class="uk-width-1-1 uk-flex uk-flex-center">
+                                            <nav aria-label="Pagination">
+                                                <ul id="uomPagination" class="uk-pagination" uk-margin>
+                                                    <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                                    <li><a href="#">1</a></li>
+                                                    <li class="uk-disabled"><span>…</span></li>
+                                                    <li><a href="#">5</a></li>
+                                                    <li><a href="#">6</a></li>
+                                                    <li class="uk-active"><span aria-current="page">7</span></li>
+                                                    <li><a href="#">8</a></li>
+                                                    <li><a href="#"><span uk-pagination-next></span></a></li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                        <div class="uk-width-1-1">
+                                            <caption class="uk-text-meta"></caption>
+                                            <table style="margin-bottom: 0px;" class="uk-table uk-table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Fullname</th>
+                                                        <th>Description</th>
+                                                        <th>Operations</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="uomTableBody">
+                                                </tbody>
+                                            </table>
+                                            <button onclick="" class="uk-button add-button"><i class="uk-flex-middle material-symbols-outlined" style="">add_circle</i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modals -->
+        <!-- Sites Modal -->
+        <div id="deleteConfirmation" class="uk-modal-container" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 class="uk-modal-title">DELETE</h2>
+                </div>
+                <div class="uk-modal-body">
+                    <div uk-grid>
+                        <div class="uk-width-1-1">
+                            <p>You are attempting to delete something important, in order to ensure this is your intent, please type in the name of the
+                                item you were going to delete</p>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <h3 id="delete_item_name"></h3>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <input id="delete_input" class="uk-input" type="text">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button id="deleteSubmitButton" class="uk-button uk-button-danger" type="button">Delete</button>
+                </div>
+            </div>
+        </div>
+        
+    </body>
+    {% assets "js_all" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    <script>const session = {{session|tojson}}</script>
+    <script src="{{ url_for('static', filename='handlers/adminHandler.js') }}"></script>
+</html>

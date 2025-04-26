@@ -5,10 +5,12 @@ import postsqldb
 def dropSiteTables(conn, site_manager: MyDataclasses.SiteManager):
     try:
         for table in site_manager.drop_order:
+            print(table)
             database.__dropTable(conn, site_manager.site_name, table)
             with open("process.log", "a+") as file:
                 file.write(f"{datetime.datetime.now()} --- INFO --- {table} DROPPED!\n")
     except Exception as error:
+        print(error)
         raise error
 
 def setupSiteTables(conn, site_manager: MyDataclasses.SiteManager):
@@ -72,6 +74,7 @@ def deleteSite(site_manager: MyDataclasses.SiteManager):
             
             site = database.deleteSitesTuple(conn, site_manager.site_name, (site['id'], ), convert=True)
             
+            conn.commit()
     except Exception as error:
         with open("process.log", "a+") as file:
             file.write(f"{datetime.datetime.now()} --- ERROR --- {error}\n")
@@ -97,19 +100,19 @@ def addSite(site_manager: MyDataclasses.SiteManager):
                 site_owner_id=admin_user['id']
             )
             site = database.insertSitesTuple(conn, site.payload(), convert=True)
-            
+            print("site", site)
             role = MyDataclasses.RolePayload("Admin", f"Admin for {site['site_name']}", site['id'])
             role = database.insertRolesTuple(conn, role.payload(), convert=True)
-            
+            print("role", role)
             admin_user = database.updateAddLoginSitesRoles(conn, (site["id"], role["id"], admin_user["id"]), convert=True)
-            
-            default_zone = MyDataclasses.ZonePayload(site_manager.default_zone, site['id'])
+            print('admin_user', admin_user)
+            default_zone = postsqldb.ZonesTable.Payload(site_manager.default_zone)
             default_zone = database.insertZonesTuple(conn, site["site_name"], default_zone.payload(), convert=True)
-            
+            print('default_zone', default_zone)
             uuid = f"{site_manager.default_zone}@{site_manager.default_location}"
-            default_location = MyDataclasses.LocationPayload(uuid, site_manager.default_location, default_zone['id'])
+            default_location = postsqldb.LocationsTable.Payload(uuid, site_manager.default_location, default_zone['id'])
             default_location = database.insertLocationsTuple(conn, site['site_name'], default_location.payload(), convert=True)
-            
+            print('default_location', default_location)
             # need to update the default zones/locations for site.
             payload = {
                 'id': site['id'],
@@ -120,8 +123,8 @@ def addSite(site_manager: MyDataclasses.SiteManager):
             database.__updateTuple(conn, site_manager.site_name, f"sites", payload)
             
             
-            blank_vendor = MyDataclasses.VendorPayload("None", admin_user['id'])
-            blank_brand = MyDataclasses.BrandsPayload("None")
+            blank_vendor = postsqldb.VendorsTable.Payload("None", admin_user['id'])
+            blank_brand = postsqldb.BrandsTable.Payload("None")
             
             blank_vendor = database.insertVendorsTuple(conn, site['site_name'], blank_vendor.payload(), convert=True)
             blank_brand = database.insertBrandsTuple(conn, site['site_name'], blank_brand.payload(), convert=True)

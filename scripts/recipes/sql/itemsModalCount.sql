@@ -1,0 +1,1 @@
+SELECT COUNT(item.*) FROM %%site_name%%_items item;

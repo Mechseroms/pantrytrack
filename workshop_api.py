@@ -10,6 +10,7 @@ workshop_api = Blueprint('workshop_api', __name__)
 @workshop_api.route("/workshop")
 @login_required
 def workshop():
+    print(session['user'])
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     print(session.get('user')['system_admin'])
     if not session.get('user')['system_admin']:
@@ -117,7 +118,6 @@ def postAddZone():
                     site_id = cur.fetchone()[0]
                 zone = postsqldb.ZonesTable.Payload(
                     request.get_json()['name'],
-                    site_id,
                     request.get_json()['description']
                 )
                 postsqldb.ZonesTable.insert_tuple(conn, site_name, zone.payload())

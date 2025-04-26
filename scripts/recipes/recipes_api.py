@@ -5,6 +5,7 @@ from main import unfoldCostLayers
 from user_api import login_required
 import os
 import postsqldb, webpush
+from scripts.recipes import database_recipes 
 
 recipes_api = Blueprint('recipes_api', __name__)
 
@@ -82,12 +83,10 @@ def getItems():
         search_string = request.args.get('search_string', 10)
         site_name = session['selected_site']
         offset = (page - 1) * limit
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            payload = (search_string, limit, offset)
-            recordset, count = database.getItemsWithQOH(conn, site_name, payload, convert=True)
-        return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":False, "message":"items fetched succesfully!"})
-    return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":True, "message":"There was an error with this GET statement"})
+        recordset, count = database_recipes.getModalSKUs(site_name, (limit, offset))
+        print(recordset)
+        return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
+    return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
 
 @recipes_api.route('/recipe/postUpdate', methods=["POST"])

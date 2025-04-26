@@ -1,13 +1,14 @@
 import celery.schedules
 from flask import Flask, render_template, session, request, redirect, jsonify
 from flask_assets import Environment, Bundle
-import api, config, user_api, psycopg2, main, admin, item_API, receipts_API, shopping_list_API, group_api, recipes_api
-from user_api import login_required
+import api, config, user_api, psycopg2, main, api_admin, item_API, receipts_API, shopping_list_API, group_api
+from user_api import login_required, update_session_user
 from external_API import external_api
 from workshop_api import workshop_api
 import database
 import postsqldb
 from webpush import trigger_push_notifications_for_subscriptions
+from scripts.recipes import recipes_api
 
 app = Flask(__name__, instance_relative_config=True)
 UPLOAD_FOLDER = 'static/pictures'
@@ -21,7 +22,7 @@ assets = Environment(app)
 app.secret_key = '11gs22h2h1a4h6ah8e413a45'
 app.register_blueprint(api.database_api)
 app.register_blueprint(user_api.login_app)
-app.register_blueprint(admin.admin)
+app.register_blueprint(api_admin.admin_api)
 app.register_blueprint(item_API.items_api)
 app.register_blueprint(external_api)
 app.register_blueprint(workshop_api)
@@ -90,6 +91,7 @@ def transaction():
 @app.route("/items")
 @login_required
 def items():
+    update_session_user()
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     return render_template("items/index.html", 
                            current_site=session['selected_site'], 
@@ -116,6 +118,7 @@ def subscribe():
 @app.route("/")
 @login_required
 def home():
+    update_session_user()
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     session['selected_site'] = sites[0]
     return redirect("/items")

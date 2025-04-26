@@ -331,6 +331,8 @@ class ShoppingListPayload:
             self.type
         )
 
+
+# DONE
 @dataclass
 class SitePayload:
     site_name: str
@@ -357,6 +359,7 @@ class SitePayload:
             self.default_primary_location
         )
 
+#DONE
 @dataclass
 class RolePayload:
     role_name:str
@@ -408,7 +411,8 @@ class SiteManager:
         "shopping_lists",
         "shopping_list_items",
         "item_locations",
-        "conversions"
+        "conversions",
+        "sku_prefix"
     ]
         self.drop_order = [
         "item_info",
@@ -431,5 +435,6 @@ class SiteManager:
         "shopping_list_items",
         "shopping_lists",
         "item_locations",
-        "conversions"
+        "conversions",
+        "sku_prefix"
     ]
