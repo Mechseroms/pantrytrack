@@ -47,6 +47,24 @@ def getRecipes(site:str, payload:tuple, convert=True):
         raise postsqldb.DatabaseError(error, payload, sql)
     return recordset, count
 
+def getRecipe(site, payload:tuple, convert=True):
+    database_config = config.config()
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with open(f"scripts/recipes/sql/getRecipeByID.sql", "r+") as file:
+                sql = file.read().replace("%%site_name%%", site)
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    record = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                if rows and not convert:
+                    record = rows
+                return record
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+    
+
 def postRecipeUpdate(site, payload, convert=True):
     database_config = config.config()
     updated = ()

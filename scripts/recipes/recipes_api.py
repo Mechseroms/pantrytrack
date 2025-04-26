@@ -55,7 +55,6 @@ def recipe(id, mode='view'):
     if mode == "view":
         return render_template("recipes/recipe_view.html", recipe_id=id, current_site=session['selected_site'])
 
-
 @recipes_api.route('/recipes/getRecipes', methods=["GET"])
 def getRecipes():
     """ Get a subquery of recipes from the database by passing a page, limit
@@ -77,14 +76,20 @@ def getRecipes():
 
 @recipes_api.route('/recipe/getRecipe', methods=["GET"])
 def getRecipe():
+    """ Get a query for recipe id from database by passing an id
+    ---
+    responses:
+        200:
+            description: id queried successfully!
+
+    """
     recipe = {}
     if request.method == "GET":
         id = int(request.args.get('id', 1))
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            recipe = postsqldb.RecipesTable.getRecipe(conn, site_name, (id,), convert=True)
-    return jsonify({'recipe': recipe, 'error': False, 'message': 'bleh'})
+        recipe = database_recipes.getRecipe(site_name, (id,), convert=True)
+        return jsonify({'recipe': recipe, 'error': False, 'message': 'Recipe returned successfully!'})
+    return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} not allowed'})
 
 @recipes_api.route('/recipes/addRecipe', methods=["POST"])
 def addRecipe():
