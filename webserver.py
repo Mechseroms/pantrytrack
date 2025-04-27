@@ -1,7 +1,7 @@
 import celery.schedules
 from flask import Flask, render_template, session, request, redirect, jsonify
 from flask_assets import Environment, Bundle
-import api, config, user_api, psycopg2, main, api_admin, item_API, receipts_API, shopping_list_API, group_api
+import api, config, user_api, psycopg2, main, api_admin, receipts_API, shopping_list_API, group_api
 from user_api import login_required, update_session_user
 from external_API import external_api
 from workshop_api import workshop_api
@@ -9,6 +9,7 @@ import database
 import postsqldb
 from webpush import trigger_push_notifications_for_subscriptions
 from application.recipes import recipes_api
+from application.items import items_API
 from flasgger import Swagger
 
 
@@ -26,7 +27,7 @@ app.secret_key = '11gs22h2h1a4h6ah8e413a45'
 app.register_blueprint(api.database_api)
 app.register_blueprint(user_api.login_app)
 app.register_blueprint(api_admin.admin_api)
-app.register_blueprint(item_API.items_api)
+app.register_blueprint(items_API.items_api)
 app.register_blueprint(external_api)
 app.register_blueprint(workshop_api)
 app.register_blueprint(receipts_API.receipt_api)

@@ -1845,3 +1845,33 @@
 2025-04-26 21:18:52.710178 --- ERROR --- DatabaseError(message='duplicate key value violates unique constraint "test_recipe_items_uuid_key"DETAIL:  Key (uuid)=(%X0031BMH6V%) already exists.',
                                          payload=('%X0031BMH6V%', 3, 'sku', 'Torani Peppermint syrup', 1, 1.0, 2020, '{}'),
                                          sql='INSERT INTO test_recipe_items(uuid, rp_id, item_type, item_name, uom, qty, item_id, links) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')
+2025-04-27 12:30:18.960407 --- ERROR --- DatabaseError(message=''int' object does not support indexing',
+                                         payload=(1, 50, 0),
+                                         sql='SELECT * FROM main_transactions WHERE logistics_info_id=%s LIMIT %s OFFSET %s;')
+2025-04-27 12:31:44.319424 --- ERROR --- DatabaseError(message=''int' object does not support indexing',
+                                         payload=(1, 50, 0),
+                                         sql='SELECT * FROM main_transactions WHERE logistics_info_id=%s LIMIT %s OFFSET %s;')
+2025-04-27 12:31:54.929695 --- ERROR --- DatabaseError(message=''int' object does not support indexing',
+                                         payload=(1, 50, 0),
+                                         sql='SELECT * FROM main_transactions WHERE logistics_info_id=%s LIMIT %s OFFSET %s;')
+2025-04-27 12:33:02.937669 --- ERROR --- DatabaseError(message=''int' object does not support indexing',
+                                         payload=(1, 50, 0),
+                                         sql='SELECT * FROM main_transactions WHERE logistics_info_id=%s LIMIT %s OFFSET %s;')
+2025-04-27 12:33:44.164898 --- ERROR --- DatabaseError(message=''int' object is not iterable',
+                                         payload=(1, 50, 0),
+                                         sql='SELECT * FROM main_transactions WHERE logistics_info_id=%s LIMIT %s OFFSET %s;')
+2025-04-27 12:33:59.076867 --- ERROR --- DatabaseError(message=''int' object is not iterable',
+                                         payload=(1, 50, 0),
+                                         sql='SELECT * FROM main_transactions WHERE logistics_info_id=%s LIMIT %s OFFSET %s;')
+2025-04-27 12:34:13.060975 --- ERROR --- DatabaseError(message=''int' object is not iterable',
+                                         payload=(1, 50, 0),
+                                         sql='SELECT * FROM main_transactions WHERE logistics_info_id=%s LIMIT %s OFFSET %s;')
+2025-04-27 12:34:27.956278 --- ERROR --- DatabaseError(message=''int' object does not support indexing',
+                                         payload=(1, 50, 0),
+                                         sql='SELECT * FROM main_transactions WHERE logistics_info_id=%s LIMIT %s OFFSET %s;')
+2025-04-27 12:34:37.123332 --- ERROR --- DatabaseError(message=''int' object does not support indexing',
+                                         payload=(1, 50, 0),
+                                         sql='SELECT * FROM main_transactions WHERE logistics_info_id=%s LIMIT %s OFFSET %s;')
+2025-04-27 12:35:10.632770 --- ERROR --- DatabaseError(message=''int' object does not support indexing',
+                                         payload=(1, 50, 0),
+                                         sql='SELECT * FROM main_transactions WHERE logistics_info_id=%s LIMIT %s OFFSET %s;')
