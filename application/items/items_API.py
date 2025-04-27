@@ -190,19 +190,38 @@ def getModalItems():
 @items_api.route('/item/getPrefixes', methods=["GET"])
 @login_required
 def getModalPrefixes():
+    """ GET prefixes from the system by passing page and limit.
+    ---
+    parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: page of the database records
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+          description: number of database records to GET
+    responses:
+        200:
+            description: Prefixes received from the system successfully!
+    """
     recordset = []
-    count = {'count': 0}
+    count = 0
     if request.method == "GET":
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 10))
         site_name = session['selected_site']
         offset = (page - 1) * limit
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            payload = (limit, offset)
-            recordset, count = db.SKUPrefixTable.paginatePrefixes(conn, site_name, payload, convert=True)
+        recordset, count = database_items.getPrefixes(site_name, (limit, offset))
+        print(recordset, count)
         return jsonify({"prefixes":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
-    return jsonify({"prefixes":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
+    return jsonify({"prefixes":recordset, "end":math.ceil(count/limit), "error":True, "message":f"method {request.method} is not allowed!"})
 
 
 @items_api.route('/item/getZones', methods=['GET'])

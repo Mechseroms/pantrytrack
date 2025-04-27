@@ -1,0 +1,1 @@
+SELECT * FROM %%site_name%%_sku_prefix LIMIT %s OFFSET %s;

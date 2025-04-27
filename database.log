@@ -1899,3 +1899,6 @@
 2025-04-27 13:32:50.773052 --- ERROR --- DatabaseError(message='syntax error at or near "5"LINE 15: LIMIT 5 OFFSET 5;               ^',
                                          payload=['', 5, 5],
                                          sql='WITH sum_cte AS (      SELECT mi.id, SUM(mil.quantity_on_hand)::FLOAT8 AS total_sum      FROM main_item_locations mil      JOIN main_items mi ON mil.part_id = mi.id      GROUP BY mi.id    )SELECT item.id, item.description, item.item_name, sum_cte.total_sum as total_qoh, u.fullnameFROM main_items itemLEFT JOIN sum_cte ON item.id = sum_cte.idLEFT JOIN main_item_info item_info ON item.item_info_id = item_info.idLEFT JOIN units u ON item_info.uom = u.idWHERE item.search_string LIKE '%%' || %s || '%%'ORDER BY item. LIMIT %s OFFSET %s;')
+2025-04-27 16:28:48.252706 --- ERROR --- DatabaseError(message='tuple index out of range',
+                                         payload=(2, 0),
+                                         sql='SELECT item.id, item.barcode, item.item_name FROM test_items itemWHERE item.search_string LIKE '%%' || %s || '%%'LIMIT %s OFFSET %s;')

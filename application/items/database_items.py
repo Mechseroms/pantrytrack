@@ -106,3 +106,25 @@ def getModalSKUs(site:str, payload:tuple, convert:bool=True):
                 return recordset, count
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
+    
+def getPrefixes(site:str, payload:tuple, convert:bool=True):
+    database_config = config.config()
+    recordset = []
+    count = 0
+    with open(f"application/items/sql/getSkuPrefixes.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchall()
+                if rows and convert:
+                    recordset = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+                if rows and not convert:
+                    recordset = rows
+
+                cur.execute(f"SELECT COUNT(*) FROM {site}_sku_prefix;")
+                count = cur.fetchone()[0]
+                return recordset, count
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
