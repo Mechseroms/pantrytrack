@@ -223,56 +223,97 @@ def getModalPrefixes():
         return jsonify({"prefixes":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"prefixes":recordset, "end":math.ceil(count/limit), "error":True, "message":f"method {request.method} is not allowed!"})
 
-
-@items_api.route('/item/getZones', methods=['GET'])
-def getZones():
-    page = int(request.args.get('page', 1))
-    limit = int(request.args.get('limit', 1))
-    database_config = config()
-    site_name = session['selected_site']
-    zones = []
-    offset = (page - 1) * limit
-    payload = (limit, offset)
-    count = 0
-    with psycopg2.connect(**database_config) as conn:
-        zones, count = database.getZonesWithCount(conn, site_name, payload, convert=True)
-    print(count, len(zones))
-    return jsonify(zones=zones, endpage=math.ceil(count[0]/limit))
-
-
 @items_api.route('/item/getZonesBySku', methods=["GET"])
+@login_required
 def getZonesbySku():
+    """ GET zones by sku by passing page, limit, item_id
+    ---
+    parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: page of the records to GET
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+          description: number of records to grab from the system
+        - in: query
+          name: item_id
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: item_id to pull zones for
+    responses:
+        200:
+            description: Zones received successfully.
+    """
+    zones, count = [], 0
     if request.method == "GET":
         page = int(request.args.get('page', 1))
-        limit = int(request.args.get('limit', 1))
+        limit = int(request.args.get('limit', 10))
         item_id = int(request.args.get('item_id'))
-        database_config = config()
         site_name = session['selected_site']
-        zones = []
         offset = (page - 1) * limit
-        payload = (item_id, limit, offset)
-        count = 0
-        with psycopg2.connect(**database_config) as conn:
-            zones, count = db.ZonesTable.paginateZonesBySku(conn, site_name, payload)
-            print(zones, count)
-        return jsonify(zones=zones, endpage=math.ceil(count/limit))
+        zones, count = database_items.paginateZonesBySku(site_name, (item_id, limit, offset))
+        return jsonify({'zones': zones, 'endpage': math.ceil(count/limit), 'error':False, 'message': f''})
+    return jsonify({'zones': zones, 'endpage': math.ceil(count/limit), 'error':False, 'message': f'method {request.method} not allowed.'})
 
 @items_api.route('/item/getLocationsBySkuZone', methods=['get'])
+@login_required
 def getLocationsBySkuZone():
-    zone_id = int(request.args.get('zone_id', 1))
-    part_id = int(request.args.get('part_id', 1))
-    page = int(request.args.get('page', 1))
-    limit = int(request.args.get('limit', 1))
-
-    offset = (page-1)*limit
-    database_config = config()
-    site_name = session['selected_site']
-    locations = []
-    count=0
-    with psycopg2.connect(**database_config) as conn:
-        payload = (part_id, zone_id, limit, offset)
-        locations, count = db.LocationsTable.paginateLocationsBySkuZone(conn, site_name, payload)
-    return jsonify(locations=locations, endpage=math.ceil(count/limit))
+    """ GET locations by sku by passing page, limit, item_id, zone_id
+    ---
+    parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: page of the records to GET
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+          description: number of records to grab from the system
+        - in: query
+          name: item_id
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: item_id to pull locations for zone_id
+        - in: query
+          name: zone_id
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: zone_id to pull locations for item_id
+    responses:
+        200:
+            description: Zones received successfully.
+    """
+    locations, count = [], 0
+    if request.method == "GET":
+        zone_id = int(request.args.get('zone_id', 1))
+        part_id = int(request.args.get('part_id', 1))
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 1))
+        offset = (page-1)*limit
+        site_name = session['selected_site']
+        locations, count = database_items.paginateLocationsBySkuZone(site_name, (part_id, zone_id, limit, offset))
+        return jsonify({'locations': locations, 'endpage': math.ceil(count/limit), 'error': False, 'message': f''})
+    return jsonify({'locations': locations, 'endpage': math.ceil(count/limit), 'error': True, 'message': f'method {request.method} is not allowed.'})
 
 
 @items_api.route('/item/getLocations', methods=['get'])

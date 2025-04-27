@@ -128,3 +128,48 @@ def getPrefixes(site:str, payload:tuple, convert:bool=True):
                 return recordset, count
     except (Exception, psycopg2.DatabaseError) as error:
         raise postsqldb.DatabaseError(error, payload, sql)
+    
+def paginateZonesBySku(site: str, payload: tuple, convert=True):
+    database_config = config.config()
+    zones, count = (), 0
+    with open(f"application/items/sql/paginateZonesBySku.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    with open(f"application/items/sql/paginateZonesBySkuCount.sql", "r+") as file:
+        sql_count = file.read().replace("%%site_name%%", site)
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchall()
+                if rows and convert:
+                    zones = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+                elif rows and not convert:
+                    zones = rows
+                cur.execute(sql_count, payload)
+                count = cur.fetchone()[0]
+                return zones, count  
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+    
+def paginateLocationsBySkuZone(site: str, payload: tuple, convert=True):
+    database_config = config.config()
+    locations, count = (), 0
+    with open(f"application/items/sql/paginateLocationsBySkuZone.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    with open(f"application/items/sql/paginateLocationsBySkuZoneCount.sql", "r+") as file:
+        sql_count = file.read().replace("%%site_name%%", site)
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchall()
+                if rows and convert:
+                    locations = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+                elif rows and not convert:
+                    locations = rows
+                cur.execute(sql_count, payload)
+                count = cur.fetchone()[0]
+                return locations, count
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
