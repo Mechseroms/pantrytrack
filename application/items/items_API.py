@@ -150,20 +150,42 @@ def pagninate_items():
 @items_api.route('/item/getModalItems', methods=["GET"])
 @login_required
 def getModalItems():
-    recordset = []
-    count = {'count': 0}
+    """ GET items from the system by passing a page, limit, search_string. For select modals
+    ---
+    parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: page number for offset
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 25
+          description: number of records to grab
+        - in: query
+          name: search_string
+          schema:
+            type: string
+            default: ''
+          description: string to look for in column search_string  
+    responses:
+        200:
+            description: Items received successfully.
+    """
+    recordset, count = tuple(), 0
     if request.method == "GET":
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 10))
         search_string = request.args.get('search_string', '')
         site_name = session['selected_site']
         offset = (page - 1) * limit
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            payload = (search_string, limit, offset)
-            recordset, count = database.getItemsForModal(conn, site_name, payload, convert=True)
-        return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":False, "message":"items fetched succesfully!"})
-    return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":True, "message":"There was an error with this GET statement"})
+        recordset, count = database_items.getModalSKUs(site_name, (search_string, limit, offset))
+        print(recordset, count)
+        return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
+    return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message": f"method {request.method} is not allowed."})
 
 @items_api.route('/item/getPrefixes', methods=["GET"])
 @login_required
@@ -178,7 +200,7 @@ def getModalPrefixes():
         database_config = config()
         with psycopg2.connect(**database_config) as conn:
             payload = (limit, offset)
-            recordset, count = postsqldb.SKUPrefixTable.paginatePrefixes(conn, site_name, payload, convert=True)
+            recordset, count = db.SKUPrefixTable.paginatePrefixes(conn, site_name, payload, convert=True)
         return jsonify({"prefixes":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"prefixes":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
@@ -212,7 +234,7 @@ def getZonesbySku():
         payload = (item_id, limit, offset)
         count = 0
         with psycopg2.connect(**database_config) as conn:
-            zones, count = postsqldb.ZonesTable.paginateZonesBySku(conn, site_name, payload)
+            zones, count = db.ZonesTable.paginateZonesBySku(conn, site_name, payload)
             print(zones, count)
         return jsonify(zones=zones, endpage=math.ceil(count/limit))
 
@@ -230,7 +252,7 @@ def getLocationsBySkuZone():
     count=0
     with psycopg2.connect(**database_config) as conn:
         payload = (part_id, zone_id, limit, offset)
-        locations, count = postsqldb.LocationsTable.paginateLocationsBySkuZone(conn, site_name, payload)
+        locations, count = db.LocationsTable.paginateLocationsBySkuZone(conn, site_name, payload)
     return jsonify(locations=locations, endpage=math.ceil(count/limit))
 
 
@@ -367,7 +389,7 @@ def getPossibleLocations():
         database_config = config()
         site_name = session['selected_site']
         with psycopg2.connect(**database_config) as conn:
-            locations, count = postsqldb.LocationsTable.paginateLocationsWithZone(conn, site_name, (limit, offset))
+            locations, count = db.LocationsTable.paginateLocationsWithZone(conn, site_name, (limit, offset))
         return jsonify(locations=locations, end=math.ceil(count/limit))
 
 @items_api.route('/item/getLinkedItem', methods=["GET"])
@@ -486,12 +508,12 @@ def addSKUPrefix():
         site_name = session['selected_site']
         try:
             with psycopg2.connect(**database_config) as conn:
-                prefix = postsqldb.SKUPrefixTable.Payload(
+                prefix = db.SKUPrefixTable.Payload(
                     request.get_json()['uuid'],
                     request.get_json()['name'], 
                     request.get_json()['description']
                 )
-                postsqldb.SKUPrefixTable.insert_tuple(conn, site_name, prefix.payload())
+                db.SKUPrefixTable.insert_tuple(conn, site_name, prefix.payload())
         except Exception as error:
             conn.rollback()
             return jsonify({'error': True, 'message': error})
@@ -508,10 +530,10 @@ def addConversion():
         database_config = config()
         site_name = session['selected_site']
         with psycopg2.connect(**database_config) as conn:
-            conversion = postsqldb.ConversionsTable.Payload(
+            conversion = db.ConversionsTable.Payload(
                 item_id, uom_id, conv_factor
             )
-            postsqldb.ConversionsTable.insert_tuple(conn, site_name, conversion.payload())
+            db.ConversionsTable.insert_tuple(conn, site_name, conversion.payload())
             
             return jsonify(error=False, message="Conversion was added successfully")
     return jsonify(error=True, message="Unable to save this conversion, ERROR!")
@@ -524,7 +546,7 @@ def deleteConversion():
         database_config = config()
         site_name = session['selected_site']
         with psycopg2.connect(**database_config) as conn:
-            postsqldb.ConversionsTable.delete_item_tuple(conn, site_name, (conversion_id,))
+            db.ConversionsTable.delete_item_tuple(conn, site_name, (conversion_id,))
             
             return jsonify(error=False, message="Conversion was deleted successfully")
     return jsonify(error=True, message="Unable to delete this conversion, ERROR!")
@@ -538,7 +560,7 @@ def updateConversion():
         database_config = config()
         site_name = session['selected_site']
         with psycopg2.connect(**database_config) as conn:
-            postsqldb.ConversionsTable.update_item_tuple(conn, site_name, {'id': conversion_id, 'update': update_dictionary})
+            db.ConversionsTable.update_item_tuple(conn, site_name, {'id': conversion_id, 'update': update_dictionary})
             return jsonify(error=False, message="Conversion was updated successfully")
     return jsonify(error=True, message="Unable to save this conversion, ERROR!")
 
@@ -552,10 +574,10 @@ def addPrefix():
         database_config = config()
         site_name = session['selected_site']
         with psycopg2.connect(**database_config) as conn:
-            prefixes = postsqldb.ItemInfoTable.select_tuple(conn, site_name, (item_info_id,))['prefixes']
+            prefixes = db.ItemInfoTable.select_tuple(conn, site_name, (item_info_id,))['prefixes']
             print(prefixes)
             prefixes.append(prefix_id)
-            postsqldb.ItemInfoTable.update_tuple(conn, site_name, {'id': item_info_id, 'update':{'prefixes': prefixes}})
+            db.ItemInfoTable.update_tuple(conn, site_name, {'id': item_info_id, 'update':{'prefixes': prefixes}})
             return jsonify(error=False, message="Prefix was added successfully")
     return jsonify(error=True, message="Unable to save this prefix, ERROR!")
 
@@ -568,9 +590,9 @@ def deletePrefix():
         database_config = config()
         site_name = session['selected_site']
         with psycopg2.connect(**database_config) as conn:
-            prefixes = postsqldb.ItemInfoTable.select_tuple(conn, site_name, (item_info_id,))['prefixes']
+            prefixes = db.ItemInfoTable.select_tuple(conn, site_name, (item_info_id,))['prefixes']
             prefixes.remove(prefix_id)
-            postsqldb.ItemInfoTable.update_tuple(conn, site_name, {'id': item_info_id, 'update':{'prefixes': prefixes}})
+            db.ItemInfoTable.update_tuple(conn, site_name, {'id': item_info_id, 'update':{'prefixes': prefixes}})
             return jsonify(error=False, message="Prefix was deleted successfully")
     return jsonify(error=True, message="Unable to delete this prefix, ERROR!")
 
@@ -582,7 +604,7 @@ def refreshSearchString():
         database_config = config()
         site_name = session['selected_site']
         with psycopg2.connect(**database_config) as conn:
-            item = postsqldb.ItemTable.getItemAllByID(conn, site_name, (item_id,))
+            item = db.ItemTable.getItemAllByID(conn, site_name, (item_id,))
             parameters = [f"id::{item['id']}", f"barcode::{item['barcode']}", f"name::{item['item_name']}", f"brand::{item['brand']['name']}", 
                           f"expires::{item['food_info']['expires']}", f"row_type::{item['row_type']}", f"item_type::{item['item_type']}"]
             
@@ -590,7 +612,7 @@ def refreshSearchString():
                 parameters.append(f"prefix::{prefix['name']}")
 
             search_string = "&&".join(parameters)
-            postsqldb.ItemTable.update_tuple(conn, site_name, {'id': item_id, 'update':{'search_string': search_string}})
+            db.ItemTable.update_tuple(conn, site_name, {'id': item_id, 'update':{'search_string': search_string}})
 
             return jsonify(error=False, message="Search String was updated successfully")
     return jsonify(error=True, message="Unable to update this search string, ERROR!")
@@ -603,10 +625,10 @@ def postNewItemLocation():
         database_config = config()
         site_name = session['selected_site']
         with psycopg2.connect(**database_config) as conn:
-            item_location = postsqldb.ItemLocationsTable.Payload(
+            item_location = db.ItemLocationsTable.Payload(
                 item_id,
                 location_id
             )
-            postsqldb.ItemLocationsTable.insert_tuple(conn, site_name, item_location.payload())
+            db.ItemLocationsTable.insert_tuple(conn, site_name, item_location.payload())
             return jsonify(error=False, message="Location was added successfully")
     return jsonify(error=True, message="Unable to save this location, ERROR!")

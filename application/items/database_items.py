@@ -82,3 +82,27 @@ def getItemsWithQOH(site:str, payload: tuple, convert:bool=True):
             return recordset, count
     except Exception as error:
         postsqldb.DatabaseError(error, payload, sql)
+
+def getModalSKUs(site:str, payload:tuple, convert:bool=True):
+    database_config = config.config()
+    with open("application/items/sql/itemsModal.sql") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    with open("application/items/sql/itemsModalCount.sql") as file:
+        sql_count = file.read().replace("%%site_name%%", site)
+    recordset = []
+    count = 0
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                print(payload)
+                cur.execute(sql, payload)
+                rows = cur.fetchall()
+                if rows and convert:
+                    recordset = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+                if rows and not convert:
+                    recordset = rows
+                cur.execute(sql_count, (payload[0],))
+                count = cur.fetchone()[0]
+                return recordset, count
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
