@@ -1842,3 +1842,6 @@
 2025-04-26 18:29:30.532818 --- ERROR --- DatabaseError(message=''module' object is not callable. Did you mean: 'config.config(...)'?',
                                          payload=(10, 0),
                                          sql='SELECT *,    (SELECT COALESCE(array_agg(row_to_json(g)), '{}') FROM main_recipe_items g WHERE rp_id = main_recipes.id) AS rp_items FROM main_recipes LIMIT %s OFFSET %s;')
+2025-04-26 21:18:52.710178 --- ERROR --- DatabaseError(message='duplicate key value violates unique constraint "test_recipe_items_uuid_key"DETAIL:  Key (uuid)=(%X0031BMH6V%) already exists.',
+                                         payload=('%X0031BMH6V%', 3, 'sku', 'Torani Peppermint syrup', 1, 1.0, 2020, '{}'),
+                                         sql='INSERT INTO test_recipe_items(uuid, rp_id, item_type, item_name, uom, qty, item_id, links) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')

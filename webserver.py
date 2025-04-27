@@ -32,7 +32,7 @@ app.register_blueprint(workshop_api)
 app.register_blueprint(receipts_API.receipt_api)
 app.register_blueprint(shopping_list_API.shopping_list_api)
 app.register_blueprint(group_api.groups_api)
-app.register_blueprint(recipes_api.recipes_api)
+app.register_blueprint(recipes_api.recipes_api, url_prefix='/recipes')
 
 
 

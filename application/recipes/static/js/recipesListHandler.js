@@ -107,12 +107,12 @@ async function replenishRecipesTable() {
         let viewOp = document.createElement('a')
         viewOp.innerHTML = `view <span uk-icon="icon: eye"></span>`
         viewOp.setAttribute('class', 'uk-button uk-button-default uk-button-small')
-        viewOp.href = `/recipe/view/${recipes[i].id}`
+        viewOp.href = `/recipes/view/${recipes[i].id}`
 
         let editOp = document.createElement('a')
         editOp.innerHTML = `edit <span uk-icon="icon: pencil"></span>`
         editOp.setAttribute('class', 'uk-button uk-button-default uk-button-small')
-        editOp.href = `/recipe/edit/${recipes[i].id}`
+        editOp.href = `/recipes/edit/${recipes[i].id}`
 
         buttonGroup.append(viewOp, editOp)
         opsCell.append(buttonGroup)

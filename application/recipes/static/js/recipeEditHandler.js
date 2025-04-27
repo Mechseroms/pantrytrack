@@ -195,7 +195,7 @@ async function saveLineItem(item){
 }
 
 async function getRecipe() {
-    const url = new URL('/recipe/getRecipe', window.location.origin)
+    const url = new URL('/recipes/getRecipe', window.location.origin)
     url.searchParams.append('id', recipe_id);
     const response = await fetch(url)
     data = await response.json()
@@ -203,7 +203,7 @@ async function getRecipe() {
 }
 
 async function getImage(){
-    await fetch(`/recipe/getImage/${recipe.id}`)
+    await fetch(`/recipes/getImage/${recipe.id}`)
     .then(response => response.blob())
     .then(imageBlob => {
         const imageURL = URL.createObjectURL(imageBlob);
@@ -220,7 +220,7 @@ async function addCustomItem() {
         uom: document.getElementById('customUOM').value,
         links: {main: document.getElementById('customWeblink').value}
     }
-    const response = await fetch(`/recipe/postCustomItem`, {
+    const response = await fetch(`/recipes/postCustomItem`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',
@@ -248,7 +248,7 @@ async function addCustomItem() {
 }
 
 async function addSKUItem(item_id) {
-    const response = await fetch(`/recipe/postSKUItem`, {
+    const response = await fetch(`/recipes/postSKUItem`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',
@@ -277,13 +277,9 @@ async function addSKUItem(item_id) {
 let updated = {}
 async function postUpdate() {
     let description = document.getElementById('recipeDescription').value
-    updated.description = description
-    
-
-    console.log(updated)
-    
+    updated.description = description    
         
-    const response = await fetch(`/recipe/postUpdate`, {
+    const response = await fetch(`/recipes/postUpdate`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',
@@ -313,7 +309,7 @@ async function updateImage() {
     const formData = new FormData();
     formData.append('file', fileInput.files[0]);
 
-    await fetch(`/recipe/postImage/${recipe.id}`, {
+    await fetch(`/recipes/postImage/${recipe.id}`, {
     method: 'POST',
     body: formData
     })
@@ -458,7 +454,7 @@ async function updateItemsPaginationElement() {
 }
 
 async function fetchItems() {
-    const url = new URL('/recipe/getItems', window.location.origin);
+    const url = new URL('/recipes/getItems', window.location.origin);
     url.searchParams.append('page', pagination_current);
     url.searchParams.append('limit', items_limit);
     url.searchParams.append('search_string', search_string);

@@ -84,7 +84,7 @@ async function replenishInstructions() {
 }
 
 async function getRecipe() {
-    const url = new URL('/recipe/getRecipe', window.location.origin)
+    const url = new URL('/recipes/getRecipe', window.location.origin)
     url.searchParams.append('id', recipe_id);
     const response = await fetch(url)
     data = await response.json()
@@ -93,7 +93,7 @@ async function getRecipe() {
 
 async function getImage(){
     console.log('fetching image!')
-    await fetch(`/recipe/getImage/${recipe.id}`)
+    await fetch(`/recipes/getImage/${recipe.id}`)
     .then(response => response.blob())
     .then(imageBlob => {
         const imageURL = URL.createObjectURL(imageBlob);

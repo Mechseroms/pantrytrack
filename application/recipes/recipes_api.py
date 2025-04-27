@@ -1,16 +1,19 @@
-from flask import Blueprint, request, render_template, redirect, session, url_for, send_file, jsonify, Response, current_app, send_from_directory
-import psycopg2, math, json, datetime, main, copy, requests, process, database, pprint, MyDataclasses
-from config import config, sites_config
-from main import unfoldCostLayers
+# 3rd party imports
+from flask import (
+    Blueprint, request, render_template, session, jsonify, current_app, send_from_directory
+    )
+import math
+
+# application imports
+import main
 from user_api import login_required
-import os
-import postsqldb, webpush
+import webpush
 from application.recipes import database_recipes 
 from application import postsqldb as db
 
-recipes_api = Blueprint('recipes_api', __name__)
+recipes_api = Blueprint('recipes_api', __name__, template_folder="templates", static_folder="static")
 
-@recipes_api.route("/recipes")
+@recipes_api.route("/")
 @login_required
 def recipes():
     """This is the main endpoint to reach the webpage for a list of all recipes
@@ -20,11 +23,11 @@ def recipes():
             description: returns recipes/index.html with sites, current_site.
     """
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    return render_template("recipes/index.html", 
+    return render_template("index.html", 
                            current_site=session['selected_site'], 
                            sites=sites)
 
-@recipes_api.route("/recipe/<mode>/<id>")
+@recipes_api.route("/<mode>/<id>")
 @login_required
 def recipe(id, mode='view'):
     """This is the main endpoint to reach the webpage for a recipe's view or edit mode.
@@ -44,16 +47,15 @@ def recipe(id, mode='view'):
       200:
         description: Respondes with either the Edit or View webpage for the recipe.
     """
-    database_config = config()
-    with psycopg2.connect(**database_config) as conn:
-        units = postsqldb.UnitsTable.getAll(conn)
-
+    
+    units = database_recipes.getUnits()
+    print("woot")
     if mode == "edit":
-        return render_template("recipes/recipe_edit.html", recipe_id=id, current_site=session['selected_site'], units=units)
+        return render_template("recipe_edit.html", recipe_id=id, current_site=session['selected_site'], units=units)
     if mode == "view":
-        return render_template("recipes/recipe_view.html", recipe_id=id, current_site=session['selected_site'])
+        return render_template("recipe_view.html", recipe_id=id, current_site=session['selected_site'])
 
-@recipes_api.route('/recipes/getRecipes', methods=["GET"])
+@recipes_api.route('/getRecipes', methods=["GET"])
 @login_required
 def getRecipes():
     """ Get a subquery of recipes from the database by passing a page, limit
@@ -73,7 +75,7 @@ def getRecipes():
         return jsonify({'recipes': recipes, 'end': math.ceil(count/limit), 'error': False, 'message': 'fetch was successful!'})
     return jsonify({'recipes': recipes, 'end': math.ceil(count/limit), 'error': True, 'message': f'method is not allowed: {request.method}'})
 
-@recipes_api.route('/recipe/getRecipe', methods=["GET"])
+@recipes_api.route('/getRecipe', methods=["GET"])
 @login_required
 def getRecipe():
     """ Get a query for recipe id from database by passing an id
@@ -91,7 +93,7 @@ def getRecipe():
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Recipe returned successfully!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} not allowed'})
 
-@recipes_api.route('/recipes/addRecipe', methods=["POST"])
+@recipes_api.route('/addRecipe', methods=["POST"])
 @login_required
 def addRecipe():
     """ post a new recipe into the database by passing a recipe_name and recipe description
@@ -103,21 +105,19 @@ def addRecipe():
     if request.method == "POST":
         recipe_name = request.get_json()['recipe_name']
         recipe_description = request.get_json()['recipe_description']
-        database_config = config()
         site_name = session['selected_site']
         user_id = session['user_id']
-        with psycopg2.connect(**database_config) as conn:
-            recipe = db.RecipesTable.Payload(
-                name=recipe_name,
-                author=user_id,
-                description=recipe_description
-            )
-            recipe = database_recipes.postAddRecipe(site_name, recipe.payload())
-            webpush.push_ntfy('New Recipe', f"New Recipe added to {site_name}; {recipe_name}! {recipe_description} \n http://test.treehousefullofstars.com/recipe/view/{recipe['id']} \n http://test.treehousefullofstars.com/recipe/edit/{recipe['id']}")
+        recipe = db.RecipesTable.Payload(
+            name=recipe_name,
+            author=user_id,
+            description=recipe_description
+        )
+        recipe = database_recipes.postAddRecipe(site_name, recipe.payload())
+        webpush.push_ntfy('New Recipe', f"New Recipe added to {site_name}; {recipe_name}! {recipe_description} \n http://test.treehousefullofstars.com/recipe/view/{recipe['id']} \n http://test.treehousefullofstars.com/recipe/edit/{recipe['id']}")
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Recipe added successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method}'})
 
-@recipes_api.route('/recipe/getItems', methods=["GET"])
+@recipes_api.route('/getItems', methods=["GET"])
 @login_required
 def getItems():
     """ Pass along a page, limit, and search strings to get a pagination of items from the system
@@ -138,7 +138,7 @@ def getItems():
         return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
-@recipes_api.route('/recipe/postUpdate', methods=["POST"])
+@recipes_api.route('/postUpdate', methods=["POST"])
 @login_required
 def postUpdate():
     """ This is an endpoint for updating an RecipeTuple in the sites recipes table
@@ -159,7 +159,7 @@ def postUpdate():
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Update of Recipe successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': 'Update of Recipe unsuccessful!'})
 
-@recipes_api.route('/recipe/postCustomItem', methods=["POST"])
+@recipes_api.route('/postCustomItem', methods=["POST"])
 @login_required
 def postCustomItem():
     """ post a recipe item to the database by passing a uuid, recipe_id, item_type, item_name, uom, qty, and link
@@ -173,7 +173,7 @@ def postCustomItem():
         site_name = session['selected_site']
         rp_id = int(request.get_json()['rp_id'])
         recipe_item = db.RecipesTable.ItemPayload(
-            uuid=f"%{int(request.get_json()['rp_id'])}{database.getUUID(6)}%",
+            uuid=f"%{int(request.get_json()['rp_id'])}{database_recipes.getUUID(6)}%",
             rp_id=rp_id,
             item_type=request.get_json()['item_type'],
             item_name=request.get_json()['item_name'],
@@ -186,7 +186,7 @@ def postCustomItem():
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Recipe Item was added successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} not allowed!'})
 
-@recipes_api.route('/recipe/postSKUItem', methods=["POST"])
+@recipes_api.route('/postSKUItem', methods=["POST"])
 @login_required
 def postSKUItem():
     """ post a recipe item to the database by passing a recipe_id and item_id
@@ -201,7 +201,6 @@ def postSKUItem():
         item_id = int(request.get_json()['item_id'])
         site_name = session['selected_site']
         item = database_recipes.getItemData(site_name, (item_id, ))
-        print(item)
         recipe_item = db.RecipesTable.ItemPayload(
             uuid=item['barcode'],
             rp_id=recipe_id,
@@ -217,7 +216,7 @@ def postSKUItem():
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Recipe Item was added successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} is not allowed!'})
 
-@recipes_api.route('/recipe/postImage/<recipe_id>', methods=["POST"])
+@recipes_api.route('/postImage/<recipe_id>', methods=["POST"])
 @login_required
 def uploadImage(recipe_id):
     """ post an image for a recipe into the database and files by passing the recipe_id and picture_path
@@ -239,7 +238,7 @@ def uploadImage(recipe_id):
     database_recipes.postUpdateRecipe(site_name, {'id': recipe_id, 'update': {'picture_path': file.filename.replace(" ", "_")}})    
     return jsonify({'error': False, 'message': 'Recipe was updated successfully!'})
 
-@recipes_api.route('/recipe/getImage/<recipe_id>')
+@recipes_api.route('/getImage/<recipe_id>')
 @login_required
 def get_image(recipe_id):
     """ get the picture path for a recipe by passing teh recipe id in the path
@@ -258,7 +257,7 @@ def get_image(recipe_id):
     picture_path = database_recipes.getPicturePath(site_name, (recipe_id,))
     return send_from_directory('static/pictures/recipes', picture_path)
 
-@recipes_api.route('/recipe/deleteRecipeItem', methods=["POST"])
+@recipes_api.route('/deleteRecipeItem', methods=["POST"])
 @login_required
 def deleteRecipeItem():
     """ delete recipe item from database by passing the recipe item ID
@@ -276,7 +275,7 @@ def deleteRecipeItem():
         return jsonify({'recipe': recipe, 'error': False, 'message': f'Recipe Item {deleted_item['item_name']} was deleted successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} is not allowed!'})
 
-@recipes_api.route('/recipe/saveRecipeItem', methods=["POST"])
+@recipes_api.route('/saveRecipeItem', methods=["POST"])
 @login_required
 def saveRecipeItem():
     """ post an update to a recipe item in the database by passing the recipe item ID and an update

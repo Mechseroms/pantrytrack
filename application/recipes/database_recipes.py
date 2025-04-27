@@ -1,6 +1,12 @@
 from application import postsqldb
 import config
-import psycopg2
+import psycopg2 
+import random
+import string
+
+def getUUID(n):
+    random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=n))
+    return random_string
 
 def getModalSKUs(site, payload, convert=True):
     database_config = config.config()
@@ -41,6 +47,23 @@ def getItemData(site:str, payload:tuple, convert:bool=True):
                 return record
     except (Exception, psycopg2.DatabaseError) as error:
         raise postsqldb.DatabaseError(error, payload, sql)
+
+def getUnits(convert:bool=True):
+    database_config = config.config()
+    recordset = ()
+    sql = f"SELECT id, fullname FROM units;"
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql)
+                rows = cur.fetchall()
+                if rows and convert:
+                    recordset = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+                if rows and not convert:
+                    recordset = rows
+                return recordset
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, (), sql)
 
 def getRecipes(site:str, payload:tuple, convert=True):
     recordset = []
