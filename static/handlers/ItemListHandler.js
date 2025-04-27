@@ -203,7 +203,7 @@ async function updateTableElements(){
         descriptionCell.setAttribute('class', 'uk-text-truncate uk-table-expand uk-visible@m')
 
         let qtyUOMCell = document.createElement('td')
-        qtyUOMCell.innerHTML = `${parseFloat(items[i].total_qoh)} ${items[i].uom.fullname}`
+        qtyUOMCell.innerHTML = `${parseFloat(items[i].total_qoh)} ${items[i].fullname}`
 
         let opsCell = document.createElement('td')
         opsCell.setAttribute('class', 'uk-width-1-4')
@@ -255,7 +255,7 @@ async function updateListElements(){
         header.classList.add('uk-card-header')
         header.style = "border-radius: 0px, 10px, 0px, 10px;"
 
-        header.innerHTML = `<h3>${items[i].item_name}</h3><div style="color: black;background-color: lightgrey; border-radius:10px;" class="uk-label uk-text-default">Quantity on Hand: ${parseFloat(items[i].total_qoh)} ${items[i].uom.fullname}</div>`
+        header.innerHTML = `<h3>${items[i].item_name}</h3><div style="color: black;background-color: lightgrey; border-radius:10px;" class="uk-label uk-text-default">Quantity on Hand: ${parseFloat(items[i].total_qoh)} ${items[i].fullname}</div>`
         
         let content = document.createElement('div')
         content.classList.add('uk-card-body')

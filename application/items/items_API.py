@@ -15,6 +15,7 @@ def itemLink(parent_id, id):
     return render_template("items/itemlink.html", current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer}, id=id)
 
 @items_api.route("/item/getTransactions", methods=["GET"])
+@login_required
 def getTransactions():
     """ GET a subquery of transactions by passing a logistics_info_id, limit, and page
     ---
@@ -35,6 +36,7 @@ def getTransactions():
     return jsonify({"transactions": recordset, "end": math.ceil(count/limit), "error": True, "message": f"method {request.method} is not allowed."})
 
 @items_api.route("/item/getTransaction", methods=["GET"])
+@login_required
 def getTransaction():
     """ GET a transaction from the system by passing an ID
     ---
@@ -60,6 +62,7 @@ def getTransaction():
     return jsonify({"transaction": transaction,  "error": True, "message": f"method {request.method} is not allowed."})
 
 @items_api.route("/item/getItem", methods=["GET"])
+@login_required
 def get_item():
     """ GET item from system by passing its ID
     ---
@@ -83,33 +86,66 @@ def get_item():
         return jsonify({'item': item, 'error': False, 'message': ''})
     return jsonify({'item': item, 'error': True, 'message': f'method {request.method} not allowed.'})
 
-
 @items_api.route("/item/getItemsWithQOH", methods=['GET'])
 @login_required
 def pagninate_items():
-    pantry_inventory = []
-    count = {'count': 0}
+    """ GET items from the system by passing a page, limit, search_string, sort, and order
+    ---
+    parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: page number for offset
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+          description: number of records to grab
+        - in: query
+          name: search_string
+          schema:
+            type: string
+            default: ''
+          description: string to look for in column search_string
+        - in: query
+          name: sort
+          schema:
+            type: string
+            default: ''
+          description: items table column to sort by
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: ['ASC', 'DESC']
+            default: 'ASC'
+          description: Order to sort items table sort parameter by
+    responses:
+        200:
+            description: Items received successfully.
+    """
+    items = []
+    count = 0
     if request.method == "GET":
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 10))
         search_string = str(request.args.get('search_text', ""))
         sort = request.args.get('sort', "")
         order = request.args.get('order', "")
-
-        view = request.args.get('view', "")
         site_name = session['selected_site']
         offset = (page - 1) * limit
         if sort == 'total_qoh':
             sort_order = f"{sort} {order}"
         else:
-            sort_order = f"{site_name}_items.{sort} {order}"
-        print(sort_order)
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            pantry_inventory, count = database.getItemsWithQOH(conn, site_name, (search_string, limit, offset, sort_order), convert=True)
+            sort_order = f"item.{sort} {order}"
         
-        return jsonify({'items': pantry_inventory, "end": math.ceil(count['count']/limit), 'error':False, 'message': 'Items Loaded Successfully!'})
-    return jsonify({'items': pantry_inventory, "end": math.ceil(count['count']/limit), 'error':True, 'message': 'There was a problem loading the items!'})
+        items, count = database_items.getItemsWithQOH(site_name, (search_string, limit, offset, sort_order))
+        
+        return jsonify({'items': items, "end": math.ceil(count/limit), 'error':False, 'message': 'Items Loaded Successfully!'})
+    return jsonify({'items': items, "end": math.ceil(count/limit), 'error':True, 'message': 'There was a problem loading the items!'})
 
 @items_api.route('/item/getModalItems', methods=["GET"])
 @login_required

@@ -58,3 +58,27 @@ def getItemAllByID(site:str, payload: tuple, convert:bool=True):
             return record
     except Exception as error:
         postsqldb.DatabaseError(error, payload, sql)
+
+def getItemsWithQOH(site:str, payload: tuple, convert:bool=True):
+    database_config = config.config()
+    with open('application/items/sql/getItemsWithQOH.sql', 'r+') as file:
+        sql = file.read().replace("%%site_name%%", site).replace("%%sort_order%%", payload[3])
+    payload = list(payload)
+    payload.pop(3)
+    sql_count = f"SELECT COUNT(*) FROM {site}_items WHERE search_string LIKE '%%' || %s || '%%';"
+    recordset = ()
+    count = 0
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchall()
+                if rows and convert:
+                    recordset = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+                if rows and not convert:
+                    recordset = rows
+                cur.execute(sql_count, (payload[0],))
+                count = cur.fetchone()[0]
+            return recordset, count
+    except Exception as error:
+        postsqldb.DatabaseError(error, payload, sql)
