@@ -227,17 +227,26 @@ def postSKUItem():
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} is not allowed!'})
 
 @recipes_api.route('/recipe/postImage/<recipe_id>', methods=["POST"])
+@login_required
 def uploadImage(recipe_id):
+    """ post an image for a recipe into the database and files by passing the recipe_id and picture_path
+    ---
+    parameters:
+    - name: recipe_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    responses:
+        200:
+            description: image uploaded succesfully!
+    """
     file = request.files['file']
     file_path = current_app.config['UPLOAD_FOLDER'] + f"/recipes/{file.filename.replace(" ", "_")}"
     file.save(file_path)
-
-    database_config = config()
     site_name = session['selected_site']
-    with psycopg2.connect(**database_config) as conn:
-        postsqldb.RecipesTable.updateRecipe(conn, site_name, {'id': recipe_id, 'update': {'picture_path': file.filename.replace(" ", "_")}})
-    
-    return jsonify({})
+    database_recipes.postRecipeUpdate(site_name, {'id': recipe_id, 'update': {'picture_path': file.filename.replace(" ", "_")}})    
+    return jsonify({'error': False, 'message': 'Recipe was updated successfully!'})
 
 @recipes_api.route('/recipe/getImage/<recipe_id>')
 def get_image(recipe_id):
