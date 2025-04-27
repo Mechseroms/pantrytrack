@@ -59,15 +59,30 @@ def getTransaction():
         return jsonify({"transaction": transaction, "error": False, "message": ""})
     return jsonify({"transaction": transaction,  "error": True, "message": f"method {request.method} is not allowed."})
 
-@items_api.route("/item/getItem")
+@items_api.route("/item/getItem", methods=["GET"])
 def get_item():
-    id = int(request.args.get('id', 1))
-    database_config = config()
-    site_name = session['selected_site']
-    item = []
-    with psycopg2.connect(**database_config) as conn:
-        item = database.getItemAllByID(conn, site_name, payload=(id, ), convert=True)
-    return jsonify(item=item)
+    """ GET item from system by passing its ID
+    ---
+    parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: item.id
+    responses:
+        200:
+            description: Item.id received successfully!
+    """
+    if request.method == "GET":
+        id = int(request.args.get('id', 1))
+        site_name = session['selected_site']
+        item = ()
+        item = database_items.getItemAllByID(site_name, (id, ))
+        return jsonify({'item': item, 'error': False, 'message': ''})
+    return jsonify({'item': item, 'error': True, 'message': f'method {request.method} not allowed.'})
+
 
 @items_api.route("/item/getItemsWithQOH", methods=['GET'])
 @login_required

@@ -40,3 +40,21 @@ def getTransaction(site:str, payload: tuple, convert:bool=True):
             return record
     except Exception as error:
         postsqldb.DatabaseError(error, payload, sql)
+
+def getItemAllByID(site:str, payload: tuple, convert:bool=True):
+    database_config = config.config()
+    with open('application/items/sql/getItemAllByID.sql', 'r+') as file:
+        sql = file.read().replace("%%site_name%%", site)
+    record = ()
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    record = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                if rows and not convert:
+                    record = rows
+            return record
+    except Exception as error:
+        postsqldb.DatabaseError(error, payload, sql)
