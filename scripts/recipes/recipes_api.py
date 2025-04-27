@@ -285,15 +285,21 @@ def deleteRecipeItem():
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} is not allowed!'})
 
 @recipes_api.route('/recipe/saveRecipeItem', methods=["POST"])
+@login_required
 def saveRecipeItem():
+    """ post an update to a recipe item in the database by passing the recipe item ID and an update
+    payload.
+    ---
+    responses:
+        200:
+            description: recipe item updated successfully.
+    """
     recipe = {}
     if request.method == "POST":
         id = int(request.get_json()['id'])
         update = request.get_json()['update']
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            updated_line = postsqldb.RecipesTable.update_item_tuple(conn, site_name, {'id': id, 'update': update}, convert=True)
-            recipe = postsqldb.RecipesTable.getRecipe(conn, site_name, (int(updated_line['rp_id']), ), convert=True)
+        updated_line = database_recipes.postUpdateRecipeItem(site_name, {'id': id, 'update': update})
+        recipe = database_recipes.getRecipe(site_name, (int(updated_line['rp_id']), ))
         return jsonify({'recipe': recipe, 'error': False, 'message': f'Recipe Item {updated_line['item_name']} was updated successful!'})
-    return jsonify({'recipe': recipe, 'error': True, 'message': 'Recipe Item was not updated unsuccessful!'})
+    return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} not allowed!'})

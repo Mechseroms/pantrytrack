@@ -132,11 +132,27 @@ def postUpdateRecipe(site:str, payload:tuple, convert:bool=True):
     with psycopg2.connect(**database_config) as conn:
         with conn.cursor() as cur:
             set_clause, values = postsqldb.updateStringFactory(payload['update'])
-            with open("scripts/recipes/sql/postRecipeUpdate.sql") as file:
+            with open("scripts/recipes/sql/postUpdateRecipe.sql") as file:
                  sql = file.read().replace("%%site_name%%", site).replace("%%set_clause%%", set_clause)
             values.append(payload['id'])
             cur.execute(sql, values)
+            rows = cur.fetchone()
+            if rows and convert:
+                updated = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                updated = rows
+    return updated
 
+def postUpdateRecipeItem(site:str, payload:tuple, convert:bool=True):
+    database_config = config.config()
+    updated = ()
+    with psycopg2.connect(**database_config) as conn:
+        with conn.cursor() as cur:
+            set_clause, values = postsqldb.updateStringFactory(payload['update'])
+            with open("scripts/recipes/sql/postUpdateRecipeItem.sql") as file:
+                 sql = file.read().replace("%%site_name%%", site).replace("%%set_clause%%", set_clause)
+            values.append(payload['id'])
+            cur.execute(sql, values)
             rows = cur.fetchone()
             if rows and convert:
                 updated = postsqldb.tupleDictionaryFactory(cur.description, rows)
