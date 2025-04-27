@@ -351,60 +351,30 @@ def getBrands():
 
 @items_api.route('/item/updateItem', methods=['POST'])
 def updateItem():
+    """ POST update to item in the system by passing item_id, data
+    ---
+    parameters:
+        - in: query
+          name: item_id
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: item_id that the POST targets
+        - in: header
+          name: data
+          description: data to update in system
+    responses:
+        200:
+            description: item updated successfully.
+    """
     if request.method == "POST":
         id = request.get_json()['id']
         data = request.get_json()['data']
-
-        database_config = config()
         site_name = session['selected_site']
-
-        transaction_data = {}
-        for key in data.keys():
-            for key_2 in data[key].keys():
-                transaction_data[f"{key_2}_new"] = data[key][key_2]
-
-        with psycopg2.connect(**database_config) as conn:
-            item = database.getItemAllByID(conn, site_name, (id, ), convert=True)
-            if 'item_info' in data.keys() and data['item_info'] != {}:
-                for key in data['item_info'].keys():
-                    transaction_data[f"{key}_old"] = item['item_info'][key]
-                item_info_id = item['item_info_id']
-                item_info = database.__updateTuple(conn, site_name, f"{site_name}_item_info", {'id': item_info_id, 'update': data['item_info']}, convert=True)
-            if 'food_info' in data.keys() and data['food_info'] != {}:
-                for key in data['food_info'].keys():
-                    transaction_data[f"{key}_old"] = item['food_info'][key]
-                food_info_id = item['food_info_id']
-                print(food_info_id, data['food_info'])
-                food_info = database.__updateTuple(conn, site_name, f"{site_name}_food_info", {'id': food_info_id, 'update': data['food_info']}, convert=True)
-            if 'logistics_info' in data.keys() and data['logistics_info'] != {}:
-                for key in data['logistics_info'].keys():
-                    transaction_data[f"{key}_old"] = item['logistics_info'][key]
-                logistics_info_id = item['logistics_info_id']
-                print(logistics_info_id, data['logistics_info'])
-                logistics_info = database.__updateTuple(conn, site_name, f"{site_name}_logistics_info", {'id': logistics_info_id, 'update': data['logistics_info']}, convert=True)
-            if 'item' in data.keys() and data['item'] != {}:
-                for key in data['item'].keys():
-                    if key == "brand":
-                        transaction_data[f"{key}_old"] = item['brand']['id']
-                    else:
-                        transaction_data[f"{key}_old"] = item[key]
-                item = database.__updateTuple(conn, site_name, f"{site_name}_items", {'id': id, 'update': data['item']}, convert=True)
-
-            trans = MyDataclasses.TransactionPayload(
-                timestamp=datetime.datetime.now(),
-                logistics_info_id=item['logistics_info_id'],
-                barcode=item['barcode'],
-                name=item['item_name'],
-                transaction_type="UPDATE",
-                quantity=0.0,
-                description="Item was updated!",
-                user_id=session['user_id'],
-                data=transaction_data
-            )
-            database.insertTransactionsTuple(conn, site_name, trans.payload())
-
-        return jsonify(error=False, message="Item updated successfully!")
-    return jsonify(error=True, message="Unable to save, ERROR!")
+        database_items.postUpdateItem(site_name, {'id': id, 'update': data, 'user_id': session['user_id']})
+        return jsonify({'error': False, 'message': f'Item was updated successfully!'})
+    return jsonify({'error': True, 'message': f'method {request.method} is not allowed!'})
 
 @items_api.route('/item/updateItemLink', methods=['POST'])
 def updateItemLink():

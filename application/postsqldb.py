@@ -2344,3 +2344,29 @@ class LoginsTable:
         except Exception as error:
             raise DatabaseError(error, payload, sql)
         return updated
+
+@dataclass
+class TransactionPayload:
+    timestamp: datetime.datetime
+    logistics_info_id: int
+    barcode: str
+    name: str
+    transaction_type: str
+    quantity: float
+    description: str
+    user_id: int
+    data: dict = field(default_factory=dict)
+
+    def payload(self):
+        return (
+            self.timestamp,
+            self.logistics_info_id,
+            self.barcode,
+            self.name,
+            self.transaction_type,
+            self.quantity,
+            self.description,
+            self.user_id,
+            json.dumps(self.data)
+        )
+    

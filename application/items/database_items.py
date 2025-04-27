@@ -1,6 +1,7 @@
 from application import postsqldb
 import config
-import psycopg2 
+import psycopg2
+import datetime
 
 
 def getTransactions(site:str, payload: tuple, convert:bool=True):
@@ -191,3 +192,85 @@ def paginateBrands(site:str, payload:tuple, convert:bool=True):
                 return recordset, count
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
+
+def postUpdateItem(site:str, payload:dict, convert:bool=True):
+    def postUpdateData(conn, table, payload, convert=True):
+        updated = ()
+
+        set_clause, values = postsqldb.updateStringFactory(payload['update'])
+        values.append(payload['id'])
+        sql = f"UPDATE {table} SET {set_clause} WHERE id=%s RETURNING *;"
+        try:
+            with conn.cursor() as cur:
+                cur.execute(sql, values)
+                rows = cur.fetchone()
+                if rows and convert:
+                    updated = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    updated = rows
+        except Exception as error:
+            raise postsqldb.DatabaseError(error, payload, sql)
+        return updated
+    
+    def postAddTransaction(conn, site, payload, convert=False):
+        transaction = ()
+        with open(f"sql/INSERT/insertTransactionsTuple.sql", "r+") as file:
+            sql = file.read().replace("%%site_name%%", site)
+        try:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    transaction = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    transaction = rows
+        except Exception as error:
+            raise postsqldb.DatabaseError(error, payload, sql)
+        return transaction
+
+    transaction_data = {}
+    database_config = config.config()
+    data = payload['update']
+    for key in data.keys():
+        for key_2 in data[key].keys():
+            transaction_data[f"{key_2}_new"] = data[key][key_2]
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            item = getItemAllByID(site, (payload['id'], ))
+            if 'item_info' in data.keys() and data['item_info'] != {}:
+                for key in data['item_info'].keys():
+                    transaction_data[f"{key}_old"] = item['item_info'][key]
+                postUpdateData(conn, f"{site}_item_info", {'id': item['item_info_id'], 'update': data['item_info']})
+            
+            if 'food_info' in data.keys() and data['food_info'] != {}:
+                for key in data['food_info'].keys():
+                    transaction_data[f"{key}_old"] = item['food_info'][key]
+                postUpdateData(conn, f"{site}_food_info", {'id': item['food_info_id'], 'update': data['food_info']})
+            
+            if 'logistics_info' in data.keys() and data['logistics_info'] != {}:
+                for key in data['logistics_info'].keys():
+                    transaction_data[f"{key}_old"] = item['logistics_info'][key]
+                postUpdateData(conn, f"{site}_logistics_info", {'id': item['logistics_info_id'], 'update': data['logistics_info']})
+            
+            if 'item' in data.keys() and data['item'] != {}:
+                for key in data['item'].keys():
+                    if key == "brand":
+                        transaction_data[f"{key}_old"] = item['brand']['id']
+                    else:
+                        transaction_data[f"{key}_old"] = item[key]
+                postUpdateData(conn, f"{site}_items", {'id': payload['id'], 'update': data['item']})
+
+            trans = postsqldb.TransactionPayload(
+                timestamp=datetime.datetime.now(),
+                logistics_info_id=item['logistics_info_id'],
+                barcode=item['barcode'],
+                name=item['item_name'],
+                transaction_type="UPDATE",
+                quantity=0.0,
+                description="Item was updated!",
+                user_id=payload['user_id'],
+                data=transaction_data
+            )
+            postAddTransaction(conn, site, trans.payload())
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, "MULTICALL!")
