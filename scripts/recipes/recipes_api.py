@@ -5,7 +5,6 @@ from main import unfoldCostLayers
 from user_api import login_required
 import os
 import postsqldb, webpush
-from flasgger import swag_from
 from scripts.recipes import database_recipes 
 from scripts import postsqldb as db
 from flask_restx import Api, fields
@@ -249,14 +248,23 @@ def uploadImage(recipe_id):
     return jsonify({'error': False, 'message': 'Recipe was updated successfully!'})
 
 @recipes_api.route('/recipe/getImage/<recipe_id>')
+@login_required
 def get_image(recipe_id):
-    database_config = config()
+    """ get the picture path for a recipe by passing teh recipe id in the path
+    ---
+    parameters:
+    - name: recipe_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    responses:
+        200:
+            description: image fetched succesfully!
+    """
     site_name = session['selected_site']
-    with psycopg2.connect(**database_config) as conn:
-        with conn.cursor() as cur:
-            cur.execute(f"SELECT picture_path FROM {site_name}_recipes WHERE id=%s;", (recipe_id,))
-            rows = cur.fetchone()[0]
-            return send_from_directory('static/pictures/recipes', rows)
+    picture_path = database_recipes.getPicturePath(site_name, (recipe_id,))
+    return send_from_directory('static/pictures/recipes', picture_path)
 
 @recipes_api.route('/recipe/deleteRecipeItem', methods=["POST"])
 def deleteRecipeItem():

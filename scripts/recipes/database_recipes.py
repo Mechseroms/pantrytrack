@@ -81,7 +81,15 @@ def getRecipe(site, payload:tuple, convert=True):
                 return record
     except (Exception, psycopg2.DatabaseError) as error:
         raise postsqldb.DatabaseError(error, payload, sql)
-    
+
+def getPicturePath(site:str, payload:tuple, convert:bool=True):
+    database_config = config.config()
+    with psycopg2.connect(**database_config) as conn:
+        with conn.cursor() as cur:
+            cur.execute(f"SELECT picture_path FROM {site}_recipes WHERE id=%s;", payload)
+            rows = cur.fetchone()[0]
+            return rows
+
 def postRecipe(site:str, payload:tuple, convert=True):
     database_config = config.config()
     record = ()
