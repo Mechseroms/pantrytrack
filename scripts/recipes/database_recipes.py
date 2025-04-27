@@ -90,7 +90,7 @@ def getPicturePath(site:str, payload:tuple, convert:bool=True):
             rows = cur.fetchone()[0]
             return rows
 
-def postRecipe(site:str, payload:tuple, convert=True):
+def postAddRecipe(site:str, payload:tuple, convert:bool=True):
     database_config = config.config()
     record = ()
     with open("scripts/recipes/sql/postRecipe.sql") as file:
@@ -108,7 +108,7 @@ def postRecipe(site:str, payload:tuple, convert=True):
     except (Exception, psycopg2.DatabaseError) as error:
         raise postsqldb.DatabaseError(error, payload, sql)
     
-def postRecipeItem(site:str, payload:tuple, convert=True):
+def postAddRecipeItem(site:str, payload:tuple, convert:bool=True):
     database_config = config.config()
     record = ()
     with open("scripts/recipes/sql/postRecipeItem.sql") as file:
@@ -126,7 +126,7 @@ def postRecipeItem(site:str, payload:tuple, convert=True):
     except (Exception, psycopg2.DatabaseError) as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
-def postRecipeUpdate(site, payload, convert=True):
+def postUpdateRecipe(site:str, payload:tuple, convert:bool=True):
     database_config = config.config()
     updated = ()
     with psycopg2.connect(**database_config) as conn:
@@ -143,3 +143,17 @@ def postRecipeUpdate(site, payload, convert=True):
             elif rows and not convert:
                 updated = rows
     return updated
+
+def postDeleteRecipeItem(site:str, payload:tuple, convert:bool=True):
+    database_config = config.config()
+    deleted = ()
+    sql = f"DELETE FROM {site}_recipe_items WHERE id=%s RETURNING *;"
+    with psycopg2.connect(**database_config) as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                deleted = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                deleted = rows
+    return deleted

@@ -114,7 +114,7 @@ def addRecipe():
                 author=user_id,
                 description=recipe_description
             )
-            recipe = database_recipes.postRecipe(site_name, recipe.payload())
+            recipe = database_recipes.postAddRecipe(site_name, recipe.payload())
             webpush.push_ntfy('New Recipe', f"New Recipe added to {site_name}; {recipe_name}! {recipe_description} \n http://test.treehousefullofstars.com/recipe/view/{recipe['id']} \n http://test.treehousefullofstars.com/recipe/edit/{recipe['id']}")
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Recipe added successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method}'})
@@ -163,7 +163,7 @@ def postUpdate():
         recipe_id = int(request.get_json()['recipe_id'])
         update = request.get_json()['update']
         site_name = session['selected_site']
-        recipe = database_recipes.postRecipeUpdate(site_name, {'id': recipe_id, 'update': update})
+        recipe = database_recipes.postUpdateRecipe(site_name, {'id': recipe_id, 'update': update})
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Update of Recipe successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': 'Update of Recipe unsuccessful!'})
 
@@ -189,7 +189,7 @@ def postCustomItem():
             qty=float(request.get_json()['qty']),
             links=request.get_json()['links']
         )
-        database_recipes.postRecipeItem(site_name, recipe_item.payload())
+        database_recipes.postAddRecipeItem(site_name, recipe_item.payload())
         recipe = database_recipes.getRecipe(site_name, (rp_id, ))
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Recipe Item was added successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} not allowed!'})
@@ -220,7 +220,7 @@ def postSKUItem():
             item_id=item['id'],
             links=item['links']
         )
-        database_recipes.postRecipeItem(site_name, recipe_item.payload())
+        database_recipes.postAddRecipeItem(site_name, recipe_item.payload())
         recipe = database_recipes.getRecipe(site_name, (recipe_id, ))
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Recipe Item was added successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} is not allowed!'})
@@ -244,7 +244,7 @@ def uploadImage(recipe_id):
     file_path = current_app.config['UPLOAD_FOLDER'] + f"/recipes/{file.filename.replace(" ", "_")}"
     file.save(file_path)
     site_name = session['selected_site']
-    database_recipes.postRecipeUpdate(site_name, {'id': recipe_id, 'update': {'picture_path': file.filename.replace(" ", "_")}})    
+    database_recipes.postUpdateRecipe(site_name, {'id': recipe_id, 'update': {'picture_path': file.filename.replace(" ", "_")}})    
     return jsonify({'error': False, 'message': 'Recipe was updated successfully!'})
 
 @recipes_api.route('/recipe/getImage/<recipe_id>')
@@ -267,17 +267,22 @@ def get_image(recipe_id):
     return send_from_directory('static/pictures/recipes', picture_path)
 
 @recipes_api.route('/recipe/deleteRecipeItem', methods=["POST"])
+@login_required
 def deleteRecipeItem():
+    """ delete recipe item from database by passing the recipe item ID
+    ---
+    responses:
+        200:
+            description: recipe item deleted successfully.
+    """
     recipe = {}
     if request.method == "POST":
         id = int(request.get_json()['id'])
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            deleted_item = postsqldb.RecipesTable.delete_item_tuple(conn, site_name, (id, ), convert=True)
-            recipe = postsqldb.RecipesTable.getRecipe(conn, site_name, (int(deleted_item['rp_id']), ), convert=True)
+        deleted_item = database_recipes.postDeleteRecipeItem(site_name, (id, ))
+        recipe = database_recipes.getRecipe(site_name, (int(deleted_item['rp_id']),))
         return jsonify({'recipe': recipe, 'error': False, 'message': f'Recipe Item {deleted_item['item_name']} was deleted successful!'})
-    return jsonify({'recipe': recipe, 'error': True, 'message': 'Recipe Item was not deleted unsuccessful!'})
+    return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} is not allowed!'})
 
 @recipes_api.route('/recipe/saveRecipeItem', methods=["POST"])
 def saveRecipeItem():
