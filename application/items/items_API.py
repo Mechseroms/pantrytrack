@@ -265,7 +265,7 @@ def getZonesbySku():
         return jsonify({'zones': zones, 'endpage': math.ceil(count/limit), 'error':False, 'message': f''})
     return jsonify({'zones': zones, 'endpage': math.ceil(count/limit), 'error':False, 'message': f'method {request.method} not allowed.'})
 
-@items_api.route('/item/getLocationsBySkuZone', methods=['get'])
+@items_api.route('/item/getLocationsBySkuZone', methods=['GET'])
 @login_required
 def getLocationsBySkuZone():
     """ GET locations by sku by passing page, limit, item_id, zone_id
@@ -301,7 +301,7 @@ def getLocationsBySkuZone():
           description: zone_id to pull locations for item_id
     responses:
         200:
-            description: Zones received successfully.
+            description: Locations received successfully.
     """
     locations, count = [], 0
     if request.method == "GET":
@@ -315,38 +315,39 @@ def getLocationsBySkuZone():
         return jsonify({'locations': locations, 'endpage': math.ceil(count/limit), 'error': False, 'message': f''})
     return jsonify({'locations': locations, 'endpage': math.ceil(count/limit), 'error': True, 'message': f'method {request.method} is not allowed.'})
 
-
-@items_api.route('/item/getLocations', methods=['get'])
-def getLocationsByZone():
-    zone_id = int(request.args.get('zone_id', 1))
-    part_id = int(request.args.get('part_id', 1))
-    page = int(request.args.get('page', 1))
-    limit = int(request.args.get('limit', 1))
-
-    offset = (page-1)*limit
-    database_config = config()
-    site_name = session['selected_site']
-    locations = []
-    count=0
-    with psycopg2.connect(**database_config) as conn:
-        sql = f"SELECT * FROM {site_name}_locations WHERE zone_id=%s LIMIT %s OFFSET %s;"
-        locations = database.queryTuples(conn, sql, (zone_id, limit, offset), convert=True)
-        sql = f"SELECT COUNT(*) FROM {site_name}_locations WHERE zone_id=%s;"
-        count = database.queryTuple(conn, sql, (zone_id, ))
-    return jsonify(locations=locations, endpage=math.ceil(count[0]/limit))
-
 @items_api.route('/item/getBrands', methods=['GET'])
 def getBrands():
-    page = int(request.args.get('page', 1))
-    limit = int(request.args.get('limit', 1))
-    offset = (page-1)*limit
-    database_config = config()
-    site_name = session['selected_site']
-    brands = []
-    count = 0
-    with psycopg2.connect(**database_config) as conn:
-        brands, count = database._paginateTableTuples(conn, site_name, f"{site_name}_brands", (limit, offset), convert=True)
-    return jsonify(brands=brands, endpage=math.ceil(count['count']/limit))
+    """ GET brands from the system by passing page, limit
+    ---
+    parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: page of the records to GET
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+          description: number of records to grab from the system
+    responses:
+        200:
+            description: Brands received successfully.
+    """
+    brands, count = [], 0
+    if request.method == "GET":
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 1))
+        offset = (page-1)*limit
+        site_name = session['selected_site']
+        brands, count = database_items.paginateBrands(site_name, (limit, offset))
+        return jsonify({'brands': brands, 'endpage': math.ceil(count/limit), 'error': False, 'message': f''})
+    return jsonify({'brands': brands, 'endpage': math.ceil(count/limit), 'error': True, 'message': f'method {request.method} is not allowed.'})
+
 
 @items_api.route('/item/updateItem', methods=['POST'])
 def updateItem():

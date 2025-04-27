@@ -1902,3 +1902,6 @@
 2025-04-27 16:28:48.252706 --- ERROR --- DatabaseError(message='tuple index out of range',
                                          payload=(2, 0),
                                          sql='SELECT item.id, item.barcode, item.item_name FROM test_items itemWHERE item.search_string LIKE '%%' || %s || '%%'LIMIT %s OFFSET %s;')
+2025-04-27 17:37:09.434012 --- ERROR --- DatabaseError(message='tupleDictionaryFactory() missing 1 required positional argument: 'row'',
+                                         payload=(25, 0),
+                                         sql='SELECT * FROM test_brands LIMIT %s OFFSET %s;')

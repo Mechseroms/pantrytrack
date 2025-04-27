@@ -173,3 +173,21 @@ def paginateLocationsBySkuZone(site: str, payload: tuple, convert=True):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def paginateBrands(site:str, payload:tuple, convert:bool=True):
+    database_config = config.config()
+    recordset, count = [], 0
+    sql = f"SELECT brand.id, brand.name FROM {site}_brands brand LIMIT %s OFFSET %s;"
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchall()
+                if rows and convert:
+                    recordset = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+                if rows and not convert:
+                    recordset = rows
+                cur.execute(f"SELECT COUNT(*) FROM {site}_brands")
+                count = cur.fetchone()[0]
+                return recordset, count
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
