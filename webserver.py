@@ -8,7 +8,7 @@ from workshop_api import workshop_api
 import database
 import postsqldb
 from webpush import trigger_push_notifications_for_subscriptions
-from scripts.recipes import recipes_api
+from application.recipes import recipes_api
 from flasgger import Swagger
 
 

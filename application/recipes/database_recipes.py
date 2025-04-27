@@ -1,4 +1,4 @@
-from scripts import postsqldb
+from application import postsqldb
 import config
 import psycopg2
 
@@ -6,7 +6,7 @@ def getModalSKUs(site, payload, convert=True):
     database_config = config.config()
     with psycopg2.connect(**database_config) as conn:
         with conn.cursor() as cur:
-            with open("scripts/recipes/sql/itemsModal.sql") as file:
+            with open("application/recipes/sql/itemsModal.sql") as file:
                  sql = file.read().replace("%%site_name%%", site)
             cur.execute(sql, payload)
             rows = cur.fetchall()
@@ -14,7 +14,7 @@ def getModalSKUs(site, payload, convert=True):
             if rows and convert:
                 rows = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
             
-            with open("scripts/recipes/sql/itemsModalCount.sql") as file:
+            with open("application/recipes/sql/itemsModalCount.sql") as file:
                 sql = file.read().replace("%%site_name%%", site)
 
             cur.execute(sql)
@@ -30,7 +30,7 @@ def getItemData(site:str, payload:tuple, convert:bool=True):
     try:
         with psycopg2.connect(**database_config) as conn:
             with conn.cursor() as cur:
-                with open("scripts/recipes/sql/getItemData.sql") as file:
+                with open("application/recipes/sql/getItemData.sql") as file:
                     sql = file.read().replace("%%site_name%%", site)
                 cur.execute(sql, payload)
                 rows = cur.fetchone()
@@ -45,9 +45,9 @@ def getItemData(site:str, payload:tuple, convert:bool=True):
 def getRecipes(site:str, payload:tuple, convert=True):
     recordset = []
     count = 0
-    with open("scripts/recipes/sql/getRecipes.sql", "r+") as file:
+    with open("application/recipes/sql/getRecipes.sql", "r+") as file:
         sql = file.read().replace("%%site_name%%", site)
-    with open(f"scripts/recipes/sql/getRecipesCount.sql", "r+") as file:
+    with open(f"application/recipes/sql/getRecipesCount.sql", "r+") as file:
         sqlcount = file.read().replace("%%site_name%%", site)
     try:
         database_config = config.config()
@@ -67,10 +67,10 @@ def getRecipes(site:str, payload:tuple, convert=True):
 
 def getRecipe(site, payload:tuple, convert=True):
     database_config = config.config()
+    with open(f"application/recipes/sql/getRecipeByID.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
     try:
         with psycopg2.connect(**database_config) as conn:
-            with open(f"scripts/recipes/sql/getRecipeByID.sql", "r+") as file:
-                sql = file.read().replace("%%site_name%%", site)
             with conn.cursor() as cur:
                 cur.execute(sql, payload)
                 rows = cur.fetchone()
@@ -82,7 +82,7 @@ def getRecipe(site, payload:tuple, convert=True):
     except (Exception, psycopg2.DatabaseError) as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
-def getPicturePath(site:str, payload:tuple, convert:bool=True):
+def getPicturePath(site:str, payload:tuple):
     database_config = config.config()
     with psycopg2.connect(**database_config) as conn:
         with conn.cursor() as cur:
@@ -93,7 +93,7 @@ def getPicturePath(site:str, payload:tuple, convert:bool=True):
 def postAddRecipe(site:str, payload:tuple, convert:bool=True):
     database_config = config.config()
     record = ()
-    with open("scripts/recipes/sql/postRecipe.sql") as file:
+    with open("application/recipes/sql/postRecipe.sql") as file:
         sql = file.read().replace("%%site_name%%", site)
     try:
         with psycopg2.connect(**database_config) as conn:
@@ -111,7 +111,7 @@ def postAddRecipe(site:str, payload:tuple, convert:bool=True):
 def postAddRecipeItem(site:str, payload:tuple, convert:bool=True):
     database_config = config.config()
     record = ()
-    with open("scripts/recipes/sql/postRecipeItem.sql") as file:
+    with open("application/recipes/sql/postRecipeItem.sql") as file:
         sql = file.read().replace("%%site_name%%", site)
     try:
         with psycopg2.connect(**database_config) as conn:
@@ -132,7 +132,7 @@ def postUpdateRecipe(site:str, payload:tuple, convert:bool=True):
     with psycopg2.connect(**database_config) as conn:
         with conn.cursor() as cur:
             set_clause, values = postsqldb.updateStringFactory(payload['update'])
-            with open("scripts/recipes/sql/postUpdateRecipe.sql") as file:
+            with open("application/recipes/sql/postUpdateRecipe.sql") as file:
                  sql = file.read().replace("%%site_name%%", site).replace("%%set_clause%%", set_clause)
             values.append(payload['id'])
             cur.execute(sql, values)
@@ -149,7 +149,7 @@ def postUpdateRecipeItem(site:str, payload:tuple, convert:bool=True):
     with psycopg2.connect(**database_config) as conn:
         with conn.cursor() as cur:
             set_clause, values = postsqldb.updateStringFactory(payload['update'])
-            with open("scripts/recipes/sql/postUpdateRecipeItem.sql") as file:
+            with open("application/recipes/sql/postUpdateRecipeItem.sql") as file:
                  sql = file.read().replace("%%site_name%%", site).replace("%%set_clause%%", set_clause)
             values.append(payload['id'])
             cur.execute(sql, values)

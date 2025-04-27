@@ -5,12 +5,10 @@ from main import unfoldCostLayers
 from user_api import login_required
 import os
 import postsqldb, webpush
-from scripts.recipes import database_recipes 
-from scripts import postsqldb as db
-from flask_restx import Api, fields
+from application.recipes import database_recipes 
+from application import postsqldb as db
 
 recipes_api = Blueprint('recipes_api', __name__)
-model_api = Api(recipes_api)
 
 @recipes_api.route("/recipes")
 @login_required
@@ -140,14 +138,8 @@ def getItems():
         return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
-update_model = model_api.model('model', {
-    'id': fields.Integer(min=1),
-    'update': fields.Raw(required=True, description="all the data to be updated!")
-})
-
 @recipes_api.route('/recipe/postUpdate', methods=["POST"])
 @login_required
-@model_api.expect(update_model)
 def postUpdate():
     """ This is an endpoint for updating an RecipeTuple in the sites recipes table
     ---
