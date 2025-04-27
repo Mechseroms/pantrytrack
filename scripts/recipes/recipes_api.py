@@ -57,6 +57,7 @@ def recipe(id, mode='view'):
         return render_template("recipes/recipe_view.html", recipe_id=id, current_site=session['selected_site'])
 
 @recipes_api.route('/recipes/getRecipes', methods=["GET"])
+@login_required
 def getRecipes():
     """ Get a subquery of recipes from the database by passing a page, limit
     ---
@@ -76,6 +77,7 @@ def getRecipes():
     return jsonify({'recipes': recipes, 'end': math.ceil(count/limit), 'error': True, 'message': f'method is not allowed: {request.method}'})
 
 @recipes_api.route('/recipe/getRecipe', methods=["GET"])
+@login_required
 def getRecipe():
     """ Get a query for recipe id from database by passing an id
     ---
@@ -93,6 +95,7 @@ def getRecipe():
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} not allowed'})
 
 @recipes_api.route('/recipes/addRecipe', methods=["POST"])
+@login_required
 def addRecipe():
     """ post a new recipe into the database by passing a recipe_name and recipe description
     ---
@@ -118,6 +121,7 @@ def addRecipe():
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method}'})
 
 @recipes_api.route('/recipe/getItems', methods=["GET"])
+@login_required
 def getItems():
     """ Pass along a page, limit, and search strings to get a pagination of items from the system
     ---
@@ -130,14 +134,12 @@ def getItems():
     if request.method == "GET":
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 10))
-        search_string = request.args.get('search_string', 10)
+        search_string = request.args.get('search_string', "")
         site_name = session['selected_site']
         offset = (page - 1) * limit
         recordset, count = database_recipes.getModalSKUs(site_name, (search_string, limit, offset))
-        print(recordset)
         return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
-
 
 update_model = model_api.model('model', {
     'id': fields.Integer(min=1),
@@ -145,6 +147,7 @@ update_model = model_api.model('model', {
 })
 
 @recipes_api.route('/recipe/postUpdate', methods=["POST"])
+@login_required
 @model_api.expect(update_model)
 def postUpdate():
     """ This is an endpoint for updating an RecipeTuple in the sites recipes table
@@ -166,51 +169,62 @@ def postUpdate():
     return jsonify({'recipe': recipe, 'error': True, 'message': 'Update of Recipe unsuccessful!'})
 
 @recipes_api.route('/recipe/postCustomItem', methods=["POST"])
+@login_required
 def postCustomItem():
+    """ post a recipe item to the database by passing a uuid, recipe_id, item_type, item_name, uom, qty, and link
+    ---
+    responses:
+        200:
+            description: Recipe Item posted successfully!
+    """
     recipe = {}
     if request.method == "POST":
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            recipe_item = postsqldb.RecipesTable.ItemPayload(
-                uuid=f"%{int(request.get_json()['rp_id'])}{database.getUUID(6)}%",
-                rp_id=int(request.get_json()['rp_id']),
-                item_type=request.get_json()['item_type'],
-                item_name=request.get_json()['item_name'],
-                uom=request.get_json()['uom'],
-                qty=float(request.get_json()['qty']),
-                links=request.get_json()['links']
-            )
-            postsqldb.RecipesTable.insert_item_tuple(conn, site_name, recipe_item.payload(), convert=True)
-            recipe = postsqldb.RecipesTable.getRecipe(conn, site_name, (int(request.get_json()['rp_id']), ), convert=True)
+        rp_id = int(request.get_json()['rp_id'])
+        recipe_item = db.RecipesTable.ItemPayload(
+            uuid=f"%{int(request.get_json()['rp_id'])}{database.getUUID(6)}%",
+            rp_id=rp_id,
+            item_type=request.get_json()['item_type'],
+            item_name=request.get_json()['item_name'],
+            uom=request.get_json()['uom'],
+            qty=float(request.get_json()['qty']),
+            links=request.get_json()['links']
+        )
+        database_recipes.postRecipeItem(site_name, recipe_item.payload())
+        recipe = database_recipes.getRecipe(site_name, (rp_id, ))
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Recipe Item was added successful!'})
-    return jsonify({'recipe': recipe, 'error': True, 'message': 'Recipe Item was not added unsuccessful!'})
+    return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} not allowed!'})
 
 @recipes_api.route('/recipe/postSKUItem', methods=["POST"])
+@login_required
 def postSKUItem():
+    """ post a recipe item to the database by passing a recipe_id and item_id
+    ---
+    responses:
+        200:
+            description: recipe item was posted successfully!
+    """
     recipe = {}
     if request.method == "POST":
         recipe_id = int(request.get_json()['recipe_id'])
         item_id = int(request.get_json()['item_id'])
-
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            item = database.getItemAllByID(conn, site_name, (item_id, ), convert=True)
-            recipe_item = postsqldb.RecipesTable.ItemPayload(
-                uuid=item['barcode'],
-                rp_id=recipe_id,
-                item_type='sku',
-                item_name=item['item_name'],
-                uom=item['item_info']['uom']['id'],
-                qty=float(item['item_info']['uom_quantity']),
-                item_id=item['id'],
-                links=item['links']
-            )
-            postsqldb.RecipesTable.insert_item_tuple(conn, site_name, recipe_item.payload(), convert=True)
-            recipe = postsqldb.RecipesTable.getRecipe(conn, site_name, (recipe_id, ), convert=True)
+        item = database_recipes.getItemData(site_name, (item_id, ))
+        print(item)
+        recipe_item = db.RecipesTable.ItemPayload(
+            uuid=item['barcode'],
+            rp_id=recipe_id,
+            item_type='sku',
+            item_name=item['item_name'],
+            uom=item['uom'],
+            qty=float(item['uom_quantity']),
+            item_id=item['id'],
+            links=item['links']
+        )
+        database_recipes.postRecipeItem(site_name, recipe_item.payload())
+        recipe = database_recipes.getRecipe(site_name, (recipe_id, ))
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Recipe Item was added successful!'})
-    return jsonify({'recipe': recipe, 'error': True, 'message': 'Recipe Item was not added unsuccessful!'})
+    return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} is not allowed!'})
 
 @recipes_api.route('/recipe/postImage/<recipe_id>', methods=["POST"])
 def uploadImage(recipe_id):

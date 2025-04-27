@@ -24,6 +24,24 @@ def getModalSKUs(site, payload, convert=True):
                 return rows, count
     return [], 0
 
+def getItemData(site:str, payload:tuple, convert:bool=True):
+    database_config = config.config()
+    record = ()
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                with open("scripts/recipes/sql/getItemData.sql") as file:
+                    sql = file.read().replace("%%site_name%%", site)
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    record = postsqldb.tupleDictionaryFactory(cur.description, rows) 
+                if rows and not convert:
+                    record = rows
+                return record
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
 def getRecipes(site:str, payload:tuple, convert=True):
     recordset = []
     count = 0
@@ -68,6 +86,24 @@ def postRecipe(site:str, payload:tuple, convert=True):
     database_config = config.config()
     record = ()
     with open("scripts/recipes/sql/postRecipe.sql") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    record = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    record = rows
+                return record
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+    
+def postRecipeItem(site:str, payload:tuple, convert=True):
+    database_config = config.config()
+    record = ()
+    with open("scripts/recipes/sql/postRecipeItem.sql") as file:
         sql = file.read().replace("%%site_name%%", site)
     try:
         with psycopg2.connect(**database_config) as conn:
