@@ -379,6 +379,7 @@ def updateItem():
     return jsonify({'error': True, 'message': f'method {request.method} is not allowed!'})
 
 @items_api.route('/item/updateItemLink', methods=['POST'])
+@login_required
 def updateItemLink():
     """ UPDATE item link by passing id, conv_factor, barcode, old_conv
     ---
@@ -428,15 +429,36 @@ def updateItemLink():
 @items_api.route('/item/getPossibleLocations', methods=["GET"])
 @login_required
 def getPossibleLocations():
+    """ GET locations with zones by passing a page and limit
+    ---
+    parameters:
+        - in: query
+          name: page
+          schema:
+            type: interger
+            minimum: 1
+            default: 1
+          description: page in the records to GET
+        - in: query
+          name: limit
+          schema:
+            type: interger
+            minimum: 1
+            default: 1
+          description: number of records to GET
+    responses:
+        200:
+            description: Locations GET successful.
+    """
+    locations, count = (), 0
     if request.method == "GET":
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 1))
         offset = (page-1)*limit
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            locations, count = db.LocationsTable.paginateLocationsWithZone(conn, site_name, (limit, offset))
-        return jsonify(locations=locations, end=math.ceil(count/limit))
+        locations, count = database_items.paginateLocationsWithZone(site_name, (limit, offset))
+        return jsonify({'locations': locations, 'end':math.ceil(count/limit), 'error':False, 'message': f'Locations received successfully!'})
+    return jsonify({'locations': locations, 'end':math.ceil(count/limit), 'error':True, 'message': f'method {request.method} not allowed.'})
 
 @items_api.route('/item/getLinkedItem', methods=["GET"])
 @login_required

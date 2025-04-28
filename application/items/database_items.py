@@ -169,7 +169,27 @@ def paginateZonesBySku(site: str, payload: tuple, convert=True):
                 return zones, count  
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
-    
+
+def paginateLocationsWithZone(site:str, payload:tuple, convert:bool=True):
+        recordset, count = (), 0
+        database_config = config.config()
+        with open(f"application/items/sql/getLocationsWithZone.sql", "r+") as file:
+            sql = file.read().replace("%%site_name%%", site)
+        try:
+            with psycopg2.connect(**database_config) as conn:            
+                with conn.cursor() as cur:
+                    cur.execute(sql, payload)
+                    rows = cur.fetchall()
+                    if rows and convert:
+                        recordset = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+                    elif rows and not convert:
+                        recordset = rows
+                    cur.execute(f"SELECT COUNT(*) FROM {site}_locations;")
+                    count = cur.fetchone()[0]
+                    return recordset, count
+        except Exception as error:
+            raise postsqldb.DatabaseError(error, (), sql)
+
 def paginateLocationsBySkuZone(site: str, payload: tuple, convert=True):
     database_config = config.config()
     locations, count = (), 0
@@ -306,6 +326,12 @@ def postUpdateItem(site:str, payload:dict):
         raise postsqldb.DatabaseError(error, payload, "MULTICALL!")
     
 def postUpdateItemLink(site: str, payload: dict):
+    """ POST update to ItemLink
+
+    Args:
+        site (str): _description_
+        payload (dict): {id, update, old_conv_factor, user_id}
+    """
     def postUpdateData(conn, table, payload, convert=True):
         updated = ()
         set_clause, values = postsqldb.updateStringFactory(payload['update'])
@@ -359,3 +385,4 @@ def postUpdateItemLink(site: str, payload: dict):
 
         postUpdateData(conn, f"{site}_itemlinks", {'id': payload['id'], 'update': {'conv_factor': payload['update']['conv_factor']}})
         postAddTransaction(conn, site, transaction.payload())
+
