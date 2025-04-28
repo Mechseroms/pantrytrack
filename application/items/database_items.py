@@ -147,7 +147,24 @@ def getPrefixes(site:str, payload:tuple, convert:bool=True):
                 return recordset, count
     except (Exception, psycopg2.DatabaseError) as error:
         raise postsqldb.DatabaseError(error, payload, sql)
-    
+
+def getItemLink(site: str, payload:tuple, convert:bool=True):
+    database_config = config.config()
+    item_link = ()
+    sql = f"SELECT * FROM {site}_itemlinks WHERE id=%s;"
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    item_link = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    item_link = rows
+                return item_link 
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
 def paginateZonesBySku(site: str, payload: tuple, convert=True):
     database_config = config.config()
     zones, count = (), 0

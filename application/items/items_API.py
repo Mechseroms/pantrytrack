@@ -463,15 +463,27 @@ def getPossibleLocations():
 @items_api.route('/item/getLinkedItem', methods=["GET"])
 @login_required
 def getLinkedItem():
+    """ GET itemlink from system by passing an ID
+    ---
+    parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: item link to get from the system
+    responses:
+        200:
+            description: Item Link GET successful.
+    """
     linked_item = {}
     if request.method == "GET":
         id = int(request.args.get('id', 1))
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            linked_item = database.__selectTuple(conn, site_name, f"{site_name}_itemlinks", (id, ), convert=True)
+        linked_item = database_items.getItemLink(site_name, (id, ))
         return jsonify({'linked_item': linked_item, 'error': False, 'message': 'Linked Item added!!'})
-    return jsonify({'linked_item': linked_item, 'error': True, 'message': 'These was an error with adding to the linked list!'})
+    return jsonify({'linked_item': linked_item, 'error': True, 'message': f'method {request.method} not allowed'})
 
 @items_api.route('/item/addLinkedItem', methods=["POST"])   
 def addLinkedItem():
