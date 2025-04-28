@@ -60,6 +60,24 @@ def getItemAllByID(site:str, payload: tuple, convert:bool=True):
     except Exception as error:
         postsqldb.DatabaseError(error, payload, sql)
 
+def getItemAllByBarcode(site:str, payload: tuple, convert:bool=True):
+    database_config = config.config()
+    with open('application/items/sql/getItemAllByBarcode.sql', 'r+') as file:
+        sql = file.read().replace("%%site_name%%", site)
+    record = ()
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    record = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                if rows and not convert:
+                    record = rows
+            return record
+    except Exception as error:
+        postsqldb.DatabaseError(error, payload, sql)
+
 def getItemsWithQOH(site:str, payload: tuple, convert:bool=True):
     database_config = config.config()
     with open('application/items/sql/getItemsWithQOH.sql', 'r+') as file:
@@ -193,7 +211,19 @@ def paginateBrands(site:str, payload:tuple, convert:bool=True):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
-def postUpdateItem(site:str, payload:dict, convert:bool=True):
+def postUpdateItem(site:str, payload:dict):
+    """ POST and update to an item
+
+    Args:
+        site (str): name of the site the item exists in.
+        payload (dict): STRICT FORMAT
+        {id: item_id, data: SEE BELOW, user_id: updater}
+
+        data is complex structure
+        top level keys should be a combo of: ['item', 'item_info', 'logistics_info', 'food_info']
+        with in each of these top levels there are key value pairs in this format
+        {'column_name': 'new_value'}
+    """
     def postUpdateData(conn, table, payload, convert=True):
         updated = ()
 
@@ -214,7 +244,7 @@ def postUpdateItem(site:str, payload:dict, convert:bool=True):
     
     def postAddTransaction(conn, site, payload, convert=False):
         transaction = ()
-        with open(f"sql/INSERT/insertTransactionsTuple.sql", "r+") as file:
+        with open(f"application/items/sql/insertTransactionsTuple.sql", "r+") as file:
             sql = file.read().replace("%%site_name%%", site)
         try:
             with conn.cursor() as cur:
@@ -274,3 +304,58 @@ def postUpdateItem(site:str, payload:dict, convert:bool=True):
             postAddTransaction(conn, site, trans.payload())
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, "MULTICALL!")
+    
+def postUpdateItemLink(site: str, payload: dict):
+    def postUpdateData(conn, table, payload, convert=True):
+        updated = ()
+        set_clause, values = postsqldb.updateStringFactory(payload['update'])
+        values.append(payload['id'])
+        sql = f"UPDATE {table} SET {set_clause} WHERE id=%s RETURNING *;"
+        try:
+            with conn.cursor() as cur:
+                cur.execute(sql, values)
+                rows = cur.fetchone()
+                if rows and convert:
+                    updated = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    updated = rows
+        except Exception as error:
+            raise postsqldb.DatabaseError(error, payload, sql)
+        return updated
+    
+    def postAddTransaction(conn, site, payload, convert=False):
+        transaction = ()
+        with open(f"application/items/sql/insertTransactionsTuple.sql", "r+") as file:
+            sql = file.read().replace("%%site_name%%", site)
+        try:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    transaction = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    transaction = rows
+        except Exception as error:
+            raise postsqldb.DatabaseError(error, payload, sql)
+        return transaction
+
+    database_config = config.config()
+    transaction_time = datetime.datetime.now()
+    barcode = payload['barcode']
+    with psycopg2.connect(**database_config) as conn:
+        linkedItem = getItemAllByBarcode(site, (barcode, ))
+
+        transaction = postsqldb.TransactionPayload(
+            timestamp=transaction_time,
+            logistics_info_id=linkedItem['logistics_info_id'],
+            barcode=barcode,
+            name=linkedItem['item_name'],
+            transaction_type='UPDATE',
+            quantity=0.0,
+            description='Link updated!',
+            user_id=payload['user_id'],
+            data={'new_conv_factor': payload['update']['conv_factor'], 'old_conv_factor': payload['old_conv_factor']}
+        )
+
+        postUpdateData(conn, f"{site}_itemlinks", {'id': payload['id'], 'update': {'conv_factor': payload['update']['conv_factor']}})
+        postAddTransaction(conn, site, transaction.payload())

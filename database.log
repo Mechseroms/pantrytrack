@@ -1932,3 +1932,6 @@
 2025-04-27 18:20:02.983151 --- ERROR --- DatabaseError(message='can't adapt type 'builtin_function_or_method'',
                                          payload={'id': <built-in function id>, 'update': {'brand': 1066, 'item_type': 'FOOD_PLU'}},
                                          sql='UPDATE test_items SET brand = %s, item_type = %s WHERE id=%s RETURNING *;')
+2025-04-28 06:46:35.145654 --- ERROR --- DatabaseError(message='can't adapt type 'builtin_function_or_method'',
+                                         payload={'id': <built-in function id>, 'update': {'conv_factor': 3}},
+                                         sql='UPDATE test_itemlinks SET conv_factor = %s WHERE id=%s RETURNING *;')

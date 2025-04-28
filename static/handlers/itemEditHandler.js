@@ -702,7 +702,7 @@ async function updateItemsModalTable(logis) {
 
         tableRow.id = fetchedItems[i].id
         tableRow.onclick = async function(){
-            closeZoneLocationBrandModal([fetchedItems[i].barcode, fetchedItems[i].item_info.uom], fetchedItems[i].id, logis)
+            closeZoneLocationBrandModal([fetchedItems[i].barcode, fetchedItems[i].uom], fetchedItems[i].id, logis)
         }
         tableRow.append(idCell, barcodeCell, nameCell)
         itemsTableBody.append(tableRow)

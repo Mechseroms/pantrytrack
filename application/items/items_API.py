@@ -316,6 +316,7 @@ def getLocationsBySkuZone():
     return jsonify({'locations': locations, 'endpage': math.ceil(count/limit), 'error': True, 'message': f'method {request.method} is not allowed.'})
 
 @items_api.route('/item/getBrands', methods=['GET'])
+@login_required
 def getBrands():
     """ GET brands from the system by passing page, limit
     ---
@@ -350,6 +351,7 @@ def getBrands():
 
 
 @items_api.route('/item/updateItem', methods=['POST'])
+@login_required
 def updateItem():
     """ POST update to item in the system by passing item_id, data
     ---
@@ -378,36 +380,49 @@ def updateItem():
 
 @items_api.route('/item/updateItemLink', methods=['POST'])
 def updateItemLink():
+    """ UPDATE item link by passing id, conv_factor, barcode, old_conv
+    ---
+    parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          required: true
+          description: Id of item link to update
+        - in: query
+          name: conv_factor
+          schema:
+            type: integer
+          required: true
+          description: new conversion factor of item_link id
+        - in: query
+          name: barcode
+          schema:
+            type: string
+          required: true
+          description: barcode of item_link id
+        - in: query
+          name: old_conv
+          schema:
+            type: integer
+          required: true
+          description: old conversion factor of item_link id
+    responses:
+        200:
+            description: Item Link updated successfully.
+    """
     if request.method == "POST":
         id = request.get_json()['id']
         conv_factor = request.get_json()['conv_factor']
         barcode = request.get_json()['barcode']
         old_conv_factor = request.get_json()['old_conv']
-
-
-        database_config = config()
         site_name = session['selected_site']
-        user_id = session['user_id']
-        transaction_time = datetime.datetime.now()
-        with psycopg2.connect(**database_config) as conn:
-            linkedItem = database.getItemAllByBarcode(conn, site_name, (barcode, ), convert=True)
-
-            transaction = MyDataclasses.TransactionPayload(
-                timestamp=transaction_time,
-                logistics_info_id=linkedItem['logistics_info_id'],
-                barcode=barcode,
-                name=linkedItem['item_name'],
-                transaction_type='UPDATE',
-                quantity=0.0,
-                description='Link updated!',
-                user_id=user_id,
-                data={'new_conv_factor': conv_factor, 'old_conv_factor': old_conv_factor}
-            )
-
-            database.__updateTuple(conn, site_name, f"{site_name}_itemlinks", {'id': id, 'update': {'conv_factor': conv_factor}})
-            database.insertTransactionsTuple(conn, site_name, transaction.payload())
-            return jsonify(error=False, message="Linked Item was updated successfully")
-    return jsonify(error=True, message="Unable to save this change, ERROR!")
+        payload = {'id': id, 'update':{'conv_factor': conv_factor}, 'barcode': barcode, 'old_conv_factor': old_conv_factor, 'user_id':session['user_id'] }
+        database_items.postUpdateItemLink(site_name, payload)
+        return jsonify({'error':False, 'message': "Linked Item was updated successfully"})
+    return jsonify({'error': True, 'message': f"method {request.method} not allowed."})
 
 
 @items_api.route('/item/getPossibleLocations', methods=["GET"])

@@ -129,6 +129,7 @@
     }
 
     async function postUpdate(){
+        console.log(linked_item)
       const response = await fetch(`/item/updateItemLink`, {
           method: 'POST',
           headers: {
@@ -138,7 +139,7 @@
               id: parseInt(id),
               conv_factor: parseFloat(document.getElementById('conversion').value),
               barcode: document.getElementById('barcode').value,
-              old_conv: linked_item[4]
+              old_conv: linked_item['conv_factor']
           }),
       });
       data = await response.json()
