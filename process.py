@@ -227,7 +227,7 @@ def postTransaction(conn, site_name, user_id, data: dict):
 
     transaction_time = datetime.datetime.now()
 
-    cost_layer = MyDataclasses.CostLayerPayload(
+    cost_layer = postsqldb.CostLayerPayload(
         aquisition_date=transaction_time,
         quantity=float(data['quantity']),
         cost=float(data['cost']),
@@ -235,7 +235,7 @@ def postTransaction(conn, site_name, user_id, data: dict):
         vendor=int(data['vendor']),
         expires=data['expires']
     )
-    transaction = MyDataclasses.TransactionPayload(
+    transaction = postsqldb.TransactionPayload(
         timestamp=transaction_time,
         logistics_info_id=int(data['logistics_info_id']),
         barcode=data['barcode'],

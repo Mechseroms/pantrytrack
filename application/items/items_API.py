@@ -5,6 +5,7 @@ from main import unfoldCostLayers
 from user_api import login_required
 import application.postsqldb as db
 from application.items import database_items
+from application.items import items_processes
 
 items_api = Blueprint('items_api', __name__)
 
@@ -485,78 +486,51 @@ def getLinkedItem():
         return jsonify({'linked_item': linked_item, 'error': False, 'message': 'Linked Item added!!'})
     return jsonify({'linked_item': linked_item, 'error': True, 'message': f'method {request.method} not allowed'})
 
-@items_api.route('/item/addLinkedItem', methods=["POST"])   
+@items_api.route('/item/addLinkedItem', methods=["POST"])
+@login_required 
 def addLinkedItem():
+    """ POST a link between items by passing a parent_id, a child_id, conv_factor
+    ---
+    parameters:
+        - in: query
+          name: parent_id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: id to linked list item
+        - in: query
+          name: child_id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: id to item to be linked to list.
+        - in: query
+          name: conv_factor
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: integer factor between child id to parent id.
+    responses:
+        200:
+            description: Items linked successfully.
+    """
     if request.method == "POST":
         parent_id = request.get_json()['parent_id']
         child_id = request.get_json()['child_id']
         conv_factor = request.get_json()['conv_factor']
-
-        database_config = config()
         site_name = session['selected_site']
         user_id = session['user_id']
-        with psycopg2.connect(**database_config) as conn:
-            print(parent_id, child_id, conv_factor)
-            parent_item = database.getItemAllByID(conn, site_name, (parent_id, ), convert=True)
-            child_item = database.getItemAllByID(conn, site_name, (child_id, ), convert=True)
-            
-            # i need to transact out ALL locations for child item.
-            pprint.pprint(child_item)
-            sum_child_qoh = 0
-            for location in child_item['item_locations']:
-                print(location)
-                sum_child_qoh += location['quantity_on_hand']
-                payload = {
-                    'item_id': child_item['id'],
-                    'logistics_info_id': child_item['logistics_info_id'],
-                    'barcode': child_item['barcode'],
-                    'item_name': child_item['item_name'],
-                    'transaction_type': 'Adjust Out',
-                    'quantity': location['quantity_on_hand'],
-                    'description': f'Converted to {parent_item['barcode']}',
-                    'cost': child_item['item_info']['cost'],
-                    'vendor': 1,
-                    'expires': False,
-                    'location_id': location['location_id']
-                }
-                process.postTransaction(conn, site_name, user_id, payload)
-
-            print(sum_child_qoh)
-
-            primary_location = database.selectItemLocationsTuple(conn, site_name, (parent_item['id'], parent_item['logistics_info']['primary_location']['id']), convert=True)
-
-
-            payload = {
-                    'item_id': parent_item['id'],
-                    'logistics_info_id': parent_item['logistics_info_id'],
-                    'barcode': parent_item['barcode'],
-                    'item_name': parent_item['item_name'],
-                    'transaction_type': 'Adjust In',
-                    'quantity': (float(sum_child_qoh)*float(conv_factor)),
-                    'description': f'Converted from {child_item['barcode']}',
-                    'cost': child_item['item_info']['cost'],
-                    'vendor': 1,
-                    'expires': None,
-                    'location_id': primary_location['location_id']
-                }
-            
-            pprint.pprint(payload)
-            result = process.postTransaction(conn, site_name, user_id, payload)
-
-            if result['error']:
-                return jsonify(result)
-            
-            itemLink = MyDataclasses.ItemLinkPayload(
-                barcode=child_item['barcode'],
-                link=parent_item['id'],
-                data=child_item,
-                conv_factor=conv_factor
-            )
-
-            database.insertItemLinksTuple(conn, site_name, itemLink.payload())
-
-            database.__updateTuple(conn, site_name, f"{site_name}_items", {'id': child_item['id'], 'update': {'row_type': 'link'}})
         
+        items_processes.postLinkedItem(site_name, {
+            'parent_id': parent_id,
+            'child_id': child_id,
+            'user_id': user_id,
+            'conv_factor': conv_factor
+        })
+            
         return jsonify({'error': False, 'message': 'Linked Item added!!'})
     return jsonify({'error': True, 'message': 'These was an error with adding to the linked list!'})
     

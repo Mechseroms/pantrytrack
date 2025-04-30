@@ -2369,4 +2369,43 @@ class TransactionPayload:
             self.user_id,
             json.dumps(self.data)
         )
-    
+
+@dataclass
+class CostLayerPayload:
+    aquisition_date: datetime.datetime
+    quantity: float
+    cost: float
+    currency_type: str
+    vendor: int = 0
+    expires: datetime.datetime = None
+
+    def payload(self):
+        return (
+            self.aquisition_date,
+            self.quantity,
+            self.cost,
+            self.currency_type,
+            self.expires,
+            self.vendor
+        )
+
+@dataclass
+class ItemLinkPayload:
+    barcode: str
+    link: int
+    data: dict = field(default_factory=dict)
+    conv_factor: float = 1
+
+    def __post_init__(self):
+        if not isinstance(self.barcode, str):
+            raise TypeError(f"barcode must be of type str; not {type(self.barocde)}")
+        if not isinstance(self.link, int):
+            raise TypeError(f"link must be of type str; not {type(self.link)}")
+
+    def payload(self):
+        return (
+            self.barcode,
+            self.link,
+            json.dumps(self.data),
+            self.conv_factor
+        )
