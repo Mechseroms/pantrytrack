@@ -7,13 +7,48 @@ import application.postsqldb as db
 from application.items import database_items
 from application.items import items_processes
 
-items_api = Blueprint('items_api', __name__)
+items_api = Blueprint('items_api', __name__, template_folder="templates", static_folder="static")
+
+
+def update_session_user():
+    database_config = config()
+    with psycopg2.connect(**database_config) as conn:
+        user = db.LoginsTable.get_washed_tuple(conn, (session['user_id'],))
+        session['user'] = user
+
+@items_api.route("/")
+@login_required
+def items():
+    update_session_user()
+    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    return render_template("index.html", 
+                           current_site=session['selected_site'], 
+                           sites=sites)
+
+@items_api.route("/item/<id>")
+@login_required
+def item(id):
+    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    database_config = config()
+    with psycopg2.connect(**database_config) as conn:
+        units = db.UnitsTable.getAll(conn)
+    return render_template("items/item_new.html", id=id, units=units, current_site=session['selected_site'], sites=sites)
+
+@items_api.route("/transaction")
+@login_required
+def transaction():
+    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    database_config = config()
+    with psycopg2.connect(**database_config) as conn:
+        units = db.UnitsTable.getAll(conn)
+    return render_template("transaction.html", units=units, current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer})
+
 
 @items_api.route("/item/<parent_id>/itemLink/<id>")
 @login_required
 def itemLink(parent_id, id):
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    return render_template("items/itemlink.html", current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer}, id=id)
+    return render_template("itemlink.html", current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer}, id=id)
 
 @items_api.route("/item/getTransactions", methods=["GET"])
 @login_required
@@ -87,7 +122,7 @@ def get_item():
         return jsonify({'item': item, 'error': False, 'message': ''})
     return jsonify({'item': item, 'error': True, 'message': f'method {request.method} not allowed.'})
 
-@items_api.route("/item/getItemsWithQOH", methods=['GET'])
+@items_api.route("/getItemsWithQOH", methods=['GET'])
 @login_required
 def pagninate_items():
     """ GET items from the system by passing a page, limit, search_string, sort, and order
