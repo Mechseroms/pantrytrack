@@ -3,6 +3,8 @@ import psycopg2, math, json, datetime, main, copy, requests, process, database
 from config import config, sites_config
 from main import unfoldCostLayers
 
+# this is a test!
+
 database_api= Blueprint('database_api', __name__)
 
 @database_api.route("/changeSite", methods=["POST"])
