@@ -296,7 +296,7 @@ async function setOrder(order_string) {
 }
 async function getItems(){
 
-    const url = new URL('/item/getItemsWithQOH', window.location.origin);
+    const url = new URL('/items/getItemsWithQOH', window.location.origin);
     url.searchParams.append('page', current_page);
     url.searchParams.append('limit', limit);
     url.searchParams.append('search_text', searchText);

@@ -27,7 +27,7 @@ app.secret_key = '11gs22h2h1a4h6ah8e413a45'
 app.register_blueprint(api.database_api)
 app.register_blueprint(user_api.login_app)
 app.register_blueprint(api_admin.admin_api)
-app.register_blueprint(items_API.items_api)
+app.register_blueprint(items_API.items_api, url_prefix='/items')
 app.register_blueprint(external_api)
 app.register_blueprint(workshop_api)
 app.register_blueprint(receipts_API.receipt_api)
@@ -86,33 +86,6 @@ def transactions(id):
     return render_template("items/transactions.html", id=id, current_site=session['selected_site'], sites=sites)
 
 
-@app.route("/item/<id>")
-@login_required
-def item(id):
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    database_config = config.config()
-    with psycopg2.connect(**database_config) as conn:
-        units = postsqldb.UnitsTable.getAll(conn)
-    return render_template("items/item_new.html", id=id, units=units, current_site=session['selected_site'], sites=sites)
-
-@app.route("/transaction")
-@login_required
-def transaction():
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    database_config = config.config()
-    with psycopg2.connect(**database_config) as conn:
-        units = postsqldb.UnitsTable.getAll(conn)
-    return render_template("other/transaction.html", units=units, current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer})
-
-@app.route("/items")
-@login_required
-def items():
-    update_session_user()
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    return render_template("items/index.html", 
-                           current_site=session['selected_site'], 
-                           sites=sites)
-
 @app.route("/api/push-subscriptions", methods=["POST"])
 def create_push_subscription():
     json_data = request.get_json()
@@ -139,4 +112,4 @@ def home():
     session['selected_site'] = sites[0]
     return redirect("/items")
 
-app.run(host="0.0.0.0", port=5810, debug=True)
+app.run(host="0.0.0.0", port=5811, debug=True)
