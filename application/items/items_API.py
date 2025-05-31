@@ -417,7 +417,6 @@ def getBrands():
         return jsonify({'brands': brands, 'endpage': math.ceil(count/limit), 'error': False, 'message': f''})
     return jsonify({'brands': brands, 'endpage': math.ceil(count/limit), 'error': True, 'message': f'method {request.method} is not allowed.'})
 
-
 @items_api.route('/updateItem', methods=['POST'])
 @login_required
 def updateItem():
@@ -492,7 +491,6 @@ def updateItemLink():
         database_items.postUpdateItemLink(site_name, payload)
         return jsonify({'error':False, 'message': "Linked Item was updated successfully"})
     return jsonify({'error': True, 'message': f"method {request.method} not allowed."})
-
 
 @items_api.route('/getPossibleLocations', methods=["GET"])
 @login_required
@@ -603,13 +601,40 @@ def addLinkedItem():
     
 @items_api.route('/addBlankItem', methods=["POST"])
 def addBlankItem():
+    """ POST new Blank item to the system given a barcode, item_name, subtype
+    ---
+    parameters:
+        - in: query
+          name: barcode
+          schema:
+            type: string
+            default: 1
+          required: true
+          description: barcode for the item
+        - in: query
+          name: item_name
+          schema:
+            type: string
+            default: 1
+          required: true
+          description: name of the blank item
+        - in: query
+          name: subtype
+          schema:
+            type: string
+            default: 1
+          required: true
+          description: type of item this is categorized to be.
+    responses:
+        200:
+            description: Item added successfully.
+    """
     if request.method == "POST":
         data = {
             'barcode': request.get_json()['barcode'], 
             'name': request.get_json()['name'], 
             'subtype': request.get_json()['subtype']
             }
-        database_config = config()
         site_name = session['selected_site']
         user_id = session['user_id']
         

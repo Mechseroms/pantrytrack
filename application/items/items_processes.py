@@ -42,9 +42,9 @@ def postNewBlankItem(site_name: str, user_id: int, data: dict, conn=None):
     brand_id = 1
 
     
-    logistics_info = database_items.insertLogisticsInfoTuple(conn, site_name, logistics_info.payload(), convert=True)
-    item_info = database_items.insertItemInfoTuple(conn, site_name, item_info.payload(), convert=True)
-    food_info = database_items.insertFoodInfoTuple(conn, site_name, food_info.payload(), convert=True)
+    logistics_info = database_items.insertLogisticsInfoTuple(site_name, logistics_info.payload(), conn=conn)
+    item_info = database_items.insertItemInfoTuple(site_name, item_info.payload(), conn=conn)
+    food_info = database_items.insertFoodInfoTuple(site_name, food_info.payload(), conn=conn)
 
     name = data['name']
     name = name.replace("'", "@&apostraphe&")
@@ -66,7 +66,7 @@ def postNewBlankItem(site_name: str, user_id: int, data: dict, conn=None):
         search_string=search_string
         )
 
-    item = database_items.insertItemTuple(conn, site_name, item.payload(), convert=True)
+    item = database_items.insertItemTuple(site_name, item.payload(), conn=conn)
         
     with conn.cursor() as cur:
         cur.execute(f"SELECT id FROM {site_name}_locations WHERE uuid=%s;", (uuid, ))
@@ -74,7 +74,7 @@ def postNewBlankItem(site_name: str, user_id: int, data: dict, conn=None):
 
     dbPayloads.ItemLocationPayload
     item_location = dbPayloads.ItemLocationPayload(item['id'], location_id)
-    database_items.insertItemLocationsTuple(conn, site_name, item_location.payload())
+    database_items.insertItemLocationsTuple(site_name, item_location.payload(), conn=conn)
 
 
     creation_tuple = dbPayloads.TransactionPayload(
