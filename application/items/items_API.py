@@ -1,7 +1,22 @@
-from flask import Blueprint, request, render_template, redirect, session, url_for, send_file, jsonify, Response
-import psycopg2, math, json, datetime, main, copy, requests, process, database, pprint, MyDataclasses
+# 3rd Party imports
+from flask import (
+    Blueprint, request, render_template, redirect, session, url_for, send_file, jsonify, Response
+    )
+import psycopg2
+import math 
+import json
+import datetime
+import copy
+import requests
+import pprint
+
+# applications imports
 from config import config, sites_config
 from main import unfoldCostLayers
+import process
+import database
+import main
+import MyDataclasses
 from user_api import login_required
 import application.postsqldb as db
 from application.items import database_items
@@ -25,14 +40,14 @@ def items():
                            current_site=session['selected_site'], 
                            sites=sites)
 
-@items_api.route("/item/<id>")
+@items_api.route("/<id>")
 @login_required
 def item(id):
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     database_config = config()
     with psycopg2.connect(**database_config) as conn:
         units = db.UnitsTable.getAll(conn)
-    return render_template("items/item_new.html", id=id, units=units, current_site=session['selected_site'], sites=sites)
+    return render_template("item_new.html", id=id, units=units, current_site=session['selected_site'], sites=sites)
 
 @items_api.route("/transaction")
 @login_required
@@ -43,14 +58,31 @@ def transaction():
         units = db.UnitsTable.getAll(conn)
     return render_template("transaction.html", units=units, current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer})
 
+@items_api.route("/transactions/<id>")
+@login_required
+def transactions(id):
+    """This is the main endpoint to reach the webpage for an items transaction history
+    ---
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+        default: all
+    responses:
+      200:
+        description: Returns the transactions.html webpage for the item with passed ID
+    """
+    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    return render_template("transactions.html", id=id, current_site=session['selected_site'], sites=sites)
 
-@items_api.route("/item/<parent_id>/itemLink/<id>")
+@items_api.route("/<parent_id>/itemLink/<id>")
 @login_required
 def itemLink(parent_id, id):
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     return render_template("itemlink.html", current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer}, id=id)
 
-@items_api.route("/item/getTransactions", methods=["GET"])
+@items_api.route("/getTransactions", methods=["GET"])
 @login_required
 def getTransactions():
     """ GET a subquery of transactions by passing a logistics_info_id, limit, and page
@@ -71,7 +103,7 @@ def getTransactions():
         return jsonify({"transactions": recordset, "end": math.ceil(count/limit), "error": False, "message": ""})
     return jsonify({"transactions": recordset, "end": math.ceil(count/limit), "error": True, "message": f"method {request.method} is not allowed."})
 
-@items_api.route("/item/getTransaction", methods=["GET"])
+@items_api.route("/getTransaction", methods=["GET"])
 @login_required
 def getTransaction():
     """ GET a transaction from the system by passing an ID
@@ -97,7 +129,7 @@ def getTransaction():
         return jsonify({"transaction": transaction, "error": False, "message": ""})
     return jsonify({"transaction": transaction,  "error": True, "message": f"method {request.method} is not allowed."})
 
-@items_api.route("/item/getItem", methods=["GET"])
+@items_api.route("/getItem", methods=["GET"])
 @login_required
 def get_item():
     """ GET item from system by passing its ID
@@ -183,7 +215,7 @@ def pagninate_items():
         return jsonify({'items': items, "end": math.ceil(count/limit), 'error':False, 'message': 'Items Loaded Successfully!'})
     return jsonify({'items': items, "end": math.ceil(count/limit), 'error':True, 'message': 'There was a problem loading the items!'})
 
-@items_api.route('/item/getModalItems', methods=["GET"])
+@items_api.route('/getModalItems', methods=["GET"])
 @login_required
 def getModalItems():
     """ GET items from the system by passing a page, limit, search_string. For select modals
@@ -223,7 +255,7 @@ def getModalItems():
         return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message": f"method {request.method} is not allowed."})
 
-@items_api.route('/item/getPrefixes', methods=["GET"])
+@items_api.route('/getPrefixes', methods=["GET"])
 @login_required
 def getModalPrefixes():
     """ GET prefixes from the system by passing page and limit.
@@ -259,7 +291,7 @@ def getModalPrefixes():
         return jsonify({"prefixes":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"prefixes":recordset, "end":math.ceil(count/limit), "error":True, "message":f"method {request.method} is not allowed!"})
 
-@items_api.route('/item/getZonesBySku', methods=["GET"])
+@items_api.route('/getZonesBySku', methods=["GET"])
 @login_required
 def getZonesbySku():
     """ GET zones by sku by passing page, limit, item_id
@@ -301,7 +333,7 @@ def getZonesbySku():
         return jsonify({'zones': zones, 'endpage': math.ceil(count/limit), 'error':False, 'message': f''})
     return jsonify({'zones': zones, 'endpage': math.ceil(count/limit), 'error':False, 'message': f'method {request.method} not allowed.'})
 
-@items_api.route('/item/getLocationsBySkuZone', methods=['GET'])
+@items_api.route('/getLocationsBySkuZone', methods=['GET'])
 @login_required
 def getLocationsBySkuZone():
     """ GET locations by sku by passing page, limit, item_id, zone_id
@@ -351,7 +383,7 @@ def getLocationsBySkuZone():
         return jsonify({'locations': locations, 'endpage': math.ceil(count/limit), 'error': False, 'message': f''})
     return jsonify({'locations': locations, 'endpage': math.ceil(count/limit), 'error': True, 'message': f'method {request.method} is not allowed.'})
 
-@items_api.route('/item/getBrands', methods=['GET'])
+@items_api.route('/getBrands', methods=['GET'])
 @login_required
 def getBrands():
     """ GET brands from the system by passing page, limit
@@ -386,7 +418,7 @@ def getBrands():
     return jsonify({'brands': brands, 'endpage': math.ceil(count/limit), 'error': True, 'message': f'method {request.method} is not allowed.'})
 
 
-@items_api.route('/item/updateItem', methods=['POST'])
+@items_api.route('/updateItem', methods=['POST'])
 @login_required
 def updateItem():
     """ POST update to item in the system by passing item_id, data
@@ -414,7 +446,7 @@ def updateItem():
         return jsonify({'error': False, 'message': f'Item was updated successfully!'})
     return jsonify({'error': True, 'message': f'method {request.method} is not allowed!'})
 
-@items_api.route('/item/updateItemLink', methods=['POST'])
+@items_api.route('/updateItemLink', methods=['POST'])
 @login_required
 def updateItemLink():
     """ UPDATE item link by passing id, conv_factor, barcode, old_conv
@@ -462,7 +494,7 @@ def updateItemLink():
     return jsonify({'error': True, 'message': f"method {request.method} not allowed."})
 
 
-@items_api.route('/item/getPossibleLocations', methods=["GET"])
+@items_api.route('/getPossibleLocations', methods=["GET"])
 @login_required
 def getPossibleLocations():
     """ GET locations with zones by passing a page and limit
@@ -496,7 +528,7 @@ def getPossibleLocations():
         return jsonify({'locations': locations, 'end':math.ceil(count/limit), 'error':False, 'message': f'Locations received successfully!'})
     return jsonify({'locations': locations, 'end':math.ceil(count/limit), 'error':True, 'message': f'method {request.method} not allowed.'})
 
-@items_api.route('/item/getLinkedItem', methods=["GET"])
+@items_api.route('/getLinkedItem', methods=["GET"])
 @login_required
 def getLinkedItem():
     """ GET itemlink from system by passing an ID
@@ -521,7 +553,7 @@ def getLinkedItem():
         return jsonify({'linked_item': linked_item, 'error': False, 'message': 'Linked Item added!!'})
     return jsonify({'linked_item': linked_item, 'error': True, 'message': f'method {request.method} not allowed'})
 
-@items_api.route('/item/addLinkedItem', methods=["POST"])
+@items_api.route('/addLinkedItem', methods=["POST"])
 @login_required 
 def addLinkedItem():
     """ POST a link between items by passing a parent_id, a child_id, conv_factor
@@ -569,7 +601,7 @@ def addLinkedItem():
         return jsonify({'error': False, 'message': 'Linked Item added!!'})
     return jsonify({'error': True, 'message': 'These was an error with adding to the linked list!'})
     
-@items_api.route('/items/addBlankItem', methods=["POST"])
+@items_api.route('/addBlankItem', methods=["POST"])
 def addBlankItem():
     if request.method == "POST":
         data = {
@@ -577,20 +609,16 @@ def addBlankItem():
             'name': request.get_json()['name'], 
             'subtype': request.get_json()['subtype']
             }
-        pprint.pprint(data)
         database_config = config()
         site_name = session['selected_site']
         user_id = session['user_id']
-        try:
-            with psycopg2.connect(**database_config) as conn:
-                process.postNewBlankItem(conn, site_name, user_id, data)
-        except Exception as error:
-            conn.rollback()
-            return jsonify({'error': True, 'message': error})
+        
+        items_processes.postNewBlankItem(site_name, user_id, data)
+      
         return jsonify({'error': False, 'message': 'Item added!!'})
     return jsonify({'error': True, 'message': 'These was an error with adding Item!'})
 
-@items_api.route('/items/addSKUPrefix', methods=["POST"])
+@items_api.route('/addSKUPrefix', methods=["POST"])
 def addSKUPrefix():
     if request.method == "POST":
         database_config = config()
@@ -609,7 +637,7 @@ def addSKUPrefix():
         return jsonify({'error': False, 'message': 'Prefix added!!'})
     return jsonify({'error': True, 'message': 'These was an error with adding this Prefix!'})
 
-@items_api.route('/item/addConversion', methods=['POST'])
+@items_api.route('/addConversion', methods=['POST'])
 def addConversion():
     if request.method == "POST":
         item_id = request.get_json()['parent_id']
@@ -627,7 +655,7 @@ def addConversion():
             return jsonify(error=False, message="Conversion was added successfully")
     return jsonify(error=True, message="Unable to save this conversion, ERROR!")
 
-@items_api.route('/item/deleteConversion', methods=['POST'])
+@items_api.route('/deleteConversion', methods=['POST'])
 def deleteConversion():
     if request.method == "POST":
         conversion_id = request.get_json()['conversion_id']
@@ -640,7 +668,7 @@ def deleteConversion():
             return jsonify(error=False, message="Conversion was deleted successfully")
     return jsonify(error=True, message="Unable to delete this conversion, ERROR!")
 
-@items_api.route('/item/updateConversion', methods=['POST'])
+@items_api.route('/updateConversion', methods=['POST'])
 def updateConversion():
     if request.method == "POST":
         conversion_id = request.get_json()['conversion_id']
@@ -653,7 +681,7 @@ def updateConversion():
             return jsonify(error=False, message="Conversion was updated successfully")
     return jsonify(error=True, message="Unable to save this conversion, ERROR!")
 
-@items_api.route('/item/addPrefix', methods=['POST'])
+@items_api.route('/addPrefix', methods=['POST'])
 def addPrefix():
     if request.method == "POST":
         item_info_id = request.get_json()['parent_id']
@@ -670,7 +698,7 @@ def addPrefix():
             return jsonify(error=False, message="Prefix was added successfully")
     return jsonify(error=True, message="Unable to save this prefix, ERROR!")
 
-@items_api.route('/item/deletePrefix', methods=['POST'])
+@items_api.route('/deletePrefix', methods=['POST'])
 def deletePrefix():
     if request.method == "POST":
         item_info_id = request.get_json()['item_info_id']
@@ -685,7 +713,7 @@ def deletePrefix():
             return jsonify(error=False, message="Prefix was deleted successfully")
     return jsonify(error=True, message="Unable to delete this prefix, ERROR!")
 
-@items_api.route('/item/refreshSearchString', methods=['POST'])
+@items_api.route('/refreshSearchString', methods=['POST'])
 def refreshSearchString():
     if request.method == "POST":
         item_id = request.get_json()['item_id']
@@ -706,7 +734,7 @@ def refreshSearchString():
             return jsonify(error=False, message="Search String was updated successfully")
     return jsonify(error=True, message="Unable to update this search string, ERROR!")
 
-@items_api.route('/item/postNewItemLocation', methods=['POST'])
+@items_api.route('/postNewItemLocation', methods=['POST'])
 def postNewItemLocation():
     if request.method == "POST":
         item_id = request.get_json()['item_id']

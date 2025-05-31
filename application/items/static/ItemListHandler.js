@@ -214,12 +214,12 @@ async function updateTableElements(){
         let viewOp = document.createElement('a')
         viewOp.innerHTML = `edit <span uk-icon="icon: pencil"></span>`
         viewOp.setAttribute('class', 'uk-button uk-button-default uk-button-small')
-        viewOp.href = `/item/${items[i].id}`
+        viewOp.href = `/items/${items[i].id}`
 
         let historyOp = document.createElement('a')
         historyOp.innerHTML = `history <span uk-icon="icon: history"></span>`
         historyOp.setAttribute('class', 'uk-button uk-button-default uk-button-small')
-        historyOp.href = `/transactions/${items[i].id}`
+        historyOp.href = `/items/transactions/${items[i].id}`
 
         buttonGroup.append(viewOp, historyOp)
         opsCell.append(buttonGroup)
@@ -263,8 +263,8 @@ async function updateListElements(){
 
         let footer = document.createElement('div')
         footer.classList.add('uk-card-footer')
-        footer.innerHTML = `<a style="margin-right: 5px; border-radius: 10px;" class="uk-button uk-button-default uk-button-small" uk-icon="icon: pencil" href="/item/${items[i].id}">edit</a>
-        <a style="border-radius: 10px;" class="uk-button uk-button-default uk-button-small" uk-icon="icon: history" href="/transactions/${items[i].id}">History</a>`
+        footer.innerHTML = `<a style="margin-right: 5px; border-radius: 10px;" class="uk-button uk-button-default uk-button-small" uk-icon="icon: pencil" href="/items/${items[i].id}">edit</a>
+        <a style="border-radius: 10px;" class="uk-button uk-button-default uk-button-small" uk-icon="icon: history" href="/items/transactions/${items[i].id}">History</a>`
         
         listItem.append(header)
         if(!items[i].description == ""){

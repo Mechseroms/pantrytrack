@@ -581,7 +581,7 @@ async function updateLinkedItemsTable() {
         let editOp = document.createElement('a')
         editOp.setAttribute('class', 'uk-button uk-button-default')
         editOp.setAttribute('uk-icon', 'icon: pencil')
-        editOp.setAttribute('href', `/item/${item['id']}/itemLink/${linked_items[i].id}`)
+        editOp.setAttribute('href', `/items/${item['id']}/itemLink/${linked_items[i].id}`)
 
         opCell.append(editOp)
 
@@ -755,7 +755,7 @@ async function openEditConversionsModal(conversion) {
 
 
 async function postConversion() {
-    const response = await fetch(`/item/addConversion`, {
+    const response = await fetch(`/items/addConversion`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -786,7 +786,7 @@ async function postConversion() {
 }
 
 async function postConversionUpdate(id, update) {
-    const response = await fetch(`/item/updateConversion`, {
+    const response = await fetch(`/items/updateConversion`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -816,7 +816,7 @@ async function postConversionUpdate(id, update) {
 }
 
 async function deleteConversion(conversion_id) {
-    const response = await fetch(`/item/deleteConversion`, {
+    const response = await fetch(`/items/deleteConversion`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -858,7 +858,7 @@ async function openAddPrefixesModal() {
 }
 
 async function postPrefix(id) {
-    const response = await fetch(`/item/addPrefix`, {
+    const response = await fetch(`/items/addPrefix`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -887,7 +887,7 @@ async function postPrefix(id) {
 }
 
 async function deletePrefix(prefix_id) {
-    const response = await fetch(`/item/deletePrefix`, {
+    const response = await fetch(`/items/deletePrefix`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -920,7 +920,7 @@ async function deletePrefix(prefix_id) {
 
 let prefix_limit = 2;
 async function fetchPrefixes() {
-    const url = new URL('/item/getPrefixes', window.location.origin);
+    const url = new URL('/items/getPrefixes', window.location.origin);
     url.searchParams.append('page', current_page);
     url.searchParams.append('limit', prefix_limit);
     const response = await fetch(url);
@@ -930,7 +930,7 @@ async function fetchPrefixes() {
 
 let brands_limit = 25;
 async function fetchBrands() {
-    const url = new URL('/item/getBrands', window.location.origin);
+    const url = new URL('/items/getBrands', window.location.origin);
     url.searchParams.append('page', current_page);
     url.searchParams.append('limit', brands_limit);
     const response = await fetch(url);
@@ -940,7 +940,7 @@ async function fetchBrands() {
 
 let items_limit = 25;
 async function fetchItems() {
-    const url = new URL('/item/getModalItems', window.location.origin);
+    const url = new URL('/items/getModalItems', window.location.origin);
     url.searchParams.append('page', current_page);
     url.searchParams.append('limit', items_limit);
     url.searchParams.append('search_string', search_string);
@@ -951,7 +951,7 @@ async function fetchItems() {
 
 let zones_limit = 20;
 async function fetchZones(){
-    const url = new URL('/item/getZonesBySku', window.location.origin);
+    const url = new URL('/items/getZonesBySku', window.location.origin);
     url.searchParams.append('page', current_page);
     url.searchParams.append('limit', zones_limit);
     url.searchParams.append('item_id', item.id);
@@ -962,7 +962,7 @@ async function fetchZones(){
 
 let locations_limit = 10;
 async function fetchLocations(logis) {
-    const url = new URL('/item/getLocationsBySkuZone', window.location.origin);
+    const url = new URL('/items/getLocationsBySkuZone', window.location.origin);
     url.searchParams.append('page', current_page);
     url.searchParams.append('limit', locations_limit);
     url.searchParams.append('part_id', item.id);
@@ -977,7 +977,7 @@ async function fetchLocations(logis) {
 }
 
 async function fetchItem() {
-    const url = new URL('/item/getItem', window.location.origin);
+    const url = new URL('/items/getItem', window.location.origin);
     url.searchParams.append('id', item_id);
     const response = await fetch(url);
     data =  await response.json();
@@ -1106,7 +1106,7 @@ async function addLinkedItem(parent_id, child_id) {
     
     if(Number.isInteger(conversion_factor)){
         document.getElementById('conversion_factor').classList.remove('uk-form-danger')
-        const response = await fetch(`/item/addLinkedItem`, {
+        const response = await fetch(`/items/addLinkedItem`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1145,7 +1145,7 @@ async function addLinkedItem(parent_id, child_id) {
 }
 
 async function saveUpdated() {
-    const response = await fetch(`/item/updateItem`, {
+    const response = await fetch(`/items/updateItem`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1175,7 +1175,7 @@ async function saveUpdated() {
 };
 
 async function refreshSearchString() {
-    const response = await fetch(`/item/refreshSearchString`, {
+    const response = await fetch(`/items/refreshSearchString`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1370,7 +1370,7 @@ var new_locations_current_page = 1
 var new_locations_end_page = 1
 var new_locations_limit = 25
 async function fetch_new_locations() {
-    const url = new URL('/item/getPossibleLocations', window.location.origin);
+    const url = new URL('/items/getPossibleLocations', window.location.origin);
     url.searchParams.append('page', new_locations_current_page);
     url.searchParams.append('limit', new_locations_limit);
     const response = await fetch(url);
@@ -1380,7 +1380,7 @@ async function fetch_new_locations() {
 };
 
 async function postNewItemLocation(location_id) {
-    const response = await fetch(`/item/postNewItemLocation`, {
+    const response = await fetch(`/items/postNewItemLocation`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

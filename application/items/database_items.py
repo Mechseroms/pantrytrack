@@ -3,7 +3,6 @@ import config
 import psycopg2
 import datetime
 
-
 def getTransactions(site:str, payload: tuple, convert:bool=True):
     database_config = config.config()
     sql = f"SELECT * FROM {site}_transactions WHERE logistics_info_id=%s LIMIT %s OFFSET %s;"
@@ -169,6 +168,23 @@ def getLocation(site:str, payload:tuple, convert:bool=True):
     selected = ()
     database_config = config.config()
     sql = f"SELECT * FROM {site}_locations WHERE id=%s;"
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    selected = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    selected = rows
+        return selected
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+    
+def getZone(site:str, payload:tuple, convert:bool=True):
+    selected = ()
+    database_config = config.config()
+    sql = f"SELECT * FROM {site}_zones WHERE id=%s;"
     try:
         with psycopg2.connect(**database_config) as conn:
             with conn.cursor() as cur:
@@ -513,6 +529,162 @@ def insertItemLocationsTuple(conn, site, payload, convert=True):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def insertLogisticsInfoTuple(conn, site, payload, convert=False):
+    """insert payload into logistics_info table for site
+
+    Args:
+        conn (_T_connector@connect): Postgresql Connector
+        site (str):
+        payload (tuple): (barcode[str], primary_location[str], auto_issue_location[str], dynamic_locations[jsonb], 
+                        location_data[jsonb], quantity_on_hand[float]) 
+        convert (bool, optional): Determines if to return tuple as dictionary. Defaults to False.
+
+    Raises:
+        DatabaseError:
+
+    Returns:
+        tuple or dict: inserted tuple
+    """
+    logistics_info = ()
+    with open(f"application/items/sql/insertLogisticsInfoTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                logistics_info = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                logistics_info = rows
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+    return logistics_info
+
+def insertItemInfoTuple(conn, site, payload, convert=False):
+    """inserts payload into the item_info table of site
+
+    Args:
+        conn (_T_connector@connect): Postgresql Connector
+        site_name (str): 
+        payload (tuple): (barcode[str], linked_items[lst2pgarr], shopping_lists[lst2pgarr], recipes[lst2pgarr], groups[lst2pgarr], 
+                            packaging[str], uom[str], cost[float], safety_stock[float], lead_time_days[float], ai_pick[bool]) 
+        convert (bool optional): Determines if to return tuple as dictionary. DEFAULTS to False.
+
+    Raises:
+        DatabaseError:
+
+    Returns:
+        tuple or dict: inserted tuple
+    """
+    item_info = ()
+    with open(f"application/items/sql/insertItemInfoTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                item_info = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                item_info = rows
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+    return item_info
+
+def insertFoodInfoTuple(conn, site, payload, convert=False):
+    """insert payload into food_info table for site
+
+    Args:
+        conn (_T_connector@connect): Postgresql Connector
+        site (str): 
+        payload (_type_): (ingrediants[lst2pgarr], food_groups[lst2pgarr], nutrients[jsonstr], expires[bool]) 
+        convert (bool, optional): Determines if to return tuple as dictionary. Defaults to False.
+
+    Raises:
+        DatabaseError: 
+
+    Returns:
+        tuple or dict: inserted tuple
+    """
+    food_info = ()
+    with open(f"application/items/sql/insertFoodInfoTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                food_info = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                food_info = rows
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+    return food_info
+
+def insertItemTuple(conn, site, payload, convert=False):
+    """insert payload into items table for site
+
+    Args:
+        conn (_T_connector@connect): Postgresql Connector
+        site (str):
+        payload (tuple): (barcode[str], item_name[str], brand[int], description[str], 
+        tags[lst2pgarr], links[jsonb], item_info_id[int], logistics_info_id[int], 
+        food_info_id[int], row_type[str], item_type[str], search_string[str]) 
+        convert (bool, optional): Determines if to return tuple as a dictionary. Defaults to False.
+
+    Raises:
+        DatabaseError:
+
+    Returns:
+        tuple or dict: inserted tuple
+    """
+    item = ()
+    with open(f"application/items/sql/insertItemTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                item = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                item = rows
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+    
+    return item
+
+def insertItemLocationsTuple(conn, site, payload, convert=False):
+    """insert payload into item_locations table for site
+
+    Args:
+        conn (_T_connector@connect): Postgresql Connector
+        site (str):
+        payload (tuple): (part_id[int], location_id[int], quantity_on_hand[float], cost_layers[lst2pgarr]) 
+        convert (bool, optional): Determines if to return tuple as dictionary. Defaults to False.
+
+    Raises:
+        DatabaseError:
+
+    Returns:
+        tuple or dict: inserted tuple
+    """
+    location = ()
+    with open(f"application/items/sql/insertItemLocationsTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                location = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                location = rows
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+    return location
+
 def selectItemLocationsTuple(site_name, payload, convert=True):
     """select a single tuple from ItemLocations table for site_name
 
@@ -569,7 +741,37 @@ def selectCostLayersTuple(site_name, payload, convert=True):
         return cost_layers
     except Exception as error:
         return error
-    
+
+def selectSiteTuple(payload, convert=True):
+    """Select a single Site from sites using site_name
+
+    Args:
+        conn (_T_connector@connect): Postgresql Connector
+        payload (tuple): (site_name,)
+        convert (bool, optional): determines if to return tuple as dictionary. Defaults to False.
+
+    Raises:
+        DatabaseError:
+
+    Returns:
+        tuple or dict: selected tuples
+    """
+    site = ()
+    database_config = config.config()
+    select_site_sql = f"SELECT * FROM sites WHERE site_name = %s;"
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(select_site_sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    site = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    site = rows
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, select_site_sql)
+    return site
+
 def postDeleteCostLayer(site_name, payload, convert=True, conn=None):
     """
         payload (tuple): (table_to_delete_from, tuple_id)
@@ -659,7 +861,6 @@ def postAddTransaction(site, payload, convert=False, conn=None):
             return transaction
         except Exception as error:
             raise postsqldb.DatabaseError(error, payload, sql)
-
 
 def postInsertItemLink(site, payload, convert=True, conn=None):
     """insert payload into itemlinks table of site

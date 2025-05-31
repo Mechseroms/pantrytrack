@@ -2409,3 +2409,64 @@ class ItemLinkPayload:
             json.dumps(self.data),
             self.conv_factor
         )
+
+@dataclass
+class LogisticsInfoPayload:
+    barcode: str
+    primary_location: int
+    primary_zone: int
+    auto_issue_location: int
+    auto_issue_zone: int
+    
+    def payload(self):
+        return (self.barcode, 
+                self.primary_location, 
+                self.primary_zone,
+                self.auto_issue_location,
+                self.auto_issue_zone)
+    
+@dataclass
+class ItemInfoPayload:
+    barcode: str
+    packaging: str = ""
+    uom_quantity: float = 1.0
+    uom: int = 1
+    cost: float = 0.0
+    safety_stock: float = 0.0
+    lead_time_days: float = 0.0
+    ai_pick: bool = False
+    prefixes: list = field(default_factory=list)
+
+    def __post_init__(self):
+        if not isinstance(self.barcode, str):
+            raise TypeError(f"barcode must be of type str; not {type(self.barcode)}")
+        
+    def payload(self):
+        return (
+            self.barcode,
+            self.packaging,
+            self.uom_quantity,
+            self.uom,
+            self.cost,
+            self.safety_stock,
+            self.lead_time_days,
+            self.ai_pick,
+            lst2pgarr(self.prefixes)
+        )
+    
+@dataclass
+class FoodInfoPayload:
+    food_groups: list = field(default_factory=list)
+    ingrediants: list = field(default_factory=list)
+    nutrients: dict = field(default_factory=dict)
+    expires: bool = False
+    default_expiration: float = 0.0
+
+    def payload(self):
+        return (
+            lst2pgarr(self.food_groups),
+            lst2pgarr(self.ingrediants),
+            json.dumps(self.nutrients),
+            self.expires,
+            self.default_expiration
+        )

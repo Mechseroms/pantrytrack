@@ -105,7 +105,7 @@ async function getItem(id) {
 }
 
 async function getTransaction(id) {
-    const url = new URL('/item/getTransaction', window.location.origin);
+    const url = new URL('/items/getTransaction', window.location.origin);
     url.searchParams.append('id', id);
     const response = await fetch(url);
     data =  await response.json();
@@ -114,7 +114,7 @@ async function getTransaction(id) {
 }
 
 async function getTransactions(){
-    const url = new URL('/item/getTransactions', window.location.origin);
+    const url = new URL('/items/getTransactions', window.location.origin);
     url.searchParams.append('page', pagination_current);
     url.searchParams.append('limit', limit);
     url.searchParams.append('logistics_info_id', item.logistics_info_id)

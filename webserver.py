@@ -67,25 +67,6 @@ def inject_user():
     return dict(username="")
 
 
-@app.route("/transactions/<id>")
-@login_required
-def transactions(id):
-    """This is the main endpoint to reach the webpage for an items transaction history
-    ---
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        default: all
-    responses:
-      200:
-        description: Returns the transactions.html webpage for the item with passed ID
-    """
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    return render_template("items/transactions.html", id=id, current_site=session['selected_site'], sites=sites)
-
-
 @app.route("/api/push-subscriptions", methods=["POST"])
 def create_push_subscription():
     json_data = request.get_json()
