@@ -819,17 +819,35 @@ def addPrefix():
 
 @items_api.route('/deletePrefix', methods=['POST'])
 def deletePrefix():
+    """ POST delete prefix from the system given a item_info_id and prefix_id
+    ---
+    parameters:
+        - in: header
+          name: item_info_id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: item_info_id to be updated
+        - in: header
+          name: prefix_id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: prefix_id to be added
+    responses:
+        200:
+            description: conversion updated successfully.
+    """
     if request.method == "POST":
         item_info_id = request.get_json()['item_info_id']
         prefix_id = request.get_json()['prefix_id']
-
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            prefixes = db.ItemInfoTable.select_tuple(conn, site_name, (item_info_id,))['prefixes']
-            prefixes.remove(prefix_id)
-            db.ItemInfoTable.update_tuple(conn, site_name, {'id': item_info_id, 'update':{'prefixes': prefixes}})
-            return jsonify(error=False, message="Prefix was deleted successfully")
+        prefixes = database_items.getItemInfoTuple(site_name, (item_info_id,))['prefixes']
+        prefixes.remove(prefix_id)
+        database_items.updateItemInfoTuple(site_name, {'id': item_info_id, 'update':{'prefixes': prefixes}})
+        return jsonify(error=False, message="Prefix was deleted successfully")
     return jsonify(error=True, message="Unable to delete this prefix, ERROR!")
 
 @items_api.route('/refreshSearchString', methods=['POST'])
