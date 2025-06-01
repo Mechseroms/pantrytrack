@@ -21,6 +21,7 @@ from user_api import login_required
 import application.postsqldb as db
 from application.items import database_items
 from application.items import items_processes
+import application.database_payloads as dbPayloads
 
 items_api = Blueprint('items_api', __name__, template_folder="templates", static_folder="static")
 
@@ -645,20 +646,42 @@ def addBlankItem():
 
 @items_api.route('/addSKUPrefix', methods=["POST"])
 def addSKUPrefix():
+    """ POST new SKU Prefix to the system given a uuid, name, description
+    ---
+    parameters:
+        - in: query
+          name: uuid
+          schema:
+            type: string
+            default: 1
+          required: true
+          description: uuid for the sku which will be attached to items
+        - in: query
+          name: name
+          schema:
+            type: string
+            default: 1
+          required: true
+          description: name of the Prefix
+        - in: query
+          name: description
+          schema:
+            type: string
+            default: 1
+          required: true
+          description: description of the Prefix.
+    responses:
+        200:
+            description: Prefix added successfully.
+    """
     if request.method == "POST":
-        database_config = config()
         site_name = session['selected_site']
-        try:
-            with psycopg2.connect(**database_config) as conn:
-                prefix = db.SKUPrefixTable.Payload(
-                    request.get_json()['uuid'],
-                    request.get_json()['name'], 
-                    request.get_json()['description']
-                )
-                db.SKUPrefixTable.insert_tuple(conn, site_name, prefix.payload())
-        except Exception as error:
-            conn.rollback()
-            return jsonify({'error': True, 'message': error})
+        prefix = dbPayloads.SKUPrefixPayload(
+            request.get_json()['uuid'],
+            request.get_json()['name'], 
+            request.get_json()['description']
+        )
+        database_items.insertSKUPrefixtuple(site_name, prefix.payload())
         return jsonify({'error': False, 'message': 'Prefix added!!'})
     return jsonify({'error': True, 'message': 'These was an error with adding this Prefix!'})
 

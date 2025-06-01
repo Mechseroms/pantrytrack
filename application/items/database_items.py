@@ -4,6 +4,16 @@ import psycopg2
 import datetime
 
 def getTransactions(site:str, payload: tuple, convert:bool=True):
+    """ Page through a sites Transactions by passing a logistics id, limit, and offset through a payload
+
+    Args:
+        site (str): _description_
+        payload (tuple): (logistics_id, limit, offset)
+        convert (bool, optional): _description_. Defaults to True.
+
+    Returns:
+        _type_: _description_
+    """
     database_config = config.config()
     sql = f"SELECT * FROM {site}_transactions WHERE logistics_info_id=%s LIMIT %s OFFSET %s;"
     sql_count = f"SELECT COUNT(*) FROM {site}_transactions WHERE logistics_info_id=%s;"
@@ -197,6 +207,93 @@ def getZone(site:str, payload:tuple, convert:bool=True):
         return selected
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
+
+def selectItemLocationsTuple(site_name, payload, convert=True):
+    """select a single tuple from ItemLocations table for site_name
+
+    Args:
+        conn (_T_connector@connect): 
+        site_name (str): 
+        payload (tuple): [item_id, location_id]
+        convert (bool): defaults to False, used to determine return of tuple/dict
+
+    Returns:
+        tuple: the row that was returned from the table
+    """
+    item_locations = ()
+    database_config = config.config()
+    select_item_location_sql = f"SELECT * FROM {site_name}_item_locations WHERE part_id = %s AND location_id = %s;"
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(select_item_location_sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    item_locations = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    item_locations = rows
+        return item_locations
+    except Exception as error:
+        return error
+
+def selectCostLayersTuple(site_name, payload, convert=True):
+    """select a single or series of cost layers from the database for site_name
+
+    Args:
+        conn (_T_connector@connect): 
+        site_name (str): 
+        payload (tuple): (item_locations_id, )
+        convert (bool): defaults to False, used for determining return as tuple/dict
+
+    Returns:
+        list: list of tuples/dict from the cost_layers table for site_name
+    """
+    cost_layers = ()
+    database_config = config.config()
+    select_cost_layers_sql = f"SELECT cl.* FROM {site_name}_item_locations il JOIN {site_name}_cost_layers cl ON cl.id = ANY(il.cost_layers) where il.id=%s;"
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(select_cost_layers_sql, payload)
+                rows = cur.fetchall()
+                if rows and convert:
+                    cost_layers = rows
+                    cost_layers = [postsqldb.tupleDictionaryFactory(cur.description, layer) for layer in rows]
+                elif rows and not convert:
+                    cost_layers = rows
+        return cost_layers
+    except Exception as error:
+        return error
+
+def selectSiteTuple(payload, convert=True):
+    """Select a single Site from sites using site_name
+
+    Args:
+        conn (_T_connector@connect): Postgresql Connector
+        payload (tuple): (site_name,)
+        convert (bool, optional): determines if to return tuple as dictionary. Defaults to False.
+
+    Raises:
+        DatabaseError:
+
+    Returns:
+        tuple or dict: selected tuples
+    """
+    site = ()
+    database_config = config.config()
+    select_site_sql = f"SELECT * FROM sites WHERE site_name = %s;"
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(select_site_sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    site = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    site = rows
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, select_site_sql)
+    return site
 
 def paginateZonesBySku(site: str, payload: tuple, convert=True):
     database_config = config.config()
@@ -726,92 +823,48 @@ def insertItemTuple(site, payload, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
-def selectItemLocationsTuple(site_name, payload, convert=True):
-    """select a single tuple from ItemLocations table for site_name
+def insertSKUPrefixtuple(site, payload, convert=True, conn=None):
+        """insert payload into zones table of site
 
-    Args:
-        conn (_T_connector@connect): 
-        site_name (str): 
-        payload (tuple): [item_id, location_id]
-        convert (bool): defaults to False, used to determine return of tuple/dict
+        Args:
+            conn (_T_connector@connect): Postgresql Connector
+            site (str):
+            payload (tuple): (name[str],)
+            convert (bool, optional): Determines if to return tuple as dictionary. Defaults to False.
 
-    Returns:
-        tuple: the row that was returned from the table
-    """
-    item_locations = ()
-    database_config = config.config()
-    select_item_location_sql = f"SELECT * FROM {site_name}_item_locations WHERE part_id = %s AND location_id = %s;"
-    try:
-        with psycopg2.connect(**database_config) as conn:
+        Raises:
+            DatabaseError:
+
+        Returns:
+            tuple or dict: inserted tuple
+        """
+        prefix = ()
+        self_conn = False
+        with open(f"application/items/sql/insertSKUPrefixTuple.sql", "r+") as file:
+            sql = file.read().replace("%%site_name%%", site)
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = True
+                self_conn = True
+
             with conn.cursor() as cur:
-                cur.execute(select_item_location_sql, payload)
+                cur.execute(sql, payload)
                 rows = cur.fetchone()
                 if rows and convert:
-                    item_locations = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                    prefix = postsqldb.tupleDictionaryFactory(cur.description, rows)
                 elif rows and not convert:
-                    item_locations = rows
-        return item_locations
-    except Exception as error:
-        return error
+                    prefix = rows
 
-def selectCostLayersTuple(site_name, payload, convert=True):
-    """select a single or series of cost layers from the database for site_name
+            if self_conn:
+                conn.commit()
+                conn.close()
 
-    Args:
-        conn (_T_connector@connect): 
-        site_name (str): 
-        payload (tuple): (item_locations_id, )
-        convert (bool): defaults to False, used for determining return as tuple/dict
-
-    Returns:
-        list: list of tuples/dict from the cost_layers table for site_name
-    """
-    cost_layers = ()
-    database_config = config.config()
-    select_cost_layers_sql = f"SELECT cl.* FROM {site_name}_item_locations il JOIN {site_name}_cost_layers cl ON cl.id = ANY(il.cost_layers) where il.id=%s;"
-    try:
-        with psycopg2.connect(**database_config) as conn:
-            with conn.cursor() as cur:
-                cur.execute(select_cost_layers_sql, payload)
-                rows = cur.fetchall()
-                if rows and convert:
-                    cost_layers = rows
-                    cost_layers = [postsqldb.tupleDictionaryFactory(cur.description, layer) for layer in rows]
-                elif rows and not convert:
-                    cost_layers = rows
-        return cost_layers
-    except Exception as error:
-        return error
-
-def selectSiteTuple(payload, convert=True):
-    """Select a single Site from sites using site_name
-
-    Args:
-        conn (_T_connector@connect): Postgresql Connector
-        payload (tuple): (site_name,)
-        convert (bool, optional): determines if to return tuple as dictionary. Defaults to False.
-
-    Raises:
-        DatabaseError:
-
-    Returns:
-        tuple or dict: selected tuples
-    """
-    site = ()
-    database_config = config.config()
-    select_site_sql = f"SELECT * FROM sites WHERE site_name = %s;"
-    try:
-        with psycopg2.connect(**database_config) as conn:
-            with conn.cursor() as cur:
-                cur.execute(select_site_sql, payload)
-                rows = cur.fetchone()
-                if rows and convert:
-                    site = postsqldb.tupleDictionaryFactory(cur.description, rows)
-                elif rows and not convert:
-                    site = rows
-    except Exception as error:
-        raise postsqldb.DatabaseError(error, payload, select_site_sql)
-    return site
+            return prefix
+        except Exception as error:
+            raise postsqldb.DatabaseError(error, payload, sql)
+        
 
 def postDeleteCostLayer(site_name, payload, convert=True, conn=None):
     """

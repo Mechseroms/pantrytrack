@@ -1,11 +1,20 @@
+# 3rd party imports
+import datetime
+import psycopg2
+import json
+
+# applications imports
 from application.items import database_items
 import application.postsqldb as db
 import application.database_payloads as dbPayloads
 import config
 
-import datetime
-import psycopg2
-import json
+"""
+
+items_processes.py handles more higher order workflows that a single database call would not be able to accomplish
+or when more complex logics are needed.
+
+"""
 
 def postNewBlankItem(site_name: str, user_id: int, data: dict, conn=None):
     """ data = {'barcode', 'name', 'subtype'}"""

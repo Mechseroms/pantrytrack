@@ -397,6 +397,21 @@ class ItemLocationPayload:
         )
 
 @dataclass
+class SKUPrefixPayload:
+    __slots__ = ('uuid', 'name', 'description')
+
+    uuid: str
+    name: str
+    description: str
+
+    def payload(self):
+        return (
+            self.uuid,
+            self.name,
+            self.description
+            )
+
+@dataclass
 class SiteManager:
     site_name: str
     admin_user: tuple
