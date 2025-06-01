@@ -732,15 +732,25 @@ def addConversion():
 
 @items_api.route('/deleteConversion', methods=['POST'])
 def deleteConversion():
+    """ POST delete conversion to the system given a conversion_id
+    ---
+    parameters:
+        - in: header
+          name: conversion_id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: conversion_id to be deleted
+    responses:
+        200:
+            description: Prefix added successfully.
+    """
     if request.method == "POST":
         conversion_id = request.get_json()['conversion_id']
-        print(conversion_id)
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            db.ConversionsTable.delete_item_tuple(conn, site_name, (conversion_id,))
-            
-            return jsonify(error=False, message="Conversion was deleted successfully")
+        database_items.deleteConversionTuple(site_name, (conversion_id,))
+        return jsonify(error=False, message="Conversion was deleted successfully")
     return jsonify(error=True, message="Unable to delete this conversion, ERROR!")
 
 @items_api.route('/updateConversion', methods=['POST'])
