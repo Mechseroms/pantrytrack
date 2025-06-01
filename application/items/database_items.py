@@ -208,6 +208,37 @@ def getZone(site:str, payload:tuple, convert:bool=True):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def getItemInfoTuple(site:str, payload:tuple, convert=True):
+        """_summary_
+
+        Args:
+            conn (_type_): _description_
+            site (_type_): _description_
+            payload (_type_): (item_info_id,)
+            convert (bool, optional): _description_. Defaults to True.
+
+        Raises:
+            DatabaseError: _description_
+
+        Returns:
+            _type_: _description_
+        """
+        selected = ()
+        database_config = config.config()
+        sql = f"SELECT * FROM {site}_item_info WHERE id=%s;"
+        try:
+            with psycopg2.connect(**database_config) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(sql, payload)
+                    rows = cur.fetchone()
+                    if rows and convert:
+                        selected = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                    elif rows and not convert:
+                        selected = rows
+                return selected
+        except Exception as error:
+            raise postsqldb.DatabaseError(error, payload, sql)
+
 def selectItemLocationsTuple(site_name, payload, convert=True):
     """select a single tuple from ItemLocations table for site_name
 
@@ -826,8 +857,53 @@ def updateConversionTuple(site:str, payload: dict, convert=True, conn=None):
             if self_conn:
                 conn.commit()
                 conn.close()
-                
+
             return updated
+        except Exception as error:
+            raise postsqldb.DatabaseError(error, payload, sql)
+
+def updateItemInfoTuple(site:str, payload: dict, convert=True, conn=None):
+        """_summary_
+
+        Args:
+            conn (_T_connector@connect): Postgresql Connector
+            site (str):
+            table (str):
+            payload (dict): {'id': row_id, 'update': {... column_to_update: value_to_update_to...}}
+            convert (bool, optional): determines if to return tuple as dictionary. Defaults to False.
+
+        Raises:
+            DatabaseError:
+
+        Returns:
+            tuple or dict: updated tuple
+        """
+        updated = ()
+        self_conn = False
+        set_clause, values = postsqldb.updateStringFactory(payload['update'])
+        values.append(payload['id'])
+        sql = f"UPDATE {site}_item_info SET {set_clause} WHERE id=%s RETURNING *;"
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = False
+                self_conn = True
+
+            with conn.cursor() as cur:
+                cur.execute(sql, values)
+                rows = cur.fetchone()
+                if rows and convert:
+                    updated = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    updated = rows
+            
+            if self_conn:
+                conn.commit()
+                conn.close()
+
+            return updated
+
         except Exception as error:
             raise postsqldb.DatabaseError(error, payload, sql)
 

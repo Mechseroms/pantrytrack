@@ -786,19 +786,35 @@ def updateConversion():
 
 @items_api.route('/addPrefix', methods=['POST'])
 def addPrefix():
+    """ POST add prefix to the system given a item_info_id and prefix_id
+    ---
+    parameters:
+        - in: header
+          name: item_info_id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: item_info_id to be updated
+        - in: header
+          name: prefix_id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: prefix_id to be added
+    responses:
+        200:
+            description: conversion updated successfully.
+    """
     if request.method == "POST":
         item_info_id = request.get_json()['parent_id']
         prefix_id = request.get_json()['prefix_id']
-        print(item_info_id)
-        print(prefix_id)
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            prefixes = db.ItemInfoTable.select_tuple(conn, site_name, (item_info_id,))['prefixes']
-            print(prefixes)
-            prefixes.append(prefix_id)
-            db.ItemInfoTable.update_tuple(conn, site_name, {'id': item_info_id, 'update':{'prefixes': prefixes}})
-            return jsonify(error=False, message="Prefix was added successfully")
+        prefixes = database_items.getItemInfoTuple(site_name, (item_info_id,))['prefixes']
+        prefixes.append(prefix_id)
+        database_items.updateItemInfoTuple(site_name, {'id': item_info_id, 'update':{'prefixes': prefixes}})
+        return jsonify(error=False, message="Prefix was added successfully")
     return jsonify(error=True, message="Unable to save this prefix, ERROR!")
 
 @items_api.route('/deletePrefix', methods=['POST'])
