@@ -687,20 +687,47 @@ def addSKUPrefix():
 
 @items_api.route('/addConversion', methods=['POST'])
 def addConversion():
+    """ POST new conversion to the system given a item_id, uom_id, conv_factor
+    ---
+    parameters:
+        - in: header
+          name: item_id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: item_id the conversion applies to
+        - in: header
+          name: uom_id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: uom_id to match item_id uom to convert to
+        - in: header
+          name: conv_factor
+          schema:
+            type: float
+            default: 1
+          required: true
+          description: item_id.uom -> uom_id amount
+    responses:
+        200:
+            description: Prefix added successfully.
+    """
     if request.method == "POST":
         item_id = request.get_json()['parent_id']
         uom_id = request.get_json()['uom_id']
         conv_factor = request.get_json()['conv_factor']
-
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            conversion = db.ConversionsTable.Payload(
-                item_id, uom_id, conv_factor
-            )
-            db.ConversionsTable.insert_tuple(conn, site_name, conversion.payload())
+
+        conversion = dbPayloads.ConversionPayload(
+            item_id, uom_id, conv_factor
+        )
+
+        database_items.insertConversionTuple(site_name, conversion.payload())
             
-            return jsonify(error=False, message="Conversion was added successfully")
+        return jsonify(error=False, message="Conversion was added successfully")
     return jsonify(error=True, message="Unable to save this conversion, ERROR!")
 
 @items_api.route('/deleteConversion', methods=['POST'])

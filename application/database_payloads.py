@@ -412,6 +412,19 @@ class SKUPrefixPayload:
             )
 
 @dataclass
+class ConversionPayload:
+    item_id: int
+    uom_id: int
+    conv_factor: float
+
+    def payload(self):
+        return (
+            self.item_id,
+            self.uom_id,
+            self.conv_factor
+        )
+
+@dataclass
 class SiteManager:
     site_name: str
     admin_user: tuple

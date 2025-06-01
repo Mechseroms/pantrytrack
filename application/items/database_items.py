@@ -823,7 +823,7 @@ def insertItemTuple(site, payload, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
-def insertSKUPrefixtuple(site, payload, convert=True, conn=None):
+def insertSKUPrefixtuple(site:str, payload:tuple, convert=True, conn=None):
         """insert payload into zones table of site
 
         Args:
@@ -864,7 +864,49 @@ def insertSKUPrefixtuple(site, payload, convert=True, conn=None):
             return prefix
         except Exception as error:
             raise postsqldb.DatabaseError(error, payload, sql)
+
+def insertConversionTuple(site: str, payload: list, convert=True, conn=None):
+        """insert into recipes table for site
+
+        Args:
+            conn (_T_connector@connect): Postgresql Connector
+            site (stre):
+            payload (tuple): (item_id, uom_id, conversion_factor) 
+            convert (bool, optional): Determines if to return tuple as a dictionary. Defaults to False.
+
+        Raises:
+            DatabaseError:
+
+        Returns:
+            tuple or dict: inserted tuple
+        """
+        record = ()
+        self_conn = False
+        with open(f"sql/INSERT/insertConversionsTuple.sql", "r+") as file:
+            sql = file.read().replace("%%site_name%%", site)
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = True
+                self_conn = True
+
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    record = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    record = rows
+
+            if self_conn:
+                conn.commit()
+                conn.close()
+
+            return record
         
+        except Exception as error:
+            raise postsqldb.DatabaseError(error, payload, sql)    
 
 def postDeleteCostLayer(site_name, payload, convert=True, conn=None):
     """
