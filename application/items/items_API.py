@@ -852,23 +852,27 @@ def deletePrefix():
 
 @items_api.route('/refreshSearchString', methods=['POST'])
 def refreshSearchString():
+    """ POST update search_string to the system given a item_id
+    ---
+    parameters:
+        - in: header
+          name: item_info_id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: item_id to be updated
+    responses:
+        200:
+            description: conversion updated successfully.
+    """
     if request.method == "POST":
         item_id = request.get_json()['item_id']
-
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            item = db.ItemTable.getItemAllByID(conn, site_name, (item_id,))
-            parameters = [f"id::{item['id']}", f"barcode::{item['barcode']}", f"name::{item['item_name']}", f"brand::{item['brand']['name']}", 
-                          f"expires::{item['food_info']['expires']}", f"row_type::{item['row_type']}", f"item_type::{item['item_type']}"]
-            
-            for prefix in item['item_info']['prefixes']:
-                parameters.append(f"prefix::{prefix['name']}")
-
-            search_string = "&&".join(parameters)
-            db.ItemTable.update_tuple(conn, site_name, {'id': item_id, 'update':{'search_string': search_string}})
-
-            return jsonify(error=False, message="Search String was updated successfully")
+        item = database_items.getItemAllByID(site_name, (item_id,))
+        search_string = items_processes.createSearchStringFromItem(item)
+        database_items.postUpdateItemByID(site_name, {'id': item_id, 'update':{'search_string': search_string}})
+        return jsonify(error=False, message="Search String was updated successfully")
     return jsonify(error=True, message="Unable to update this search string, ERROR!")
 
 @items_api.route('/postNewItemLocation', methods=['POST'])

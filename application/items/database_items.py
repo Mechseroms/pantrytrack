@@ -907,7 +907,7 @@ def updateItemInfoTuple(site:str, payload: dict, convert=True, conn=None):
         except Exception as error:
             raise postsqldb.DatabaseError(error, payload, sql)
 
-def postUpdateItemLocation(site, payload, conn=None):
+def postUpdateItemLocation(site: str, payload: tuple, conn=None):
 
     item_location = ()
     self_conn = False
@@ -934,6 +934,7 @@ def postUpdateItemLocation(site, payload, conn=None):
     except Exception as error:
         return error
 
+# TODO: This should be in the item's process module
 def postUpdateItem(site:str, payload:dict):
     """ POST and update to an item
 

@@ -269,3 +269,13 @@ def postAdjustment(site_name, user_id, data: dict, conn=None):
         return False
     
     return conn
+
+def createSearchStringFromItem(item: dict):
+    parameters = [f"id::{item['id']}", f"barcode::{item['barcode']}", f"name::{item['item_name']}", f"brand::{item['brand']['name']}", 
+                          f"expires::{item['food_info']['expires']}", f"row_type::{item['row_type']}", f"item_type::{item['item_type']}"]
+            
+    for prefix in item['item_info']['prefixes']:
+        parameters.append(f"prefix::{prefix['name']}")
+
+    search_string = "&&".join(parameters)
+    return search_string
