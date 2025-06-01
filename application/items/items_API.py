@@ -755,15 +755,33 @@ def deleteConversion():
 
 @items_api.route('/updateConversion', methods=['POST'])
 def updateConversion():
+    """ POST update conversion to the system given a conversion_id, update dictionary
+    ---
+    parameters:
+        - in: header
+          name: conversion_id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: conversion_id to be deleted
+        - in: header
+          name: update
+          schema:
+            type: dict
+            default: 1
+          required: true
+          description: data to update in key=column, value=update_data
+    responses:
+        200:
+            description: conversion updated successfully.
+    """
     if request.method == "POST":
         conversion_id = request.get_json()['conversion_id']
         update_dictionary = request.get_json()['update']
-
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            db.ConversionsTable.update_item_tuple(conn, site_name, {'id': conversion_id, 'update': update_dictionary})
-            return jsonify(error=False, message="Conversion was updated successfully")
+        database_items.updateConversionTuple(site_name, {'id': conversion_id, 'update': update_dictionary})
+        return jsonify(error=False, message="Conversion was updated successfully")
     return jsonify(error=True, message="Unable to save this conversion, ERROR!")
 
 @items_api.route('/addPrefix', methods=['POST'])

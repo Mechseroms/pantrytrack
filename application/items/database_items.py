@@ -787,6 +787,50 @@ def deleteConversionTuple(site_name: str, payload: tuple, convert=True, conn=Non
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def updateConversionTuple(site:str, payload: dict, convert=True, conn=None):
+        """_summary_
+
+        Args:
+            conn (_T_connector@connect): Postgresql Connector
+            site (str):
+            table (str):
+            payload (dict): {'id': row_id, 'update': {... column_to_update: value_to_update_to...}}
+            convert (bool, optional): determines if to return tuple as dictionary. Defaults to False.
+
+        Raises:
+            DatabaseError:
+
+        Returns:
+            tuple or dict: updated tuple
+        """
+        updated = ()
+        self_conn = False
+        set_clause, values = postsqldb.updateStringFactory(payload['update'])
+        values.append(payload['id'])
+        sql = f"UPDATE {site}_conversions SET {set_clause} WHERE id=%s RETURNING *;"
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = False
+                self_conn = True
+
+            with conn.cursor() as cur:
+                cur.execute(sql, values)
+                rows = cur.fetchone()
+                if rows and convert:
+                    updated = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    updated = rows
+            
+            if self_conn:
+                conn.commit()
+                conn.close()
+                
+            return updated
+        except Exception as error:
+            raise postsqldb.DatabaseError(error, payload, sql)
+
 def postUpdateItemLocation(site, payload, conn=None):
 
     item_location = ()
