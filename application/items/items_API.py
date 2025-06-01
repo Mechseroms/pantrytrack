@@ -877,16 +877,32 @@ def refreshSearchString():
 
 @items_api.route('/postNewItemLocation', methods=['POST'])
 def postNewItemLocation():
+    """ POST add itemlocation to the system given a item_id and location_id
+    ---
+    parameters:
+        - in: header
+          name: item_id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: item_id to be attached location_id to
+        - in: header
+          name: item_id
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: location_id to attach item_id to
+    responses:
+        200:
+            description: conversion updated successfully.
+    """
     if request.method == "POST":
         item_id = request.get_json()['item_id']
         location_id = request.get_json()['location_id']
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            item_location = db.ItemLocationsTable.Payload(
-                item_id,
-                location_id
-            )
-            db.ItemLocationsTable.insert_tuple(conn, site_name, item_location.payload())
-            return jsonify(error=False, message="Location was added successfully")
+        item_location = dbPayloads.ItemLocationPayload(item_id, location_id)
+        database_items.insertItemLocationsTuple(site_name, item_location.payload())
+        return jsonify(error=False, message="Location was added successfully")
     return jsonify(error=True, message="Unable to save this location, ERROR!")
