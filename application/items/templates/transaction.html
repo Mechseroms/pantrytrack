@@ -115,7 +115,6 @@
             
             <ul uk-tab>
                 <li><a href="#">Manual Transaction</a></li>
-                <li><a href="#">Scan To Transaction</a></li>
                 <li><a href="#">Scan To Receipt</a></li>
             </ul>
             
@@ -203,40 +202,6 @@
                     </div>
                 </div>
                 <div class="uk-grid-small" uk-grid>
-                    <div class="uk-width-1-1 uk-visible@m">
-                        <p class="uk-text-meta">Using this method of entering transaction receipts does so by transacting a single UOM of the barcode scanned. Its important that you have the
-                            Barcode input focused and use a scanner that places the characters into the field before it finishes up with a press of the ENTER key.
-                        </p>
-                    </div>
-                    <div class="uk-width-1-1 uk-flex uk-flex-left" uk-grid>
-                        <div class="uk-width-1-3@m">
-                            <label class="uk-form-label" for="barcode-scan">Barcode</label>
-                            <input onkeydown="addToQueue(event)" on id="barcode-scan" class="uk-input uk-flex uk-flex-bottom" type="text">
-                        </div>
-                        <div class="uk-width-1-3@m uk-flex uk-flex-bottom uk-flex-right@m">
-                            <select id="scan_trans_type" class="uk-select" aria-label="Select">
-                                <option value="Adjust Out">Adjust Out</option>
-                                <option value="Adjust In">Adjust In</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="uk-width-1-1">
-                        <table class="uk-table uk-table-striped uk-table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Status</th>
-                                    <th>Barcode</th>
-                                    <th>Name</th>
-                                    <th>Type</th>
-                                    <th>Location</th>
-                                </tr>
-                            </thead>
-                            <tbody id="scanTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="uk-grid-small" uk-grid>
                     <div class="uk-width-1-1">
                         <p class="uk-text-meta">Using this method of entering receipts does so by adding each barcode to a list and once the receipt has been built the 
                             the system will then add the receipt to the system. Its important that you have the Barcode input focused and use a scanner that places the 
@@ -280,7 +245,7 @@
             </div>
         </div>
         <!-- Modals -->
-        <!-- This is the modal -->
+        <!-- This is the modal USED FOR MANUAL TRANSACTION-->
         <div id="itemsModal" uk-modal>
             <div id="itemsModalInner" class="uk-modal-dialog uk-modal-body " uk-overflow-auto>
                 <h2 class="uk-modal-title">Select Item</h2>
@@ -314,7 +279,7 @@
                 </table>
             </div>
         </div>
-        <!-- Item Locations Modal-->
+        <!-- Item Locations Modal USED FOR MANUAL TRANSACTION-->
         <div id="itemLocationsModal" uk-modal>
             <div id="itemLocationsModalInner" class="uk-modal-dialog uk-modal-body " uk-overflow-auto>
                 <h2 class="uk-modal-title">Item Locations</h2>
@@ -331,7 +296,7 @@
                 </table>
             </div>
         </div>
-        <!-- Line Edit Modal-->
+        <!-- Line Edit Modal USED FOR RECEIPTS-->
         <div id="lineEditModal" uk-modal>
             <div class="uk-modal-dialog uk-modal-body">
                 <h2 class="uk-modal-title">Edit Line...</h2>
@@ -384,6 +349,6 @@
         {% assets "js_all" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
         {% endassets %}
-        <script type="text/javascript" src="/static/handlers/transactionHandler.js"></script>
+        <script type="text/javascript" src="{{ url_for('items_api.static', filename='transactionHandler.js') }}"></script>
     </body>
 </html>

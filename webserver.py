@@ -3,13 +3,13 @@ from flask import Flask, render_template, session, request, redirect, jsonify
 from flask_assets import Environment, Bundle
 import api, config, user_api, psycopg2, main, api_admin, receipts_API, shopping_list_API, group_api
 from user_api import login_required, update_session_user
-from external_API import external_api
 from workshop_api import workshop_api
 import database
 import postsqldb
 from webpush import trigger_push_notifications_for_subscriptions
 from application.recipes import recipes_api
 from application.items import items_API
+from application.poe import poe_api
 from flasgger import Swagger
 
 
@@ -28,7 +28,7 @@ app.register_blueprint(api.database_api)
 app.register_blueprint(user_api.login_app)
 app.register_blueprint(api_admin.admin_api)
 app.register_blueprint(items_API.items_api, url_prefix='/items')
-app.register_blueprint(external_api)
+app.register_blueprint(poe_api.point_of_ease, url_prefix='/poe')
 app.register_blueprint(workshop_api)
 app.register_blueprint(receipts_API.receipt_api)
 app.register_blueprint(shopping_list_API.shopping_list_api)
