@@ -1935,3 +1935,6 @@
 2025-04-28 06:46:35.145654 --- ERROR --- DatabaseError(message='can't adapt type 'builtin_function_or_method'',
                                          payload={'id': <built-in function id>, 'update': {'conv_factor': 3}},
                                          sql='UPDATE test_itemlinks SET conv_factor = %s WHERE id=%s RETURNING *;')
+2025-07-02 18:04:47.600077 --- ERROR --- DatabaseError(message='not all arguments converted during string formatting',
+                                         payload=(1, 2),
+                                         sql='SELECT * FROM main_locations WHERE id=%s;')

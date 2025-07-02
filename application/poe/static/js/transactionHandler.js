@@ -78,7 +78,6 @@ async function submitScanTransaction(scannedItem) {
                 scan_transaction_item_location_id = scannedItem.item_locations[i].id
             }
         }
-
         const response = await fetch(`/poe/postTransaction`, {
             method: 'POST',
             headers: {

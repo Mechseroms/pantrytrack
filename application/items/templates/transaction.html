@@ -115,7 +115,6 @@
             
             <ul uk-tab>
                 <li><a href="#">Manual Transaction</a></li>
-                <li><a href="#">Scan To Receipt</a></li>
             </ul>
             
             <div class="uk-switcher">
@@ -199,47 +198,6 @@
                     </div>
                     <div class="uk-width-1-1 uk-flex uk-flex-right">
                         <button onclick="submitTransaction()" class="uk-button uk-button-primary">Submit</button>
-                    </div>
-                </div>
-                <div class="uk-grid-small" uk-grid>
-                    <div class="uk-width-1-1">
-                        <p class="uk-text-meta">Using this method of entering receipts does so by adding each barcode to a list and once the receipt has been built the 
-                            the system will then add the receipt to the system. Its important that you have the Barcode input focused and use a scanner that places the 
-                            characters into the field before it finishes up with a press of the ENTER key.
-                        </p>
-                    </div>
-                    <div class="uk-width-1-1" uk-grid>
-                        <div>
-                            <button id="receiptStart" onclick="startReceipt()" class="uk-button uk-button-default">Start Receipt</button>
-                        </div>
-                        <div>
-                            <button id="receiptComplete" onclick="completeReceipt()" class="uk-button uk-button-default uk-disabled">Complete Receipt</button>
-                        </div>
-                        <div>
-                            <button id="receiptClose" onclick="closeReceipt()" class="uk-button uk-button-default uk-disabled">Cancel Receipt</button>
-                        </div>
-                    </div>
-                    <div class="uk-width-1-1">
-                        <hr class="uk-divider-icon">
-                    </div>
-                    <div id="barcode-input" class="uk-width-1-1 uk-flex uk-flex-left uk-disabled" uk-grid>
-                        <div class="uk-width-1-3@m">
-                            <label class="uk-form-label" for="barcode-scan-receipt">Barcode</label>
-                            <input onkeydown="addToReceipt(event)" id="barcode-scan-receipt" class="uk-input uk-flex uk-flex-bottom" type="text">
-                        </div>
-                    </div>
-                    <div id="barcode-table" class="uk-width-1-1 uk-disabled">
-                        <table class="uk-table uk-table-striped uk-table-hover">
-                            <thead>
-                                <tr>
-                                    <th class="uk-table-shrink">Type</th>
-                                    <th class="uk-table-shrink">Barcode</th>
-                                    <th>Name</th>                                    
-                                </tr>
-                            </thead>
-                            <tbody id="scanReceiptTableBody">
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>

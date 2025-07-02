@@ -7,6 +7,7 @@ from queue import Queue
 import time, process
 from user_api import login_required
 import webpush
+from application.poe import poe_processes
 
 point_of_ease = Blueprint('poe', __name__, template_folder="templates", static_folder="static")
 
@@ -17,7 +18,11 @@ def scannerEndpoint():
     return render_template('scanner.html', current_site=session['selected_site'], 
                            sites=sites)
     
-
+@point_of_ease.route('/receipts', methods=["GET"])
+def receiptsEndpoint():
+    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    return render_template('receipts.html', current_site=session['selected_site'], 
+                           sites=sites)
 
 @point_of_ease.route('/getItemLocations', methods=["GET"])
 def getItemLocations():
@@ -86,14 +91,18 @@ def getModalItems():
 @point_of_ease.route('/postTransaction', methods=["POST"])
 def post_transaction():
     if request.method == "POST":
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            result = process.postTransaction(
-                conn=conn,
-                site_name=session['selected_site'],
-                user_id=session['user_id'],
-                data=dict(request.json)
-            )  
+        print('test two')
+        result = poe_processes.postTransaction(
+            site_name=session['selected_site'],
+            user_id=session['user_id'],
+            data=dict(request.json)
+        )
+            #result = process.postTransaction(
+            #    conn=conn,
+            #    site_name=session['selected_site'],
+            #    user_id=session['user_id'],
+            #    data=dict(request.json)
+            #)  
         return jsonify(result)
     return jsonify({"error":True, "message":"There was an error with this POST statement"})
 
