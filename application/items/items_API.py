@@ -4,19 +4,10 @@ from flask import (
     )
 import psycopg2
 import math 
-import json
-import datetime
-import copy
-import requests
-import pprint
+
 
 # applications imports
-from config import config, sites_config
-from main import unfoldCostLayers
-import process
-import database
-import main
-import MyDataclasses
+from config import config
 from user_api import login_required
 import application.postsqldb as db
 from application.items import database_items
@@ -36,7 +27,7 @@ def update_session_user():
 @login_required
 def items():
     update_session_user()
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    sites = [site[1] for site in db.get_sites(session['user']['sites'])]
     return render_template("index.html", 
                            current_site=session['selected_site'], 
                            sites=sites)
@@ -44,7 +35,7 @@ def items():
 @items_api.route("/<id>")
 @login_required
 def item(id):
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    sites = [site[1] for site in db.get_sites(session['user']['sites'])]
     database_config = config()
     with psycopg2.connect(**database_config) as conn:
         units = db.UnitsTable.getAll(conn)
@@ -53,7 +44,7 @@ def item(id):
 @items_api.route("/transaction")
 @login_required
 def transaction():
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    sites = [site[1] for site in db.get_sites(session['user']['sites'])]
     database_config = config()
     with psycopg2.connect(**database_config) as conn:
         units = db.UnitsTable.getAll(conn)
@@ -74,13 +65,13 @@ def transactions(id):
       200:
         description: Returns the transactions.html webpage for the item with passed ID
     """
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    sites = [site[1] for site in db.get_sites(session['user']['sites'])]
     return render_template("transactions.html", id=id, current_site=session['selected_site'], sites=sites)
 
 @items_api.route("/<parent_id>/itemLink/<id>")
 @login_required
 def itemLink(parent_id, id):
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    sites = [site[1] for site in db.get_sites(session['user']['sites'])]
     return render_template("itemlink.html", current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer}, id=id)
 
 @items_api.route("/getTransactions", methods=["GET"])

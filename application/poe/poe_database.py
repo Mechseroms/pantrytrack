@@ -155,6 +155,96 @@ def selectItemLocationsTuple(site_name, payload, convert=True, conn=None):
 
     except Exception as error:
         return error
+
+def selectLinkedItemByBarcode(site, payload, convert=True, conn=None):
+    item = ()
+    self_conn = False
+    sql = f"SELECT * FROM {site}_itemlinks WHERE barcode=%s;"
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                item = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            if rows and not convert:
+                item = rows
+        
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return item
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+def selectItemAllByID(site, payload, convert=True, conn=None):
+    item = ()
+    self_conn = False
+
+    with open(f"application/poe/sql/getItemAllByID.sql", "r+") as file:
+        getItemAllByID_sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(getItemAllByID_sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                item = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            if rows and not convert:
+                item = rows
+        
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return item
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload, getItemAllByID_sql)
+
+def selectItemAllByBarcode(site, payload, convert=True, conn=None):
+    item = ()
+    self_conn = False
+    linked_item = selectLinkedItemByBarcode(site, (payload[0],))
+
+    if len(linked_item) > 1:
+        item = selectItemAllByID(site, payload=(linked_item['link'], ), convert=convert)
+        item['item_info']['uom_quantity'] = linked_item['conv_factor']
+    else:
+        with open(f"application/poe/sql/getItemAllByBarcode.sql", "r+") as file:
+            getItemAllByBarcode_sql = file.read().replace("%%site_name%%", site)
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = True
+                self_conn = True
+
+            with conn.cursor() as cur:
+                cur.execute(getItemAllByBarcode_sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    item = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                if rows and not convert:
+                    item = rows
+        
+            if self_conn:
+                conn.commit()
+                conn.close()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            raise postsqldb.DatabaseError(error, payload, getItemAllByBarcode_sql)
+    return item
     
 def insertCostLayersTuple(site, payload, convert=True, conn=None):
     cost_layer = ()

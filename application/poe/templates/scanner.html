@@ -73,7 +73,7 @@
                         </div>
                         <div class="uk-navbar-center uk-margin-small uk-visible@s">
                             <ul class="uk-breadcrumb">
-                                <li style="cursor: default;"><span><strong>{{current_site}}</strong></span>
+                                <li style="cursor: pointer;"><span><strong>{{current_site}}</strong></span>
                                     <div uk-dropdown="mode: hover">
                                         <ul class="uk-nav uk-dropdown-nav">
                                             {% for site in sites %}
@@ -86,9 +86,8 @@
                                         </ul>
                                     </div>
                                 </li>
-                                <li style="cursor: default; user-select: none;"><span>Logistics</span></li>
-                                <li><a href="/items">Items</a></li>
-                                <li class="uk-disabled"><span>Add Transaction</span></li>
+                                <li class="uk-disabled"><span>Point of Ease</span></li>
+                                <li class="uk-disabled"><span>Scan To Transaction</span></li>
                             </ul>
                         </div>
                         <div class="uk-navbar-right">

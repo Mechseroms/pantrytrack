@@ -1,12 +1,18 @@
-from application import postsqldb, database_payloads
-from application.poe import poe_database
-
+# 3rd Party imports
 import datetime
 import psycopg2
 
+# applications imports
+from application import postsqldb, database_payloads
+from application.poe import poe_database
 import config
 
+""" This module will hold all the multilayerd/complex process used in the 
+point of ease module. """    
+
+
 def postTransaction(site_name, user_id, data: dict, conn=None):
+    '''Takes a set of data as a dictionary and inserts them into the system for passed site_name. '''
     #dict_keys(['item_id', 'logistics_info_id', 'barcode', 'item_name', 'transaction_type', 
     # 'quantity', 'description', 'cost', 'vendor', 'expires', 'location_id'])
     def quantityFactory(quantity_on_hand:float, quantity:float, transaction_type:str):
@@ -47,18 +53,15 @@ def postTransaction(site_name, user_id, data: dict, conn=None):
         user_id=user_id,
     )
     
-    #location = database.selectItemLocationsTuple(conn, site_name, payload=(data['item_id'], data['location_id']), convert=True)
     location = poe_database.selectItemLocationsTuple(site_name, payload=(data['item_id'], data['location_id']), conn=conn)
     cost_layers: list = location['cost_layers']
     if data['transaction_type'] == "Adjust In":
         cost_layer = poe_database.insertCostLayersTuple(site_name, cost_layer.payload(), conn=conn)
-        #cost_layer = database.insertCostLayersTuple(conn, site_name, cost_layer.payload(), convert=True)
         cost_layers.append(cost_layer['id'])
     
     if data['transaction_type'] == "Adjust Out":
         if float(location['quantity_on_hand']) < float(data['quantity']):
             return {"error":True, "message":f"The quantity on hand in the chosen location is not enough to satisfy your transaction!"}
-        #cost_layers = database.selectCostLayersTuple(conn, site_name, (location['id'], ), convert=True)
         cost_layers = poe_database.selectCostLayersTuple(site_name, payload=(location['id'], ))
 
         new_cost_layers = []
@@ -73,12 +76,10 @@ def postTransaction(site_name, user_id, data: dict, conn=None):
                 layer['quantity'] -= qty
                 new_cost_layers.append(layer['id'])
                 poe_database.updateCostLayersTuple(site_name, {'id': layer['id'], 'update': {'quantity': layer['quantity']}}, conn=conn)
-                #database.__updateTuple(conn, site_name, f"{site_name}_cost_layers", {'id': layer['id'], 'update': {'quantity': layer['quantity']}})
                 qty = 0.0
             
             if layer['quantity'] == 0.0:
                 poe_database.deleteCostLayersTuple(site_name, (layer['id'],), conn=conn)
-                #database.deleteCostLayersTuple(conn, site_name, (layer['id'], ))
         
         cost_layers = new_cost_layers
 
@@ -86,15 +87,12 @@ def postTransaction(site_name, user_id, data: dict, conn=None):
 
     updated_item_location_payload = (cost_layers, quantity_on_hand, data['item_id'], data['location_id'])
     poe_database.updateItemLocation(site_name, updated_item_location_payload, conn=conn)
-    #database.updateItemLocation(conn, site_name, updated_item_location_payload)
 
     site_location = poe_database.selectLocationsTuple(site_name, (location['location_id'], ), conn=conn)
-    #site_location = database.__selectTuple(conn, site_name, f"{site_name}_locations", (location['location_id'], ), convert=True)
 
     transaction.data = {'location': site_location['uuid']}
 
     poe_database.insertTransactionsTuple(site_name, transaction.payload(), conn=conn)
-    #database.insertTransactionsTuple(conn, site_name, transaction.payload())
 
     if self_conn:
         conn.commit()
@@ -103,6 +101,8 @@ def postTransaction(site_name, user_id, data: dict, conn=None):
     return {"error": False, "message":f"Transaction Successful!"}
 
 def post_receipt(site_name, user_id, data: dict, conn=None):
+    '''Takes a list of items and opens and creates a SIR (SCANNED IN RECEIPT) into the system with the items linked
+    to said receipt.'''
     # data = {'items': items}
     self_conn = False
     items = data['items']
@@ -118,10 +118,9 @@ def post_receipt(site_name, user_id, data: dict, conn=None):
         receipt_id=receipt_id,
         submitted_by=user_id
     )
-    #receipt = database.insertReceiptsTuple(conn, site_name, receipt.payload(), convert=True)
     receipt = poe_database.insertReceiptsTuple(site_name, receipt.payload(), conn=conn)
+    
     for item in items:
-        
         receipt_item = database_payloads.ReceiptItemPayload(
             type=item['type'],
             receipt_id=receipt['id'],
@@ -131,10 +130,7 @@ def post_receipt(site_name, user_id, data: dict, conn=None):
             uom=item['item']['uom'],
             data=item['item']['data']
         )
-        #database.insertReceiptItemsTuple(conn, site_name, receipt_item.payload())
         poe_database.insertReceiptItemsTuple(site_name, receipt_item.payload(), conn=conn)
-    #webpush.push_notifications('New Receipt', f"Receipt {receipt['receipt_id']} was added to Site -> {site_name}!")
-    #webpush.push_ntfy('New Receipt', f"Receipt {receipt['receipt_id']} was added to Site -> {site_name}!")
     
     if self_conn:
         conn.commit()

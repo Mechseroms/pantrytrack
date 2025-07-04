@@ -4,6 +4,7 @@ import psycopg2.extras
 from dataclasses import dataclass, field
 import random
 import string
+import config
 
 class DatabaseError(Exception):
     def __init__(self, message, payload=[], sql=""):
@@ -43,6 +44,22 @@ def updateStringFactory(updated_values: dict):
 def getUUID(n):
     random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=n))
     return random_string
+
+def get_sites(sites=[]):
+	database_config = config.config()
+	with psycopg2.connect(**database_config) as conn:
+		try:
+			with conn.cursor() as cur:
+				site_rows = []
+				for each  in sites:
+					cur.execute(f"SELECT * FROM sites WHERE id=%s;", (each, ))
+					site_rows.append(cur.fetchone())
+				return site_rows
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+
 
 class ConversionsTable:
     @dataclass
