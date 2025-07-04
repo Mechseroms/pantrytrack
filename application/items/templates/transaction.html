@@ -254,56 +254,6 @@
                 </table>
             </div>
         </div>
-        <!-- Line Edit Modal USED FOR RECEIPTS-->
-        <div id="lineEditModal" uk-modal>
-            <div class="uk-modal-dialog uk-modal-body">
-                <h2 class="uk-modal-title">Edit Line...</h2>
-                <p class="uk-text-meta">Edit any fields here for the selected Line and then save them.</p>
-                <table class="uk-table uk-table-responsive uk-table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>QTY</td>
-                            <td><input id="lineName" class="uk-input" type="text"></td>
-                        </tr>
-                        <tr>
-                            <td>QTY</td>
-                            <td><input id="lineQty" class="uk-input" type="text"></td>
-                        </tr>
-                        <tr>
-                            <td>UOM</td>
-                            <td>
-                                <select id="lineUOM" class="uk-select" type="text">
-                                    {% for unit in units %}
-                                    <option value="{{unit['id']}}">{{unit['fullname']}}</option>
-                                    {% endfor %}
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>COST</td>
-                            <td><input id="lineCost" class="uk-input" type="text"></td>
-                        </tr>
-                        <tr>
-                            <td>EXPIRES</td>
-                            <td><input id="lineExpires" class="uk-input" type="date"></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <p class="uk-text-right">
-                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                    <button id="saveLineButton" class="uk-button uk-button-primary" type="button">Save</button>
-                </p>
-            </div>
-        </div>
-               
-        
-
         {% assets "js_all" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
         {% endassets %}

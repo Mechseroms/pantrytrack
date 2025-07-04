@@ -1938,3 +1938,9 @@
 2025-07-02 18:04:47.600077 --- ERROR --- DatabaseError(message='not all arguments converted during string formatting',
                                          payload=(1, 2),
                                          sql='SELECT * FROM main_locations WHERE id=%s;')
+2025-07-02 18:32:23.140191 --- ERROR --- DatabaseError(message='invalid input syntax for type integer: ""LINE 3: ...041789001314%', 'Chicken Ramen Noodle Soup', '2', '', '{"cos...                                                             ^',
+                                         payload=('sku', 19, '%041789001314%', 'Chicken Ramen Noodle Soup', '2', '', '{"cost": "1.99", "expires": false}', 'Unresolved'),
+                                         sql='INSERT INTO test_receipt_items(type, receipt_id, barcode, name, qty, uom, data, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')
+2025-07-04 08:19:34.889657 --- ERROR --- DatabaseError(message='invalid input syntax for type integer: "{"cost": 1.99, "expires": false}"LINE 3: ...41789001314%', 'Chicken Ramen Noodle Soup', 1, 5, '{"cost": ...                                                             ^',
+                                         payload=('sku', 23, '%041789001314%', 'Chicken Ramen Noodle Soup', 1, 5, '{"cost": 1.99, "expires": false}', 'Unresolved'),
+                                         sql='INSERT INTO test_recipe_items(uuid, rp_id, item_type, item_name, uom, qty, item_id, links) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')

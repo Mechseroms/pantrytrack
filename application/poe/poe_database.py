@@ -2,6 +2,36 @@ import psycopg2
 import config
 from application import postsqldb
 
+def request_receipt_id(conn, site_name):
+    """gets the next id for receipts_id, currently returns a 8 digit number
+
+    Args:
+        site (str): site to get the next id for
+
+    Returns:
+        json: receipt_id, message, error keys
+    """
+    next_receipt_id = None
+    sql = f"SELECT receipt_id FROM {site_name}_receipts ORDER BY id DESC LIMIT 1;"
+    try:
+        database_config = config.config()
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql)
+                next_receipt_id = cur.fetchone()
+                if next_receipt_id == None:
+                    next_receipt_id = "00000001"
+                else:
+                    next_receipt_id = next_receipt_id[0]
+                    next_receipt_id = int(next_receipt_id.split("-")[1]) + 1
+                    y = str(next_receipt_id)
+                    len_str = len(y)
+                    x = "".join(["0" for _ in range(8 - len_str)])
+                    next_receipt_id = x + y
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload=(), sql=sql)
+    
+    return next_receipt_id
 
 def selectItemLocationsTuple(site_name, payload, convert=True):
     """select a single tuple from ItemLocations table for site_name
@@ -198,6 +228,93 @@ def insertTransactionsTuple(site, payload, convert=True, conn=None):
         raise postsqldb.DatabaseError(error, payload, sql)
     return transaction
 
+def insertReceiptsTuple(site, payload, convert=True, conn=None):
+    """insert payload into receipt table of site
+
+    Args:
+        conn (_T_connector@connect): Postgresql Connector
+        site (str):
+        payload (tuple):
+        convert (bool, optional): Determines if to return tuple as dictionary. Defaults to False.
+
+    Raises:
+        DatabaseError:
+
+    Returns:
+        tuple or dict: inserted tuple
+    """
+    receipt = ()
+    self_conn = False
+    with open(f"application/poe/sql/insertReceiptsTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                receipt = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                receipt = rows
+        
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return receipt
+        
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+def insertReceiptItemsTuple(site, payload, convert=True, conn=None):
+    """insert payload into receipt_items table of site
+
+    Args:
+        conn (_T_connector@connect): Postgresql Connector
+        site (str):
+        payload (tuple): (type[str], receipt_id[int], barcode[str], name[str], 
+                        qty[float], data[jsonb], status[str])
+        convert (bool, optional): Determines if to return tuple as dictionary. Defaults to False.
+
+    Raises:
+        DatabaseError:
+
+    Returns:
+        tuple or dict: inserted tuple
+    """
+    receipt_item = ()
+    self_conn = False
+    
+    with open(f"application/poe/sql/insertReceiptItemsTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                receipt_item = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                receipt_item = rows
+
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return receipt_item
+
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
 
 def updateCostLayersTuple(site, payload, convert=True, conn=None):
     """_summary_

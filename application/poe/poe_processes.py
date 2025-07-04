@@ -1,4 +1,4 @@
-from application import postsqldb
+from application import postsqldb, database_payloads
 from application.poe import poe_database
 
 import datetime
@@ -97,7 +97,47 @@ def postTransaction(site_name, user_id, data: dict, conn=None):
     #database.insertTransactionsTuple(conn, site_name, transaction.payload())
 
     if self_conn:
-        conn.rollback()
+        conn.commit()
         conn.close()
 
     return {"error": False, "message":f"Transaction Successful!"}
+
+def post_receipt(site_name, user_id, data: dict, conn=None):
+    # data = {'items': items}
+    self_conn = False
+    items = data['items']
+    if not conn:
+        database_config = config.config()
+        conn = psycopg2.connect(**database_config)
+        conn.autocommit = False
+        self_conn = True
+
+    receipt_id = poe_database.request_receipt_id(conn, site_name)
+    receipt_id = f"SIR-{receipt_id}"
+    receipt = database_payloads.ReceiptPayload(
+        receipt_id=receipt_id,
+        submitted_by=user_id
+    )
+    #receipt = database.insertReceiptsTuple(conn, site_name, receipt.payload(), convert=True)
+    receipt = poe_database.insertReceiptsTuple(site_name, receipt.payload(), conn=conn)
+    for item in items:
+        
+        receipt_item = database_payloads.ReceiptItemPayload(
+            type=item['type'],
+            receipt_id=receipt['id'],
+            barcode=item['item']['barcode'],
+            name=item['item']['item_name'],
+            qty=item['item']['qty'],
+            uom=item['item']['uom'],
+            data=item['item']['data']
+        )
+        #database.insertReceiptItemsTuple(conn, site_name, receipt_item.payload())
+        poe_database.insertReceiptItemsTuple(site_name, receipt_item.payload(), conn=conn)
+    #webpush.push_notifications('New Receipt', f"Receipt {receipt['receipt_id']} was added to Site -> {site_name}!")
+    #webpush.push_ntfy('New Receipt', f"Receipt {receipt['receipt_id']} was added to Site -> {site_name}!")
+    
+    if self_conn:
+        conn.commit()
+        conn.close()
+
+    return {"error":False, "message":"Transaction Complete!"}

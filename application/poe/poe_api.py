@@ -8,6 +8,7 @@ import time, process
 from user_api import login_required
 import webpush
 from application.poe import poe_processes
+from application import postsqldb
 
 point_of_ease = Blueprint('poe', __name__, template_folder="templates", static_folder="static")
 
@@ -21,9 +22,14 @@ def scannerEndpoint():
 @point_of_ease.route('/receipts', methods=["GET"])
 def receiptsEndpoint():
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    database_config = config()
+    with psycopg2.connect(**database_config) as conn:
+        units = postsqldb.UnitsTable.getAll(conn)
+        #units = db.UnitsTable.getAll(conn)
     return render_template('receipts.html', current_site=session['selected_site'], 
-                           sites=sites)
+                           sites=sites, units=units)
 
+# DONT NEED
 @point_of_ease.route('/getItemLocations', methods=["GET"])
 def getItemLocations():
     recordset = []
@@ -41,7 +47,7 @@ def getItemLocations():
     return jsonify({"locations":recordset, "end": math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
 
-# in item api
+# in item api, DONT NEED
 @point_of_ease.route('/getItem', methods=["GET"])
 def getItem():
     record = {}
@@ -69,7 +75,7 @@ def getItemBarcode():
             return jsonify({"item":record,  "error":False, "message":"item fetched succesfully!"})
     return jsonify({"item":record, "error":True, "message":"There was an error with this GET statement"})
 
-# in items api
+# in items api DONT NEED
 @point_of_ease.route('/getModalItems', methods=["GET"])
 @login_required
 def getModalItems():
@@ -97,12 +103,6 @@ def post_transaction():
             user_id=session['user_id'],
             data=dict(request.json)
         )
-            #result = process.postTransaction(
-            #    conn=conn,
-            #    site_name=session['selected_site'],
-            #    user_id=session['user_id'],
-            #    data=dict(request.json)
-            #)  
         return jsonify(result)
     return jsonify({"error":True, "message":"There was an error with this POST statement"})
 
@@ -112,30 +112,7 @@ def post_receipt():
     if request.method == "POST":
         site_name = session['selected_site']
         user_id = session['user_id']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            items = request.json['items']
-            receipt_id = database.request_receipt_id(conn, site_name)
-            receipt_id = f"SIR-{receipt_id}"
-            receipt = MyDataclasses.ReceiptPayload(
-               receipt_id=receipt_id,
-               submitted_by=user_id
-            )
-            receipt = database.insertReceiptsTuple(conn, site_name, receipt.payload(), convert=True)
-            
-            for item in items:
-                
-                receipt_item = MyDataclasses.ReceiptItemPayload(
-                    type=item['type'],
-                    receipt_id=receipt['id'],
-                    barcode=item['item']['barcode'],
-                    name=item['item']['item_name'],
-                    qty=item['item']['qty'],
-                    uom=item['item']['uom'],
-                    data=item['item']['data']
-                )
-                database.insertReceiptItemsTuple(conn, site_name, receipt_item.payload())
-            #webpush.push_notifications('New Receipt', f"Receipt {receipt['receipt_id']} was added to Site -> {site_name}!")
-            webpush.push_ntfy('New Receipt', f"Receipt {receipt['receipt_id']} was added to Site -> {site_name}!")
-            return jsonify({"error":False, "message":"Transaction Complete!"})
+        data= {'items': request.json['items']}
+        status = poe_processes.post_receipt(site_name, user_id, data)
+        return jsonify(status)
     return jsonify({"error":True, "message":"There was an error with this POST statement"})
