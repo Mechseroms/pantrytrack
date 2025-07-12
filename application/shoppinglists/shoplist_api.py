@@ -1,11 +1,13 @@
-from flask import Blueprint, request, render_template, redirect, session, url_for, send_file, jsonify, Response
-import psycopg2, math, json, datetime, main, copy, requests, process, database, pprint, MyDataclasses
-from config import config, sites_config
-from main import unfoldCostLayers
+# 3rd Party imports
+from flask import (
+    Blueprint, request, render_template, redirect, session, jsonify
+    )
+import math
+
+# applications imports
+from application import postsqldb, database_payloads
 from user_api import login_required
-import postsqldb
 from application.shoppinglists import shoplist_database
-from application import database_payloads
 
 shopping_list_api = Blueprint('shopping_list_API', __name__, template_folder="templates", static_folder="static")
 
@@ -14,13 +16,13 @@ shopping_list_api = Blueprint('shopping_list_API', __name__, template_folder="te
 @shopping_list_api.route("/")
 @login_required
 def shopping_lists():
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
     return render_template("lists.html", current_site=session['selected_site'], sites=sites)
 
 @shopping_list_api.route("/<mode>/<id>")
 @login_required
 def shopping_list(mode, id):
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
     if mode == "view":
         return render_template("view.html", id=id, current_site=session['selected_site'], sites=sites)
     if mode == "edit":
