@@ -61,6 +61,31 @@ def get_sites(sites=[]):
 			return False
 
 
+def get_units_of_measure(convert=True, conn=None):
+        records = ()
+        self_conn = False
+        sql = f"SELECT * FROM units;"
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = True
+                self_conn = True
+                
+            with conn.cursor() as cur:
+                cur.execute(sql)
+                rows = cur.fetchall()
+                if rows and convert:
+                    records = [tupleDictionaryFactory(cur.description, row) for row in rows] 
+                elif rows and not convert:
+                    records = rows
+            
+            if self_conn:
+                conn.close()
+            return records
+        except Exception as error:
+            raise DatabaseError(error, "", sql)
+
 class ConversionsTable:
     @dataclass
     class Payload:

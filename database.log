@@ -1962,3 +1962,12 @@
 2025-07-12 09:29:10.063362 --- ERROR --- DatabaseError(message='tuple index out of range',
                                          payload=(5,),
                                          sql='SELECT *,    (SELECT COALESCE(array_agg(row_to_json(g)), '{}') FROM test_shopping_list_items g WHERE sl_id = test_shopping_lists.id) AS sl_items FROM test_shopping_lists LIMIT %s OFFSET %s;')
+2025-07-12 10:32:47.237422 --- ERROR --- DatabaseError(message='invalid input syntax for type integer: "each"LINE 3: VALUES ('13kitql4', '13', 'custom', 'test', 'each', 1, NULL,...                                                    ^',
+                                         payload=('13kitql4', '13', 'custom', 'test', 'each', 1, None, '{"main": "test2"}'),
+                                         sql='INSERT INTO test_shopping_list_items(uuid, sl_id, item_type, item_name, uom, qty, item_id, links) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')
+2025-07-12 15:35:45.537855 --- ERROR --- DatabaseError(message='can't adapt type 'dict'',
+                                         payload=('sku', 26, '%041667029362%', 'Microwave popcorn', 1, {'id': 1, 'plural': 'pinches', 'single': ' pinch', 'fullname': ' Pinch', 'description': ' Less than 1/8 teaspoon.'}, '{"cost": 0, "expires": false}', 'Unresolved'),
+                                         sql='INSERT INTO test_receipt_items(type, receipt_id, barcode, name, qty, uom, data, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')
+2025-07-12 15:45:15.171378 --- ERROR --- DatabaseError(message='can't adapt type 'dict'',
+                                         payload=('sku', 26, '%028400517829%', 'Tostitos', 1, {'id': 1, 'plural': 'pinches', 'single': ' pinch', 'fullname': ' Pinch', 'description': ' Less than 1/8 teaspoon.'}, '{"cost": 0, "expires": false}', 'Unresolved'),
+                                         sql='INSERT INTO test_receipt_items(type, receipt_id, barcode, name, qty, uom, data, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')

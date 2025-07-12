@@ -64,7 +64,7 @@ async function replenishReceiptsTable(receipts) {
         )
 
         tableRow.onclick = async function() {
-            let url = `${window.location.origin}/receipt/${receipts[i].id}`;
+            let url = `${window.location.origin}/receipts/${receipts[i].id}`;
             window.location.href = url;
         }
 
@@ -77,7 +77,7 @@ async function replenishReceiptsTable(receipts) {
 
 var receipts_limit = 10
 async function getReceipts() {
-    const url = new URL('/receipts/getReceipts', window.location.origin);
+    const url = new URL('/receipts/api/getReceipts', window.location.origin);
     url.searchParams.append('page', pagination_current);
     url.searchParams.append('limit', receipts_limit);
     const response = await fetch(url);

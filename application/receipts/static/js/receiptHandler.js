@@ -38,7 +38,7 @@ async function replenishFields(receipt) {
 
 async function checkAPI(line_id, barcode) {
     console.log(barcode)
-    const response = await fetch(`/receipts/checkAPI`, {
+    const response = await fetch(`/receipts/api/checkAPI`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',
@@ -300,7 +300,7 @@ async function openLineEditModal(line_data) {
 
 async function addSKULine(item_id) {
     console.log(item_id)
-    const response = await fetch(`/receipts/addSKULine`, {
+    const response = await fetch(`/receipts/api/addSKULine`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',
@@ -316,7 +316,7 @@ async function addSKULine(item_id) {
 }
 
 async function resolveLine(line_id) {
-    const response = await fetch(`/receipts/resolveLine`, {
+    const response = await fetch(`/receipts/api/resolveLine`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',
@@ -329,7 +329,7 @@ async function resolveLine(line_id) {
 }
 
 async function resolveReceipt() {
-    const response = await fetch(`/receipts/resolveReceipt`, {
+    const response = await fetch(`/receipts/api/resolveReceipt`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',
@@ -346,7 +346,7 @@ async function uploadFile() {
     const formData = new FormData();
     formData.append('file', fileInput.files[0]);
 
-    await fetch(`/receipt/uploadfile/${receipt_id}`, {
+    await fetch(`/receipts/api/uploadfile/${receipt_id}`, {
     method: 'POST',
     body: formData
     })
@@ -379,7 +379,7 @@ async function saveLine(line_id){
         }
     }
 
-    const response = await fetch(`/receipts/saveLine`, {
+    const response = await fetch(`/receipts/api/saveLine`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',
@@ -395,7 +395,7 @@ async function saveLine(line_id){
 }
 
 async function deleteLine(id) {
-    const response = await fetch(`/receipts/deleteLine`, {
+    const response = await fetch(`/receipts/api/deleteLine`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',
@@ -409,7 +409,7 @@ async function deleteLine(id) {
 
 async function denyLine(id) {
     console.log(id)
-    const response = await fetch(`/receipts/denyLine`, {
+    const response = await fetch(`/receipts/api/denyLine`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',
@@ -422,7 +422,7 @@ async function denyLine(id) {
 }
 
 async function getReceipt(id) {
-    const url = new URL('/receipts/getReceipt', window.location.origin);
+    const url = new URL('/receipts/api/getReceipt', window.location.origin);
     url.searchParams.append('id', id);
     const response = await fetch(url);
     data =  await response.json();
@@ -433,7 +433,7 @@ async function getReceipt(id) {
 let items_limit = 50;
 async function getItems() {
     console.log("getting items")
-    const url = new URL('/receipts/getItems', window.location.origin);
+    const url = new URL('/receipts/api/getItems', window.location.origin);
     url.searchParams.append('page', pagination_current);
     url.searchParams.append('limit', items_limit);
     const response = await fetch(url);
@@ -531,7 +531,7 @@ let vendor_limit = 25
 let vendor_current_page = 1
 let vendor_end_page = 10
 async function getVendors() {
-    const url = new URL('/receipt/getVendors', window.location.origin);
+    const url = new URL('/receipts/api/getVendors', window.location.origin);
     url.searchParams.append('page', vendor_current_page);
     url.searchParams.append('limit', vendor_limit);
     const response = await fetch(url);
@@ -541,7 +541,7 @@ async function getVendors() {
 }
 
 async function postVendorUpdate(vendor_id) {
-    const response = await fetch(`/receipt/postVendorUpdate`, {
+    const response = await fetch(`/receipts/api/postVendorUpdate`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',
@@ -691,7 +691,7 @@ let links_limit = 25
 let links_current_page = 1
 let links_end_page = 10
 async function getLinkedLists() {
-    const url = new URL('/receipt/getLinkedLists', window.location.origin);
+    const url = new URL('/receipts/api/getLinkedLists', window.location.origin);
     url.searchParams.append('page', vendor_current_page);
     url.searchParams.append('limit', vendor_limit);
     const response = await fetch(url);
@@ -701,7 +701,7 @@ async function getLinkedLists() {
 }
 
 async function postLinkedItem(receipt_item_id, link_list_id, conv_factor) {
-    const response = await fetch(`/receipt/postLinkedItem`, {
+    const response = await fetch(`/receipts/api/postLinkedItem`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',

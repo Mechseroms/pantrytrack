@@ -96,7 +96,7 @@ async function replenishTransactionsTable(transactions) {
 }
 
 async function getItem(id) {
-    const url = new URL('/external/getItem', window.location.origin);
+    const url = new URL('/items/getItem', window.location.origin);
     url.searchParams.append('id', id);
     const response = await fetch(url);
     data =  await response.json();

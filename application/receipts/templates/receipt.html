@@ -390,6 +390,6 @@
             </div>
         </div>
     </body>
-    <script src="{{ url_for('static', filename='handlers/receiptHandler.js') }}"></script>
+    <script src="{{ url_for('receipt_api.static', filename='js/receiptHandler.js') }}"></script>
     <script>const receipt_id = {{id|tojson}}</script>
 </html>

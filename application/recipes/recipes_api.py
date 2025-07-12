@@ -23,7 +23,7 @@ def recipes():
             description: returns recipes/index.html with sites, current_site.
     """
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    return render_template("index.html", 
+    return render_template("recipes_index.html", 
                            current_site=session['selected_site'], 
                            sites=sites)
 

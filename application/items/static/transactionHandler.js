@@ -166,7 +166,7 @@ async function replenishItemLocationsTable(locations) {
 let locations_limit = 10;
 async function getItemLocations() {
     console.log("getting Locations")
-    const url = new URL('/external/getItemLocations', window.location.origin);
+    const url = new URL('/items/getItemLocations', window.location.origin);
     url.searchParams.append('page', pagination_current);
     url.searchParams.append('limit', locations_limit);
     url.searchParams.append('id', item.id);
@@ -182,7 +182,7 @@ async function getItemLocations() {
 let items_limit = 50;
 async function getItems() {
     console.log("getting items")
-    const url = new URL('/external/getModalItems', window.location.origin);
+    const url = new URL('/items/getModalItems', window.location.origin);
     url.searchParams.append('page', pagination_current);
     url.searchParams.append('limit', items_limit);
     url.searchParams.append('search_string', search_string)
@@ -195,7 +195,7 @@ async function getItems() {
 
 async function getItem(id) {
     console.log(`selected item: ${id}`)
-    const url = new URL('/external/getItem', window.location.origin);
+    const url = new URL('/items/getItem', window.location.origin);
     url.searchParams.append('id', id);
     const response = await fetch(url);
     data =  await response.json();
@@ -267,7 +267,7 @@ async function submitTransaction() {
     let validated = await validateTransaction()
     if (validated){
         let cost = parseFloat(document.getElementById('transaction_cost').value.replace(/[^0-9.-]+/g, ""));
-        const response = await fetch(`/external/postTransaction`, {
+        const response = await fetch(`/items/postTransaction`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -408,278 +408,15 @@ async function updatePaginationElement(elementID) {
     paginationElement.append(nextElement)
 }
 
-var scannedItems = Array();
-const queueLimit = 5; // 49 should be default
-
-async function addToQueue(event) {
-    if (event.key == "Enter"){
-        let data = await getItemBarcode(document.getElementById('barcode-scan').value)
-        let scannedItem = data.item
-        if(data.error){
-            UIkit.notification({
-            message: data.message,
-            status: "danger",
-            pos: 'top-right',
-            timeout: 5000
-            });
-        }
-        if(scannedItems.length > queueLimit){
-            scannedItems.shift()
-        }
-        if(!Array.isArray(scannedItem) && !data.error){
-            let status = await submitScanTransaction(scannedItem)
-            scannedItems.push({'item': scannedItem, 'type': `${document.getElementById('scan_trans_type').value}`, 'error': status})
-            document.getElementById('barcode-scan').value = ""
-        }
-    }
-    await replenishScanTable()
-}
-
 async function getItemBarcode(barcode) {
     console.log(`selected item: ${barcode}`)
-    const url = new URL('/external/getItem/barcode', window.location.origin);
+    const url = new URL('/items/getItem/barcode', window.location.origin);
     url.searchParams.append('barcode', barcode);
     const response = await fetch(url);
     data =  await response.json();
     return data;
 }
 
-async function submitScanTransaction(scannedItem) {
-            /// I need to find the location that matches the items auto issue location id
-
-        let trans_type = document.getElementById('scan_trans_type').value
-        let scan_transaction_item_location_id = 0
-        let comparator = 0
-        
-        if (trans_type === "Adjust In"){
-            comparator = scannedItem.logistics_info.primary_location.id
-        } else if (trans_type === "Adjust Out"){
-            comparator = scannedItem.logistics_info.auto_issue_location.id
-        }
-
-        for (let i = 0; i < scannedItem.item_locations.length; i++){
-            if (scannedItem.item_locations[i].location_id === comparator){
-                scan_transaction_item_location_id = scannedItem.item_locations[i].id
-            }
-        }
-
-        const response = await fetch(`/external/postTransaction`, {
-            method: 'POST',
-            headers: {
-                    'Content-Type': 'application/json',
-                },
-            body: JSON.stringify({
-                item_id: scannedItem.id,
-                logistics_info_id: scannedItem.logistics_info_id,
-                barcode: scannedItem.barcode,
-                item_name: scannedItem.item_name,
-                transaction_type: document.getElementById('scan_trans_type').value,
-                quantity: scannedItem.item_info.uom_quantity,
-                description: "",
-                cost: parseFloat(scannedItem.item_info.cost),
-                vendor: 0,
-                expires: null,
-                location_id: scan_transaction_item_location_id
-                }),
-            });
-        data =  await response.json();
-        transaction_status = "success"
-        if (data.error){
-            transaction_status = "danger"
-        }
-
-        UIkit.notification({
-            message: data.message,
-            status: transaction_status,
-            pos: 'top-right',
-            timeout: 5000
-        });
-
-        return data.error
-    
-}
-
-async function replenishScanTable() {
-    let scanTableBody = document.getElementById("scanTableBody")
-    scanTableBody.innerHTML = ""
-
-    let reversedScannedItems = scannedItems.slice().reverse()
-
-    for(let i = 0; i < reversedScannedItems.length; i++){
-        let tableRow = document.createElement('tr')
-
-        let icon = `<span uk-icon="check"></span>`
-        if(reversedScannedItems[i].error){
-            icon = `<span uk-icon="warning"></span>`
-        }
-
-        let statusCell = document.createElement('td')
-        statusCell.innerHTML = icon
-        let barcodeCell = document.createElement('td')
-        barcodeCell.innerHTML = reversedScannedItems[i].item.barcode
-        let nameCell = document.createElement('td')
-        nameCell.innerHTML = reversedScannedItems[i].item.item_name
-        let typeCell = document.createElement('td')
-        typeCell.innerHTML = reversedScannedItems[i].type
-        let locationCell = document.createElement('td')
-        if (reversedScannedItems[i].type === "Adjust In"){
-            locationCell.innerHTML = reversedScannedItems[i].item.logistics_info.primary_location.uuid
-        } else {
-            locationCell.innerHTML = reversedScannedItems[i].item.logistics_info.auto_issue_location.uuid
-        }
-
-        tableRow.append(statusCell, barcodeCell, nameCell, typeCell, locationCell)
-        scanTableBody.append(tableRow)
-    }
-}
-
-async function submitScanReceipt(items) {
-    const response = await fetch(`/external/postReceipt`, {
-        method: 'POST',
-        headers: {
-                'Content-Type': 'application/json',
-            },
-        body: JSON.stringify({
-            items: items
-            }),
-        });
-    data =  await response.json();
-    transaction_status = "success"
-    if (data.error){
-        transaction_status = "danger"
-    }
-
-    UIkit.notification({
-        message: data.message,
-        status: transaction_status,
-        pos: 'top-right',
-        timeout: 5000
-    });
-
-    return data.error
-}
-
-var openedReceipt = false
-async function startReceipt() {
-    openedReceipt = true
-    document.getElementById('barcode-input').classList.remove('uk-disabled')
-    document.getElementById('barcode-table').classList.remove('uk-disabled')
-
-    document.getElementById('receiptStart').classList.add('uk-disabled')
-    document.getElementById('receiptComplete').classList.remove('uk-disabled')
-    document.getElementById('receiptClose').classList.remove('uk-disabled')
-
-}
-
-async function completeReceipt() {
-    openedReceipt = false
-    document.getElementById('barcode-input').classList.add('uk-disabled')
-    document.getElementById('barcode-table').classList.add('uk-disabled')
-
-    document.getElementById('receiptStart').classList.remove('uk-disabled')
-    document.getElementById('receiptComplete').classList.add('uk-disabled')
-    document.getElementById('receiptClose').classList.add('uk-disabled')
-
-    await submitScanReceipt(scannedReceiptItems)
-    let scanReceiptTableBody = document.getElementById("scanReceiptTableBody")
-    scanReceiptTableBody.innerHTML = ""
-
-    scannedReceiptItems = Array()
-
-}
-
-async function closeReceipt(){
-    openedReceipt = false
-    document.getElementById('barcode-input').classList.add('uk-disabled')
-    document.getElementById('barcode-table').classList.add('uk-disabled')
-
-    document.getElementById('receiptStart').classList.remove('uk-disabled')
-    document.getElementById('receiptComplete').classList.add('uk-disabled')
-    document.getElementById('receiptClose').classList.add('uk-disabled')
-
-    let scanReceiptTableBody = document.getElementById("scanReceiptTableBody")
-    scanReceiptTableBody.innerHTML = ""
-
-    scannedReceiptItems = Array()
-}
-
-var scannedReceiptItems = Array();
-async function addToReceipt(event) {
-    if (event.key == "Enter"){
-        let barcode = document.getElementById('barcode-scan-receipt').value
-        let data = await getItemBarcode(barcode)
-        let scannedItem = data.item
-        if(scannedItem){
-            let expires = scannedItem.food_info.expires
-            console.log(expires)
-            if(scannedItem.food_info.expires){
-                let today = new Date();
-                today.setDate(today.getDate() + Number(scannedItem.food_info.default_expiration))
-                expires = today.toISOString().split('T')[0];
-            }
-            scannedReceiptItems.push({item: {
-                barcode: scannedItem.barcode,
-                item_name: scannedItem.item_name,
-                qty: scannedItem.item_info.uom_quantity,
-                uom: scannedItem.item_info.uom.id,
-                data: {cost: scannedItem.item_info.cost, expires: expires}
-            }, type: 'sku'})
-            document.getElementById('barcode-scan-receipt').value = ""
-        } else {
-            scannedReceiptItems.push({item: {
-                barcode: `%${barcode}%`, 
-                item_name: "unknown",
-                qty: 1,
-                uom: 1,
-                data: {'cost': 0.00, 'expires': false}
-            }, type: 'new sku'})
-            document.getElementById('barcode-scan-receipt').value = ""
-        }
-    }
-    await replenishScannedReceiptTable(scannedReceiptItems)
-}
-
-async function replenishScannedReceiptTable(items) {
-    let scanReceiptTableBody = document.getElementById("scanReceiptTableBody")
-    scanReceiptTableBody.innerHTML = ""
-
-    for(let i = 0; i < items.length; i++){
-        let tableRow = document.createElement('tr')
-
-        let typeCell = document.createElement('td')
-        typeCell.innerHTML = items[i].type
-        let barcodeCell = document.createElement('td')
-        barcodeCell.innerHTML = items[i].item.barcode
-        let nameCell = document.createElement('td')
-        nameCell.innerHTML = items[i].item.item_name
-        
-        let operationsCell = document.createElement('td')
-
-        let editOp = document.createElement('a')
-        editOp.style = "margin-right: 5px;"
-        editOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
-        editOp.setAttribute('uk-icon', 'icon: pencil')
-        editOp.onclick = async function () {
-            await openLineEditModal(i, items[i])
-        }
-
-        let deleteOp = document.createElement('a')
-        deleteOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
-        deleteOp.setAttribute('uk-icon', 'icon: trash')
-        deleteOp.onclick = async function() {
-            scannedReceiptItems.splice(i, 1)
-            await replenishScannedReceiptTable(scannedReceiptItems)
-        }
-
-        operationsCell.append(editOp, deleteOp)
-
-        operationsCell.classList.add("uk-flex")
-        operationsCell.classList.add("uk-flex-right")
-
-        tableRow.append(typeCell, barcodeCell, nameCell, operationsCell)
-        scanReceiptTableBody.append(tableRow)
-    }
-}
 
 async function openLineEditModal(ind, line_data) {
     console.log(line_data)

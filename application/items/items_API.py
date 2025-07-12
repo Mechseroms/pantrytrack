@@ -897,3 +897,29 @@ def postNewItemLocation():
         database_items.insertItemLocationsTuple(site_name, item_location.payload())
         return jsonify(error=False, message="Location was added successfully")
     return jsonify(error=True, message="Unable to save this location, ERROR!")
+
+@items_api.route("/getItemLocations", methods=["GET"])
+def getItemLocations():
+    recordset = []
+    count = 0
+    if request.method == "GET":
+        item_id = int(request.args.get('id', 1))
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        site_name = session['selected_site']
+        offset = (page - 1) * limit
+        recordset, count = database_items.getItemLocations(site_name, (item_id, limit, offset))
+        return jsonify({"locations":recordset, "end":math.ceil(count/limit), "error":False, "message":"item fetched succesfully!"})
+    return jsonify({"locations":recordset, "end": math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
+
+
+@items_api.route('/postTransaction', methods=["POST"])
+def post_transaction():
+    if request.method == "POST":
+        result = items_processes.postAdjustment(
+            site_name=session['selected_site'],
+            user_id=session['user_id'],
+            data=dict(request.json)
+        )  
+        return jsonify(result)
+    return jsonify({"error":True, "message":"There was an error with this POST statement"})

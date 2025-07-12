@@ -208,6 +208,38 @@ def getZone(site:str, payload:tuple, convert:bool=True):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def getItemLocations(site, payload, convert=True, conn=None):
+    locations = []
+    count = 0
+    self_conn = False
+    with open(f"application/items/sql/getItemLocations.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchall()
+            if rows and convert:
+                locations = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+            if rows and not convert:
+                locations = rows
+
+            cur.execute(f"SELECT COUNT(*) FROM {site}_item_locations WHERE part_id=%s;", (payload[0],))
+            count = cur.fetchone()[0]
+        
+        if self_conn:
+            conn.close()
+
+        return locations, count
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
 def getItemInfoTuple(site:str, payload:tuple, convert=True):
         """_summary_
 

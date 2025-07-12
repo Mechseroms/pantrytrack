@@ -1,44 +1,37 @@
 from flask import Blueprint, request, render_template, redirect, session, url_for, send_file, jsonify, Response, current_app, send_from_directory
-import psycopg2, math, json, datetime, main, copy, requests, process, database, pprint, MyDataclasses
-from config import config, sites_config
+import psycopg2, math, datetime, process, database, MyDataclasses
+from config import config
 from user_api import login_required
 import openfoodfacts
 import postsqldb
 import mimetypes, os
-import pymupdf, PIL
 import webpush
 
-
-def create_pdf_preview(pdf_path, output_path, size=(600, 400)):
-    pdf = pymupdf.open(pdf_path)
-    page = pdf[0]
-    file_name = os.path.basename(pdf_path).replace('.pdf', "")
-    pix = page.get_pixmap()
-    img = PIL.Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
-    output_path = output_path + file_name + '.jpg'
-    img.thumbnail(size)
-    img.save(output_path)
-    return file_name + '.jpg'
+from application import postsqldb, database_payloads
+from application.receipts import receipts_processes, receipts_database
 
 
-receipt_api = Blueprint('receipt_api', __name__)
+receipt_api = Blueprint('receipt_api', __name__, template_folder='templates', static_folder='static')
 
-@receipt_api.route("/receipt/<id>")
-@login_required
-def receipt(id):
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    database_config = config()
-    with psycopg2.connect(**database_config) as conn:
-        units = postsqldb.UnitsTable.getAll(conn)
-    return render_template("receipts/receipt.html", id=id, current_site=session['selected_site'], sites=sites, units=units)
 
-@receipt_api.route("/receipts")
+# ROOT TEMPLATE ROUTES
+@receipt_api.route("/")
 @login_required
 def receipts():
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    return render_template("receipts/index.html", current_site=session['selected_site'], sites=sites)
+    sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
+    return render_template("receipts_index.html", current_site=session['selected_site'], sites=sites)
 
-@receipt_api.route('/receipts/getItems', methods=["GET"])
+@receipt_api.route("/<id>")
+@login_required
+def receipt(id):
+    sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
+    units = postsqldb.get_units_of_measure()
+    return render_template("receipt.html", id=id, current_site=session['selected_site'], sites=sites, units=units)
+
+
+# API ROUTES
+# Added to Database
+@receipt_api.route('/api/getItems', methods=["GET"])
 def getItems():
     recordset = []
     count = {'count': 0}
@@ -47,14 +40,13 @@ def getItems():
         limit = int(request.args.get('limit', 10))
         site_name = session['selected_site']
         offset = (page - 1) * limit
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            payload = ("%%", limit, offset)
-            recordset, count = database.getItemsWithQOH(conn, site_name, payload, convert=True)
+        sort_order = "ID ASC"
+        payload = ("%%", limit, offset, sort_order)
+        recordset, count = receipts_database.getItemsWithQOH(site_name, payload)
         return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":True, "message":"There was an error with this GET statement"})
 
-@receipt_api.route('/receipt/getVendors', methods=["GET"])
+@receipt_api.route('/api/getVendors', methods=["GET"])
 def getVendors():
     recordset = []
     count = 0
@@ -70,7 +62,7 @@ def getVendors():
         return jsonify({"vendors":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"vendors":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
-@receipt_api.route('/receipt/getLinkedLists', methods=["GET"])
+@receipt_api.route('/api/getLinkedLists', methods=["GET"])
 def getLinkedLists():
     recordset = []
     count = 0
@@ -86,7 +78,7 @@ def getLinkedLists():
         return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
-@receipt_api.route('/receipts/getReceipts', methods=["GET"])
+@receipt_api.route('/api/getReceipts', methods=["GET"])
 def getReceipts():
     recordset = []
     if request.method == "GET":
@@ -100,7 +92,7 @@ def getReceipts():
             return jsonify({'receipts':recordset, "end": math.ceil(count/limit), 'error': False, "message": "Get Receipts Successful!"})
     return jsonify({'receipts': recordset, "end": math.ceil(count/limit), 'error': True, "message": "Something went wrong while getting receipts!"})
 
-@receipt_api.route('/receipts/getReceipt', methods=["GET"])
+@receipt_api.route('/api/getReceipt', methods=["GET"])
 def getReceipt():
     record = []
     if request.method == "GET":
@@ -112,7 +104,7 @@ def getReceipt():
             return jsonify({'receipt': record, 'error': False, "message": "Get Receipts Successful!"})
     return jsonify({'receipt': record,  'error': True, "message": "Something went wrong while getting receipts!"})
 
-@receipt_api.route('/receipts/addReceipt', methods=["POST", "GET"])
+@receipt_api.route('/api/addReceipt', methods=["POST", "GET"])
 def addReceipt():
     if request.method == "GET":
         user_id = session['user_id']
@@ -127,34 +119,33 @@ def addReceipt():
         return jsonify({'error': False, "message": "Receipt Added Successful!"})
     return jsonify({'error': True, "message": "Something went wrong while adding receipt!"})
 
-@receipt_api.route('/receipts/addSKULine', methods=["POST"])
+# Added to Database
+@receipt_api.route('/api/addSKULine', methods=["POST"])
 def addSKULine():
     if request.method == "POST":
         item_id = int(request.get_json()['item_id'])
         receipt_id = int(request.get_json()['receipt_id'])
 
         site_name = session['selected_site']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            item = database.getItemAllByID(conn, site_name, (item_id, ), convert=True)
-            data = {
-                'cost': item['item_info']['cost'],
-                'expires': item['food_info']['expires']
-            }
-            receipt_item = MyDataclasses.ReceiptItemPayload(
-                type="sku",
-                receipt_id=receipt_id,
-                barcode=item['barcode'],
-                name=item['item_name'],
-                qty=item['item_info']['uom_quantity'],
-                uom=item['item_info']['uom'],
-                data=data
-            )
-            database.insertReceiptItemsTuple(conn, site_name, receipt_item.payload())
+        item = receipts_database.getItemAllByID(site_name, (item_id, ))
+        data = {
+            'cost': item['item_info']['cost'],
+            'expires': item['food_info']['expires']
+        }
+        receipt_item = database_payloads.ReceiptItemPayload(
+            type="sku",
+            receipt_id=receipt_id,
+            barcode=item['barcode'],
+            name=item['item_name'],
+            qty=item['item_info']['uom_quantity'],
+            uom=item['item_info']['uom']['id'],
+            data=data
+        )
+        receipts_database.insertReceiptItemsTuple(site_name, receipt_item.payload())
         return jsonify({'error': False, "message": "Line added Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while add SKU line!"})
 
-@receipt_api.route('/receipts/deleteLine', methods=["POST"])
+@receipt_api.route('/api/deleteLine', methods=["POST"])
 def deleteLine():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])
@@ -166,7 +157,7 @@ def deleteLine():
         return jsonify({'error': False, "message": "Line Deleted Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while deleting line!"})
 
-@receipt_api.route('/receipts/denyLine', methods=["POST"])
+@receipt_api.route('/api/denyLine', methods=["POST"])
 def denyLine():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])
@@ -177,7 +168,7 @@ def denyLine():
         return jsonify({'error': False, "message": "Line Denied Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while denying line!"})
 
-@receipt_api.route('/receipts/saveLine', methods=["POST"])
+@receipt_api.route('/api/saveLine', methods=["POST"])
 def saveLine():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])
@@ -192,7 +183,7 @@ def saveLine():
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
-@receipt_api.route('/receipt/postLinkedItem', methods=["POST"])
+@receipt_api.route('/api/postLinkedItem', methods=["POST"])
 def postLinkedItem():
     if request.method == "POST":
         receipt_item_id = int(request.get_json()['receipt_item_id'])
@@ -251,7 +242,7 @@ def postLinkedItem():
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
-@receipt_api.route('/receipts/resolveLine', methods=["POST"])
+@receipt_api.route('/api/resolveLine', methods=["POST"])
 def resolveLine():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])
@@ -339,7 +330,7 @@ def resolveLine():
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
-@receipt_api.route('/receipt/postVendorUpdate', methods=["POST"])
+@receipt_api.route('/api/postVendorUpdate', methods=["POST"])
 def postVendorUpdate():
     if request.method == "POST":
         receipt_id = int(request.get_json()['receipt_id'])
@@ -351,7 +342,7 @@ def postVendorUpdate():
             return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
-@receipt_api.route('/receipts/resolveReceipt', methods=["POST"])
+@receipt_api.route('/api/resolveReceipt', methods=["POST"])
 def resolveReceipt():
     if request.method == "POST":
         receipt_id = int(request.get_json()['receipt_id'])
@@ -364,7 +355,7 @@ def resolveReceipt():
             return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
-@receipt_api.route('/receipt/uploadfile/<receipt_id>', methods=["POST"])
+@receipt_api.route('/api/uploadfile/<receipt_id>', methods=["POST"])
 def uploadFile(receipt_id):
     file = request.files['file']
     file_path = current_app.config['FILES_FOLDER'] + f"/receipts/{file.filename.replace(" ", "_")}"
@@ -373,7 +364,7 @@ def uploadFile(receipt_id):
     preview_image = ""
     if file_type == "application/pdf":
         output_path = "static/files/receipts/previews/"
-        preview_image = create_pdf_preview(file_path, output_path)
+        preview_image = receipts_processes.create_pdf_preview(file_path, output_path)
 
     file_size = os.path.getsize(file_path)
     database_config = config()
@@ -386,11 +377,11 @@ def uploadFile(receipt_id):
     
     return jsonify({})
 
-@receipt_api.route('/receipt/getFile/<file_name>')
+@receipt_api.route('/api/getFile/<file_name>')
 def getFile(file_name):
     return send_from_directory('static/files/receipts', file_name)
 
-@receipt_api.route('/receipts/checkAPI', methods=["POST"])
+@receipt_api.route('/api/checkAPI', methods=["POST"])
 def checkAPI():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])

@@ -175,7 +175,6 @@ def selectItemAllByBarcode(site, payload, convert=True, conn=None):
     item = ()
     self_conn = False
     linked_item = selectLinkedItemByBarcode(site, (payload[0],))
-
     if len(linked_item) > 1:
         item = selectItemAllByID(site, payload=(linked_item['link'], ), convert=convert)
         item['item_info']['uom_quantity'] = linked_item['conv_factor']
