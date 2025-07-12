@@ -60,7 +60,7 @@ async function replenishLineTable(sl_items){
 }
 
 async function fetchShoppingList() {
-    const url = new URL('/shopping-lists/getList', window.location.origin);
+    const url = new URL('/shopping-lists/api/getList', window.location.origin);
     url.searchParams.append('id', sl_id);
     const response = await fetch(url);
     data =  await response.json();
@@ -68,7 +68,7 @@ async function fetchShoppingList() {
 }
 
 async function fetchSLItem(sli_id) {
-    const url = new URL('/shopping-lists/getListItem', window.location.origin);
+    const url = new URL('/shopping-lists/api/getListItem', window.location.origin);
     url.searchParams.append('sli_id', sli_id);
     const response = await fetch(url);
     data =  await response.json();
@@ -76,7 +76,7 @@ async function fetchSLItem(sli_id) {
 }
 
 async function fetchItemsFullCalculated() {
-    const url = new URL('/shopping-lists/getSKUItemsFull', window.location.origin);
+    const url = new URL('/shopping-lists/api/getSKUItemsFull', window.location.origin);
     const response = await fetch(url);
     data =  await response.json();
     return data.list_items; 

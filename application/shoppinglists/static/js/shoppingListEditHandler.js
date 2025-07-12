@@ -158,7 +158,7 @@ async function openLineEditModal(sli_id) {
     console.log(sl_item)
     document.getElementById('lineName').value = sl_item.item_name
     document.getElementById('lineQty').value = sl_item.qty
-    document.getElementById('lineUOM').value = sl_item.uom.fullname
+    document.getElementById('lineUOM').value = sl_item.uom.id
     console.log(sl_item.links)
     
     if(!sl_item.links.hasOwnProperty('main')){

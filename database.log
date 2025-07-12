@@ -1956,3 +1956,9 @@
 2025-07-12 08:43:43.017720 --- ERROR --- DatabaseError(message='invalid input syntax for type integer: " Pinch"LINE 1: ... = 'Acai-Blueberry-Pomegranate', qty = '1', uom = ' Pinch', ...                                                             ^',
                                          payload={'id': 12, 'update': {'item_name': 'Acai-Blueberry-Pomegranate', 'qty': '1', 'uom': ' Pinch', 'links': {'main': 'test'}}},
                                          sql='UPDATE test_shopping_list_items SET item_name = %s, qty = %s, uom = %s, links = %s WHERE id=%s RETURNING *;')
+2025-07-12 09:06:37.431664 --- ERROR --- DatabaseError(message='invalid input syntax for type integer: "each"LINE 3: VALUES ('5vpg73z', '5', 'custom', 'test', 'each', 2, NULL, '...                                                  ^',
+                                         payload=('5vpg73z', '5', 'custom', 'test', 'each', 2, None, '{"main": "test"}'),
+                                         sql='INSERT INTO test_shopping_list_items(uuid, sl_id, item_type, item_name, uom, qty, item_id, links) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')
+2025-07-12 09:29:10.063362 --- ERROR --- DatabaseError(message='tuple index out of range',
+                                         payload=(5,),
+                                         sql='SELECT *,    (SELECT COALESCE(array_agg(row_to_json(g)), '{}') FROM test_shopping_list_items g WHERE sl_id = test_shopping_lists.id) AS sl_items FROM test_shopping_lists LIMIT %s OFFSET %s;')

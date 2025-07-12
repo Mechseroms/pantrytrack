@@ -29,26 +29,26 @@ def shopping_list(mode, id):
 
 
 # API CALLS
+# Added to Database
 @shopping_list_api.route('/api/addList', methods=["POST"])
 def addList():
     if request.method == "POST":
         list_name = request.get_json()['list_name']
         list_description = request.get_json()['list_description']
         list_type = request.get_json()['list_type']
-        database_config = config()
         site_name = session['selected_site']
         user_id = session['user_id']
-        with psycopg2.connect(**database_config) as conn:
-            shopping_list = MyDataclasses.ShoppingListPayload(
-                name=list_name,
-                description=list_description,
-                author=user_id,
-                type=list_type
-            )
-            database.insertShoppingListsTuple(conn, site_name, shopping_list.payload())
+        shopping_list = database_payloads.ShoppingListPayload(
+            name=list_name,
+            description=list_description,
+            author=user_id,
+            type=list_type
+        )
+        shoplist_database.insertShoppingListsTuple(site_name, shopping_list.payload())
         return jsonify({'error': False, 'message': 'List added!!'})
     return jsonify({'error': True, 'message': 'These was an error with adding the list!'})
 
+# Added to Database
 @shopping_list_api.route('/api/getLists', methods=["GET"])
 def getShoppingLists():
     lists = []
@@ -56,42 +56,40 @@ def getShoppingLists():
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 1))
         offset = (page-1)*limit
-        database_config = config()
+        
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            lists, count = database.getShoppingLists(conn, site_name, (limit, offset), convert=True)
+        lists, count = shoplist_database.getShoppingLists(site_name, (limit, offset))
 
-            for list in lists:
-                
-                if list['type'] == 'calculated':
-                    items = []
-                    not_items = database.getItemsSafetyStock(conn, site_name, convert=True)
-                    for item in not_items:
-                        new_item = {
-                            'id': item['id'], 
-                            'uuid': item['barcode'],
-                            'sl_id': 0,
-                            'item_type': 'sku',
-                            'item_name': item['item_name'],
-                            'uom': item['uom'],
-                            'qty': float(float(item['safety_stock']) - float(item['total_sum'])),
-                            'item_id': item['id'],
-                            'links': item['links']
-                            }
-                        items.append(new_item)
-                    list['sl_items'] = items
+        for list in lists:
+            
+            if list['type'] == 'calculated':
+                items = []
+                not_items = shoplist_database.getItemsSafetyStock(site_name)
+                for item in not_items:
+                    new_item = {
+                        'id': item['id'], 
+                        'uuid': item['barcode'],
+                        'sl_id': 0,
+                        'item_type': 'sku',
+                        'item_name': item['item_name'],
+                        'uom': item['uom'],
+                        'qty': float(float(item['safety_stock']) - float(item['total_sum'])),
+                        'item_id': item['id'],
+                        'links': item['links']
+                        }
+                    items.append(new_item)
+                list['sl_items'] = items
 
         return jsonify({'shopping_lists': lists, 'end':math.ceil(count/limit), 'error': False, 'message': 'Lists queried successfully!'})
 
+# Added to Database
 @shopping_list_api.route('/api/getList', methods=["GET"])
 def getShoppingList():
     if request.method == "GET":
         sl_id = int(request.args.get('id', 1))
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            lists = database.getShoppingList(conn, site_name, (sl_id, ), convert=True)
-        return jsonify({'shopping_list': lists, 'error': False, 'message': 'Lists queried successfully!'})
+        list = shoplist_database.getShoppingList(site_name, (sl_id, ))
+        return jsonify({'shopping_list': list, 'error': False, 'message': 'Lists queried successfully!'})
 
 # Added to Database
 @shopping_list_api.route('/api/getListItem', methods=["GET"])
@@ -151,39 +149,38 @@ def deleteListItem():
         return jsonify({"error":False, "message":"item deleted succesfully!"})
     return jsonify({"error":True, "message":"There was an error with this POST statement"})
 
+# Added to Database
 @shopping_list_api.route('/api/saveListItem', methods=["POST"])
 def saveListItem():
     if request.method == "POST":
         sli_id = request.get_json()['sli_id']
         update = request.get_json()['update']
         site_name = session['selected_site']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            database.__updateTuple(conn, site_name, f"{site_name}_shopping_list_items", {'id': sli_id, 'update': update})
+        shoplist_database.updateShoppingListItemsTuple(site_name, {'id': sli_id, 'update': update})
         return jsonify({"error":False, "message":"items fetched succesfully!"})
     return jsonify({"error":True, "message":"There was an error with this GET statement"})
 
+# Added to Database
 @shopping_list_api.route('/api/getSKUItemsFull', methods=["GET"])
 def getSKUItemsFull():
     items = []
     count = {'count': 0}
     if request.method == "GET":
         site_name = session['selected_site']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            not_items = database.getItemsSafetyStock(conn, site_name, convert=True)
-            for item in not_items:
-                new_item = {
-                    'id': item['id'], 
-                    'uuid': item['barcode'],
-                    'sl_id': 0,
-                    'item_type': 'sku',
-                    'item_name': item['item_name'],
-                    'uom': item['uom'],
-                    'qty': float(float(item['safety_stock']) - float(item['total_sum'])),
-                    'item_id': item['id'],
-                    'links': item['links']
-                    }
-                items.append(new_item)
+        
+        not_items = shoplist_database.getItemsSafetyStock(site_name)
+        for item in not_items:
+            new_item = {
+                'id': item['id'], 
+                'uuid': item['barcode'],
+                'sl_id': 0,
+                'item_type': 'sku',
+                'item_name': item['item_name'],
+                'uom': item['uom'],
+                'qty': float(float(item['safety_stock']) - float(item['total_sum'])),
+                'item_id': item['id'],
+                'links': item['links']
+                }
+            items.append(new_item)
         return jsonify({"list_items":items, "error":False, "message":"items fetched succesfully!"})
     return jsonify({"list_items":items, "error":True, "message":"There was an error with this GET statement"})
