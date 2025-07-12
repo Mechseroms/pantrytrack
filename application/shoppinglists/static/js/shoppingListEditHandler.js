@@ -88,7 +88,7 @@ async function replenishLineTable(sl_items){
 }
 
 async function fetchShoppingList() {
-    const url = new URL('/shopping-lists/getList', window.location.origin);
+    const url = new URL('/shopping-lists/api/getList', window.location.origin);
     url.searchParams.append('id', sl_id);
     const response = await fetch(url);
     data =  await response.json();
@@ -277,7 +277,7 @@ async function updateItemsPaginationElement() {
 
 let items_limit = 25;
 async function fetchItems() {
-    const url = new URL('/shopping-lists/getItems', window.location.origin);
+    const url = new URL('/shopping-lists/api/getItems', window.location.origin);
     url.searchParams.append('page', pagination_current);
     url.searchParams.append('limit', items_limit);
     url.searchParams.append('search_string', search_string);
@@ -288,7 +288,7 @@ async function fetchItems() {
 }
 
 async function fetchSLItem(sli_id) {
-    const url = new URL('/shopping-lists/getListItem', window.location.origin);
+    const url = new URL('/shopping-lists/api/getListItem', window.location.origin);
     url.searchParams.append('sli_id', sli_id);
     const response = await fetch(url);
     data =  await response.json();
@@ -320,7 +320,7 @@ async function addCustomItem() {
 }
 
 async function submitItemToList(newItem) {
-    const response = await fetch(`/shopping-lists/postListItem`, {
+    const response = await fetch(`/shopping-lists/api/postListItem`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -345,7 +345,7 @@ async function submitItemToList(newItem) {
 }
 
 async function deleteLineItem(sli_id) {
-    const response = await fetch(`/shopping-lists/deleteListItem`, {
+    const response = await fetch(`/shopping-lists/api/deleteListItem`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -374,7 +374,7 @@ async function deleteLineItem(sli_id) {
 }
 
 async function saveLineItem(sli_id, update) {
-    const response = await fetch(`/shopping-lists/saveListItem`, {
+    const response = await fetch(`/shopping-lists/api/saveListItem`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

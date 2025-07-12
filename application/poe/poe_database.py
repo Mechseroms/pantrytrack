@@ -3,14 +3,6 @@ import config
 from application import postsqldb
 
 def request_receipt_id(conn, site_name):
-    """gets the next id for receipts_id, currently returns a 8 digit number
-
-    Args:
-        site (str): site to get the next id for
-
-    Returns:
-        json: receipt_id, message, error keys
-    """
     next_receipt_id = None
     sql = f"SELECT receipt_id FROM {site_name}_receipts ORDER BY id DESC LIMIT 1;"
     try:
@@ -34,17 +26,6 @@ def request_receipt_id(conn, site_name):
     return next_receipt_id
 
 def selectItemLocationsTuple(site_name, payload, convert=True):
-    """select a single tuple from ItemLocations table for site_name
-
-    Args:
-        conn (_T_connector@connect): 
-        site_name (str): 
-        payload (tuple): [item_id, location_id]
-        convert (bool): defaults to False, used to determine return of tuple/dict
-
-    Returns:
-        tuple: the row that was returned from the table
-    """
     item_locations = ()
     database_config = config.config()
     select_item_location_sql = f"SELECT * FROM {site_name}_item_locations WHERE part_id = %s AND location_id = %s;"
@@ -62,17 +43,6 @@ def selectItemLocationsTuple(site_name, payload, convert=True):
         return error
 
 def selectCostLayersTuple(site_name, payload, convert=True):
-    """select a single or series of cost layers from the database for site_name
-
-    Args:
-        conn (_T_connector@connect): 
-        site_name (str): 
-        payload (tuple): (item_locations_id, )
-        convert (bool): defaults to False, used for determining return as tuple/dict
-
-    Returns:
-        list: list of tuples/dict from the cost_layers table for site_name
-    """
     cost_layers = ()
     database_config = config.config()
     select_cost_layers_sql = f"SELECT cl.* FROM {site_name}_item_locations il JOIN {site_name}_cost_layers cl ON cl.id = ANY(il.cost_layers) where il.id=%s;"
@@ -118,17 +88,6 @@ def selectLocationsTuple(site, payload, convert=True, conn=None):
         raise postsqldb.DatabaseError(error, payload, sql)
 
 def selectItemLocationsTuple(site_name, payload, convert=True, conn=None):
-    """select a single tuple from ItemLocations table for site_name
-
-    Args:
-        conn (_T_connector@connect): 
-        site_name (str): 
-        payload (tuple): [item_id, location_id]
-        convert (bool): defaults to False, used to determine return of tuple/dict
-
-    Returns:
-        tuple: the row that was returned from the table
-    """
     item_locations = ()
     self_conn = False
     select_item_location_sql = f"SELECT * FROM {site_name}_item_locations WHERE part_id = %s AND location_id = %s;"
@@ -276,21 +235,7 @@ def insertCostLayersTuple(site, payload, convert=True, conn=None):
         raise postsqldb.DatabaseError(error, payload, sql)
 
 def insertTransactionsTuple(site, payload, convert=True, conn=None):
-    """insert payload into transactions table for site
-
-    Args:
-        conn (_T_connector@connect): Postgresql Connector
-        site (str):
-        payload (tuple): (timestamp[timestamp], logistics_info_id[int], barcode[str], name[str], 
-        transaction_type[str], quantity[float], description[str], user_id[int], data[jsonb]) 
-        convert (bool, optional): Determines if to return tuple as dictionary. Defaults to False.
-
-    Raises:
-        DatabaseError:
-
-    Returns:
-        tuple or dict: inserted tuple
-    """
+    # payload (tuple): (timestamp[timestamp], logistics_info_id[int], barcode[str], name[str], 
     transaction = ()
     self_conn = False
     with open(f"application/poe/sql/insertTransactionsTuple.sql", "r+") as file:
@@ -319,20 +264,6 @@ def insertTransactionsTuple(site, payload, convert=True, conn=None):
     return transaction
 
 def insertReceiptsTuple(site, payload, convert=True, conn=None):
-    """insert payload into receipt table of site
-
-    Args:
-        conn (_T_connector@connect): Postgresql Connector
-        site (str):
-        payload (tuple):
-        convert (bool, optional): Determines if to return tuple as dictionary. Defaults to False.
-
-    Raises:
-        DatabaseError:
-
-    Returns:
-        tuple or dict: inserted tuple
-    """
     receipt = ()
     self_conn = False
     with open(f"application/poe/sql/insertReceiptsTuple.sql", "r+") as file:
@@ -362,21 +293,6 @@ def insertReceiptsTuple(site, payload, convert=True, conn=None):
         raise postsqldb.DatabaseError(error, payload, sql)
 
 def insertReceiptItemsTuple(site, payload, convert=True, conn=None):
-    """insert payload into receipt_items table of site
-
-    Args:
-        conn (_T_connector@connect): Postgresql Connector
-        site (str):
-        payload (tuple): (type[str], receipt_id[int], barcode[str], name[str], 
-                        qty[float], data[jsonb], status[str])
-        convert (bool, optional): Determines if to return tuple as dictionary. Defaults to False.
-
-    Raises:
-        DatabaseError:
-
-    Returns:
-        tuple or dict: inserted tuple
-    """
     receipt_item = ()
     self_conn = False
     
@@ -407,16 +323,6 @@ def insertReceiptItemsTuple(site, payload, convert=True, conn=None):
         raise postsqldb.DatabaseError(error, payload, sql)
 
 def updateCostLayersTuple(site, payload, convert=True, conn=None):
-    """_summary_
-
-    Args:
-        conn (_type_): _description_
-        site (_type_): _description_
-        payload (_type_): {'id': cost_layer_id, 'update': {column: data...}}
-
-    Returns:
-        _type_: _description_
-    """
     cost_layer = ()
     self_conn = False
 
@@ -478,21 +384,6 @@ def updateItemLocation(site, payload, convert=True, conn=None):
 
 
 def deleteCostLayersTuple(site, payload, convert=True, conn=None):
-    """This is a basic funtion to delete a tuple from a table in site with an id. All
-    tables in this database has id's associated with them.
-
-    Args:
-        conn (_T_connector@connect): Postgresql Connector
-        site_name (str):
-        payload (tuple): (tuple_id,)
-        convert (bool, optional): Determines if to return tuple as dictionary. Defaults to True.
-
-    Raises:
-        DatabaseError:
-
-    Returns:
-        tuple or dict: deleted tuple
-    """
     deleted = ()
     self_conn = False
     sql = f"WITH deleted_rows AS (DELETE FROM {site}_cost_layers WHERE id IN ({','.join(['%s'] * len(payload))}) RETURNING *) SELECT * FROM deleted_rows;"

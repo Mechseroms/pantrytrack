@@ -34,10 +34,9 @@
                                     <li class="uk-nav-header">Apps</li>
                                     <li>
                                         <a href="/shopping-lists">
-                                            <div class="uk-active">Shopping Lists<div class="uk-nav-subtitle" disabled>You are currently viewing a shopping list...</div></div>
+                                            <div class="uk-active">Shopping Lists<div class="uk-nav-subtitle" disabled>You are currently browsing shopping lists here...</div></div>
                                         </a>
                                     </li>
-                                    <li><a href="/groups">Groups</a></li>
                                     <li><a href="/recipes">Recipes</a></li>
                                     <li class="uk-nav-header">Logistics</li>
                                     <li><a href="/items">Items</a></li>
@@ -45,6 +44,19 @@
                                     <li><a href="/workshop">Workshop</a></li>
                                     <li><a href="/receipts">Receipts</a></li>
                                     <li class="uk-nav-header">System Management</li>
+                                    <li><a><div>{{current_site}}<div class="uk-nav-subtitle">This is the current site you are viewing...</div></div></a>
+                                        <div uk-dropdown="mode: click">
+                                            <ul class="uk-nav uk-dropdown-nav">
+                                                {% for site in sites %}
+                                                {% if site == current_site  %}
+                                                <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                                {% else %}
+                                                <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </li>
                                     {% if system_admin %}
                                     <li><a href="/admin">Administration</a></li>
                                     {% endif %}
@@ -54,7 +66,7 @@
                             </div>
                         </div>
                         <div class="uk-navbar-left uk-margin-small">
-                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle></a>
+                            <a href="#offcanvas-slide" class="uk-button uk-button-default uk-button-small" uk-icon="icon: menu" uk-toggle> Menu</a>
                         </div>
                         <div class="uk-navbar-center uk-margin-small uk-visible@m">
                             <ul class="uk-breadcrumb">
@@ -89,33 +101,60 @@
         </div>
         <div class="uk-container">
             <div class="uk-section">
-                <div class="uk-grid-small" uk-grid>
-                    <div class="uk-width-1-1">
-                        <h1 id="listName" class="">test</h1>
+                <div uk-grid>
+                    <div class="uk-width-1-2@m">
+                        <ul class="uk-iconnav uk-flex-center uk-flex-left@m">
+                            <li><a onclick="openAddListModal()" uk-icon="icon: plus">Add List</a></li>
+                            <li><a href="#" uk-icon="icon: cloud-download">download</a></li>
+                        </ul>
+                    </div>
+                    <div class="uk-width-1-1 uk-flex uk-flex-center uk-padding-small">
+                        <nav aria-label="Pagination">
+                            <ul id="paginationElement" class="uk-pagination" uk-margin>
+                                <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                <li><a href="#">1</a></li>
+                                <li class="uk-disabled"><span>…</span></li>
+                                <li><a href="#">5</a></li>
+                                <li><a href="#">6</a></li>
+                                <li class="uk-active"><span aria-current="page">7</span></li>
+                                <li><a href="#">8</a></li>
+                                <li><a href="#"><span uk-pagination-next></span></a></li>
+                            </ul>
+                        </nav>
                     </div>
                     <div class="uk-width-1-1">
-                        <p id="listCreationDate" class="uk-text-meta">test</p>
-                    </div>
-                    <div class="uk-width-1-1">
-                        <p id="listDescription" class="uk-text-lead">test</p>
-                    </div>
-                    <div class="uk-width-1-1">
-                        <table class="uk-table uk-table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Operations</th>
-                                    <th>Item</th>
-                                    <th>Qty/UOM</th>
-                                </tr>
-                            </thead>
-                            <tbody id="listItemsTableBody"></tbody>
-                        </table>
+                        <div id="shopping_list_lists" class="uk-child-width-1-1">
+                            <!-- populates through javascript -->
+                        </div>
                         <a class="uk-margin" href="" uk-totop uk-scroll></a>
                     </div>
                 </div>
             </div>
-        </div>        
+            <!-- Add Item Modal -->
+            <div id="addListModal" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body">
+                    <h2 class="uk-modal-title">Adding Shopping List...</h2>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addListName">Name</label>
+                        <input id="addListName" class="uk-input" type="text" placeholder="Input" aria-label="Input">
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addListDescription">Description</label>
+                        <input id="addListDescription" class="uk-input" type="text" placeholder="Input" aria-label="Input">
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="list_type">Type</label>
+                        <select id="list_type" class="uk-select" aria-label="Select">
+                            <option value="plain">Plain List</option>
+                            <option class="uk-disabled" value="hybrid">Hybrid List</option>
+                            <option value="partial_calculated">Partial Calculated List</option>
+                            <option value="full_calculated">Full Calculated List</option>
+                        </select>
+                    </div>
+                    <button onclick="addList()" class="uk-button uk-button-default uk-flex-right" type="button">Add Item</button>
+                </div>
+            </div>
+        </div>
     </body>
-    <script src="{{ url_for('static', filename='handlers/shoppingListViewHandler.js') }}"></script>
-    <script>const sl_id = {{id|tojson}}</script>
+    <script src="{{ url_for('shopping_list_API.static', filename='js/shoppingListsHandler.js') }}"></script>
 </html>

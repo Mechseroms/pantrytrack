@@ -58,12 +58,12 @@ async function replenishShoppingListCards(lists) {
         editOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
         editOp.innerHTML = '<span uk-icon="icon: pencil"></span>   Edit'
         editOp.style = "margin-right: 10px;"
-        editOp.href = `/shopping-list/edit/${lists[i].id}`
+        editOp.href = `/shopping-lists/edit/${lists[i].id}`
 
         let viewOp = document.createElement('a')
         viewOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
         viewOp.innerHTML = '<span uk-icon="icon: eye"></span>    View'
-        viewOp.href = `/shopping-list/view/${lists[i].id}`
+        viewOp.href = `/shopping-lists/view/${lists[i].id}`
         //viewOp.style = "margin-right: 20px;"
 
         
@@ -83,7 +83,7 @@ async function openAddListModal() {
 var listLimit = 5;
 async function getShoppingLists(){
     console.log(pagination_current)
-    const url = new URL('/shopping-lists/getLists', window.location.origin);
+    const url = new URL('/shopping-lists/api/getLists', window.location.origin);
     url.searchParams.append('page', pagination_current);
     url.searchParams.append('limit', listLimit);
     response = await fetch(url)
@@ -98,7 +98,7 @@ async function addList() {
     let list_description = document.getElementById('addListDescription').value
     let list_type = document.getElementById('list_type').value
 
-    const response = await fetch(`/shopping-lists/addList`, {
+    const response = await fetch(`/shopping-lists/api/addList`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

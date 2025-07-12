@@ -4,26 +4,32 @@ from config import config, sites_config
 from main import unfoldCostLayers
 from user_api import login_required
 import postsqldb
+from application.shoppinglists import shoplist_database
+from application import database_payloads
 
-shopping_list_api = Blueprint('shopping_list_API', __name__)
+shopping_list_api = Blueprint('shopping_list_API', __name__, template_folder="templates", static_folder="static")
 
-@shopping_list_api.route("/shopping-lists")
+
+# ROOT TEMPLATE CALLS
+@shopping_list_api.route("/")
 @login_required
 def shopping_lists():
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    return render_template("shopping-lists/index.html", current_site=session['selected_site'], sites=sites)
+    return render_template("lists.html", current_site=session['selected_site'], sites=sites)
 
-@shopping_list_api.route("/shopping-list/<mode>/<id>")
+@shopping_list_api.route("/<mode>/<id>")
 @login_required
 def shopping_list(mode, id):
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     if mode == "view":
-        return render_template("shopping-lists/view.html", id=id, current_site=session['selected_site'], sites=sites)
+        return render_template("view.html", id=id, current_site=session['selected_site'], sites=sites)
     if mode == "edit":
-        return render_template("shopping-lists/edit.html", id=id, current_site=session['selected_site'], sites=sites)
+        return render_template("edit.html", id=id, current_site=session['selected_site'], sites=sites)
     return redirect("/")
 
-@shopping_list_api.route('/shopping-lists/addList', methods=["POST"])
+
+# API CALLS
+@shopping_list_api.route('/api/addList', methods=["POST"])
 def addList():
     if request.method == "POST":
         list_name = request.get_json()['list_name']
@@ -43,7 +49,7 @@ def addList():
         return jsonify({'error': False, 'message': 'List added!!'})
     return jsonify({'error': True, 'message': 'These was an error with adding the list!'})
 
-@shopping_list_api.route('/shopping-lists/getLists', methods=["GET"])
+@shopping_list_api.route('/api/getLists', methods=["GET"])
 def getShoppingLists():
     lists = []
     if request.method == "GET":
@@ -77,7 +83,7 @@ def getShoppingLists():
 
         return jsonify({'shopping_lists': lists, 'end':math.ceil(count/limit), 'error': False, 'message': 'Lists queried successfully!'})
 
-@shopping_list_api.route('/shopping-lists/getList', methods=["GET"])
+@shopping_list_api.route('/api/getList', methods=["GET"])
 def getShoppingList():
     if request.method == "GET":
         sl_id = int(request.args.get('id', 1))
@@ -87,19 +93,19 @@ def getShoppingList():
             lists = database.getShoppingList(conn, site_name, (sl_id, ), convert=True)
         return jsonify({'shopping_list': lists, 'error': False, 'message': 'Lists queried successfully!'})
 
-@shopping_list_api.route('/shopping-lists/getListItem', methods=["GET"])
+# Added to Database
+@shopping_list_api.route('/api/getListItem', methods=["GET"])
 def getShoppingListItem():
     list_item = {}
     if request.method == "GET":
         sli_id = int(request.args.get('sli_id', 1))
-        database_config = config()
         site_name = session['selected_site']
-        with psycopg2.connect(**database_config) as conn:
-            list_item = postsqldb.ShoppingListsTable.getItem(conn, site_name, (sli_id, ))
+        list_item = shoplist_database.getShoppingListItem(site_name, (sli_id, ))
         return jsonify({'list_item': list_item, 'error': False, 'message': 'Lists Items queried successfully!'})
     return jsonify({'list_item': list_item, 'error': True, 'message': 'List Items queried unsuccessfully!'})
 
-@shopping_list_api.route('/shopping-lists/getItems', methods=["GET"])
+# Added to database
+@shopping_list_api.route('/api/getItems', methods=["GET"])
 def getItems():
     recordset = []
     count = {'count': 0}
@@ -108,47 +114,44 @@ def getItems():
         limit = int(request.args.get('limit', 10))
         search_string = request.args.get('search_string', 10)
         site_name = session['selected_site']
-        offset = (page - 1) * limit
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            payload = (search_string, limit, offset)
-            recordset, count = database.getItemsWithQOH(conn, site_name, payload, convert=True)
+        offset = (page - 1) * limit        
+        sort_order = "ID ASC"
+        payload = (search_string, limit, offset, sort_order)
+        recordset, count = shoplist_database.getItemsWithQOH(site_name, payload, convert=True)
         return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":True, "message":"There was an error with this GET statement"})
 
-@shopping_list_api.route('/shopping-lists/postListItem', methods=["POST"])
+# Added to database
+@shopping_list_api.route('/api/postListItem', methods=["POST"])
 def postListItem():
     if request.method == "POST":
         data = request.get_json()['data']
         site_name = session['selected_site']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            sl_item = MyDataclasses.ShoppingListItemPayload(
-                uuid = data['uuid'],
-                sl_id = data['sl_id'],
-                item_type=data['item_type'],
-                item_name=data['item_name'],
-                uom=data['uom'],
-                qty=data['qty'],
-                item_id=data['item_id'],
-                links=data['links']
-            )
-            database.insertShoppingListItemsTuple(conn, site_name, sl_item.payload())
+        sl_item = database_payloads.ShoppingListItemPayload(
+            uuid = data['uuid'],
+            sl_id = data['sl_id'],
+            item_type=data['item_type'],
+            item_name=data['item_name'],
+            uom=data['uom'],
+            qty=data['qty'],
+            item_id=data['item_id'],
+            links=data['links']
+        )
+        shoplist_database.insertShoppingListItemsTuple(site_name, sl_item.payload())
         return jsonify({"error":False, "message":"items fetched succesfully!"})
     return jsonify({"error":True, "message":"There was an error with this GET statement"})
 
-@shopping_list_api.route('/shopping-lists/deleteListItem', methods=["POST"])
+# Added to Database
+@shopping_list_api.route('/api/deleteListItem', methods=["POST"])
 def deleteListItem():
     if request.method == "POST":
         sli_id = request.get_json()['sli_id']
         site_name = session['selected_site']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            database.deleteShoppingListItemsTuple(conn, site_name, (sli_id, ))
+        shoplist_database.deleteShoppingListItemsTuple(site_name, (sli_id, ))
         return jsonify({"error":False, "message":"item deleted succesfully!"})
     return jsonify({"error":True, "message":"There was an error with this POST statement"})
 
-@shopping_list_api.route('/shopping-lists/saveListItem', methods=["POST"])
+@shopping_list_api.route('/api/saveListItem', methods=["POST"])
 def saveListItem():
     if request.method == "POST":
         sli_id = request.get_json()['sli_id']
@@ -160,7 +163,7 @@ def saveListItem():
         return jsonify({"error":False, "message":"items fetched succesfully!"})
     return jsonify({"error":True, "message":"There was an error with this GET statement"})
 
-@shopping_list_api.route('/shopping-lists/getSKUItemsFull', methods=["GET"])
+@shopping_list_api.route('/api/getSKUItemsFull', methods=["GET"])
 def getSKUItemsFull():
     items = []
     count = {'count': 0}
