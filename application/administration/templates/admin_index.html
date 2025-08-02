@@ -277,5 +277,5 @@
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     <script>const session = {{session|tojson}}</script>
-    <script src="{{ url_for('static', filename='handlers/adminHandler.js') }}"></script>
+    <script src="{{ url_for('admin_api.static', filename='js/adminHandler.js') }}"></script>
 </html>

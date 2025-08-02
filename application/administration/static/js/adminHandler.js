@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     await replenishRolesTable(roles)
 
     let logins = await fetchLogins()
-    console.log(logins)
     await updateLoginsPagination()
     await replenishLoginsTable(logins)
 })
@@ -47,7 +46,7 @@ var sites_current_page = 1
 var sites_end_page = 10
 var sites_limit = 25
 async function fetchSites(){
-    const url = new URL('/admin/getSites', window.location.origin)
+    const url = new URL('/admin/api/getSites', window.location.origin)
     url.searchParams.append('page', sites_current_page)
     url.searchParams.append('limit', sites_limit)
     const response = await fetch(url)
@@ -177,7 +176,7 @@ async function postDeleteSite(site_id, item_name){
     let valid = document.getElementById('delete_input')
     if(valid.value==item_name){
         valid.classList.remove('uk-form-danger')
-        const response = await fetch(`/admin/site/postDeleteSite`, {
+        const response = await fetch(`/admin/api/site/postDeleteSite`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -215,7 +214,7 @@ var roles_current_page = 1
 var roles_end_page = 10
 var roles_limit = 25
 async function fetchRoles(){
-    const url = new URL('/admin/getRoles', window.location.origin)
+    const url = new URL('/admin/api/getRoles', window.location.origin)
     url.searchParams.append('page', roles_current_page)
     url.searchParams.append('limit', roles_limit)
     const response = await fetch(url)
@@ -349,7 +348,7 @@ var logins_current_page = 1
 var logins_end_page = 10
 var logins_limit = 25
 async function fetchLogins(){
-    const url = new URL('/admin/getLogins', window.location.origin)
+    const url = new URL('/admin/api/getLogins', window.location.origin)
     url.searchParams.append('page', logins_current_page)
     url.searchParams.append('limit', logins_limit)
     const response = await fetch(url)

@@ -1980,3 +1980,29 @@
 2025-08-02 10:08:28.632959 --- ERROR --- DatabaseError(message='duplicate key value violates unique constraint "test_logistics_info_barcode_key"DETAIL:  Key (barcode)=(%041789001314%) already exists.',
                                          payload=('%041789001314%', 1, 1, 1, 1),
                                          sql='INSERT INTO test_logistics_info(barcode, primary_location, primary_zone, auto_issue_location, auto_issue_zone) VALUES (%s, %s, %s, %s, %s) RETURNING *;')
+2025-08-02 18:17:38.668622 --- ERROR --- DatabaseError(message='table "testa_sku_prefix" does not exist',
+                                         payload=DROP TABLE testa_sku_prefix CASCADE;,
+                                         sql='sku_prefix')
+2025-08-02 18:18:33.853991 --- ERROR --- DatabaseError(message='table "testa_sku_prefix" does not exist',
+                                         payload=DROP TABLE testa_sku_prefix CASCADE;,
+                                         sql='sku_prefix')
+2025-08-02 18:21:15.792255 --- ERROR --- DatabaseError(message='table "tesc_sku_prefix" does not exist',
+                                         payload=DROP TABLE tesc_sku_prefix CASCADE;,
+                                         sql='sku_prefix')
+2025-08-02 18:22:19.192251 --- ERROR --- DatabaseError(message='table "tesc_sku_prefix" does not exist',
+                                         payload=DROP TABLE tesc_sku_prefix CASCADE;,
+                                         sql='sku_prefix')
+2025-08-02 18:22:55.826884 --- ERROR --- DatabaseError(message='table "tesc_sku_prefix" does not exist',
+                                         payload=DROP TABLE tesc_sku_prefix CASCADE;,
+                                         sql='sku_prefix')
+2025-08-02 18:29:18.729209 --- ERROR --- DatabaseError(message='syntax error at or near "Site_cost_layers"LINE 1: CREATE TABLE IF NOT EXISTS Test Site_cost_layers (                                        ^',
+                                         payload=CREATE TABLE IF NOT EXISTS Test Site_cost_layers (
+    id SERIAL PRIMARY KEY,
+    aquisition_date TIMESTAMP NOT NULL,
+    quantity FLOAT8 NOT NULL,
+    cost FLOAT8 NOT NULL,
+    currency_type VARCHAR(16) NOT NULL,
+    expires TIMESTAMP,
+    vendor INTEGER DEFAULT 0
+);,
+                                         sql='cost_layers')

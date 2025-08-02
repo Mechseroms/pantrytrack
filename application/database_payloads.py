@@ -358,6 +358,9 @@ class SitePayload:
             self.default_auto_issue_location,
             self.default_primary_location
         )
+    
+    def get_dictionary(self):
+        return self.__dict__
 
 #DONE
 @dataclass
@@ -375,6 +378,53 @@ class RolePayload:
             json.dumps(self.flags)
         )
 
+    def get_dictionary(self):
+        return self.__dict__
+
+@dataclass
+class LoginsPayload:
+    username:str
+    password:str
+    email: str
+    row_type: str
+    system_admin: bool = False
+    flags: dict = field(default_factory=dict)
+    favorites: dict = field(default_factory=dict)
+    unseen_pantry_items: list = field(default_factory=list)
+    unseen_groups: list = field(default_factory=list)
+    unseen_shopping_lists: list = field(default_factory=list)
+    unseen_recipes: list = field(default_factory=list)
+    seen_pantry_items: list = field(default_factory=list)
+    seen_groups: list = field(default_factory=list)
+    seen_shopping_lists: list = field(default_factory=list)
+    seen_recipes: list = field(default_factory=list)
+    sites: list = field(default_factory=list)
+    site_roles: list = field(default_factory=list)
+
+    def payload(self):
+        return (
+            self.username,
+            self.password,
+            self.email,
+            json.dumps(self.favorites),
+            lst2pgarr(self.unseen_pantry_items),
+            lst2pgarr(self.unseen_groups),
+            lst2pgarr(self.unseen_shopping_lists),
+            lst2pgarr(self.unseen_recipes),
+            lst2pgarr(self.seen_pantry_items),
+            lst2pgarr(self.seen_groups),
+            lst2pgarr(self.seen_shopping_lists),
+            lst2pgarr(self.seen_recipes),
+            lst2pgarr(self.sites),
+            lst2pgarr(self.site_roles),
+            self.system_admin,
+            json.dumps(self.flags),
+            self.row_type
+        )
+    
+    def get_dictionary(self):
+        return self.__dict__
+        
 @dataclass
 class ItemLocationPayload:
     part_id: int
@@ -422,6 +472,77 @@ class ConversionPayload:
             self.item_id,
             self.uom_id,
             self.conv_factor
+        )
+
+@dataclass
+class ZonesPayload:
+    name: str
+    description: str = ""
+
+    def __post_init__(self):
+        if not isinstance(self.name, str):
+            raise TypeError(f"Zone name should be of type str; not {type(self.name)}")
+        
+    def payload(self):
+        return (
+            self.name,
+            self.description,
+        )
+
+@dataclass
+class LocationsPayload:
+    uuid: str
+    name: str
+    zone_id: int
+
+    def __post_init__(self):
+        if not isinstance(self.uuid, str):
+            raise TypeError(f"uuid must be of type str; not {type(self.uuid)}")
+        if not isinstance(self.name, str):
+            raise TypeError(f"Location name must be of type str; not {type(self.name)}")
+        if not isinstance(self.zone_id, int):
+            raise TypeError(f"zone_id must be of type str; not {type(self.zone_id)}")
+    
+    def payload(self):
+        return (
+            self.uuid,
+            self.name,
+            self.zone_id
+        )
+@dataclass
+class VendorsPayload:
+    vendor_name: str
+    created_by: int
+    vendor_address: str = ""
+    creation_date: datetime.datetime = field(init=False)
+    phone_number: str = ""
+
+    def __post_init__(self):
+        if not isinstance(self.vendor_name, str):
+            raise TypeError(f"vendor_name should be of type str; not {type(self.vendor_name)}")
+        self.creation_date = datetime.datetime.now()
+
+
+    def payload(self):
+        return (
+            self.vendor_name,
+            self.vendor_address,
+            self.creation_date,
+            self.created_by,
+            self.phone_number
+        )
+    
+@dataclass
+class BrandsPayload:
+    name: str
+
+    def __post_init__(self):
+        if not isinstance(self.name, str):
+            return TypeError(f"brand name should be of type str; not {type(self.name)}")
+        
+    def payload(self):
+        return (
+            self.name,
         )
 
 @dataclass

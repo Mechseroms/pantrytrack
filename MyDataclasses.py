@@ -358,6 +358,10 @@ class SitePayload:
             self.default_auto_issue_location,
             self.default_primary_location
         )
+    
+    def get_dictionary(self):
+        return self.__dict__
+
 
 #DONE
 @dataclass

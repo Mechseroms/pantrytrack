@@ -207,7 +207,7 @@
                 default_primary_location: document.getElementById('new_default_primary_location').value
             }
 
-            const response = await fetch(`/admin/site/postAddSite`, {
+            const response = await fetch(`/admin/api/site/postAddSite`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -226,7 +226,7 @@
                 site_description: document.getElementById('site_description').value}
             }
 
-            const response = await fetch(`/admin/site/postEditSite`, {
+            const response = await fetch(`/admin/api/site/postEditSite`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

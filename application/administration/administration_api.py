@@ -8,7 +8,8 @@ import postsqldb, process, hashlib
 
 
 # APPLICATION IMPORTS
-from application.administration import administration_database
+from application.administration import administration_database, administration_processes
+from application import database_payloads
 
 
 admin_api = Blueprint('admin_api', __name__, template_folder="templates", static_folder="static")
@@ -18,57 +19,45 @@ admin_api = Blueprint('admin_api', __name__, template_folder="templates", static
 @admin_api.route('/')
 def admin_index():
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    return render_template("index.html", 
-                           current_site=session['selected_site'], 
-                           sites=sites)
+    return render_template("admin_index.html", current_site=session['selected_site'], sites=sites)
 
-# API ROUTES
-@admin_api.route('/admin/site/<id>')
+# Added to Database
+@admin_api.route('/site/<id>')
 @login_required
 def adminSites(id):
     if id == "new":
-        new_site = postsqldb.SitesTable.Payload(
-            "",
-            "",
-            session['user_id']
-        )
-        return render_template("admin/site.html", site=new_site.get_dictionary())
+        new_site_payload = database_payloads.SitePayload("", "", session['user_id'])
+        return render_template("site.html", site=new_site_payload.get_dictionary())
     else:
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            site = postsqldb.SitesTable.select_tuple(conn, (id,))
-            return render_template('admin/site.html', site=site)
+        site = administration_database.selectSitesTuple((id,))
+        return render_template('site.html', site=site)
 
-@admin_api.route('/admin/role/<id>')
+# Added to database
+@admin_api.route('/role/<id>')
 @login_required
 def adminRoles(id):
-    database_config = config()
-    with psycopg2.connect(**database_config) as conn:
-        sites = postsqldb.SitesTable.selectTuples(conn)
-        if id == "new":
-            new_role = postsqldb.RolesTable.Payload(
-                "",
-                "",
-                0
-            )
-            return render_template("admin/role.html", role=new_role.get_dictionary(), sites=sites)
-        else:
-            role = postsqldb.RolesTable.select_tuple(conn, (id,))
-            return render_template('admin/role.html', role=role, sites=sites)
+    sites = administration_database.selectSitesTuples()
+    if id == "new":
+        new_role_payload = database_payloads.RolePayload("", "", 0)
+        return render_template("role.html", role=new_role_payload.get_dictionary(), sites=sites)
+    else:
+        role = administration_database.selectRolesTuple((id,))
+        return render_template('role.html', role=role, sites=sites)
 
-@admin_api.route('/admin/user/<id>')
+# Added to database
+@admin_api.route('/user/<id>')
 @login_required
 def adminUser(id):
-    database_config = config()
-    with psycopg2.connect(**database_config) as conn:
-        if id == "new":
-            new_user = postsqldb.LoginsTable.Payload("", "", "", "")
-            return render_template("admin/user.html", user=new_user.get_dictionary())
-        else:
-            user = administration_database.selectLoginsUser(int(id))
-            return render_template('admin/user.html', user=user)
+    if id == "new":
+        new_user_payload = database_payloads.LoginsPayload("", "", "", "")
+        return render_template("user.html", user=new_user_payload.get_dictionary())
+    else:
+        user = administration_database.selectLoginsTuple(int(id))
+        return render_template('user.html', user=user)
 
-@admin_api.route('/admin/getSites', methods=['GET'])
+# API ROUTES
+# add to database
+@admin_api.route('/api/getSites', methods=['GET'])
 @login_required
 def getSites():
     if request.method == "GET":
@@ -77,13 +66,12 @@ def getSites():
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 10))
         offset = (page - 1) * limit
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            records, count = postsqldb.SitesTable.paginateTuples(conn, (limit, offset))
-            return jsonify({'sites': records, "end": math.ceil(count/limit), 'error':False, 'message': 'Sites Loaded Successfully!'})
+        records, count = administration_database.paginateSitesTuples((limit, offset))
+        return jsonify({'sites': records, "end": math.ceil(count/limit), 'error':False, 'message': 'Sites Loaded Successfully!'})
     return jsonify({'sites': records, "end": math.ceil(count/limit), 'error':True, 'message': 'There was a problem loading Sites!'})
 
-@admin_api.route('/admin/getRoles', methods=['GET'])
+# Added to database
+@admin_api.route('/api/getRoles', methods=['GET'])
 @login_required
 def getRoles():
     if request.method == "GET":
@@ -92,13 +80,12 @@ def getRoles():
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 10))
         offset = (page - 1) * limit
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            records, count = postsqldb.RolesTable.paginate_tuples(conn, (limit, offset))
-            return jsonify({'roles': records, "end": math.ceil(count/limit), 'error':False, 'message': 'Roles Loaded Successfully!'})
+        records, count = administration_database.paginateRolesTuples((limit, offset))
+        return jsonify({'roles': records, "end": math.ceil(count/limit), 'error':False, 'message': 'Roles Loaded Successfully!'})
     return jsonify({'roles': records, "end": math.ceil(count/limit), 'error':True, 'message': 'There was a problem loading Roles!'})
 
-@admin_api.route('/admin/getLogins', methods=['GET'])
+# Added to Database
+@admin_api.route('/api/getLogins', methods=['GET'])
 @login_required
 def getLogins():
     if request.method == "GET":
@@ -107,65 +94,46 @@ def getLogins():
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 10))
         offset = (page - 1) * limit
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            records, count = postsqldb.LoginsTable.paginate_tuples(conn, (limit, offset))
-            return jsonify({'logins': records, "end": math.ceil(count/limit), 'error':False, 'message': 'logins Loaded Successfully!'})
+        records, count = administration_database.paginateLoginsTuples((limit, offset))
+        return jsonify({'logins': records, "end": math.ceil(count/limit), 'error':False, 'message': 'logins Loaded Successfully!'})
     return jsonify({'logins': records, "end": math.ceil(count/limit), 'error':True, 'message': 'There was a problem loading logins!'})
 
-@admin_api.route('/admin/site/postDeleteSite', methods=["POST"])
+# Added to database and Processses.
+@admin_api.route('/api/site/postDeleteSite', methods=["POST"])
 def postDeleteSite():
     if request.method == "POST":
         site_id = request.get_json()['site_id']
-        database_config = config()
         user_id = session['user_id']
+        site = administration_database.selectSitesTuple((site_id,))
+        user = administration_database.selectLoginsTuple((user_id,))
+        if user['id'] != site['site_owner_id']:
+            return jsonify({'error': True, 'message': f"You must be the owner of this site to delete."})
+        
         try:
-            with psycopg2.connect(**database_config) as conn:
-                user = postsqldb.LoginsTable.select_tuple(conn, (user_id,))
-                admin_user = (user['username'], user['password'], user['email'], user['row_type'])
-                site = postsqldb.SitesTable.select_tuple(conn, (site_id,))
-                site = postsqldb.SitesTable.Manager(
-                    site['site_name'],
-                    admin_user,
-                    site['default_zone'],
-                    site['default_primary_location'],
-                    site['site_description']
-                )
-                process.deleteSite(site_manager=site)
-        except Exception as error:
-            conn.rollback()
-            return jsonify({'error': True, 'message': error})
+            administration_processes.deleteSite(site, user)
+        except Exception as err:
+            print(err)
+
         return jsonify({'error': False, 'message': f""})
     return jsonify({'error': True, 'message': f""})
 
-@admin_api.route('/admin/site/postAddSite', methods=["POST"])
+# Added to Database and Processes
+@admin_api.route('/api/site/postAddSite', methods=["POST"])
 def postAddSite():
     if request.method == "POST":
         payload = request.get_json()['payload']
-        database_config = config()
         site_name = session['selected_site']
         user_id = session['user_id']
-        print(payload)
-        try:
-            with psycopg2.connect(**database_config) as conn:
-                user = postsqldb.LoginsTable.select_tuple(conn, (user_id,))
-                admin_user = (user['username'], user['password'], user['email'], user['row_type'])
-                site = postsqldb.SitesTable.Manager(
-                    payload['site_name'],
-                    admin_user,
-                    payload['default_zone'],
-                    payload['default_primary_location'],
-                    payload['site_description']
-                )
-                process.addSite(site_manager=site)
-                
-        except Exception as error:
-            conn.rollback()
-            return jsonify({'error': True, 'message': error})
+        user = administration_database.selectLoginsTuple((user_id,))
+        payload['admin_user'] = (user['username'], user['password'], user['email'], user['row_type'])
+        
+        administration_processes.addSite(payload)
+        
+
         return jsonify({'error': False, 'message': f"Zone added to {site_name}."})
     return jsonify({'error': True, 'message': f"These was an error with adding this Zone to {site_name}."})
 
-@admin_api.route('/admin/site/postEditSite', methods=["POST"])
+@admin_api.route('/api/site/postEditSite', methods=["POST"])
 def postEditSite():
     if request.method == "POST":
         payload = request.get_json()['payload']
@@ -179,7 +147,7 @@ def postEditSite():
         return jsonify({'error': False, 'message': f"Site updated."})
     return jsonify({'error': True, 'message': f"These was an error with updating Site."})
 
-@admin_api.route('/admin/role/postAddRole', methods=["POST"])
+@admin_api.route('/api/role/postAddRole', methods=["POST"])
 def postAddRole():
     if request.method == "POST":
         payload = request.get_json()['payload']
@@ -200,7 +168,7 @@ def postAddRole():
         return jsonify({'error': False, 'message': f"Role added."})
     return jsonify({'error': True, 'message': f"These was an error with adding this Role."})
 
-@admin_api.route('/admin/role/postEditRole', methods=["POST"])
+@admin_api.route('/api/role/postEditRole', methods=["POST"])
 def postEditRole():
     if request.method == "POST":
         payload = request.get_json()['payload']
@@ -216,7 +184,7 @@ def postEditRole():
         return jsonify({'error': False, 'message': f"Role updated."})
     return jsonify({'error': True, 'message': f"These was an error with updating this Role."})
 
-@admin_api.route('/admin/user/postAddLogin', methods=["POST"])
+@admin_api.route('/api/user/postAddLogin', methods=["POST"])
 def postAddLogin():
     if request.method == "POST":
         payload = request.get_json()['payload']
@@ -237,7 +205,7 @@ def postAddLogin():
         return jsonify({'user': user, 'error': False, 'message': f"User added."})
     return jsonify({'user': user, 'error': True, 'message': f"These was an error with adding this User."})
 
-@admin_api.route('/admin/user/postEditLogin', methods=["POST"])
+@admin_api.route('/api/user/postEditLogin', methods=["POST"])
 def postEditLogin():
     if request.method == "POST":
         payload = request.get_json()['payload']
@@ -251,7 +219,7 @@ def postEditLogin():
         return jsonify({'error': False, 'message': f"User was Added Successfully."})
     return jsonify({'error': True, 'message': f"These was an error with adding this user."})
 
-@admin_api.route('/admin/user/postEditLoginPassword', methods=["POST"])
+@admin_api.route('/api/user/postEditLoginPassword', methods=["POST"])
 def postEditLoginPassword():
     if request.method == "POST":
         payload = request.get_json()['payload']
