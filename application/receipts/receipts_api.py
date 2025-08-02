@@ -293,17 +293,16 @@ def postVendorUpdate():
             return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
+# added to database
 @receipt_api.route('/api/resolveReceipt', methods=["POST"])
 def resolveReceipt():
     if request.method == "POST":
         receipt_id = int(request.get_json()['receipt_id'])
         site_name = session['selected_site']
         user= session['user']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            receipt = postsqldb.ReceiptTable.update_receipt(conn, site_name, {'id': receipt_id, 'update': {'receipt_status': 'Resolved'}})
-            webpush.push_ntfy(title=f"Receipt '{receipt['receipt_id']}' Resolved", body=f"Receipt {receipt['receipt_id']} was completed by {user['username']}.")
-            return jsonify({'error': False, "message": "Line Saved Succesfully"})
+        receipt = receipts_database.updateReceiptsTuple(site_name, {'id': receipt_id, 'update': {'receipt_status': 'Resolved'}})
+        webpush.push_ntfy(title=f"Receipt '{receipt['receipt_id']}' Resolved", body=f"Receipt {receipt['receipt_id']} was completed by {user['username']}.")
+        return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
 # added to database
