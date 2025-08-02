@@ -4,7 +4,7 @@ from flask import (
     )
 import math
 
-# applications imports
+# APPLICATION IMPORTS
 from application import postsqldb, database_payloads
 from user_api import login_required
 from application.shoppinglists import shoplist_database
@@ -12,7 +12,7 @@ from application.shoppinglists import shoplist_database
 shopping_list_api = Blueprint('shopping_list_API', __name__, template_folder="templates", static_folder="static")
 
 
-# ROOT TEMPLATE CALLS
+# ROOT TEMPLATE ROUTES
 @shopping_list_api.route("/")
 @login_required
 def shopping_lists():

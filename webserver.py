@@ -1,10 +1,11 @@
 from flask import Flask, render_template, session, request, redirect, jsonify
 from flask_assets import Environment, Bundle
-import api, config, user_api, psycopg2, main, api_admin
+import api, config, user_api, psycopg2, main
 from user_api import login_required, update_session_user
 from workshop_api import workshop_api
 import database
 from webpush import trigger_push_notifications_for_subscriptions
+from application.administration import administration_api
 from application.recipes import recipes_api
 from application.items import items_API
 from application.poe import poe_api
@@ -26,7 +27,7 @@ assets = Environment(app)
 app.secret_key = '11gs22h2h1a4h6ah8e413a45'
 app.register_blueprint(api.database_api)
 app.register_blueprint(user_api.login_app)
-app.register_blueprint(api_admin.admin_api)
+app.register_blueprint(administration_api.admin_api, url_prefix='/admin')
 app.register_blueprint(items_API.items_api, url_prefix='/items')
 app.register_blueprint(poe_api.point_of_ease, url_prefix='/poe')
 app.register_blueprint(workshop_api)

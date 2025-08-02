@@ -1,11 +1,13 @@
-from flask import Blueprint, request, render_template, redirect, session, url_for, send_file, jsonify, Response, current_app, send_from_directory
-import psycopg2, math, datetime, process, database, MyDataclasses
-from config import config
-from user_api import login_required
+# 3RD PARTY IMPORTS
+from flask import (Blueprint, request, render_template, session, jsonify, current_app, send_from_directory)
+import math
 import postsqldb
-import mimetypes, os
-import webpush
+import mimetypes
+import os
 
+# APPLICATION IMPORTS
+import webpush
+from user_api import login_required
 from application import postsqldb, database_payloads
 from application.receipts import receipts_processes, receipts_database
 

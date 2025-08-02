@@ -1,3 +1,4 @@
+# 3RD PARTY IMPORTS
 import pymupdf
 import os
 import PIL
@@ -5,7 +6,7 @@ import openfoodfacts
 import psycopg2
 import datetime
 
-
+# APPLICATION IMPORTS
 from application.receipts import receipts_database
 from application import database_payloads
 from application.items.items_processes import postNewBlankItem

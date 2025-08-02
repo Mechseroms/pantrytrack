@@ -1,12 +1,11 @@
-# 3rd Party imports
+# 3RD PARTY IMPORTS
 from flask import (
     Blueprint, request, render_template, redirect, session, url_for, send_file, jsonify, Response
     )
 import psycopg2
 import math 
 
-
-# applications imports
+# APPLICATION IMPORTS
 from config import config
 from user_api import login_required
 import application.postsqldb as db

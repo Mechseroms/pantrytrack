@@ -1,5 +1,7 @@
+# 3RD PARTY IMPORTS
 import psycopg2
 
+# APPLICATION IMPORTS
 import config
 from application import postsqldb
 

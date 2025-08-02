@@ -4,18 +4,25 @@ from config import config, sites_config
 from main import unfoldCostLayers, get_sites, get_roles, create_site_secondary, getUser
 from manage import create
 from user_api import login_required
-import postsqldb, process, hashlib, database_admin
+import postsqldb, process, hashlib
 
 
-admin_api = Blueprint('admin_api', __name__)
+# APPLICATION IMPORTS
+from application.administration import administration_database
 
-@admin_api.route('/admin')
+
+admin_api = Blueprint('admin_api', __name__, template_folder="templates", static_folder="static")
+
+
+# ROOT TEMPLATE ROUTES
+@admin_api.route('/')
 def admin_index():
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    return render_template("admin/index.html", 
+    return render_template("index.html", 
                            current_site=session['selected_site'], 
                            sites=sites)
 
+# API ROUTES
 @admin_api.route('/admin/site/<id>')
 @login_required
 def adminSites(id):
@@ -58,7 +65,7 @@ def adminUser(id):
             new_user = postsqldb.LoginsTable.Payload("", "", "", "")
             return render_template("admin/user.html", user=new_user.get_dictionary())
         else:
-            user = database_admin.selectLoginsUser(int(id))
+            user = administration_database.selectLoginsUser(int(id))
             return render_template('admin/user.html', user=user)
 
 @admin_api.route('/admin/getSites', methods=['GET'])
