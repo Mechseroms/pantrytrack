@@ -3,6 +3,8 @@ import os
 import PIL
 import openfoodfacts
 import psycopg2
+import datetime
+
 
 from application.receipts import receipts_database
 from application import database_payloads
@@ -89,6 +91,97 @@ def linkItem(site, user_id, data, conn=None):
     }
 
     receipts_database.updateReceiptItemsTuple(site, payload, conn=conn)
+
+    if self_conn:
+        conn.commit()
+        conn.close()
+        return False
+    
+    return conn
+
+def postLine(site, user_id, data, conn=None):
+    self_conn = False
+    if not conn:
+        database_config = config.config()
+        conn = psycopg2.connect(**database_config)
+        conn.autocommit = False
+        self_conn = True
+    transaction_time = datetime.datetime.now()
+    receipt_item = receipts_database.selectReceiptItemsTuple(site, (data['line_id'],), conn=conn)
+    receipt = receipts_database.getReceiptByID(site, (receipt_item['receipt_id'], ), conn=conn)
+    conv_factor = 1.0
+    if receipt_item['data']['expires'] is not False:
+        expiration = datetime.datetime.strptime(receipt_item['data']['expires'], "%Y-%m-%d")
+    else:
+        expiration = None
+
+    if receipt_item['type'] == 'sku':
+        linked_item = receipts_database.getLinkedItemByBarcode(site, (receipt_item['barcode'], ), conn=conn)
+        if len(linked_item) > 1:
+            conv_factor = linked_item['conv_factor']
+            receipt_item['data']['linked_child'] = linked_item['barcode']
+        
+    if receipt_item['type'] == 'api':     
+        new_item_data = {
+            'barcode': receipt_item['barcode'], 
+            'name': receipt_item['name'], 
+            'subtype': 'FOOD'
+        }
+        postNewBlankItem(site, user_id, new_item_data, conn=conn)
+
+    if receipt_item['type'] == "new sku":
+        new_item_data = {
+            'barcode': receipt_item['barcode'], 
+            'name': receipt_item['name'], 
+            'subtype': 'FOOD'
+        }
+        postNewBlankItem(site, user_id, new_item_data, conn=conn)
+
+    item = receipts_database.getItemAllByBarcode(site, (receipt_item['barcode'], ), conn=conn)
+
+    location = receipts_database.selectItemLocationsTuple(site, (item['id'], item['logistics_info']['primary_location']['id']), conn=conn)
+    cost_layers: list = location['cost_layers']
+
+    receipt_item['data']['location'] = item['logistics_info']['primary_location']['uuid']
+
+    transaction = database_payloads.TransactionPayload(
+        timestamp=transaction_time,
+        logistics_info_id=item['logistics_info_id'],
+        barcode=item['barcode'],
+        name=item['item_name'],
+        transaction_type="Adjust In",
+        quantity=(float(receipt_item['qty'])*conv_factor),
+        description=f"{receipt['receipt_id']}",
+        user_id=user_id,
+        data=receipt_item['data']
+    )
+
+    cost_layer = database_payloads.CostLayerPayload(
+        aquisition_date=transaction_time,
+        quantity=float(receipt_item['qty']),
+        cost=float(receipt_item['data']['cost']),
+        currency_type="USD",
+        vendor=receipt['vendor_id'],
+        expires=expiration
+    )
+
+    cost_layer = receipts_database.insertCostLayersTuple(site, cost_layer.payload(), conn=conn)
+    cost_layers.append(cost_layer['id'])
+
+    quantity_on_hand = float(location['quantity_on_hand']) + float(receipt_item['qty'])
+
+    updated_item_location_payload = (cost_layers, quantity_on_hand, item['id'], item['logistics_info']['primary_location']['id'])
+    receipts_database.updateItemLocation(site, updated_item_location_payload, conn=conn)
+
+
+    site_location = receipts_database.selectLocationsTuple(site, (location['location_id'], ), conn=conn)
+
+    receipt_item['data']['location'] = site_location['uuid']
+    receipts_database.insertTransactionsTuple(site, transaction.payload(), conn=conn)
+
+    receipts_database.updateReceiptItemsTuple(site, {'id': receipt_item['id'], 'update': {'status': "Resolved"}}, conn=conn)
+    
+
 
     if self_conn:
         conn.commit()

@@ -301,6 +301,60 @@ def paginateLinkedLists(site, payload, convert=True, conn=None):
         except (Exception, psycopg2.DatabaseError) as error:
             raise postsqldb.DatabaseError(error, payload, sql)
 
+def selectItemLocationsTuple(site_name, payload, convert=True, conn=None):
+    """payload (tuple): [item_id, location_id]"""
+    item_locations = ()
+    self_conn = False
+    select_item_location_sql = f"SELECT * FROM {site_name}_item_locations WHERE part_id = %s AND location_id = %s;"
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(select_item_location_sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                item_locations = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                item_locations = rows
+
+        if self_conn:
+            conn.close()
+
+        return item_locations
+    except Exception as error:
+        return error
+
+def selectLocationsTuple(site, payload, convert=True, conn=None):
+    selected = ()
+    self_conn = False
+    sql = f"SELECT * FROM {site}_locations WHERE id=%s;"
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+        
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                selected = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                selected = rows
+
+        if self_conn:
+            conn.close()
+
+        return selected
+
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
 def selectReceiptsTuple(site, payload, convert=True, conn=None):
     selected = ()
     self_conn = False
@@ -382,6 +436,39 @@ def deleteReceiptItemsTuple(site, payload, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def insertTransactionsTuple(site, payload, convert=True, conn=None):
+    """
+    payload (tuple): (timestamp[timestamp], logistics_info_id[int], barcode[str], name[str], 
+    transaction_type[str], quantity[float], description[str], user_id[int], data[jsonb])
+    """
+    transaction = ()
+    self_conn = False
+    with open(f"application/receipts/sql/insertTransactionsTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                transaction = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                transaction = rows
+
+        if self_conn:
+            conn.commit()
+            conn.close()
+        
+        return transaction
+
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
 def insertItemLinksTuple(site, payload, convert=True, conn=None):
     """payload (tuple): (barcode[str], link[int], data[jsonb], conv_factor[float]) """
     link = ()
@@ -411,6 +498,36 @@ def insertItemLinksTuple(site, payload, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
     
+def insertCostLayersTuple(site, payload, convert=True, conn=None):
+    """payload (tuple): (aquisition_date[timestamp], quantity[float], cost[float], currency_type[str], expires[timestamp/None], vendor[int])"""
+    cost_layer = ()
+    self_conn = False
+
+    with open(f"application/receipts/sql/insertCostLayersTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                cost_layer = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                cost_layer = rows
+
+        if self_conn:
+            conn.commit()
+            conn.close()
+        
+        return cost_layer
+
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
 
 def insertReceiptItemsTuple(site, payload, convert=True, conn=None):
     receipt_item = ()
@@ -498,7 +615,35 @@ def updateItemsTuple(site, payload, convert=True, conn=None):
     
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
+
+def updateItemLocation(site, payload, convert=True, conn=None):
+    item_location = ()
+    self_conn = False
+    with open(f"application/receipts/sql/updateItemLocation.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                item_location = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                item_location = rows
         
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return item_location
+    except Exception as error:
+        return error
+
 def updateReceiptsTuple(site, payload, convert=True, conn=None):
         """payload (dict): {'id': row_id, 'update': {... column_to_update: value_to_update_to...}}"""
         updated = ()

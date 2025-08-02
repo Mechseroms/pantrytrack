@@ -192,105 +192,27 @@ def postLinkedItem():
             
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
-
+# Added to processes and Database
 @receipt_api.route('/api/resolveLine', methods=["POST"])
 def resolveLine():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])
         site_name = session['selected_site']
         user_id = session['user_id']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            transaction_time = datetime.datetime.now()
-            receipt_item = database.__selectTuple(conn, site_name, f"{site_name}_receipt_items", (line_id, ), convert=True)
-            receipt = database.getReceiptByID(conn, site_name, (receipt_item['receipt_id'], ), convert=True)
-            conv_factor = 1.0
-            if receipt_item['data']['expires'] is not False:
-                print(receipt_item['data']['expires'])
-                expiration = datetime.datetime.strptime(receipt_item['data']['expires'], "%Y-%m-%d")
-            else:
-                expiration = None
-
-            if receipt_item['type'] == 'sku':
-                linked_item = database.getLinkedItemByBarcode(conn, site_name, (receipt_item['barcode'], ))
-                if len(linked_item) > 1:
-                    conv_factor = linked_item['conv_factor']
-                    receipt_item['data']['linked_child'] = linked_item['barcode']
-                
-            if receipt_item['type'] == 'api':
-                
-                data = {
-                    'barcode': receipt_item['barcode'], 
-                    'name': receipt_item['name'], 
-                    'subtype': 'FOOD'
-                }
-                process.postNewBlankItem(conn, site_name, user_id, data)
-
-            if receipt_item['type'] == "new sku":
-                data = {
-                    'barcode': receipt_item['barcode'], 
-                    'name': receipt_item['name'], 
-                    'subtype': 'FOOD'
-                }
-                process.postNewBlankItem(conn, site_name, user_id, data)
-            
-            item = database.getItemAllByBarcode(conn, site_name, (receipt_item['barcode'], ), convert=True)
-            location = database.selectItemLocationsTuple(conn, site_name, (item['id'], item['logistics_info']['primary_location']['id']), convert=True)
-            cost_layers: list = location['cost_layers']
-
-            receipt_item['data']['location'] = item['logistics_info']['primary_location']['uuid']
-
-            transaction = MyDataclasses.TransactionPayload(
-                timestamp=transaction_time,
-                logistics_info_id=item['logistics_info_id'],
-                barcode=item['barcode'],
-                name=item['item_name'],
-                transaction_type="Adjust In",
-                quantity=(float(receipt_item['qty'])*conv_factor),
-                description=f"{receipt['receipt_id']}",
-                user_id=session['user_id'],
-                data=receipt_item['data']
-            )
-
-            cost_layer = MyDataclasses.CostLayerPayload(
-                aquisition_date=transaction_time,
-                quantity=float(receipt_item['qty']),
-                cost=float(receipt_item['data']['cost']),
-                currency_type="USD",
-                vendor=receipt['vendor_id'],
-                expires=expiration
-            )
-
-            cost_layer = database.insertCostLayersTuple(conn, site_name, cost_layer.payload(), convert=True)
-            cost_layers.append(cost_layer['id'])
-
-            quantity_on_hand = float(location['quantity_on_hand']) + float(receipt_item['qty'])
-
-            updated_item_location_payload = (cost_layers, quantity_on_hand, item['id'], item['logistics_info']['primary_location']['id'])
-            database.updateItemLocation(conn, site_name, updated_item_location_payload)
-
-            site_location = database.__selectTuple(conn, site_name, f"{site_name}_locations", (location['location_id'], ), convert=True)
-
-            receipt_item['data']['location'] = site_location['uuid']
-
-            database.insertTransactionsTuple(conn, site_name, transaction.payload())
-            
-            database.__updateTuple(conn, site_name, f"{site_name}_receipt_items", {'id': receipt_item['id'], 'update': {'status': "Resolved"}})
-    
-
+        payload = {'line_id': line_id}
+        receipts_processes.postLine(site_name, user_id, payload)
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
+# add to database
 @receipt_api.route('/api/postVendorUpdate', methods=["POST"])
 def postVendorUpdate():
     if request.method == "POST":
         receipt_id = int(request.get_json()['receipt_id'])
         vendor_id = int(request.get_json()['vendor_id'])
         site_name = session['selected_site']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            postsqldb.ReceiptTable.update_receipt(conn, site_name, {'id': receipt_id, 'update': {'vendor_id': vendor_id}})
-            return jsonify({'error': False, "message": "Line Saved Succesfully"})
+        receipts_database.updateReceiptsTuple(site_name, {'id': receipt_id, 'update': {'vendor_id': vendor_id}})
+        return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
 # added to database
