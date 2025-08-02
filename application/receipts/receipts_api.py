@@ -104,18 +104,17 @@ def getReceipt():
             return jsonify({'receipt': record, 'error': False, "message": "Get Receipts Successful!"})
     return jsonify({'receipt': record,  'error': True, "message": "Something went wrong while getting receipts!"})
 
+# added to database
 @receipt_api.route('/api/addReceipt', methods=["POST", "GET"])
 def addReceipt():
     if request.method == "GET":
         user_id = session['user_id']
         site_name = session['selected_site']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            receipt = MyDataclasses.ReceiptPayload(
-                receipt_id=f"PR-{database.request_receipt_id(conn, site_name)}",
-                submitted_by=user_id
-            )
-            database.insertReceiptsTuple(conn, site_name, receipt.payload())
+        receipt = database_payloads.ReceiptPayload(
+            receipt_id=f"PR-{receipts_database.requestNextReceiptID(site_name)}",
+            submitted_by=user_id
+        )
+        receipts_database.insertReceiptsTuple(site_name, receipt.payload())
         return jsonify({'error': False, "message": "Receipt Added Successful!"})
     return jsonify({'error': True, "message": "Something went wrong while adding receipt!"})
 
@@ -145,41 +144,37 @@ def addSKULine():
         return jsonify({'error': False, "message": "Line added Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while add SKU line!"})
 
+# Added to Database
 @receipt_api.route('/api/deleteLine', methods=["POST"])
 def deleteLine():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])
         site_name = session['selected_site']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            database.deleteReceiptItemsTuple(conn, site_name, (line_id, ))
-        
+        receipts_database.deleteReceiptItemsTuple(site_name, (line_id, ))
         return jsonify({'error': False, "message": "Line Deleted Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while deleting line!"})
 
+# Added to Database
 @receipt_api.route('/api/denyLine', methods=["POST"])
 def denyLine():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])
         site_name = session['selected_site']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            database.__updateTuple(conn, site_name, f"{site_name}_receipt_items", {'id': line_id, 'update': {'status': 'Denied'}})
+        receipts_database.updateReceiptItemsTuple(site_name, {'id': line_id, 'update': {'status': 'Denied'}})
         return jsonify({'error': False, "message": "Line Denied Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while denying line!"})
 
+# Added to database
 @receipt_api.route('/api/saveLine', methods=["POST"])
 def saveLine():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])
         payload = request.get_json()['payload']
         site_name = session['selected_site']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            receipt_item = database.__selectTuple(conn, site_name, f"{site_name}_receipt_items", (line_id, ), convert=True)
-            if 'api_data' in receipt_item['data'].keys():
-                payload['data']['api_data'] = receipt_item['data']['api_data']
-            database.__updateTuple(conn, site_name, f"{site_name}_receipt_items", {'id': line_id, 'update': payload})
+        receipt_item = receipts_database.selectReceiptItemsTuple(site_name, (line_id, ))
+        if 'api_data' in receipt_item['data'].keys():
+            payload['data']['api_data'] = receipt_item['data']['api_data']
+        receipts_database.updateReceiptItemsTuple(site_name, {'id': line_id, 'update': payload})
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
@@ -377,9 +372,12 @@ def uploadFile(receipt_id):
     
     return jsonify({})
 
+# Does not need to be added to Database
 @receipt_api.route('/api/getFile/<file_name>')
 def getFile(file_name):
-    return send_from_directory('static/files/receipts', file_name)
+    path_ = current_app.config['FILES_FOLDER'] + "/receipts"
+    print(path_)
+    return send_from_directory(path_, file_name)
 
 @receipt_api.route('/api/checkAPI', methods=["POST"])
 def checkAPI():
@@ -390,7 +388,7 @@ def checkAPI():
         database_config = config()
         with psycopg2.connect(**database_config) as conn:
             print(barcode, line_id)
-            api_response, api_data = get_open_facts(barcode)
+            api_response, api_data = receipts_processes.get_open_facts(barcode)
             if api_response:
                 receipt_item = database.__selectTuple(conn, site_name, f"{site_name}_receipt_items", (line_id, ), convert=True)
                 item_data = receipt_item['data']
@@ -406,15 +404,3 @@ def checkAPI():
                 return jsonify({'error': True, "message": "Item not in WorldFoodFacts!"})
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
-
-open_food_api = openfoodfacts.API(user_agent="MyAwesomeApp/1.0")
-
-open_food_enabled = True
-
-def get_open_facts(barcode):
-    if open_food_enabled:
-        barcode: str = barcode.replace('%', "")
-        data = open_food_api.product.get(barcode)
-        if data != None:
-            return True, data
-    return False, {}

@@ -250,7 +250,7 @@ async function viewFile(source) {
     document.getElementById('filenameiframemodal').innerHTML = source
 
     let iframe = document.createElement('iframe')
-    iframe.src = `/receipt/getFile/${source}`
+    iframe.src = `/receipts/api/getFile/${source}`
     iframe.width = "100%"
     iframe.style.height = "100%"
 

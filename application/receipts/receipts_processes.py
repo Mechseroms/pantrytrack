@@ -1,6 +1,7 @@
 import pymupdf
 import os
 import PIL
+import openfoodfacts
 
 def create_pdf_preview(pdf_path, output_path, size=(600, 400)):
     pdf = pymupdf.open(pdf_path)
@@ -12,3 +13,16 @@ def create_pdf_preview(pdf_path, output_path, size=(600, 400)):
     img.thumbnail(size)
     img.save(output_path)
     return file_name + '.jpg'
+
+
+# OPEN FOOD FACTS API INTEGRATION
+open_food_api = openfoodfacts.API(user_agent="MyAwesomeApp/1.0")
+open_food_enabled = True
+
+def get_open_facts(barcode):
+    if open_food_enabled:
+        barcode: str = barcode.replace('%', "")
+        data = open_food_api.product.get(barcode)
+        if data != None:
+            return True, data
+    return False, {}
