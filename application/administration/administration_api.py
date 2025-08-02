@@ -52,7 +52,7 @@ def adminUser(id):
         new_user_payload = database_payloads.LoginsPayload("", "", "", "")
         return render_template("user.html", user=new_user_payload.get_dictionary())
     else:
-        user = administration_database.selectLoginsTuple(int(id))
+        user = administration_database.selectLoginsTuple((int(id),))
         return render_template('user.html', user=user)
 
 # API ROUTES
@@ -133,106 +133,73 @@ def postAddSite():
         return jsonify({'error': False, 'message': f"Zone added to {site_name}."})
     return jsonify({'error': True, 'message': f"These was an error with adding this Zone to {site_name}."})
 
+# Added to Database
 @admin_api.route('/api/site/postEditSite', methods=["POST"])
 def postEditSite():
     if request.method == "POST":
         payload = request.get_json()['payload']
-        database_config = config()
-        try:
-            with psycopg2.connect(**database_config) as conn:
-                postsqldb.SitesTable.update_tuple(conn, payload)
-        except Exception as error:
-            conn.rollback()
-            return jsonify({'error': True, 'message': error})
+        administration_database.updateSitesTuple(payload)
         return jsonify({'error': False, 'message': f"Site updated."})
     return jsonify({'error': True, 'message': f"These was an error with updating Site."})
 
+# Added to Database
 @admin_api.route('/api/role/postAddRole', methods=["POST"])
 def postAddRole():
     if request.method == "POST":
         payload = request.get_json()['payload']
-        database_config = config()
         print(payload)
-        try:
-            with psycopg2.connect(**database_config) as conn:
-                role = postsqldb.RolesTable.Payload(
-                    payload['role_name'],
-                    payload['role_description'],
-                    payload['site_id']
-                )
-                postsqldb.RolesTable.insert_tuple(conn, role.payload())
-                
-        except Exception as error:
-            conn.rollback()
-            return jsonify({'error': True, 'message': error})
+        role = database_payloads.RolePayload(
+            payload['role_name'],
+            payload['role_description'],
+            payload['site_id']
+        )
+        administration_database.insertRolesTuple(role.payload())                
         return jsonify({'error': False, 'message': f"Role added."})
     return jsonify({'error': True, 'message': f"These was an error with adding this Role."})
 
+# Added to Database
 @admin_api.route('/api/role/postEditRole', methods=["POST"])
 def postEditRole():
     if request.method == "POST":
         payload = request.get_json()['payload']
-        database_config = config()
-        print(payload)
-        try:
-            with psycopg2.connect(**database_config) as conn:
-                postsqldb.RolesTable.update_tuple(conn, payload)
-                
-        except Exception as error:
-            conn.rollback()
-            return jsonify({'error': True, 'message': error})
+        administration_database.updateRolesTuple(payload)     
         return jsonify({'error': False, 'message': f"Role updated."})
     return jsonify({'error': True, 'message': f"These was an error with updating this Role."})
 
+# Added to database
 @admin_api.route('/api/user/postAddLogin', methods=["POST"])
 def postAddLogin():
     if request.method == "POST":
         payload = request.get_json()['payload']
-        database_config = config()
-        user = []
-        try:
-            with psycopg2.connect(**database_config) as conn:
-                user = postsqldb.LoginsTable.Payload(
-                    payload['username'],
-                    hashlib.sha256(payload['password'].encode()).hexdigest(),
-                    payload['email'],
-                    payload['row_type']
-                )
-                user = postsqldb.LoginsTable.insert_tuple(conn, user.payload())
-        except postsqldb.DatabaseError as error:
-            conn.rollback()
-            return jsonify({'user': user, 'error': True, 'message': error})
+        user = database_payloads.LoginsPayload(
+            payload['username'],
+            hashlib.sha256(payload['password'].encode()).hexdigest(),
+            payload['email'],
+            payload['row_type']
+        )
+        user = administration_database.insertLoginsTuple(user.payload())
+            
         return jsonify({'user': user, 'error': False, 'message': f"User added."})
     return jsonify({'user': user, 'error': True, 'message': f"These was an error with adding this User."})
 
+# Added to database
 @admin_api.route('/api/user/postEditLogin', methods=["POST"])
 def postEditLogin():
     if request.method == "POST":
         payload = request.get_json()['payload']
-        database_config = config()
-        try:
-            with psycopg2.connect(**database_config) as conn:
-                postsqldb.LoginsTable.update_tuple(conn, payload)
-        except Exception as error:
-            conn.rollback()
-            return jsonify({'error': True, 'message': error})
+        administration_database.updateLoginsTuple(payload)
         return jsonify({'error': False, 'message': f"User was Added Successfully."})
     return jsonify({'error': True, 'message': f"These was an error with adding this user."})
 
+# Added to Database
 @admin_api.route('/api/user/postEditLoginPassword', methods=["POST"])
 def postEditLoginPassword():
     if request.method == "POST":
         payload = request.get_json()['payload']
-        database_config = config()
-        try:
-            with psycopg2.connect(**database_config) as conn:
-                user = postsqldb.LoginsTable.select_tuple(conn, (payload['id'],))
-                if hashlib.sha256(payload['current_password'].encode()).hexdigest() != user['password']:
-                    return jsonify({'error': True, 'message': "The provided current password is incorrect"})
-                payload['update']['password'] = hashlib.sha256(payload['update']['password'].encode()).hexdigest()
-                postsqldb.LoginsTable.update_tuple(conn, payload)
-        except Exception as error:
-            conn.rollback()
-            return jsonify({'error': True, 'message': error})
+        user = administration_database.selectLoginsTuple((payload['id'],))
+        if hashlib.sha256(payload['current_password'].encode()).hexdigest() != user['password']:
+            return jsonify({'error': True, 'message': "The provided current password is incorrect"})  
+        payload['update']['password'] = hashlib.sha256(payload['update']['password'].encode()).hexdigest()
+        administration_database.updateLoginsTuple(payload)
         return jsonify({'error': False, 'message': f"Password was changed successfully."})
     return jsonify({'error': True, 'message': f"These was an error with updating this Users password."})

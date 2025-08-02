@@ -132,7 +132,7 @@
                 site_id: document.getElementById('site_id').value,
             }
 
-            const response = await fetch(`/admin/role/postAddRole`, {
+            const response = await fetch(`/admin/api/role/postAddRole`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -150,7 +150,7 @@
                 update: {role_name: document.getElementById('role_name').value, role_description: document.getElementById('role_description').value}
             }
 
-            const response = await fetch(`/admin/role/postEditRole`, {
+            const response = await fetch(`/admin/api/role/postEditRole`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

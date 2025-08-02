@@ -343,6 +343,37 @@ def insertRolesTuple(payload, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def insertLoginsTuple(payload, convert=True, conn=None):
+    """payload (tuple): (username, password, email, favorites, unseen_pantry_items, unseen_groups, unseen_shopping_lists,
+                            unseen_recipes, seen_pantry_items, seen_groups, seen_shopping_lists, seen_recipes,
+                            sites, site_roles, system_admin, flags, row_type)"""
+    login = ()
+    self_conn = False
+    with open(f"application/administration/sql/insertLoginsTupleFull.sql", "r+") as file:
+        sql = file.read()
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                login = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                login = rows
+        
+        if self_conn:
+            conn.commit()
+            conn.close()
+        
+        return login
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
 def insertZonesTuple(site, payload, convert=True, conn=None):
     """ payload (tuple): (name[str],) """
     zone = ()
@@ -571,6 +602,67 @@ def updateUsersRoles(payload, convert=True, conn=None):
 
     except Exception as error:
         raise error
+
+def updateRolesTuple(payload, convert=True, conn=None):
+    """ payload (dict): {'id': row_id, 'update': {... column_to_update: value_to_update_to...}"""
+    updated = ()
+    self_conn = False
+    set_clause, values = postsqldb.updateStringFactory(payload['update'])
+    values.append(payload['id'])
+    sql = f"UPDATE roles SET {set_clause} WHERE id=%s RETURNING *;"
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, values)
+            rows = cur.fetchone()
+            if rows and convert:
+                updated = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                updated = rows
+        
+        if self_conn:
+            conn.commit()
+            conn.close()
+        
+        return updated
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+def updateLoginsTuple(payload, convert=True, conn=None):
+    """ payload (dict): {'id': row_id, 'update': {... column_to_update: value_to_update_to...}} """
+    updated = ()
+    self_conn = False
+    set_clause, values = postsqldb.updateStringFactory(payload['update'])
+    values.append(payload['id'])
+    sql = f"UPDATE logins SET {set_clause} WHERE id=%s RETURNING *;"
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, values)
+            rows = cur.fetchone()
+            if rows and convert:
+                updated = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                updated = rows
+
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return updated
+
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
 
 def createTable(site, table, conn=None):
     self_conn = False

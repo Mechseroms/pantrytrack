@@ -256,7 +256,7 @@
                 row_type: document.getElementById('login_type').value,
             }
 
-            const response = await fetch(`/admin/user/postAddLogin`, {
+            const response = await fetch(`/admin/api/user/postAddLogin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -276,6 +276,7 @@
                     timeout: 5000
                 });
             } else {
+                console.log(data.user)
                 window.location.href = `/admin/user/${data.user.id}`
             }
         }
@@ -287,7 +288,7 @@
                 update: {password: document.getElementById('old_login_password_new').value}
             }
 
-            const response = await fetch(`/admin/user/postEditLoginPassword`, {
+            const response = await fetch(`/admin/api/user/postEditLoginPassword`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -335,7 +336,7 @@
                 }
             }
 
-            const response = await fetch(`/admin/user/postEditLogin`, {
+            const response = await fetch(`/admin/api/user/postEditLogin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

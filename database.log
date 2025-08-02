@@ -2006,3 +2006,9 @@
     vendor INTEGER DEFAULT 0
 );,
                                          sql='cost_layers')
+2025-08-02 18:37:44.167516 --- ERROR --- DatabaseError(message='duplicate key value violates unique constraint "roles_role_name_site_id_key"DETAIL:  Key (role_name, site_id)=(User, 4) already exists.',
+                                         payload=('User', 'This is the basic role for users on the test site.', '4', '{}'),
+                                         sql='INSERT INTO roles(role_name, role_description, site_id, flags) VALUES (%s, %s, %s, %s) RETURNING *;')
+2025-08-02 18:51:19.123988 --- ERROR --- DatabaseError(message=''int' object does not support indexing',
+                                         payload=42,
+                                         sql='WITH passed_id AS (SELECT %s AS passed_id),	cte_login AS (		SELECT logins.* FROM logins		WHERE logins.id = (SELECT passed_id FROM passed_id)	),	cte_roles AS (		SELECT roles.*,			row_to_json(sites.*) AS site		FROM roles		LEFT JOIN sites ON sites.id = roles.site_id		WHERE roles.id = ANY(SELECT unnest(site_roles) FROM cte_login)	)SELECT login.*, 	(SELECT COALESCE(array_agg(row_to_json(r)), '{}') FROM cte_roles r) AS site_rolesFROM cte_login login;')
