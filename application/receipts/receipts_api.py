@@ -46,6 +46,7 @@ def getItems():
         return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":True, "message":"There was an error with this GET statement"})
 
+# Added to Database
 @receipt_api.route('/api/getVendors', methods=["GET"])
 def getVendors():
     recordset = []
@@ -55,10 +56,7 @@ def getVendors():
         limit = int(request.args.get('limit', 10))
         site_name = session['selected_site']
         offset = (page - 1) * limit
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            payload = (limit, offset)
-            recordset, count = postsqldb.VendorsTable.paginateVendors(conn, site_name, payload)
+        recordset, count = receipts_database.paginateVendorsTuples(site_name, payload=(limit, offset))
         return jsonify({"vendors":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"vendors":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
@@ -71,13 +69,11 @@ def getLinkedLists():
         limit = int(request.args.get('limit', 10))
         site_name = session['selected_site']
         offset = (page - 1) * limit
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            payload = (limit, offset)
-            recordset, count = postsqldb.ItemTable.paginateLinkedLists(conn, site_name, payload)
+        recordset, count = receipts_database.paginateLinkedLists(site_name, payload=(limit, offset))
         return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
+# Added to database
 @receipt_api.route('/api/getReceipts', methods=["GET"])
 def getReceipts():
     recordset = []
@@ -86,23 +82,20 @@ def getReceipts():
         limit = int(request.args.get('limit', 50))
         offset = (page - 1) * limit
         site_name = session['selected_site']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            recordset, count = database.getReceipts(conn, site_name, payload=(limit, offset), convert=True)
-            return jsonify({'receipts':recordset, "end": math.ceil(count/limit), 'error': False, "message": "Get Receipts Successful!"})
+        recordset, count = receipts_database.paginateReceiptsTuples(site_name, payload=(limit, offset))
+        return jsonify({'receipts':recordset, "end": math.ceil(count/limit), 'error': False, "message": "Get Receipts Successful!"})
     return jsonify({'receipts': recordset, "end": math.ceil(count/limit), 'error': True, "message": "Something went wrong while getting receipts!"})
 
+# Added to database
 @receipt_api.route('/api/getReceipt', methods=["GET"])
 def getReceipt():
-    record = []
+    receipt = []
     if request.method == "GET":
         receipt_id = int(request.args.get('id', 1))
         site_name = session['selected_site']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            record = database.getReceiptByID(conn, site_name, payload=(receipt_id, ), convert=True)
-            return jsonify({'receipt': record, 'error': False, "message": "Get Receipts Successful!"})
-    return jsonify({'receipt': record,  'error': True, "message": "Something went wrong while getting receipts!"})
+        receipt = receipts_database.getReceiptByID(site_name, (receipt_id, ))
+        return jsonify({'receipt': receipt, 'error': False, "message": "Get Receipts Successful!"})
+    return jsonify({'receipt': receipt,  'error': True, "message": "Something went wrong while getting receipts!"})
 
 # added to database
 @receipt_api.route('/api/addReceipt', methods=["POST", "GET"])

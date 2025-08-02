@@ -107,7 +107,130 @@ def getItemAllByID(site, payload, convert=True, conn=None):
         return item
     except (Exception, psycopg2.DatabaseError) as error:
         raise postsqldb.DatabaseError(error, payload, getItemAllByID_sql)
-    
+
+def getReceiptByID(site, payload, convert=True, conn=None):
+    receipt = []
+    self_conn = False
+    with open(f"application/receipts/sql/getReceiptByID.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            row = cur.fetchone()
+            if row and convert:
+                receipt = postsqldb.tupleDictionaryFactory(cur.description, row)
+            if row and not convert:
+                receipt = row
+
+        if self_conn:
+            conn.close()
+
+        return receipt
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+def paginateReceiptsTuples(site, payload, convert=True, conn=None):
+    """payload=(limit, offset)"""
+    receipts = []
+    count = 0
+    self_conn = False
+    with open(f"application/receipts/sql/getReceipts.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchall()
+            if rows and convert:
+                receipts = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+            if rows and not convert:
+                receipts = rows
+
+            cur.execute(f"SELECT COUNT(*) FROM {site}_receipts;")
+            count = cur.fetchone()[0]
+        
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return receipts, count
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+def paginateVendorsTuples(site, payload, convert=True, conn=None):
+        """payload (tuple): (limit, offset)"""
+        recordset = ()
+        count = 0
+        self_conn = False
+        sql = f"SELECT * FROM {site}_vendors LIMIT %s OFFSET %s;"
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = True
+                self_conn = True
+
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchall()
+                if rows and convert:
+                    recordset = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+                elif rows and not convert:
+                    recordset = rows
+
+                cur.execute(f"SELECT COUNT(*) FROM {site}_vendors;")
+                count = cur.fetchone()[0]
+            
+            if self_conn:
+                conn.close()
+
+            return recordset, count
+        except Exception as error:
+            raise postsqldb.DatabaseError(error, (), sql)
+
+def paginateLinkedLists(site, payload, convert=True, conn=None):
+        records = []
+        count = 0
+        self_conn = False
+        sql = f"SELECT * FROM {site}_items WHERE row_type = 'list' LIMIT %s OFFSET %s;"
+        sql_count = f"SELECT COUNT(*) FROM {site}_items WHERE row_type = 'list' LIMIT %s OFFSET %s;"
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = True
+                self_conn = True
+
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchall()
+                if rows and convert:
+                    records = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+                if rows and not convert:
+                    records = rows
+
+                cur.execute(sql_count, payload)
+                count = cur.fetchone()[0]
+
+            if self_conn:
+                conn.close()
+
+            return records, count
+        except (Exception, psycopg2.DatabaseError) as error:
+            raise postsqldb.DatabaseError(error, payload, sql)
+
 def selectReceiptItemsTuple(site, payload, convert=True, conn=None):
     selected = ()
     self_conn = False
