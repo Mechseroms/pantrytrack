@@ -39,7 +39,8 @@ def getItemBarcode():
         item_barcode = f"%{str(request.args.get('barcode', 1))}%"
         site_name = session['selected_site']
         record = poe_database.selectItemAllByBarcode(site_name, (item_barcode,))
-        if record == {}:
+        print(record)
+        if record == {} or record == ():
             return jsonify({"item":None,  "error":True, "message":"Item either does not exist or there was a larger problem!"}) 
         else:
             return jsonify({"item":record,  "error":False, "message":"item fetched succesfully!"})

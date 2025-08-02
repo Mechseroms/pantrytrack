@@ -80,6 +80,76 @@ def getItemsWithQOH(site, payload, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def getLinkedItemByBarcode(site, payload, convert=True, conn=None):
+        item = ()
+        self_conn = False
+        sql = f"SELECT * FROM {site}_itemlinks WHERE barcode=%s;"
+        if convert:
+            item = {}
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = True
+                self_conn = True
+
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    item = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                if rows and not convert:
+                    item = rows
+            
+            if self_conn:
+                conn.close()
+            
+            return item
+        except (Exception, psycopg2.DatabaseError) as error:
+            raise postsqldb.DatabaseError(error, payload, sql)
+
+def getItemAllByBarcode(site, payload, convert=True, conn=None):
+        item = ()
+        self_conn = False
+
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        if convert:
+            item = {}
+
+        linked_item = getLinkedItemByBarcode(site, (payload[0],), conn=conn)
+
+        if len(linked_item) > 1:
+            item = getItemAllByID(site, payload=(linked_item['link'], ), convert=convert, conn=conn)
+            item['item_info']['uom_quantity'] = linked_item['conv_factor']
+            
+            if self_conn:
+                conn.close()
+
+            return item
+        else:
+            with open(f"application/receipts/sql/getItemAllByBarcode.sql", "r+") as file:
+                getItemAllByBarcode_sql = file.read().replace("%%site_name%%", site)
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(getItemAllByBarcode_sql, payload)
+                    rows = cur.fetchone()
+                    if rows and convert:
+                        item = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                    if rows and not convert:
+                        item = rows
+
+                if self_conn:
+                    conn.close()
+
+                return item
+            except (Exception, psycopg2.DatabaseError) as error:
+                raise postsqldb.DatabaseError(error, payload, getItemAllByBarcode_sql)
+        
 def getItemAllByID(site, payload, convert=True, conn=None):
     item = ()
     self_conn = False
@@ -231,6 +301,33 @@ def paginateLinkedLists(site, payload, convert=True, conn=None):
         except (Exception, psycopg2.DatabaseError) as error:
             raise postsqldb.DatabaseError(error, payload, sql)
 
+def selectReceiptsTuple(site, payload, convert=True, conn=None):
+    selected = ()
+    self_conn = False
+    sql = f"SELECT * FROM {site}_receipts WHERE id=%s;"
+
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                selected = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            if rows and not convert:
+                selected = rows
+        
+        if self_conn:
+            conn.close()
+        
+        return selected
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
 def selectReceiptItemsTuple(site, payload, convert=True, conn=None):
     selected = ()
     self_conn = False
@@ -284,6 +381,36 @@ def deleteReceiptItemsTuple(site, payload, convert=True, conn=None):
         return deleted
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
+
+def insertItemLinksTuple(site, payload, convert=True, conn=None):
+    """payload (tuple): (barcode[str], link[int], data[jsonb], conv_factor[float]) """
+    link = ()
+    self_conn = False
+    with open(f"application/receipts/sql/insertItemLinksTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+        
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                link = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                link = rows
+        
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return link
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+    
 
 def insertReceiptItemsTuple(site, payload, convert=True, conn=None):
     receipt_item = ()
@@ -341,6 +468,68 @@ def insertReceiptsTuple(site, payload, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def updateItemsTuple(site, payload, convert=True, conn=None):
+    """payload (dict): {'id': row_id, 'update': {... column_to_update: value_to_update_to...}}"""
+    updated = ()
+    self_conn = False
+    set_clause, values = postsqldb.updateStringFactory(payload['update'])
+    values.append(payload['id'])
+    sql = f"UPDATE {site}_items SET {set_clause} WHERE id=%s RETURNING *;"
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, values)
+            rows = cur.fetchone()
+            if rows and convert:
+                updated = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                updated = rows
+
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return updated
+    
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+        
+def updateReceiptsTuple(site, payload, convert=True, conn=None):
+        """payload (dict): {'id': row_id, 'update': {... column_to_update: value_to_update_to...}}"""
+        updated = ()
+        self_conn = False
+        set_clause, values = postsqldb.updateStringFactory(payload['update'])
+        values.append(payload['id'])
+        sql = f"UPDATE {site}_receipts SET {set_clause} WHERE id=%s RETURNING *;"
+        try:
+
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = True
+                self_conn = True
+
+            with conn.cursor() as cur:
+                cur.execute(sql, values)
+                rows = cur.fetchone()
+                if rows and convert:
+                    updated = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    updated = rows
+
+            if self_conn:
+                conn.commit()
+                conn.close()
+
+            return updated
+        except Exception as error:
+            raise postsqldb.DatabaseError(error, payload, sql)
+        
 def updateReceiptItemsTuple(site, payload, convert=True, conn=None):
     """_summary_
 

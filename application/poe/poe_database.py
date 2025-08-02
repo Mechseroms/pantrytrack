@@ -174,19 +174,28 @@ def selectItemAllByID(site, payload, convert=True, conn=None):
 def selectItemAllByBarcode(site, payload, convert=True, conn=None):
     item = ()
     self_conn = False
+
+    if convert:
+        item = {}
+
+    if not conn:
+        database_config = config.config()
+        conn = psycopg2.connect(**database_config)
+        conn.autocommit = True
+        self_conn = True
+    
     linked_item = selectLinkedItemByBarcode(site, (payload[0],))
+    
     if len(linked_item) > 1:
         item = selectItemAllByID(site, payload=(linked_item['link'], ), convert=convert)
         item['item_info']['uom_quantity'] = linked_item['conv_factor']
+        if self_conn:
+            conn.close()
+        return item
     else:
         with open(f"application/poe/sql/getItemAllByBarcode.sql", "r+") as file:
             getItemAllByBarcode_sql = file.read().replace("%%site_name%%", site)
         try:
-            if not conn:
-                database_config = config.config()
-                conn = psycopg2.connect(**database_config)
-                conn.autocommit = True
-                self_conn = True
 
             with conn.cursor() as cur:
                 cur.execute(getItemAllByBarcode_sql, payload)
@@ -197,12 +206,11 @@ def selectItemAllByBarcode(site, payload, convert=True, conn=None):
                     item = rows
         
             if self_conn:
-                conn.commit()
                 conn.close()
-
+            return item
         except (Exception, psycopg2.DatabaseError) as error:
             raise postsqldb.DatabaseError(error, payload, getItemAllByBarcode_sql)
-    return item
+    
     
 def insertCostLayersTuple(site, payload, convert=True, conn=None):
     cost_layer = ()

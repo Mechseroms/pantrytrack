@@ -2,7 +2,6 @@ from flask import Blueprint, request, render_template, redirect, session, url_fo
 import psycopg2, math, datetime, process, database, MyDataclasses
 from config import config
 from user_api import login_required
-import openfoodfacts
 import postsqldb
 import mimetypes, os
 import webpush
@@ -60,6 +59,7 @@ def getVendors():
         return jsonify({"vendors":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"vendors":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
+# Added to Database
 @receipt_api.route('/api/getLinkedLists', methods=["GET"])
 def getLinkedLists():
     recordset = []
@@ -171,6 +171,7 @@ def saveLine():
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
+# Added to Process and database!
 @receipt_api.route('/api/postLinkedItem', methods=["POST"])
 def postLinkedItem():
     if request.method == "POST":
@@ -180,52 +181,14 @@ def postLinkedItem():
 
         site_name = session['selected_site']
         user_id = session['user_id']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            receipt_item = postsqldb.ReceiptTable.select_item_tuple(conn, site_name, (receipt_item_id,))
-            # get link list item
-            linked_list = postsqldb.ItemTable.getItemAllByID(conn, site_name, (link_list_id, ))
-            # add item to database
-            if receipt_item['type'] == 'api':
-                
-                data = {
-                    'barcode': receipt_item['barcode'], 
-                    'name': receipt_item['name'], 
-                    'subtype': 'FOOD'
-                }
-                process.postNewBlankItem(conn, site_name, user_id, data)
 
-            name = receipt_item['name']
-            if receipt_item['name'] == "unknown":
-                name = linked_list['item_name']
-            if receipt_item['type'] == "new sku":
-                data = {
-                    'barcode': receipt_item['barcode'], 
-                    'name': name, 
-                    'subtype': 'FOOD'
-                }
-                process.postNewBlankItem(conn, site_name, user_id, data)
+        payload = {
+            'receipt_item_id': receipt_item_id,
+            'linked_list_id': link_list_id,
+            'conv_factor': conv_factor
+        }
 
-            new_item = postsqldb.ItemTable.getItemAllByBarcode(conn, site_name, (receipt_item['barcode'], ))
-            new_item = postsqldb.ItemTable.update_tuple(conn, site_name, {'id': new_item['id'], 'update':{'row_type': 'link'}})
-
-            # add item to link list
-            item_link = postsqldb.ItemLinksTable.Payload(
-                new_item['barcode'],
-                linked_list['id'],
-                new_item,
-                conv_factor
-            )
-            postsqldb.ItemLinksTable.insert_tuple(conn, site_name, item_link.payload())
-            # update line item with link list name and item_link with link list id
-            payload = {'id': receipt_item['id'], 'update': {
-                'barcode': linked_list['barcode'],
-                'name': linked_list['item_name'],
-                'uom': linked_list['item_info']['uom']['id'],
-                'qty': float(receipt_item['qty']*conv_factor),
-                'type': 'sku'
-            }}
-            postsqldb.ReceiptTable.update_receipt_item(conn, site_name, payload)
+        receipts_processes.linkItem(site_name, user_id, payload)
             
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
@@ -343,6 +306,7 @@ def resolveReceipt():
             return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
+# added to database
 @receipt_api.route('/api/uploadfile/<receipt_id>', methods=["POST"])
 def uploadFile(receipt_id):
     file = request.files['file']
@@ -355,14 +319,11 @@ def uploadFile(receipt_id):
         preview_image = receipts_processes.create_pdf_preview(file_path, output_path)
 
     file_size = os.path.getsize(file_path)
-    database_config = config()
     site_name = session['selected_site']
     username = session['user']['username']
-    with psycopg2.connect(**database_config) as conn:
-        files = postsqldb.ReceiptTable.select_tuple(conn, site_name, (receipt_id, ))['files']
-        files[file.filename.replace(" ", "_")] = {'file_path': file.filename.replace(" ", "_"), 'file_type': file_type, 'file_size': file_size, 'uploaded_by': username, 'preview_image': preview_image}
-        postsqldb.ReceiptTable.update_receipt(conn, site_name, {'id': receipt_id, 'update': {'files': files}})
-    
+    receipt_files = receipts_database.selectReceiptsTuple(site_name, (receipt_id, ))['files']
+    receipt_files[file.filename.replace(" ", "_")] = {'file_path': file.filename.replace(" ", "_"), 'file_type': file_type, 'file_size': file_size, 'uploaded_by': username, 'preview_image': preview_image}
+    receipts_database.updateReceiptsTuple(site_name, {'id': receipt_id, 'update': {'files': receipt_files}})
     return jsonify({})
 
 # Does not need to be added to Database
@@ -372,28 +333,22 @@ def getFile(file_name):
     print(path_)
     return send_from_directory(path_, file_name)
 
+# Added to database
 @receipt_api.route('/api/checkAPI', methods=["POST"])
 def checkAPI():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])
         barcode = request.get_json()['barcode']
         site_name = session['selected_site']
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            print(barcode, line_id)
-            api_response, api_data = receipts_processes.get_open_facts(barcode)
-            if api_response:
-                receipt_item = database.__selectTuple(conn, site_name, f"{site_name}_receipt_items", (line_id, ), convert=True)
-                item_data = receipt_item['data']
-                item_data['api_data'] = api_data
-                database.__updateTuple(conn, site_name, f"{site_name}_receipt_items", 
-                                       {'id': line_id, 'update': {
-                                           'type': 'api',
-                                           'data': item_data,
-                                           'name': api_data['product_name']
-                                       }})
-                return jsonify({'error': False, "message": "Line updated for API, Succesfully"})
-            else:
-                return jsonify({'error': True, "message": "Item not in WorldFoodFacts!"})
+        api_response, api_data = receipts_processes.get_open_facts(barcode)
+        if api_response:
+            receipt_item = receipts_database.selectReceiptItemsTuple(site_name, (line_id, ))
+            item_data = receipt_item['data']
+            item_data['api_data'] = api_data
+            payload = {'id': line_id, 'update': {'type': 'api','data': item_data,'name': api_data['product_name']}}
+            receipts_database.updateReceiptItemsTuple(site_name, payload)
+            return jsonify({'error': False, "message": "Line updated for API, Succesfully"})
+        else:
+            return jsonify({'error': True, "message": "Item not in WorldFoodFacts!"})
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
