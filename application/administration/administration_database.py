@@ -1,5 +1,8 @@
-from application import postsqldb
+# 3RD PARTY IMPORTS
 import psycopg2
+
+# APPLICATION IMPORTS
+from application import postsqldb
 import config
 
 def getUser(conn, payload, convert=False):

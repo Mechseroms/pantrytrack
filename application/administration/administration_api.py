@@ -1,15 +1,13 @@
-from flask import Blueprint, request, render_template, redirect, session, url_for, send_file, jsonify, Response
-import psycopg2, math, json, datetime, main, copy, requests
-from config import config, sites_config
-from main import unfoldCostLayers, get_sites, get_roles, create_site_secondary, getUser
-from manage import create
-from user_api import login_required
-import postsqldb, process, hashlib
+# 3RD PARTY IMPORTS
+from flask import (Blueprint, request, render_template, session, jsonify)
+import math
+import hashlib
 
 
 # APPLICATION IMPORTS
 from application.administration import administration_database, administration_processes
-from application import database_payloads
+from application import database_payloads, postsqldb
+from user_api import login_required
 
 
 admin_api = Blueprint('admin_api', __name__, template_folder="templates", static_folder="static")
@@ -18,7 +16,7 @@ admin_api = Blueprint('admin_api', __name__, template_folder="templates", static
 # ROOT TEMPLATE ROUTES
 @admin_api.route('/')
 def admin_index():
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
     return render_template("admin_index.html", current_site=session['selected_site'], sites=sites)
 
 # Added to Database

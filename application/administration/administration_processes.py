@@ -1,6 +1,8 @@
+# 3RD PARTY IMPORTS
 import psycopg2
 import datetime
 
+# APPLICATION IMPORTS
 import config
 from application import postsqldb, database_payloads
 from application.administration import administration_database
