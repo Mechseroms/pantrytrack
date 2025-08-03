@@ -1,0 +1,4 @@
+
+2025-08-03 08:25:07.786121 --- ERROR --- DatabaseError(message=''int' object does not support indexing',
+                                         payload=1,
+                                         sql='SELECT * FROM logins WHERE id=%s;')

@@ -15,10 +15,12 @@ access_api = Blueprint('access_api', __name__, template_folder="templates", stat
 
 
 def update_session_user():
-    database_config = config()
-    with psycopg2.connect(**database_config) as conn:
-        user = postsqldb.LoginsTable.get_washed_tuple(conn, (session['user_id'],))
-        session['user'] = user
+    user = access_database.selectLoginsTupleByID((session['user_id'],))
+    user = access_database.washUserDictionary(user)
+    session['user'] = user
+
+    print(user)
+
 
 def login_required(func):
     @wraps(func)
@@ -44,17 +46,23 @@ def auth():
         'Authorization': f'Bearer {access_token}',
     }
     response = requests.get(userinfo_endpoint, headers=headers)
-    if response.status_code == 200:
-        user_email = response.json()['email']
-        user = access_database.selectUserByEmail((user_email,))
+    
+    if response.status_code != 200:
+        print("Failed to fetch user info:", response.status_code, response.text)
+        return redirect('/access/login')
+
+    user_email = response.json()['email']
+    profile_pic_url = response.json()['picture']
+    user = access_database.selectUserByEmail((user_email,))
+
+    if user['login_type'] == "External":
+        user = access_database.updateLoginsTuple({'id': user['id'], 'update':{'profile_pic_url': profile_pic_url}})
         user = access_database.washUserDictionary(user)
         session['user_id'] = user['id']
         session['user'] = user
-        session['login_type'] = 'External'
         return redirect('/')
-    else:
-        print("Failed to fetch user info:", response.status_code, response.text)
-        return redirect('/access/login')
+
+    return redirect('/access/login')
 
 @access_api.route('/login/oidc')
 def oidc_login():

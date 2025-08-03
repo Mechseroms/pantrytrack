@@ -91,7 +91,10 @@
                                 <a onclick="toggleDarkMode()" class="uk-button uk-button-small"><span id="modeToggle" class="uk-flex material-symbols-outlined">dark_mode</span></a>
                             </div>
                             <div>
-                                <a href="" class="" uk-icon="icon: user" uk-toggle>{{username}}</a>
+                                <a href="" class="uk-toggle">
+                                     <img src="{{session['user']['profile_pic_url']}}" alt="Profile Picture" class="profile-pic" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 5px;">
+                                     {{username}}
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -100,6 +103,7 @@
         </div>
         <div class="uk-container">
             <div class="uk-section">
+                <p>{{session['user']}}
                 <div uk-grid>
                     <div class="uk-width-1-1@m">
                         <ul class="uk-iconnav uk-flex-center uk-flex-left@m">

@@ -60,7 +60,7 @@ def inject_user():
         with psycopg2.connect(**database_config) as conn:
             try:
                 with conn.cursor() as cur:
-                    sql = f"SELECT id, username, sites, site_roles, system_admin, flags FROM logins WHERE id=%s;"
+                    sql = f"SELECT id, username, sites, site_roles, system_admin, flags, profile_pic_url, login_type FROM logins WHERE id=%s;"
                     cur.execute(sql, (session['user_id'],))
                     user = cur.fetchone()
                     user = database.tupleDictionaryFactory(cur.description, user)
