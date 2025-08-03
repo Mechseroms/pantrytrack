@@ -40,10 +40,10 @@ oauth.register(
 assets = Environment(app)
 app.secret_key = '11gs22h2h1a4h6ah8e413a45'
 app.register_blueprint(access_api.access_api, url_prefix="/access")
-app.register_blueprint(administration_api.admin_api, url_prefix='/admin')
+app.register_blueprint(administration_api.admin_api, url_prefix='/administration')
 app.register_blueprint(items_API.items_api, url_prefix='/items')
 app.register_blueprint(poe_api.point_of_ease, url_prefix='/poe')
-app.register_blueprint(site_management_api.site_management_api, url_prefix="/site_management")
+app.register_blueprint(site_management_api.site_management_api, url_prefix="/site-management")
 app.register_blueprint(receipts_api.receipt_api, url_prefix='/receipts')
 app.register_blueprint(shoplist_api.shopping_list_api, url_prefix="/shopping-lists")
 app.register_blueprint(recipes_api.recipes_api, url_prefix='/recipes')

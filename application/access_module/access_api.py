@@ -51,12 +51,18 @@ def auth():
         print("Failed to fetch user info:", response.status_code, response.text)
         return redirect('/access/login')
 
-    user_email = response.json()['email']
-    profile_pic_url = response.json()['picture']
-    user = access_database.selectUserByEmail((user_email,))
+    external_user = response.json()
+    user = access_database.selectUserByEmail((external_user['email'],))
 
     if user['login_type'] == "External":
-        user = access_database.updateLoginsTuple({'id': user['id'], 'update':{'profile_pic_url': profile_pic_url}})
+        payload = {
+            'id': user['id'],
+            'update': {
+                'username': external_user['preferred_username'],
+                'profile_pic_url': external_user['picture']
+            }
+        }
+        user = access_database.updateLoginsTuple(payload)
         user = access_database.washUserDictionary(user)
         session['user_id'] = user['id']
         session['user'] = user

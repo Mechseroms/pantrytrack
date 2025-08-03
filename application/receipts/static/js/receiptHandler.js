@@ -15,7 +15,7 @@ async function refreshReceipt() {
 async function replenishFields(receipt) {
     if (receipt){
         document.getElementById('title').innerHTML = receipt.receipt_id
-        document.getElementById('crumbID').innerHTML = receipt.receipt_id
+        // document.getElementById('crumbID').innerHTML = receipt.receipt_id
         document.getElementById('receipt_id').innerHTML = receipt.receipt_id
         document.getElementById('database_id').value = receipt.id
         document.getElementById('date_submitted').value = receipt.date_submitted

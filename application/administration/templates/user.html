@@ -20,7 +20,7 @@
             <div class="uk-container uk-container-xsmall">
                 <div class="uk-grid-small" uk-grid>
                     <div class="uk-width-1-1" >
-                        <a href="/admin" class="uk-button uk-button-small"><span class="uk-flex material-symbols-outlined">arrow_back</span></a>
+                        <a href="/administration" class="uk-button uk-button-small"><span class="uk-flex material-symbols-outlined">arrow_back</span></a>
                         <a onclick="toggleDarkMode()" class="uk-button uk-button-small uk-align-right"><span id="modeToggle" class="uk-flex material-symbols-outlined">dark_mode</span></a>
                     </div>
                     <div class="uk-width-1-1">
@@ -191,7 +191,7 @@
         }
         document.addEventListener('DOMContentLoaded', async function() {
             let mode = "edit"
-            if(path == "/admin/user/new"){
+            if(path == "/administration/user/new"){
                 mode = "new"
             }
             console.log(user)
@@ -256,7 +256,7 @@
                 row_type: document.getElementById('login_type').value,
             }
 
-            const response = await fetch(`/admin/api/user/postAddLogin`, {
+            const response = await fetch(`/administration/api/user/postAddLogin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -277,7 +277,7 @@
                 });
             } else {
                 console.log(data.user)
-                window.location.href = `/admin/user/${data.user.id}`
+                window.location.href = `/administration/user/${data.user.id}`
             }
         }
 
@@ -288,7 +288,7 @@
                 update: {password: document.getElementById('old_login_password_new').value}
             }
 
-            const response = await fetch(`/admin/api/user/postEditLoginPassword`, {
+            const response = await fetch(`/administration/api/user/postEditLoginPassword`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -336,7 +336,7 @@
                 }
             }
 
-            const response = await fetch(`/admin/api/user/postEditLogin`, {
+            const response = await fetch(`/administration/api/user/postEditLogin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

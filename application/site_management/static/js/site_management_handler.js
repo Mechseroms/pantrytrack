@@ -71,7 +71,7 @@ let zones_current_page = 1
 let zones_end_page = 10
 let zones_limit = 25
 async function fetchZones(){
-    const url = new URL('/site_management/api/getZones', window.location.origin)
+    const url = new URL('/site-management/api/getZones', window.location.origin)
     url.searchParams.append('page', zones_current_page)
     url.searchParams.append('limit', zones_limit)
     const response = await fetch(url)
@@ -220,7 +220,7 @@ async function postAddZone() {
     let zoneName = `${document.getElementById('ZoneName').value}`
     let description = `${document.getElementById('ZoneDescription').value}`
 
-    const response = await fetch(`/site_management/api/postAddZone`, {
+    const response = await fetch(`/site-management/api/postAddZone`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -251,7 +251,7 @@ async function postAddZone() {
 async function postEditZone(zone_id) {
     let description = `${document.getElementById('ZoneDescription').value}`
 
-    const response = await fetch(`/site_management/api/postEditZone`, {
+    const response = await fetch(`/site-management/api/postEditZone`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -284,7 +284,7 @@ let locations_current_page = 1
 let locations_end_page = 10
 let locations_limit = 25
 async function fetchLocations(){
-    const url = new URL('/site_management/api/getLocations', window.location.origin)
+    const url = new URL('/site-management/api/getLocations', window.location.origin)
     url.searchParams.append('page', locations_current_page)
     url.searchParams.append('limit', locations_limit)
     const response = await fetch(url)
@@ -451,7 +451,7 @@ let vendors_current_page = 1
 let vendors_end_page = 10
 let vendors_limit = 25
 async function fetchVendors(){
-    const url = new URL('/site_management/api/getVendors', window.location.origin)
+    const url = new URL('/site-management/api/getVendors', window.location.origin)
     url.searchParams.append('page', vendors_current_page)
     url.searchParams.append('limit', vendors_limit)
     const response = await fetch(url)
@@ -604,7 +604,7 @@ async function postAddVendor() {
     let vendor_phone_number = document.getElementById('VendorPhoneNumber').value
     let vendor_address = document.getElementById('VendorAddress').value
 
-    const response = await fetch(`/site_management/api/postAddVendor`, {
+    const response = await fetch(`/site-management/api/postAddVendor`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -638,7 +638,7 @@ async function postEditVendor(vendor_id) {
     let vendor_phone_number = document.getElementById('VendorPhoneNumber').value
     let vendor_address = document.getElementById('VendorAddress').value
 
-    const response = await fetch(`/site_management/api/postEditVendor`, {
+    const response = await fetch(`/site-management/api/postEditVendor`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -671,7 +671,7 @@ let brands_current_page = 1
 let brands_end_page = 10
 let brands_limit = 25
 async function fetchBrands(){
-    const url = new URL('/site_management/api/getBrands', window.location.origin)
+    const url = new URL('/site-management/api/getBrands', window.location.origin)
     url.searchParams.append('page', brands_current_page)
     url.searchParams.append('limit', brands_limit)
     const response = await fetch(url)
@@ -813,7 +813,7 @@ async function openEditBrandsModal(brand) {
 async function postAddBrand() {
     let brand_name = document.getElementById('BrandName').value
 
-    const response = await fetch(`/site_management/api/postAddBrand`, {
+    const response = await fetch(`/site-management/api/postAddBrand`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -843,7 +843,7 @@ async function postAddBrand() {
 async function postEditBrand(brand_id) {
     let brand_name = document.getElementById('BrandName').value
 
-    const response = await fetch(`/site_management/api/postEditBrand`, {
+    const response = await fetch(`/site-management/api/postEditBrand`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -876,7 +876,7 @@ let prefix_current_page = 1
 let prefix_end_page = 10
 let prefix_limit = 25
 async function fetchPrefixes(){
-    const url = new URL('/site_management/api/getPrefixes', window.location.origin)
+    const url = new URL('/site-management/api/getPrefixes', window.location.origin)
     url.searchParams.append('page', prefix_current_page)
     url.searchParams.append('limit', prefix_limit)
     const response = await fetch(url)
@@ -1029,7 +1029,7 @@ async function postAddPrefix() {
     let prefix_name = document.getElementById('PrefixName').value
     let prefix_description = document.getElementById('PrefixDescription').value
 
-    const response = await fetch(`/site_management/api/postAddPrefix`, {
+    const response = await fetch(`/site-management/api/postAddPrefix`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1063,7 +1063,7 @@ async function postEditPrefix(prefix_id) {
     let prefix_name = document.getElementById('PrefixName').value
     let prefix_description = document.getElementById('PrefixDescription').value
 
-    const response = await fetch(`/site_management/api/postEditPrefix`, {
+    const response = await fetch(`/site-management/api/postEditPrefix`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

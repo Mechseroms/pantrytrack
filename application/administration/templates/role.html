@@ -19,7 +19,7 @@
         <div class="uk-container uk-section">
             <div uk-grid>
                 <div class="uk-width-1-1" >
-                    <a href="/admin" class="uk-button uk-button-small"><span class="uk-flex material-symbols-outlined">arrow_back</span></a>
+                    <a href="/administration" class="uk-button uk-button-small"><span class="uk-flex material-symbols-outlined">arrow_back</span></a>
                     <a onclick="toggleDarkMode()" class="uk-button uk-button-small uk-align-right"><span id="modeToggle" class="uk-flex material-symbols-outlined">dark_mode</span></a>
                 </div>
                 <div class="uk-width-1-1">
@@ -78,7 +78,7 @@
 
         document.addEventListener('DOMContentLoaded', async function() {
             let mode = "edit"
-            if(path == "/admin/role/new"){
+            if(path == "/administration/role/new"){
                 mode = "new"
             }
             await replenishForm(role, mode)
@@ -132,7 +132,7 @@
                 site_id: document.getElementById('site_id').value,
             }
 
-            const response = await fetch(`/admin/api/role/postAddRole`, {
+            const response = await fetch(`/administration/api/role/postAddRole`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -150,7 +150,7 @@
                 update: {role_name: document.getElementById('role_name').value, role_description: document.getElementById('role_description').value}
             }
 
-            const response = await fetch(`/admin/api/role/postEditRole`, {
+            const response = await fetch(`/administration/api/role/postEditRole`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

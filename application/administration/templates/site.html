@@ -19,7 +19,7 @@
         <div class="uk-container uk-section uk-margin-remove-top">
             <div uk-grid>
                 <div class="uk-width-1-1" >
-                    <a href="/admin" class="uk-button uk-button-small"><span class="uk-flex material-symbols-outlined">arrow_back</span></a>
+                    <a href="/administration" class="uk-button uk-button-small"><span class="uk-flex material-symbols-outlined">arrow_back</span></a>
                     <a onclick="toggleDarkMode()" class="uk-button uk-button-small uk-align-right"><span id="modeToggle" class="uk-flex material-symbols-outlined">dark_mode</span></a>
                 </div>
                 <div class="uk-width-1-1">
@@ -144,7 +144,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
             let mode = "edit"
-            if(path == "/admin/site/new"){
+            if(path == "/administration/site/new"){
                 mode = "new"
             }
             replenishForm(site, mode)
@@ -207,7 +207,7 @@
                 default_primary_location: document.getElementById('new_default_primary_location').value
             }
 
-            const response = await fetch(`/admin/api/site/postAddSite`, {
+            const response = await fetch(`/administration/api/site/postAddSite`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -226,7 +226,7 @@
                 site_description: document.getElementById('site_description').value}
             }
 
-            const response = await fetch(`/admin/api/site/postEditSite`, {
+            const response = await fetch(`/administration/api/site/postEditSite`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
