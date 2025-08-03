@@ -1,9 +1,111 @@
-from application.items import database_items
-import application.postsqldb as db
-import config
-
+# 3RD PARTY IMPORTS
 import datetime
 import psycopg2
+import json
+
+# APPLICATION IMPORTS
+from application.items import database_items
+import application.postsqldb as db
+import application.database_payloads as dbPayloads
+import config
+
+"""
+
+items_processes.py handles more higher order workflows that a single database call would not be able to accomplish
+or when more complex logics are needed.
+
+"""
+
+def postNewBlankItem(site_name: str, user_id: int, data: dict, conn=None):
+    """ data = {'barcode', 'name', 'subtype'}"""
+    self_conn = False
+    if not conn:
+        database_config = config.config()
+        conn = psycopg2.connect(**database_config)
+        conn.autocommit = False
+        self_conn = True
+
+    site = database_items.selectSiteTuple((site_name,))
+    default_zone = database_items.getZone(site_name,(site['default_zone'], ))
+    default_location = database_items.getLocation(site_name, (site['default_primary_location'],))
+    uuid = f"{default_zone['name']}@{default_location['name']}"
+    
+    # create logistics info
+    logistics_info = dbPayloads.LogisticsInfoPayload(
+            barcode=data['barcode'], 
+            primary_location=site['default_primary_location'],
+            primary_zone=site['default_zone'],
+            auto_issue_location=site['default_auto_issue_location'],
+            auto_issue_zone=site['default_zone']
+            )
+    
+    # create item info
+    item_info = dbPayloads.ItemInfoPayload(data['barcode'])
+
+    # create Food Info
+    food_info = dbPayloads.FoodInfoPayload()
+
+    logistics_info_id = 0
+    item_info_id = 0
+    food_info_id = 0
+    brand_id = 1
+
+    
+    logistics_info = database_items.insertLogisticsInfoTuple(site_name, logistics_info.payload(), conn=conn)
+    item_info = database_items.insertItemInfoTuple(site_name, item_info.payload(), conn=conn)
+    food_info = database_items.insertFoodInfoTuple(site_name, food_info.payload(), conn=conn)
+
+    name = data['name']
+    name = name.replace("'", "@&apostraphe&")
+    description = ""
+    tags = db.lst2pgarr([])
+    links = json.dumps({})
+    search_string = f"&&{data['barcode']}&&{name}&&"
+
+
+    item = dbPayloads.ItemsPayload(
+        data['barcode'], 
+        data['name'], 
+        item_info['id'], 
+        logistics_info['id'], 
+        food_info['id'], 
+        brand=brand_id, 
+        row_type="single", 
+        item_type=data['subtype'], 
+        search_string=search_string
+        )
+
+    item = database_items.insertItemTuple(site_name, item.payload(), conn=conn)
+        
+    with conn.cursor() as cur:
+        cur.execute(f"SELECT id FROM {site_name}_locations WHERE uuid=%s;", (uuid, ))
+        location_id = cur.fetchone()[0]
+
+    dbPayloads.ItemLocationPayload
+    item_location = dbPayloads.ItemLocationPayload(item['id'], location_id)
+    database_items.insertItemLocationsTuple(site_name, item_location.payload(), conn=conn)
+
+
+    creation_tuple = dbPayloads.TransactionPayload(
+            datetime.datetime.now(),
+            logistics_info['id'],
+            item['barcode'],
+            item['item_name'],
+            "SYSTEM",
+            0.0,
+            "Item added to the System!",
+            user_id,
+            {'location': uuid}
+        )
+
+    database_items.postAddTransaction(site_name, creation_tuple.payload(), conn=conn)
+
+    if self_conn:
+        conn.commit()
+        conn.close()
+        return False
+    
+    return conn
 
 def postLinkedItem(site, payload):
     """
@@ -167,3 +269,13 @@ def postAdjustment(site_name, user_id, data: dict, conn=None):
         return False
     
     return conn
+
+def createSearchStringFromItem(item: dict):
+    parameters = [f"id::{item['id']}", f"barcode::{item['barcode']}", f"name::{item['item_name']}", f"brand::{item['brand']['name']}", 
+                          f"expires::{item['food_info']['expires']}", f"row_type::{item['row_type']}", f"item_type::{item['item_type']}"]
+            
+    for prefix in item['item_info']['prefixes']:
+        parameters.append(f"prefix::{prefix['name']}")
+
+    search_string = "&&".join(parameters)
+    return search_string

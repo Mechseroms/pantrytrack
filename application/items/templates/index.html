@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="main_html">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title id="title"></title>
+        
+        
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
+        
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}" disabled/>
+
+        <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
+
+    </head>
+    <body>
+        <nav class="uk-navbar-container">
+            <div class="uk-container uk-container-expand">
+                <div class="uk-navbar uk-navbar-primary">
+                    <!-- Application Navigation-->
+                    <div class="uk-navbar-left">
+                        <ul class="uk-navbar-nav">
+                            <li>
+                                <a href>Apps</a>
+                                <div class="uk-navbar-dropdown" uk-drop="mode: click; multi:false">
+                                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                                        <li><a href="/recipes">Recipes</a></li>
+                                        <li><a href="/shopping-lists">Shopping Lists</a></li>
+                                        <li class="uk-nav-header">Logistics</li>
+                                        <li class="uk-active"><a href="/items">Items</a></li>
+                                        <li><a href="/items/transaction">Transaction</a></li>
+                                        <li><a href="/receipts">Receipts</a></li>
+                                        <li class="uk-nav-header">Points of Ease</li>
+                                        <li><a href="/poe/scanner">Transaction Scanner</a></li>
+                                        <li><a href="/poe/receipts">Receipts Scanner</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+
+                    </div>
+                    <!-- Breadcrumbs Navigation -->
+                    <div class="uk-navbar-center uk-visible@m">
+                        <ul class="uk-breadcrumb uk-margin-remove">
+                            <li style="cursor: pointer;"><span><strong>{{current_site}}</strong></span>
+                                <div uk-dropdown="mode: hover">
+                                    <ul class="uk-nav uk-dropdown-nav">
+                                        <li class="uk-nav-header">Select Site</li>
+                                        <li class="uk-nav-divider"></li>
+                                        {% for site in sites %}
+                                        {% if site == current_site  %}
+                                        <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                        {% else %}
+                                        <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </li>
+                            <li style="cursor: default; user-select: none;" class="uk-disabled"><span>Logistics</span></li>
+                            <li class="uk-disabled"><span>Items</span></li>
+                        </ul>
+                    </div>
+                    <!-- Profile/Management Navigation-->
+                    <div class="uk-navbar-right">
+                        <ul class="uk-navbar-nav">
+                            <li>
+                                <a href="#">
+                                    <img src="{{session['user']['profile_pic_url']}}" alt="Profile Picture" class="profile-pic uk-visible@m" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 5px;">
+                                    {{username}}
+                                </a>
+                                <div class="uk-navbar-dropdown" uk-drop="mode: click; multi:false">
+                                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                                        <li><a href="/profile">Profile</a></li>
+                                        <li><a onclick="toggleDarkMode()">Dark Mode</a></li>
+                                        <li><a href="/site-management">Site Management</a></li>
+                                        <li><a href="/administration">System Management</a></li>
+                                        <li><a href="/access/logout">Logout</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="uk-container">
+            <div class="uk-section">
+                <div uk-grid>
+                    <div class="uk-width-1-1@m">
+                        <ul class="uk-iconnav uk-flex-center uk-flex-left@m">
+                            <li><a onclick="openAddItemModal()" uk-icon="icon: plus">Add Item</a></li>
+                            <li><a onclick="openAddPrefixModal()" uk-icon="icon: plus">Add Prefix</a></li>
+                            <li><a href="#" uk-icon="icon: cloud-download">download</a></li>
+                        </ul>
+                        <ul class="uk-iconnav uk-flex-center uk-flex-right@m">
+                            <li><a id="view_mode_toggle" onclick="setViewMode()" uk-icon="icon: thumbnails">Cards</a></li>
+                        </ul>
+                    </div>
+                    <div class="uk-width-1-1 uk-flex uk-flex-center">
+                        <div style="margin-right: 10px;">
+                            <form id="searchForm" onsubmit="searchItems(event)" class="uk-search uk-search-default">
+                                <input id="searchInput" class="uk-border-pill uk-search-input" type="search" placeholder="" aria-label="">
+                                <span class="uk-search-icon-flip" uk-search-icon></span>
+                            </form>
+                        </div>
+                        <div class="">
+                            <button onclick="toggleSettings()" class="uk-button uk-button-default"><span uk-icon="icon: settings"></span></button>
+                        </div>
+                    </div>
+                </div>
+                <div id="settings" class="uk-width-1-1" hidden>
+                    <div uk-grid>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                                <p class="uk-text-meta">Order Items By</p>
+                                <label><input onchange="setSort('id')" class="uk-radio" type="radio" name="radio2" checked>ID</label>
+                                <label><input onchange="setSort('item_name')" class="uk-radio" type="radio" name="radio2">Name</label>
+                                <label><input onchange="setSort('total_qoh')" class="uk-radio" type="radio" name="radio2">Quantity On Hand</label>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                                <p class="uk-text-meta">Sort Item Direction</p>
+                                <label><input onchange="setOrder('ASC')" class="uk-radio" type="radio" name="order" checked>Ascending</label>
+                                <label><input onchange="setOrder('DESC')" class="uk-radio" type="radio" name="order">Descending</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-width-1-1 uk-flex uk-flex-center uk-padding-small">
+                    <nav aria-label="Pagination">
+                        <ul id="paginationElement" class="uk-pagination" uk-margin>
+                            <li><a href="#"><span uk-pagination-previous></span></a></li>
+                            <li><a href="#">1</a></li>
+                            <li class="uk-disabled"><span>…</span></li>
+                            <li><a href="#">5</a></li>
+                            <li><a href="#">6</a></li>
+                            <li class="uk-active"><span aria-current="page">7</span></li>
+                            <li><a href="#">8</a></li>
+                            <li><a href="#"><span uk-pagination-next></span></a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="uk-width-1-1">
+                    <div id="items_list">
+                        <!-- populates through javascript -->
+                    </div>
+                    <a class="uk-margin" href="" uk-totop uk-scroll></a>
+                </div>
+            </div>
+        </div>
+        <!-- Add Item Modal -->
+        <div id="addItemModal" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 class="uk-modal-title">Add Item...</h2>
+                </div>
+                <div class="uk-modal-body">
+                    <p class="uk-text-meta">Add a blank item to the system by providing a barcode (without the nesting % symbols), a name for the item, and the type of item to be added.</p>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addBarcode">Barcode</label>
+                        <input id="addBarcode" class="uk-input" type="text" placeholder="" aria-label="Input">
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addName">Item Name</label>
+                        <input id="addName" class="uk-input" type="text" placeholder="" aria-label="Input">
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="subtype_select">Item Type</label>
+                        <select id="subtype_select" class="uk-select" aria-label="Select">
+                        </select>
+                    </div>
+                </div>
+                <div class="uk-modal-footer">
+                    <button onclick="addBlankItem()" class="uk-button uk-button-default uk-align-right" type="button">Add Item</button>
+                </div>
+            </div>
+        </div>
+        <!-- add prefix modal -->
+        <div id="addPrefixModal" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 class="uk-modal-title">Add Prefix...</h2>
+                </div>
+                <div class="uk-modal-body">
+                    <p class="uk-text-meta">Add a Prefix to the system by providing a uuid, a name for the item, and a general description.</p>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addUUID">UUID</label>
+                        <input id="addUUID" class="uk-input" type="text" placeholder="" aria-label="Input">
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addGroupName">Group Name</label>
+                        <input id="addPrefixName" class="uk-input" type="text" placeholder="" aria-label="Input">
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="addGroupDescription">Group Description</label>
+                        <textarea id="addPrefixDescription" class="uk-textarea"></textarea>
+                    </div>
+                </div>
+                <div class="uk-modal-footer">
+                    <button onclick="addSKUPrefix()" class="uk-button uk-button-default uk-align-right" type="button">Add Prefix</button>
+                </div>
+            </div>
+        </div>
+
+    </body>
+    <script>const session = {{session|tojson}}</script>
+    <script src="{{ url_for('items_api.static', filename='itemListHandler.js') }}"></script>
+</html>

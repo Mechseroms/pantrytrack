@@ -4,6 +4,7 @@ import psycopg2.extras
 from dataclasses import dataclass, field
 import random
 import string
+import config
 
 class DatabaseError(Exception):
     def __init__(self, message, payload=[], sql=""):
@@ -14,7 +15,7 @@ class DatabaseError(Exception):
         self.log_error()
 
     def log_error(self):
-        with open("database.log", "a+") as file:
+        with open("logs/database.log", "a+") as file:
             file.write("\n")
             file.write(f"{datetime.datetime.now()} --- ERROR --- DatabaseError(message='{self.message}',\n")
             file.write(f"{" "*41}payload={self.payload},\n")
@@ -43,6 +44,47 @@ def updateStringFactory(updated_values: dict):
 def getUUID(n):
     random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=n))
     return random_string
+
+def get_sites(sites=[]):
+	database_config = config.config()
+	with psycopg2.connect(**database_config) as conn:
+		try:
+			with conn.cursor() as cur:
+				site_rows = []
+				for each  in sites:
+					cur.execute(f"SELECT * FROM sites WHERE id=%s;", (each, ))
+					site_rows.append(cur.fetchone())
+				return site_rows
+		except (Exception, psycopg2.DatabaseError) as error:
+			print(error)
+			conn.rollback()
+			return False
+
+
+def get_units_of_measure(convert=True, conn=None):
+        records = ()
+        self_conn = False
+        sql = f"SELECT * FROM units;"
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = True
+                self_conn = True
+                
+            with conn.cursor() as cur:
+                cur.execute(sql)
+                rows = cur.fetchall()
+                if rows and convert:
+                    records = [tupleDictionaryFactory(cur.description, row) for row in rows] 
+                elif rows and not convert:
+                    records = rows
+            
+            if self_conn:
+                conn.close()
+            return records
+        except Exception as error:
+            raise DatabaseError(error, "", sql)
 
 class ConversionsTable:
     @dataclass
@@ -2408,4 +2450,65 @@ class ItemLinkPayload:
             self.link,
             json.dumps(self.data),
             self.conv_factor
+        )
+
+@dataclass
+class LogisticsInfoPayload:
+    barcode: str
+    primary_location: int
+    primary_zone: int
+    auto_issue_location: int
+    auto_issue_zone: int
+    
+    def payload(self):
+        return (self.barcode, 
+                self.primary_location, 
+                self.primary_zone,
+                self.auto_issue_location,
+                self.auto_issue_zone)
+    
+@dataclass
+class ItemInfoPayload:
+    barcode: str
+    packaging: str = ""
+    uom_quantity: float = 1.0
+    uom: int = 1
+    cost: float = 0.0
+    safety_stock: float = 0.0
+    lead_time_days: float = 0.0
+    ai_pick: bool = False
+    prefixes: list = field(default_factory=list)
+
+    def __post_init__(self):
+        if not isinstance(self.barcode, str):
+            raise TypeError(f"barcode must be of type str; not {type(self.barcode)}")
+        
+    def payload(self):
+        return (
+            self.barcode,
+            self.packaging,
+            self.uom_quantity,
+            self.uom,
+            self.cost,
+            self.safety_stock,
+            self.lead_time_days,
+            self.ai_pick,
+            lst2pgarr(self.prefixes)
+        )
+    
+@dataclass
+class FoodInfoPayload:
+    food_groups: list = field(default_factory=list)
+    ingrediants: list = field(default_factory=list)
+    nutrients: dict = field(default_factory=dict)
+    expires: bool = False
+    default_expiration: float = 0.0
+
+    def payload(self):
+        return (
+            lst2pgarr(self.food_groups),
+            lst2pgarr(self.ingrediants),
+            json.dumps(self.nutrients),
+            self.expires,
+            self.default_expiration
         )

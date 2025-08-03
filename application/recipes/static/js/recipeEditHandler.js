@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 async function replenishRecipe() {
     document.getElementById('title').innerHTML = `${recipe.name}`
-    document.getElementById('breadcrumb').innerHTML = `${recipe.name}`
+    //document.getElementById('breadcrumb').innerHTML = `${recipe.name}`
 
     document.getElementById('recipeName').value = `${recipe.name}`
     document.getElementById('recipeCreationDate').value = `${recipe.creation_date}`
