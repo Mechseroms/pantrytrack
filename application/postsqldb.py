@@ -15,7 +15,7 @@ class DatabaseError(Exception):
         self.log_error()
 
     def log_error(self):
-        with open("database.log", "a+") as file:
+        with open("logs/database.log", "a+") as file:
             file.write("\n")
             file.write(f"{datetime.datetime.now()} --- ERROR --- DatabaseError(message='{self.message}',\n")
             file.write(f"{" "*41}payload={self.payload},\n")

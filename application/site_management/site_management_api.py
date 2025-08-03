@@ -3,29 +3,23 @@ import psycopg2, math, json, datetime, main, copy, requests, process, database, 
 from config import config, sites_config
 from main import unfoldCostLayers
 from user_api import login_required
-import postsqldb
 
-workshop_api = Blueprint('workshop_api', __name__)
 
-@workshop_api.route("/workshop")
+from application import postsqldb, database_payloads
+
+site_management_api = Blueprint('site_management_api', __name__, template_folder="templates", static_folder="static")
+
+# ROOT TEMPLATE ROUTES
+@site_management_api.route("/")
 @login_required
-def workshop():
-    print(session['user'])
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    print(session.get('user')['system_admin'])
+def site_management_index():
+    sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
     if not session.get('user')['system_admin']:
         return redirect('/logout')
-    database_config = config()
-    site_name = session['selected_site']
-    with psycopg2.connect(**database_config) as conn:
-        with conn.cursor() as cur:
-            sql = f"SELECT id, name FROM {site_name}_zones;"
-            cur.execute(sql)
-            zones = cur.fetchall()
-    return render_template("other/workshop.html", current_site=session['selected_site'], sites=sites, zones=zones)
+    return render_template("site_management.html", current_site=session['selected_site'], sites=sites)
 
-
-@workshop_api.route('/workshop/getZones', methods=['GET'])
+# API CALLS
+@site_management_api.route('/api/getZones', methods=['GET'])
 @login_required
 def getZones():
     if request.method == "GET":
@@ -41,7 +35,7 @@ def getZones():
             return jsonify({'zones': records, "end": math.ceil(count/limit), 'error':False, 'message': 'Zones Loaded Successfully!'})
     return jsonify({'zones': records, "end": math.ceil(count/limit), 'error':True, 'message': 'There was a problem loading Zones!'})
 
-@workshop_api.route('/workshop/getLocations', methods=['GET'])
+@site_management_api.route('/api/getLocations', methods=['GET'])
 @login_required
 def getLocations():
     if request.method == "GET":
@@ -57,7 +51,7 @@ def getLocations():
             return jsonify({'locations': records, "end": math.ceil(count/limit), 'error':False, 'message': 'Zones Loaded Successfully!'})
     return jsonify({'locations': records, "end": math.ceil(count/limit), 'error':True, 'message': 'There was a problem loading Zones!'})
 
-@workshop_api.route('/workshop/getVendors', methods=['GET'])
+@site_management_api.route('/api/getVendors', methods=['GET'])
 @login_required
 def getVendors():
     if request.method == "GET":
@@ -73,7 +67,7 @@ def getVendors():
             return jsonify({'vendors': records, "end": math.ceil(count/limit), 'error':False, 'message': 'Zones Loaded Successfully!'})
     return jsonify({'vendors': records, "end": math.ceil(count/limit), 'error':True, 'message': 'There was a problem loading Zones!'})
 
-@workshop_api.route('/workshop/getBrands', methods=['GET'])
+@site_management_api.route('/api/getBrands', methods=['GET'])
 @login_required
 def getBrands():
     if request.method == "GET":
@@ -89,7 +83,7 @@ def getBrands():
             return jsonify({'brands': records, "end": math.ceil(count/limit), 'error':False, 'message': 'Zones Loaded Successfully!'})
     return jsonify({'brands': records, "end": math.ceil(count/limit), 'error':True, 'message': 'There was a problem loading Zones!'})
 
-@workshop_api.route('/workshop/getPrefixes', methods=['GET'])
+@site_management_api.route('/api/getPrefixes', methods=['GET'])
 @login_required
 def getPrefixes():
     if request.method == "GET":
@@ -106,7 +100,7 @@ def getPrefixes():
     return jsonify({'prefixes': records, "end": math.ceil(count/limit), 'error':True, 'message': 'There was a problem loading Zones!'})
 
 
-@workshop_api.route('/workshop/postAddZone', methods=["POST"])
+@site_management_api.route('/api/postAddZone', methods=["POST"])
 def postAddZone():
     if request.method == "POST":
         database_config = config()
@@ -127,7 +121,7 @@ def postAddZone():
         return jsonify({'error': False, 'message': f"Zone added to {site_name}."})
     return jsonify({'error': True, 'message': f"These was an error with adding this Zone to {site_name}."})
 
-@workshop_api.route('/workshop/postEditZone', methods=["POST"])
+@site_management_api.route('/api/postEditZone', methods=["POST"])
 def postEditZone():
     if request.method == "POST":
         database_config = config()
@@ -143,7 +137,7 @@ def postEditZone():
         return jsonify({'error': False, 'message': f"{zone['name']} edited in site {site_name}."})
     return jsonify({'error': True, 'message': f"These was an error with editing Zone {zone['name']} in {site_name}."})
 
-@workshop_api.route('/workshop/postAddLocation', methods=["POST"])
+@site_management_api.route('/api/postAddLocation', methods=["POST"])
 def postAddLocation():
     if request.method == "POST":
         database_config = config()
@@ -164,7 +158,7 @@ def postAddLocation():
         return jsonify({'error': False, 'message': f"Zone added to {site_name}."})
     return jsonify({'error': True, 'message': f"These was an error with adding this Zone to {site_name}."})
 
-@workshop_api.route('/workshop/postAddVendor', methods=["POST"])
+@site_management_api.route('/api/postAddVendor', methods=["POST"])
 def postAddVendor():
     if request.method == "POST":
         database_config = config()
@@ -184,7 +178,7 @@ def postAddVendor():
         return jsonify({'error': False, 'message': f"Zone added to {site_name}."})
     return jsonify({'error': True, 'message': f"These was an error with adding this Zone to {site_name}."})
 
-@workshop_api.route('/workshop/postEditVendor', methods=["POST"])
+@site_management_api.route('/api/postEditVendor', methods=["POST"])
 def postEditVendor():
     if request.method == "POST":
         database_config = config()
@@ -200,7 +194,7 @@ def postEditVendor():
         return jsonify({'error': False, 'message': f"{vendor['vendor_name']} edited in site {site_name}."})
     return jsonify({'error': True, 'message': f"These was an error with editing Zone {vendor['vendor_name']} in {site_name}."})
 
-@workshop_api.route('/workshop/postAddBrand', methods=["POST"])
+@site_management_api.route('/api/postAddBrand', methods=["POST"])
 def postAddBrand():
     if request.method == "POST":
         database_config = config()
@@ -217,7 +211,7 @@ def postAddBrand():
         return jsonify({'error': False, 'message': f"Brand added to {site_name}."})
     return jsonify({'error': True, 'message': f"These was an error with adding this Zone to {site_name}."})
 
-@workshop_api.route('/workshop/postEditBrand', methods=["POST"])
+@site_management_api.route('/api/postEditBrand', methods=["POST"])
 def postEditBrand():
     if request.method == "POST":
         database_config = config()
@@ -233,7 +227,7 @@ def postEditBrand():
         return jsonify({'error': False, 'message': f"{brand['name']} edited in site {site_name}."})
     return jsonify({'error': True, 'message': f"These was an error with editing Zone {brand['name']} in {site_name}."})
 
-@workshop_api.route('/workshop/postAddPrefix', methods=["POST"])
+@site_management_api.route('/api/postAddPrefix', methods=["POST"])
 def postAddPrefix():
     if request.method == "POST":
         database_config = config()
@@ -252,7 +246,7 @@ def postAddPrefix():
         return jsonify({'error': False, 'message': f"Prefix added to {site_name}."})
     return jsonify({'error': True, 'message': f"These was an error with adding this Prefix to {site_name}."})
 
-@workshop_api.route('/workshop/postEditPrefix', methods=["POST"])
+@site_management_api.route('/api/postEditPrefix', methods=["POST"])
 def postEditPrefix():
     if request.method == "POST":
         database_config = config()
