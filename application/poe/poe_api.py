@@ -1,12 +1,12 @@
-# 3rd Party imports
+# 3RD PARTY IMPORTS
 from flask import (
     Blueprint, request, render_template, redirect, session, url_for, send_file, jsonify, Response
     )
 import psycopg2
 
-# applications imports
+# APPLICATION IMPORTS
 from config import config
-from user_api import login_required
+from application.access_module import access_api
 from application.poe import poe_processes, poe_database
 from application import postsqldb
 
@@ -15,14 +15,14 @@ point_of_ease = Blueprint('poe', __name__, template_folder="templates", static_f
 
 
 @point_of_ease.route('/scanner', methods=["GET"])
-@login_required
+@access_api.login_required
 def scannerEndpoint():
     sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
     return render_template('scanner.html', current_site=session['selected_site'], 
                            sites=sites)
     
 @point_of_ease.route('/receipts', methods=["GET"])
-@login_required
+@access_api.login_required
 def receiptsEndpoint():
     sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
     database_config = config()
@@ -32,7 +32,7 @@ def receiptsEndpoint():
                            sites=sites, units=units)
 
 @point_of_ease.route('/getItem/barcode', methods=["GET"])
-@login_required
+@access_api.login_required
 def getItemBarcode():
     record = {}
     if request.method == "GET":
@@ -46,9 +46,8 @@ def getItemBarcode():
             return jsonify({"item":record,  "error":False, "message":"item fetched succesfully!"})
     return jsonify({"item":record, "error":True, "message":"There was an error with this GET statement"})
 
-
 @point_of_ease.route('/postTransaction', methods=["POST"])
-@login_required
+@access_api.login_required
 def post_transaction():
     if request.method == "POST":
         result = poe_processes.postTransaction(
@@ -59,9 +58,8 @@ def post_transaction():
         return jsonify(result)
     return jsonify({"error":True, "message":"There was an error with this POST statement"})
 
-
 @point_of_ease.route('/postReceipt', methods=["POST"])
-@login_required
+@access_api.login_required
 def post_receipt():
     if request.method == "POST":
         site_name = session['selected_site']

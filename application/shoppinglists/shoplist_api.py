@@ -6,7 +6,7 @@ import math
 
 # APPLICATION IMPORTS
 from application import postsqldb, database_payloads
-from user_api import login_required
+from application.access_module import access_api
 from application.shoppinglists import shoplist_database
 
 shopping_list_api = Blueprint('shopping_list_API', __name__, template_folder="templates", static_folder="static")
@@ -14,13 +14,13 @@ shopping_list_api = Blueprint('shopping_list_API', __name__, template_folder="te
 
 # ROOT TEMPLATE ROUTES
 @shopping_list_api.route("/")
-@login_required
+@access_api.login_required
 def shopping_lists():
     sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
     return render_template("lists.html", current_site=session['selected_site'], sites=sites)
 
 @shopping_list_api.route("/<mode>/<id>")
-@login_required
+@access_api.login_required
 def shopping_list(mode, id):
     sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
     if mode == "view":
@@ -29,10 +29,10 @@ def shopping_list(mode, id):
         return render_template("edit.html", id=id, current_site=session['selected_site'], sites=sites)
     return redirect("/")
 
-
 # API CALLS
 # Added to Database
 @shopping_list_api.route('/api/addList', methods=["POST"])
+@access_api.login_required
 def addList():
     if request.method == "POST":
         list_name = request.get_json()['list_name']
@@ -52,6 +52,7 @@ def addList():
 
 # Added to Database
 @shopping_list_api.route('/api/getLists', methods=["GET"])
+@access_api.login_required
 def getShoppingLists():
     lists = []
     if request.method == "GET":
@@ -86,6 +87,7 @@ def getShoppingLists():
 
 # Added to Database
 @shopping_list_api.route('/api/getList', methods=["GET"])
+@access_api.login_required
 def getShoppingList():
     if request.method == "GET":
         sl_id = int(request.args.get('id', 1))
@@ -95,6 +97,7 @@ def getShoppingList():
 
 # Added to Database
 @shopping_list_api.route('/api/getListItem', methods=["GET"])
+@access_api.login_required
 def getShoppingListItem():
     list_item = {}
     if request.method == "GET":
@@ -106,6 +109,7 @@ def getShoppingListItem():
 
 # Added to database
 @shopping_list_api.route('/api/getItems', methods=["GET"])
+@access_api.login_required
 def getItems():
     recordset = []
     count = {'count': 0}
@@ -123,6 +127,7 @@ def getItems():
 
 # Added to database
 @shopping_list_api.route('/api/postListItem', methods=["POST"])
+@access_api.login_required
 def postListItem():
     if request.method == "POST":
         data = request.get_json()['data']
@@ -143,6 +148,7 @@ def postListItem():
 
 # Added to Database
 @shopping_list_api.route('/api/deleteListItem', methods=["POST"])
+@access_api.login_required
 def deleteListItem():
     if request.method == "POST":
         sli_id = request.get_json()['sli_id']
@@ -153,6 +159,7 @@ def deleteListItem():
 
 # Added to Database
 @shopping_list_api.route('/api/saveListItem', methods=["POST"])
+@access_api.login_required
 def saveListItem():
     if request.method == "POST":
         sli_id = request.get_json()['sli_id']
@@ -164,6 +171,7 @@ def saveListItem():
 
 # Added to Database
 @shopping_list_api.route('/api/getSKUItemsFull', methods=["GET"])
+@access_api.login_required
 def getSKUItemsFull():
     items = []
     count = {'count': 0}

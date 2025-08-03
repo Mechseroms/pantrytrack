@@ -1,12 +1,18 @@
 from flask import Blueprint, request, render_template, redirect, session, url_for, jsonify
-import hashlib, psycopg2, process, MyDataclasses
-from config import config, sites_config, setFirstSetupDone
+from authlib.integrations.flask_client import OAuth
+import hashlib, psycopg2
+from config import config, sites_config
 from functools import wraps
-from manage import create
-from main import create_site, getUser, setSystemAdmin
 import postsqldb
+import requests
 
-login_app = Blueprint('login', __name__)
+from application.access_module import access_database
+from outh import oauth
+
+access_api = Blueprint('access_api', __name__, template_folder="templates", static_folder="static")
+
+
+
 
 def update_session_user():
     database_config = config()
@@ -18,45 +24,44 @@ def login_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if 'user' not in session or session['user'] == None:
-            return redirect(url_for('login.login'))
+            return redirect(url_for('access_api.login'))
         return func(*args, **kwargs)
     return wrapper
 
-
-@login_app.route('/setup', methods=['GET', 'POST'])
-def first_time_setup():
-    if request.method == "POST":
-        database_address = request.form['database_address']
-        database_port = request.form['database_port']
-        database_name = request.form['database_name']
-        database_user = request.form['database_user']
-        database_password = request.form['database_address']
-
-        site_manager = MyDataclasses.SiteManager(
-            site_name=request.form['site_name'],
-            admin_user=(request.form['username'], hashlib.sha256(request.form['password'].encode()).hexdigest(), request.form['email']),
-            default_zone=request.form['site_default_zone'],
-            default_location=request.form['site_default_location'],
-            description=request.form['site_description']
-        )
-
-        process.addSite(site_manager)
-
-        setFirstSetupDone()
-
-        return redirect("/login")
-    
-    return render_template("setup.html")
-
-
-
-@login_app.route('/logout', methods=['GET'])
+@access_api.route('/logout', methods=['GET'])
+@login_required
 def logout():
     if 'user' in session.keys():
         session['user'] = None
-    return redirect('/login')
+    return redirect('/access/login')
 
-@login_app.route('/login', methods=['POST', 'GET'])
+@access_api.route('/auth')
+def auth():
+    token = oauth.authentik.authorize_access_token()
+    access_token = token['access_token']
+    userinfo_endpoint="https://auth.treehousefullofstars.com/application/o/userinfo/"
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+    }
+    response = requests.get(userinfo_endpoint, headers=headers)
+    if response.status_code == 200:
+        user_email = response.json()['email']
+        user = access_database.selectUserByEmail((user_email,))
+        user = access_database.washUserDictionary(user)
+        session['user_id'] = user['id']
+        session['user'] = user
+        session['login_type'] = 'External'
+        return redirect('/')
+    else:
+        print("Failed to fetch user info:", response.status_code, response.text)
+        return redirect('/access/login')
+
+@access_api.route('/login/oidc')
+def oidc_login():
+    redirect_uri = url_for('access_api.auth', _external=True)
+    return oauth.authentik.authorize_redirect(redirect_uri)
+
+@access_api.route('/login', methods=['POST', 'GET'])
 def login():
     session.clear()
     instance_config = sites_config()
@@ -83,6 +88,7 @@ def login():
         if user and user[2] == password:
             session['user_id'] = user[0]
             session['user'] = {'id': user[0], 'username': user[1], 'sites': user[13], 'site_roles': user[14], 'system_admin': user[15], 'flags': user[16]}
+            session['login_type'] = 'Internal'
             return jsonify({'error': False, 'message': 'Logged In Sucessfully!'})
         else:
             return jsonify({'error': True, 'message': 'Username or Password was incorrect!'})
@@ -91,9 +97,15 @@ def login():
     if 'user' not in session.keys():
         session['user'] = None
 
-    return render_template("other/login.html")
+    return render_template("login.html")
 
-@login_app.route('/signup', methods=['POST', 'GET'])
+@access_api.route('/dashboard')
+def dashboard():
+    if 'user' not in session:
+        return redirect('/')
+    return f"Hello, {session['user']['name']}! <a href='/logout'>Logout</a>"
+
+@access_api.route('/signup', methods=['POST', 'GET'])
 def signup():
     instance_config = sites_config()
     if not instance_config['signup_enabled']:

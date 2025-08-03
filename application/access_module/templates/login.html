@@ -36,6 +36,9 @@
                         <div class="uk-switcher">
                             <div class="uk-grid-small" uk-grid>
                                 <div class="uk-width-1-1">
+                                    <a href="/access/login/oidc" class="uk-button uk-button-primary">Login with Authentik</a>
+                                </div>
+                                <div class="uk-width-1-1">
                                     <div class="uk-margin">
                                         <label class="uk-form-label" for="login_username">Username</label>
                                         <div class="uk-form-controls">
@@ -98,5 +101,5 @@
             </div>
         </div>
     </body>
-    <script src="{{ url_for('static', filename='handlers/loginHandler.js') }}"></script>
+    <script src="{{ url_for('access_api.static', filename='js/loginHandler.js') }}"></script>
 </html>

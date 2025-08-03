@@ -1,10 +1,11 @@
 from flask import Flask, render_template, session, request, redirect, jsonify
 from flask_assets import Environment, Bundle
-import config, user_api, psycopg2, main
-from user_api import login_required, update_session_user
+from authlib.integrations.flask_client import OAuth
+import config, psycopg2, main
 import database
 from webpush import trigger_push_notifications_for_subscriptions
 from application.administration import administration_api
+from application.access_module import access_api
 from application.site_management import site_management_api
 from application.recipes import recipes_api
 from application.items import items_API
@@ -12,9 +13,10 @@ from application.poe import poe_api
 from application.shoppinglists import shoplist_api
 from application.receipts import receipts_api
 from flasgger import Swagger
-
+from outh import oauth
 
 app = Flask(__name__, instance_relative_config=True)
+oauth.init_app(app)
 swagger = Swagger(app)
 UPLOAD_FOLDER = 'static/pictures'
 FILES_FOLDER = 'static/files'
@@ -22,10 +24,22 @@ app.config.from_pyfile('application.cfg.py')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['FILES_FOLDER'] = FILES_FOLDER
 
+oauth.register(
+    name='authentik',
+    client_id='gh8rLyXC6hfI7W5mDX26OJFGHxmU0nMzeYl3B04G',
+    client_secret='aRHyAkDDeU22s69Ig0o7f46Xn3HCnB8guZoMHuA23B7x1e2YL8FhAqZbu1f3naiaLyTLi9ICIiBc6dxOp5eIO4fEI9paL2NwKXmqYCRmzNzWAfwmcsIh2qTlQfAfsh6e',
+    access_token_url="https://auth.treehousefullofstars.com/application/o/token/",
+    authorize_url="https://auth.treehousefullofstars.com/application/o/authorize/",
+    userinfo_endpoint="https://auth.treehousefullofstars.com/application/o/userinfo/",
+    api_base_url="https://auth.treehousefullofstars.com/application/o/",
+    jwks_uri="https://auth.treehousefullofstars.com/application/o/pantry/jwks/",
+    client_kwargs={'scope': 'openid profile email'},
+)
+
 
 assets = Environment(app)
 app.secret_key = '11gs22h2h1a4h6ah8e413a45'
-app.register_blueprint(user_api.login_app)
+app.register_blueprint(access_api.access_api, url_prefix="/access")
 app.register_blueprint(administration_api.admin_api, url_prefix='/admin')
 app.register_blueprint(items_API.items_api, url_prefix='/items')
 app.register_blueprint(poe_api.point_of_ease, url_prefix='/poe')
@@ -89,9 +103,9 @@ def subscribe():
     return render_template("subscribe.html")
 
 @app.route("/")
-@login_required
+@access_api.login_required
 def home():
-    update_session_user()
+    access_api.update_session_user()
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     session['selected_site'] = sites[0]
     return redirect("/items")

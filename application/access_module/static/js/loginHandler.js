@@ -8,7 +8,7 @@ async function loginUser() {
     let username = document.getElementById('login_username').value
     let password = document.getElementById('login_password').value
 
-    const response = await fetch(`/login`, {
+    const response = await fetch(`/access/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ async function signupUser() {
         let user_email = document.getElementById('signup_email').value
         let password = document.getElementById('signup_password').value
         let username = document.getElementById('signup_username').value
-        const response = await fetch(`/signup`, {
+        const response = await fetch(`/access/signup`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

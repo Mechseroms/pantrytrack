@@ -1,8 +1,8 @@
-# 3rd Party imports
+# 3RD PARTY IMPORTS
 import datetime
 import psycopg2
 
-# applications imports
+# APPLICATION IMPORTS
 from application import postsqldb, database_payloads
 from application.poe import poe_database
 import config
@@ -12,9 +12,8 @@ point of ease module. """
 
 
 def postTransaction(site_name, user_id, data: dict, conn=None):
-    '''Takes a set of data as a dictionary and inserts them into the system for passed site_name. '''
-    #dict_keys(['item_id', 'logistics_info_id', 'barcode', 'item_name', 'transaction_type', 
-    # 'quantity', 'description', 'cost', 'vendor', 'expires', 'location_id'])
+    """ dict_keys(['item_id', 'logistics_info_id', 'barcode', 'item_name', 'transaction_type', 
+     'quantity', 'description', 'cost', 'vendor', 'expires', 'location_id'])"""
     def quantityFactory(quantity_on_hand:float, quantity:float, transaction_type:str):
         if transaction_type == "Adjust In":
             quantity_on_hand += quantity
@@ -101,8 +100,6 @@ def postTransaction(site_name, user_id, data: dict, conn=None):
     return {"error": False, "message":f"Transaction Successful!"}
 
 def post_receipt(site_name, user_id, data: dict, conn=None):
-    '''Takes a list of items and opens and creates a SIR (SCANNED IN RECEIPT) into the system with the items linked
-    to said receipt.'''
     # data = {'items': items}
     self_conn = False
     items = data['items']

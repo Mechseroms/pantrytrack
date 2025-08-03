@@ -5,15 +5,15 @@ from flask import (
 import math
 
 # APPLICATION IMPORTS
-from user_api import login_required
 from application import postsqldb, database_payloads
+from application.access_module import access_api
 from application.site_management import site_management_database
 
 site_management_api = Blueprint('site_management_api', __name__, template_folder="templates", static_folder="static")
 
 # ROOT TEMPLATE ROUTES
 @site_management_api.route("/")
-@login_required
+@access_api.login_required
 def site_management_index():
     sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
     if not session.get('user')['system_admin']:
@@ -25,7 +25,7 @@ def site_management_index():
 # API CALLS
 # added to database
 @site_management_api.route('/api/getZones', methods=['GET'])
-@login_required
+@access_api.login_required
 def getZones():
     if request.method == "GET":
         records = []
@@ -40,7 +40,7 @@ def getZones():
 
 # added to database
 @site_management_api.route('/api/getLocations', methods=['GET'])
-@login_required
+@access_api.login_required
 def getLocations():
     if request.method == "GET":
         records = []
@@ -55,7 +55,7 @@ def getLocations():
 
 # added to database
 @site_management_api.route('/api/getVendors', methods=['GET'])
-@login_required
+@access_api.login_required
 def getVendors():
     if request.method == "GET":
         records = []
@@ -70,7 +70,7 @@ def getVendors():
 
 # added to database
 @site_management_api.route('/api/getBrands', methods=['GET'])
-@login_required
+@access_api.login_required
 def getBrands():
     if request.method == "GET":
         records = []
@@ -85,7 +85,7 @@ def getBrands():
 
 # added to database
 @site_management_api.route('/api/getPrefixes', methods=['GET'])
-@login_required
+@access_api.login_required
 def getPrefixes():
     if request.method == "GET":
         records = []
@@ -100,6 +100,7 @@ def getPrefixes():
 
 # added to database
 @site_management_api.route('/api/postAddZone', methods=["POST"])
+@access_api.login_required
 def postAddZone():
     if request.method == "POST":
         site_name = session['selected_site']
@@ -110,6 +111,7 @@ def postAddZone():
 
 # added to database
 @site_management_api.route('/api/postEditZone', methods=["POST"])
+@access_api.login_required
 def postEditZone():
     if request.method == "POST":
         site_name = session['selected_site']
@@ -120,6 +122,7 @@ def postEditZone():
 
 # added to database
 @site_management_api.route('/api/postAddLocation', methods=["POST"])
+@access_api.login_required
 def postAddLocation():
     if request.method == "POST":
         site_name = session['selected_site']
@@ -130,6 +133,7 @@ def postAddLocation():
 
 # added to database
 @site_management_api.route('/api/postAddVendor', methods=["POST"])
+@access_api.login_required
 def postAddVendor():
     if request.method == "POST":
         site_name = session['selected_site']
@@ -146,6 +150,7 @@ def postAddVendor():
 
 # added to database
 @site_management_api.route('/api/postEditVendor', methods=["POST"])
+@access_api.login_required
 def postEditVendor():
     if request.method == "POST":
         site_name = session['selected_site']
@@ -156,6 +161,7 @@ def postEditVendor():
 
 # added to database
 @site_management_api.route('/api/postAddBrand', methods=["POST"])
+@access_api.login_required
 def postAddBrand():
     if request.method == "POST":
         site_name = session['selected_site']
@@ -166,6 +172,7 @@ def postAddBrand():
 
 # added to database
 @site_management_api.route('/api/postEditBrand', methods=["POST"])
+@access_api.login_required
 def postEditBrand():
     if request.method == "POST":
         site_name = session['selected_site']
@@ -176,6 +183,7 @@ def postEditBrand():
 
 # added to database
 @site_management_api.route('/api/postAddPrefix', methods=["POST"])
+@access_api.login_required
 def postAddPrefix():
     if request.method == "POST":
         site_name = session['selected_site']
@@ -186,6 +194,7 @@ def postAddPrefix():
 
 # added to database
 @site_management_api.route('/api/postEditPrefix', methods=["POST"])
+@access_api.login_required
 def postEditPrefix():
     if request.method == "POST":
         site_name = session['selected_site']

@@ -1,8 +1,11 @@
-from application import postsqldb
-import config
+# 3RD PARTY APPLICATIONS
 import psycopg2 
 import random
 import string
+
+# APPLICATION IMPORTS
+from application import postsqldb
+import config
 
 def getUUID(n):
     random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=n))

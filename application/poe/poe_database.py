@@ -1,4 +1,7 @@
+# 3RD PARTY IMPORTS
 import psycopg2
+
+# APPLICATION IMPORTS
 import config
 from application import postsqldb
 
@@ -210,8 +213,7 @@ def selectItemAllByBarcode(site, payload, convert=True, conn=None):
             return item
         except (Exception, psycopg2.DatabaseError) as error:
             raise postsqldb.DatabaseError(error, payload, getItemAllByBarcode_sql)
-    
-    
+       
 def insertCostLayersTuple(site, payload, convert=True, conn=None):
     cost_layer = ()
     self_conn = False
@@ -388,7 +390,6 @@ def updateItemLocation(site, payload, convert=True, conn=None):
         return item_location
     except Exception as error:
         return error
-
 
 def deleteCostLayersTuple(site, payload, convert=True, conn=None):
     deleted = ()

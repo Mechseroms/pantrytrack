@@ -1,5 +1,7 @@
 # 3RD PARTY IMPORTS
-from flask import (Blueprint, request, render_template, session, jsonify, current_app, send_from_directory)
+from flask import (
+    Blueprint, request, render_template, session, jsonify, current_app, send_from_directory
+    )
 import math
 import postsqldb
 import mimetypes
@@ -7,7 +9,7 @@ import os
 
 # APPLICATION IMPORTS
 import webpush
-from user_api import login_required
+from application.access_module import access_api
 from application import postsqldb, database_payloads
 from application.receipts import receipts_processes, receipts_database
 
@@ -17,13 +19,13 @@ receipt_api = Blueprint('receipt_api', __name__, template_folder='templates', st
 
 # ROOT TEMPLATE ROUTES
 @receipt_api.route("/")
-@login_required
+@access_api.login_required
 def receipts():
     sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
     return render_template("receipts_index.html", current_site=session['selected_site'], sites=sites)
 
 @receipt_api.route("/<id>")
-@login_required
+@access_api.login_required
 def receipt(id):
     sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
     units = postsqldb.get_units_of_measure()
@@ -31,8 +33,8 @@ def receipt(id):
 
 
 # API ROUTES
-# Added to Database
 @receipt_api.route('/api/getItems', methods=["GET"])
+@access_api.login_required
 def getItems():
     recordset = []
     count = {'count': 0}
@@ -47,8 +49,8 @@ def getItems():
         return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":True, "message":"There was an error with this GET statement"})
 
-# Added to Database
 @receipt_api.route('/api/getVendors', methods=["GET"])
+@access_api.login_required
 def getVendors():
     recordset = []
     count = 0
@@ -61,8 +63,8 @@ def getVendors():
         return jsonify({"vendors":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"vendors":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
-# Added to Database
 @receipt_api.route('/api/getLinkedLists', methods=["GET"])
+@access_api.login_required
 def getLinkedLists():
     recordset = []
     count = 0
@@ -75,8 +77,8 @@ def getLinkedLists():
         return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
-# Added to database
 @receipt_api.route('/api/getReceipts', methods=["GET"])
+@access_api.login_required
 def getReceipts():
     recordset = []
     if request.method == "GET":
@@ -88,8 +90,8 @@ def getReceipts():
         return jsonify({'receipts':recordset, "end": math.ceil(count/limit), 'error': False, "message": "Get Receipts Successful!"})
     return jsonify({'receipts': recordset, "end": math.ceil(count/limit), 'error': True, "message": "Something went wrong while getting receipts!"})
 
-# Added to database
 @receipt_api.route('/api/getReceipt', methods=["GET"])
+@access_api.login_required
 def getReceipt():
     receipt = []
     if request.method == "GET":
@@ -99,8 +101,8 @@ def getReceipt():
         return jsonify({'receipt': receipt, 'error': False, "message": "Get Receipts Successful!"})
     return jsonify({'receipt': receipt,  'error': True, "message": "Something went wrong while getting receipts!"})
 
-# added to database
 @receipt_api.route('/api/addReceipt', methods=["POST", "GET"])
+@access_api.login_required
 def addReceipt():
     if request.method == "GET":
         user_id = session['user_id']
@@ -113,8 +115,8 @@ def addReceipt():
         return jsonify({'error': False, "message": "Receipt Added Successful!"})
     return jsonify({'error': True, "message": "Something went wrong while adding receipt!"})
 
-# Added to Database
 @receipt_api.route('/api/addSKULine', methods=["POST"])
+@access_api.login_required
 def addSKULine():
     if request.method == "POST":
         item_id = int(request.get_json()['item_id'])
@@ -139,8 +141,8 @@ def addSKULine():
         return jsonify({'error': False, "message": "Line added Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while add SKU line!"})
 
-# Added to Database
 @receipt_api.route('/api/deleteLine', methods=["POST"])
+@access_api.login_required
 def deleteLine():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])
@@ -149,8 +151,8 @@ def deleteLine():
         return jsonify({'error': False, "message": "Line Deleted Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while deleting line!"})
 
-# Added to Database
 @receipt_api.route('/api/denyLine', methods=["POST"])
+@access_api.login_required
 def denyLine():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])
@@ -159,8 +161,8 @@ def denyLine():
         return jsonify({'error': False, "message": "Line Denied Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while denying line!"})
 
-# Added to database
 @receipt_api.route('/api/saveLine', methods=["POST"])
+@access_api.login_required
 def saveLine():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])
@@ -173,8 +175,8 @@ def saveLine():
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
-# Added to Process and database!
 @receipt_api.route('/api/postLinkedItem', methods=["POST"])
+@access_api.login_required
 def postLinkedItem():
     if request.method == "POST":
         receipt_item_id = int(request.get_json()['receipt_item_id'])
@@ -194,8 +196,9 @@ def postLinkedItem():
             
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
-# Added to processes and Database
+
 @receipt_api.route('/api/resolveLine', methods=["POST"])
+@access_api.login_required
 def resolveLine():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])
@@ -206,8 +209,8 @@ def resolveLine():
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
-# add to database
 @receipt_api.route('/api/postVendorUpdate', methods=["POST"])
+@access_api.login_required
 def postVendorUpdate():
     if request.method == "POST":
         receipt_id = int(request.get_json()['receipt_id'])
@@ -217,8 +220,8 @@ def postVendorUpdate():
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
-# added to database
 @receipt_api.route('/api/resolveReceipt', methods=["POST"])
+@access_api.login_required
 def resolveReceipt():
     if request.method == "POST":
         receipt_id = int(request.get_json()['receipt_id'])
@@ -229,8 +232,8 @@ def resolveReceipt():
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
-# added to database
 @receipt_api.route('/api/uploadfile/<receipt_id>', methods=["POST"])
+@access_api.login_required
 def uploadFile(receipt_id):
     file = request.files['file']
     file_path = current_app.config['FILES_FOLDER'] + f"/receipts/{file.filename.replace(" ", "_")}"
@@ -249,15 +252,15 @@ def uploadFile(receipt_id):
     receipts_database.updateReceiptsTuple(site_name, {'id': receipt_id, 'update': {'files': receipt_files}})
     return jsonify({})
 
-# Does not need to be added to Database
 @receipt_api.route('/api/getFile/<file_name>')
+@access_api.login_required
 def getFile(file_name):
     path_ = current_app.config['FILES_FOLDER'] + "/receipts"
     print(path_)
     return send_from_directory(path_, file_name)
 
-# Added to database
 @receipt_api.route('/api/checkAPI', methods=["POST"])
+@access_api.login_required
 def checkAPI():
     if request.method == "POST":
         line_id = int(request.get_json()['line_id'])

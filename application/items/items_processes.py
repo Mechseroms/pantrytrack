@@ -1,9 +1,9 @@
-# 3rd party imports
+# 3RD PARTY IMPORTS
 import datetime
 import psycopg2
 import json
 
-# applications imports
+# APPLICATION IMPORTS
 from application.items import database_items
 import application.postsqldb as db
 import application.database_payloads as dbPayloads

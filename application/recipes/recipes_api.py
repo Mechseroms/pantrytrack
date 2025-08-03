@@ -1,53 +1,29 @@
-# 3rd party imports
+# 3RD PARTY IMPORTS
 from flask import (
     Blueprint, request, render_template, session, jsonify, current_app, send_from_directory
     )
 import math
 
-# application imports
+# APPLICATION IMPORTS
 import main
-from user_api import login_required
 import webpush
+from application.access_module import access_api
 from application.recipes import database_recipes 
 from application import postsqldb as db
 
 recipes_api = Blueprint('recipes_api', __name__, template_folder="templates", static_folder="static")
 
 @recipes_api.route("/")
-@login_required
+@access_api.login_required
 def recipes():
-    """This is the main endpoint to reach the webpage for a list of all recipes
-    ---
-    responses:
-        200:
-            description: returns recipes/index.html with sites, current_site.
-    """
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     return render_template("recipes_index.html", 
                            current_site=session['selected_site'], 
                            sites=sites)
 
 @recipes_api.route("/<mode>/<id>")
-@login_required
+@access_api.login_required
 def recipe(id, mode='view'):
-    """This is the main endpoint to reach the webpage for a recipe's view or edit mode.
-    ---
-    parameters:
-      - name: mode
-        in: path
-        type: string
-        required: true
-        default: view
-      - name: id
-        in: path
-        type: integer
-        required: true
-        default: all
-    responses:
-      200:
-        description: Respondes with either the Edit or View webpage for the recipe.
-    """
-    
     units = database_recipes.getUnits()
     print("woot")
     if mode == "edit":
@@ -56,14 +32,8 @@ def recipe(id, mode='view'):
         return render_template("recipe_view.html", recipe_id=id, current_site=session['selected_site'])
 
 @recipes_api.route('/getRecipes', methods=["GET"])
-@login_required
+@access_api.login_required
 def getRecipes():
-    """ Get a subquery of recipes from the database by passing a page, limit
-    ---
-    responses:
-        200:
-            description: limit of rows passed returned to requester
-    """
     recipes = []
     count=0
     if request.method == "GET":
@@ -76,15 +46,8 @@ def getRecipes():
     return jsonify({'recipes': recipes, 'end': math.ceil(count/limit), 'error': True, 'message': f'method is not allowed: {request.method}'})
 
 @recipes_api.route('/getRecipe', methods=["GET"])
-@login_required
+@access_api.login_required
 def getRecipe():
-    """ Get a query for recipe id from database by passing an id
-    ---
-    responses:
-        200:
-            description: id queried successfully!
-
-    """
     recipe = {}
     if request.method == "GET":
         id = int(request.args.get('id', 1))
@@ -94,14 +57,8 @@ def getRecipe():
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} not allowed'})
 
 @recipes_api.route('/addRecipe', methods=["POST"])
-@login_required
+@access_api.login_required
 def addRecipe():
-    """ post a new recipe into the database by passing a recipe_name and recipe description
-    ---
-    responses:
-        200:
-            description: Recipe was added successfully into the system
-    """
     if request.method == "POST":
         recipe_name = request.get_json()['recipe_name']
         recipe_description = request.get_json()['recipe_description']
@@ -118,14 +75,8 @@ def addRecipe():
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method}'})
 
 @recipes_api.route('/getItems', methods=["GET"])
-@login_required
+@access_api.login_required
 def getItems():
-    """ Pass along a page, limit, and search strings to get a pagination of items from the system
-    ---
-    responses:
-        200:
-            description: Items were returned successfully!
-    """
     recordset = []
     count = {'count': 0}
     if request.method == "GET":
@@ -139,17 +90,8 @@ def getItems():
     return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
 @recipes_api.route('/postUpdate', methods=["POST"])
-@login_required
+@access_api.login_required
 def postUpdate():
-    """ This is an endpoint for updating an RecipeTuple in the sites recipes table
-    ---
-    responses:
-        200:
-            description: The time was updated successfully!
-
-    Returns:
-        dict: returns a dictionary containing the updated recipe object, error status, and a message to post for notifications
-    """
     recipe = {}
     if request.method == "POST":
         recipe_id = int(request.get_json()['recipe_id'])
@@ -160,14 +102,8 @@ def postUpdate():
     return jsonify({'recipe': recipe, 'error': True, 'message': 'Update of Recipe unsuccessful!'})
 
 @recipes_api.route('/postCustomItem', methods=["POST"])
-@login_required
+@access_api.login_required
 def postCustomItem():
-    """ post a recipe item to the database by passing a uuid, recipe_id, item_type, item_name, uom, qty, and link
-    ---
-    responses:
-        200:
-            description: Recipe Item posted successfully!
-    """
     recipe = {}
     if request.method == "POST":
         site_name = session['selected_site']
@@ -187,14 +123,8 @@ def postCustomItem():
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} not allowed!'})
 
 @recipes_api.route('/postSKUItem', methods=["POST"])
-@login_required
+@access_api.login_required
 def postSKUItem():
-    """ post a recipe item to the database by passing a recipe_id and item_id
-    ---
-    responses:
-        200:
-            description: recipe item was posted successfully!
-    """
     recipe = {}
     if request.method == "POST":
         recipe_id = int(request.get_json()['recipe_id'])
@@ -217,20 +147,8 @@ def postSKUItem():
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} is not allowed!'})
 
 @recipes_api.route('/postImage/<recipe_id>', methods=["POST"])
-@login_required
+@access_api.login_required
 def uploadImage(recipe_id):
-    """ post an image for a recipe into the database and files by passing the recipe_id and picture_path
-    ---
-    parameters:
-    - name: recipe_id
-      in: path
-      required: true
-      schema:
-        type: integer
-    responses:
-        200:
-            description: image uploaded succesfully!
-    """
     file = request.files['file']
     file_path = current_app.config['UPLOAD_FOLDER'] + f"/recipes/{file.filename.replace(" ", "_")}"
     file.save(file_path)
@@ -239,33 +157,15 @@ def uploadImage(recipe_id):
     return jsonify({'error': False, 'message': 'Recipe was updated successfully!'})
 
 @recipes_api.route('/getImage/<recipe_id>')
-@login_required
+@access_api.login_required
 def get_image(recipe_id):
-    """ get the picture path for a recipe by passing teh recipe id in the path
-    ---
-    parameters:
-    - name: recipe_id
-      in: path
-      required: true
-      schema:
-        type: integer
-    responses:
-        200:
-            description: image fetched succesfully!
-    """
     site_name = session['selected_site']
     picture_path = database_recipes.getPicturePath(site_name, (recipe_id,))
     return send_from_directory('static/pictures/recipes', picture_path)
 
 @recipes_api.route('/deleteRecipeItem', methods=["POST"])
-@login_required
+@access_api.login_required
 def deleteRecipeItem():
-    """ delete recipe item from database by passing the recipe item ID
-    ---
-    responses:
-        200:
-            description: recipe item deleted successfully.
-    """
     recipe = {}
     if request.method == "POST":
         id = int(request.get_json()['id'])
@@ -276,15 +176,8 @@ def deleteRecipeItem():
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} is not allowed!'})
 
 @recipes_api.route('/saveRecipeItem', methods=["POST"])
-@login_required
+@access_api.login_required
 def saveRecipeItem():
-    """ post an update to a recipe item in the database by passing the recipe item ID and an update
-    payload.
-    ---
-    responses:
-        200:
-            description: recipe item updated successfully.
-    """
     recipe = {}
     if request.method == "POST":
         id = int(request.get_json()['id'])
