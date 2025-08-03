@@ -32,12 +32,8 @@
                             <li><a href="#">Login</a></li>
                             <li><a href="#">Sign Up</a></li>
                         </ul>
-                        
                         <div class="uk-switcher">
                             <div class="uk-grid-small" uk-grid>
-                                <div class="uk-width-1-1">
-                                    <a href="/access/login/oidc" class="uk-button uk-button-primary">Login with Authentik</a>
-                                </div>
                                 <div class="uk-width-1-1">
                                     <div class="uk-margin">
                                         <label class="uk-form-label" for="login_username">Username</label>
@@ -55,9 +51,14 @@
                                     </div>
                                 </div>
                                 <div class="uk-width-1-1">
-                                    <button onclick="loginUser()" class="uk-button uk-button-default uk-align-right">Login</button>
+                                    <a onclick="loginUser()" class="uk-button uk-button-primary uk-align-center">Login</a>
+                                </div>
+                                <p class="uk-text-meta uk-align-center uk-margin-remove-bottom">OR</p>
+                                <div class="uk-width-1-1">
+                                    <a href="/access/login/oidc" class="uk-button uk-button-primary uk-align-center">Login with Authentik</a>
                                 </div>
                             </div>
+                            <!-- Sign up Form -->
                             <div class="uk-grid-small" uk-grid>
                                 <div class="uk-width-1-1">
                                     <div class="uk-margin">
