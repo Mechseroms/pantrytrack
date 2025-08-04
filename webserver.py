@@ -110,4 +110,4 @@ def home():
     session['selected_site'] = sites[0]
     return redirect("/items")
 
-app.run(host="0.0.0.0", port=5811, debug=True)
+app.run(host="0.0.0.0", port=5810, debug=True)
