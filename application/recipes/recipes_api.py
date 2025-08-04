@@ -161,7 +161,8 @@ def uploadImage(recipe_id):
 def get_image(recipe_id):
     site_name = session['selected_site']
     picture_path = database_recipes.getPicturePath(site_name, (recipe_id,))
-    return send_from_directory('static/pictures/recipes', picture_path)
+    path = f"{current_app.config['UPLOAD_FOLDER']}/recipes"
+    return send_from_directory(path, picture_path)
 
 @recipes_api.route('/deleteRecipeItem', methods=["POST"])
 @access_api.login_required

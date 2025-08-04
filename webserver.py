@@ -18,27 +18,24 @@ from outh import oauth
 app = Flask(__name__, instance_relative_config=True)
 oauth.init_app(app)
 swagger = Swagger(app)
-UPLOAD_FOLDER = 'static/pictures'
-FILES_FOLDER = 'static/files'
 app.config.from_pyfile('application.cfg.py')
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['FILES_FOLDER'] = FILES_FOLDER
 
+print(app.config['UPLOAD_FOLDER'])
 oauth.register(
-    name='authentik',
-    client_id='gh8rLyXC6hfI7W5mDX26OJFGHxmU0nMzeYl3B04G',
-    client_secret='aRHyAkDDeU22s69Ig0o7f46Xn3HCnB8guZoMHuA23B7x1e2YL8FhAqZbu1f3naiaLyTLi9ICIiBc6dxOp5eIO4fEI9paL2NwKXmqYCRmzNzWAfwmcsIh2qTlQfAfsh6e',
-    access_token_url="https://auth.treehousefullofstars.com/application/o/token/",
-    authorize_url="https://auth.treehousefullofstars.com/application/o/authorize/",
-    userinfo_endpoint="https://auth.treehousefullofstars.com/application/o/userinfo/",
-    api_base_url="https://auth.treehousefullofstars.com/application/o/",
-    jwks_uri="https://auth.treehousefullofstars.com/application/o/pantry/jwks/",
-    client_kwargs={'scope': 'openid profile email'},
+    name=app.config['OAUTH_NAME'],
+    client_id=app.config['OAUTH_CLIENT_ID'],
+    client_secret=app.config['OAUTH_CLIENT_SECRET'],
+    access_token_url=app.config['OAUTH_ACCESS_TOKEN_URL'],
+    authorize_url=app.config['OAUTH_AUTHORIZE_URL'],
+    userinfo_endpoint=app.config['OAUTH_USERINFO_ENDPOINT'],
+    api_base_url=app.config['OAUTH_API_BASE_URL'],
+    jwks_uri=app.config['OAUTH_JWKS_URI'],
+    client_kwargs=app.config['OAUTH_CLIENT_KWARGS'],
 )
 
 
 assets = Environment(app)
-app.secret_key = '11gs22h2h1a4h6ah8e413a45'
+app.secret_key = app.config['APP_SECRET']
 app.register_blueprint(access_api.access_api, url_prefix="/access")
 app.register_blueprint(administration_api.admin_api, url_prefix='/administration')
 app.register_blueprint(items_API.items_api, url_prefix='/items')
