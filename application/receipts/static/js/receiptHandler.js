@@ -217,8 +217,10 @@ async function replenishFilesCards(files) {
 
         console.log(files[key])
 
-        let baseStaticUrl = '/static/files/receipts/previews/';
+        let baseStaticUrl = `/receipts/api/getPreview/`;
         let imgSrc = `${baseStaticUrl}${files[key].preview_image}`;
+        
+        console.log(imgSrc)
 
         let media_div = document.createElement('div')
         media_div.setAttribute('class', 'uk-card-media-top')

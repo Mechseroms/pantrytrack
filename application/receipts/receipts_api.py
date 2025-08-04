@@ -241,7 +241,7 @@ def uploadFile(receipt_id):
     file_type, _ = mimetypes.guess_type(file.filename)
     preview_image = ""
     if file_type == "application/pdf":
-        output_path = "static/files/receipts/previews/"
+        output_path = f"{current_app.config['FILES_FOLDER']}/receipts/previews/"
         preview_image = receipts_processes.create_pdf_preview(file_path, output_path)
 
     file_size = os.path.getsize(file_path)
@@ -256,6 +256,13 @@ def uploadFile(receipt_id):
 @access_api.login_required
 def getFile(file_name):
     path_ = current_app.config['FILES_FOLDER'] + "/receipts"
+    print(path_)
+    return send_from_directory(path_, file_name)
+
+@receipt_api.route('/api/getPreview/<file_name>')
+@access_api.login_required
+def getPreview(file_name):
+    path_ = current_app.config['FILES_FOLDER'] + "/receipts/previews"
     print(path_)
     return send_from_directory(path_, file_name)
 

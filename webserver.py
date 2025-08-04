@@ -20,7 +20,6 @@ oauth.init_app(app)
 swagger = Swagger(app)
 app.config.from_pyfile('application.cfg.py')
 
-print(app.config['UPLOAD_FOLDER'])
 oauth.register(
     name=app.config['OAUTH_NAME'],
     client_id=app.config['OAUTH_CLIENT_ID'],
