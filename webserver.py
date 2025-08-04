@@ -1,19 +1,22 @@
-import celery.schedules
 from flask import Flask, render_template, session, request, redirect, jsonify
 from flask_assets import Environment, Bundle
-import api, config, user_api, psycopg2, main, api_admin, receipts_API, shopping_list_API, group_api
-from user_api import login_required, update_session_user
-from external_API import external_api
-from workshop_api import workshop_api
+from authlib.integrations.flask_client import OAuth
+import config, psycopg2, main
 import database
-import postsqldb
 from webpush import trigger_push_notifications_for_subscriptions
+from application.administration import administration_api
+from application.access_module import access_api
+from application.site_management import site_management_api
 from application.recipes import recipes_api
 from application.items import items_API
+from application.poe import poe_api
+from application.shoppinglists import shoplist_api
+from application.receipts import receipts_api
 from flasgger import Swagger
-
+from outh import oauth
 
 app = Flask(__name__, instance_relative_config=True)
+oauth.init_app(app)
 swagger = Swagger(app)
 UPLOAD_FOLDER = 'static/pictures'
 FILES_FOLDER = 'static/files'
@@ -21,21 +24,29 @@ app.config.from_pyfile('application.cfg.py')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['FILES_FOLDER'] = FILES_FOLDER
 
+oauth.register(
+    name='authentik',
+    client_id='gh8rLyXC6hfI7W5mDX26OJFGHxmU0nMzeYl3B04G',
+    client_secret='aRHyAkDDeU22s69Ig0o7f46Xn3HCnB8guZoMHuA23B7x1e2YL8FhAqZbu1f3naiaLyTLi9ICIiBc6dxOp5eIO4fEI9paL2NwKXmqYCRmzNzWAfwmcsIh2qTlQfAfsh6e',
+    access_token_url="https://auth.treehousefullofstars.com/application/o/token/",
+    authorize_url="https://auth.treehousefullofstars.com/application/o/authorize/",
+    userinfo_endpoint="https://auth.treehousefullofstars.com/application/o/userinfo/",
+    api_base_url="https://auth.treehousefullofstars.com/application/o/",
+    jwks_uri="https://auth.treehousefullofstars.com/application/o/pantry/jwks/",
+    client_kwargs={'scope': 'openid profile email'},
+)
+
 
 assets = Environment(app)
 app.secret_key = '11gs22h2h1a4h6ah8e413a45'
-app.register_blueprint(api.database_api)
-app.register_blueprint(user_api.login_app)
-app.register_blueprint(api_admin.admin_api)
-app.register_blueprint(items_API.items_api)
-app.register_blueprint(external_api)
-app.register_blueprint(workshop_api)
-app.register_blueprint(receipts_API.receipt_api)
-app.register_blueprint(shopping_list_API.shopping_list_api)
-app.register_blueprint(group_api.groups_api)
+app.register_blueprint(access_api.access_api, url_prefix="/access")
+app.register_blueprint(administration_api.admin_api, url_prefix='/administration')
+app.register_blueprint(items_API.items_api, url_prefix='/items')
+app.register_blueprint(poe_api.point_of_ease, url_prefix='/poe')
+app.register_blueprint(site_management_api.site_management_api, url_prefix="/site-management")
+app.register_blueprint(receipts_api.receipt_api, url_prefix='/receipts')
+app.register_blueprint(shoplist_api.shopping_list_api, url_prefix="/shopping-lists")
 app.register_blueprint(recipes_api.recipes_api, url_prefix='/recipes')
-
-
 
 js = Bundle('js/uikit.min.js', 'js/uikit-icons.min.js', output='gen/main.js')
 assets.register('js_all', js)
@@ -49,7 +60,7 @@ def inject_user():
         with psycopg2.connect(**database_config) as conn:
             try:
                 with conn.cursor() as cur:
-                    sql = f"SELECT id, username, sites, site_roles, system_admin, flags FROM logins WHERE id=%s;"
+                    sql = f"SELECT id, username, sites, site_roles, system_admin, flags, profile_pic_url, login_type FROM logins WHERE id=%s;"
                     cur.execute(sql, (session['user_id'],))
                     user = cur.fetchone()
                     user = database.tupleDictionaryFactory(cur.description, user)
@@ -66,52 +77,12 @@ def inject_user():
     
     return dict(username="")
 
-
-@app.route("/transactions/<id>")
-@login_required
-def transactions(id):
-    """This is the main endpoint to reach the webpage for an items transaction history
-    ---
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        default: all
-    responses:
-      200:
-        description: Returns the transactions.html webpage for the item with passed ID
-    """
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    return render_template("items/transactions.html", id=id, current_site=session['selected_site'], sites=sites)
-
-
-@app.route("/item/<id>")
-@login_required
-def item(id):
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    database_config = config.config()
-    with psycopg2.connect(**database_config) as conn:
-        units = postsqldb.UnitsTable.getAll(conn)
-    return render_template("items/item_new.html", id=id, units=units, current_site=session['selected_site'], sites=sites)
-
-@app.route("/transaction")
-@login_required
-def transaction():
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    database_config = config.config()
-    with psycopg2.connect(**database_config) as conn:
-        units = postsqldb.UnitsTable.getAll(conn)
-    return render_template("other/transaction.html", units=units, current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer})
-
-@app.route("/items")
-@login_required
-def items():
-    update_session_user()
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
-    return render_template("items/index.html", 
-                           current_site=session['selected_site'], 
-                           sites=sites)
+@app.route("/changeSite", methods=["POST"])
+def changeSite():
+    if request.method == "POST":
+        site = request.json['site']
+    session['selected_site'] = site
+    return jsonify({'error': False, 'message': 'Site Changed!'})
 
 @app.route("/api/push-subscriptions", methods=["POST"])
 def create_push_subscription():
@@ -132,11 +103,11 @@ def subscribe():
     return render_template("subscribe.html")
 
 @app.route("/")
-@login_required
+@access_api.login_required
 def home():
-    update_session_user()
+    access_api.update_session_user()
     sites = [site[1] for site in main.get_sites(session['user']['sites'])]
     session['selected_site'] = sites[0]
     return redirect("/items")
 
-app.run(host="0.0.0.0", port=5810, debug=True)
+app.run(host="0.0.0.0", port=5811, debug=True)

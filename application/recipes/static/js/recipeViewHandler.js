@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 async function replenishRecipe() {
     document.getElementById('title').innerHTML = `${recipe.name}`
-    document.getElementById('breadcrumb').innerHTML = `${recipe.name}`
+    // document.getElementById('breadcrumb').innerHTML = `${recipe.name}`
     document.getElementById('recipeTitle').innerHTML = `${recipe.name}`
     document.getElementById('recipeAuthor').innerHTML = `${recipe.author}`
     document.getElementById('recipeDescription').innerHTML = `${recipe.description}`
