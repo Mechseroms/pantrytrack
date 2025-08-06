@@ -67,11 +67,14 @@ async function submitScanTransaction(scannedItem) {
         let trans_type = document.getElementById('scan_trans_type').value
         let scan_transaction_item_location_id = 0
         let comparator = 0
-        
+        let conversion_factor = 1
+
         if (trans_type === "Adjust In"){
             comparator = scannedItem.primary_location_id
+            conversion_factor = scannedItem.in_exchange
         } else if (trans_type === "Adjust Out"){
             comparator = scannedItem.auto_issue_location_id
+            conversion_factor = scannedItem.out_exchange
         }
 
         for (let i = 0; i < scannedItem.item_locations.length; i++){
@@ -79,6 +82,9 @@ async function submitScanTransaction(scannedItem) {
                 scan_transaction_item_location_id = scannedItem.item_locations[i].location_id
             }
         }
+
+        let quantity = scannedItem.uom_quantity * conversion_factor
+
         const response = await fetch(`/poe/postTransaction`, {
             method: 'POST',
             headers: {
@@ -90,7 +96,7 @@ async function submitScanTransaction(scannedItem) {
                 barcode: scannedItem.barcode,
                 item_name: scannedItem.item_name,
                 transaction_type: document.getElementById('scan_trans_type').value,
-                quantity: scannedItem.uom_quantity,
+                quantity: quantity,
                 description: "",
                 cost: parseFloat(scannedItem.cost),
                 vendor: 0,

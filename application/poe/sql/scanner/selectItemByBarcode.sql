@@ -1,15 +1,3 @@
-/*
-id
-logistics_info_id
-barcode
-item_name
-logistics_info.primary_location.id
-logistics_info.auto_issue_location.id
-item_info.uom_quantity
-item_info.cost
-
-
-*/
 WITH passed_id AS (SELECT items.id AS passed_id, barcodes.barcode AS passed_barcode FROM %%site_name%%_barcodes barcodes
                     LEFT JOIN %%site_name%%_items items ON items.item_uuid = barcodes.item_uuid 
                     WHERE barcodes.barcode=%s),
