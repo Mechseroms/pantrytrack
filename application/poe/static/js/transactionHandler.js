@@ -31,6 +31,7 @@ async function addToQueue(event) {
     if (event.key == "Enter"){
         let data = await getItemBarcode(document.getElementById('barcode-scan').value)
         let scannedItem = data.item
+        console.log(scannedItem)
         if(data.error){
             UIkit.notification({
             message: data.message,
@@ -68,14 +69,14 @@ async function submitScanTransaction(scannedItem) {
         let comparator = 0
         
         if (trans_type === "Adjust In"){
-            comparator = scannedItem.logistics_info.primary_location.id
+            comparator = scannedItem.primary_location_id
         } else if (trans_type === "Adjust Out"){
-            comparator = scannedItem.logistics_info.auto_issue_location.id
+            comparator = scannedItem.auto_issue_location_id
         }
 
         for (let i = 0; i < scannedItem.item_locations.length; i++){
             if (scannedItem.item_locations[i].location_id === comparator){
-                scan_transaction_item_location_id = scannedItem.item_locations[i].id
+                scan_transaction_item_location_id = scannedItem.item_locations[i].location_id
             }
         }
         const response = await fetch(`/poe/postTransaction`, {
@@ -84,14 +85,14 @@ async function submitScanTransaction(scannedItem) {
                     'Content-Type': 'application/json',
                 },
             body: JSON.stringify({
-                item_id: scannedItem.id,
+                item_id: scannedItem.item_id,
                 logistics_info_id: scannedItem.logistics_info_id,
                 barcode: scannedItem.barcode,
                 item_name: scannedItem.item_name,
                 transaction_type: document.getElementById('scan_trans_type').value,
-                quantity: scannedItem.item_info.uom_quantity,
+                quantity: scannedItem.uom_quantity,
                 description: "",
-                cost: parseFloat(scannedItem.item_info.cost),
+                cost: parseFloat(scannedItem.cost),
                 vendor: 0,
                 expires: null,
                 location_id: scan_transaction_item_location_id
@@ -138,9 +139,9 @@ async function replenishScanTable() {
         typeCell.innerHTML = reversedScannedItems[i].type
         let locationCell = document.createElement('td')
         if (reversedScannedItems[i].type === "Adjust In"){
-            locationCell.innerHTML = reversedScannedItems[i].item.logistics_info.primary_location.uuid
+            locationCell.innerHTML = reversedScannedItems[i].item.primary_location_uuid
         } else {
-            locationCell.innerHTML = reversedScannedItems[i].item.logistics_info.auto_issue_location.uuid
+            locationCell.innerHTML = reversedScannedItems[i].item.auto_issue_location_uuid
         }
 
         tableRow.append(statusCell, barcodeCell, nameCell, typeCell, locationCell)

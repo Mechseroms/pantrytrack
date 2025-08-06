@@ -1,4 +1,6 @@
-WITH passed_id AS (SELECT id AS passed_id FROM %%site_name%%_items WHERE barcode=%s),
+WITH passed_id AS (SELECT items.id AS passed_id FROM %%site_name%%_barcodes barcodes
+                    LEFT JOIN %%site_name%%_items items ON items.item_uuid = barcodes.item_uuid 
+                    WHERE barcodes.barcode=%s),
     logistics_id AS (SELECT logistics_info_id FROM %%site_name%%_items WHERE id=(SELECT passed_id FROM passed_id)),
     info_id AS (SELECT item_info_id FROM %%site_name%%_items WHERE id=(SELECT passed_id FROM passed_id)),
     cte_item_info AS (

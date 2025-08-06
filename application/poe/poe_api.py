@@ -38,8 +38,7 @@ def getItemBarcode():
     if request.method == "GET":
         item_barcode = f"%{str(request.args.get('barcode', 1))}%"
         site_name = session['selected_site']
-        record = poe_database.selectItemAllByBarcode(site_name, (item_barcode,))
-        print(record)
+        record = poe_database.selectItemByBarcode(site_name, (item_barcode,))
         if record == {} or record == ():
             return jsonify({"item":None,  "error":True, "message":"Item either does not exist or there was a larger problem!"}) 
         else:
@@ -50,11 +49,13 @@ def getItemBarcode():
 @access_api.login_required
 def post_transaction():
     if request.method == "POST":
+        print(request.get_json())
         result = poe_processes.postTransaction(
             site_name=session['selected_site'],
             user_id=session['user_id'],
             data=dict(request.json)
         )
+        print(result)
         return jsonify(result)
     return jsonify({"error":True, "message":"There was an error with this POST statement"})
 

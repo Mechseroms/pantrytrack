@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS %%site_name%%_items(
     id SERIAL PRIMARY KEY,
+    item_uuid UUID,
     barcode VARCHAR(255) NOT NULL,
     item_name VARCHAR(255) NOT NULL,
     brand INTEGER,
@@ -12,7 +13,7 @@ CREATE TABLE IF NOT EXISTS %%site_name%%_items(
     row_type VARCHAR(255) NOT NULL,
     item_type VARCHAR(255) NOT NULL,
     search_string TEXT NOT NULL,
-    UNIQUE(barcode, item_info_id),
+    UNIQUE(item_uuid, barcode, item_info_id),
     CONSTRAINT fk_item_info
         FOREIGN KEY(item_info_id) 
         REFERENCES %%site_name%%_item_info(id)

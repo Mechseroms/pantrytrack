@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS logins(
     system_admin BOOLEAN DEFAULT FALSE,
     flags JSONB DEFAULT '{}',
     row_type VARCHAR(50),
+    profile_pic_url VARCHAR(255),
+    login_type VARCHAR(32),
     UNIQUE(username),
     CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
 );

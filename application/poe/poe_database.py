@@ -174,6 +174,37 @@ def selectItemAllByID(site, payload, convert=True, conn=None):
     except (Exception, psycopg2.DatabaseError) as error:
         raise postsqldb.DatabaseError(error, payload, getItemAllByID_sql)
 
+def selectItemByBarcode(site, payload, convert=True, conn=None):
+    item = ()
+    self_conn = False
+
+    if convert:
+        item = {}
+
+    if not conn:
+        database_config = config.config()
+        conn = psycopg2.connect(**database_config)
+        conn.autocommit = True
+        self_conn = True
+    
+    with open(f"application/poe/sql/scanner/selectItemByBarcode.sql", "r+") as file:
+        selectItemByBarcode_sql = file.read().replace("%%site_name%%", site)
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute(selectItemByBarcode_sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                item = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            if rows and not convert:
+                item = rows
+    
+        if self_conn:
+            conn.close()
+        return item
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload, selectItemByBarcode_sql)
+
 def selectItemAllByBarcode(site, payload, convert=True, conn=None):
     item = ()
     self_conn = False

@@ -263,7 +263,6 @@ def getFile(file_name):
 @access_api.login_required
 def getPreview(file_name):
     path_ = current_app.config['FILES_FOLDER'] + "/receipts/previews"
-    print(path_)
     return send_from_directory(path_, file_name)
 
 @receipt_api.route('/api/checkAPI', methods=["POST"])

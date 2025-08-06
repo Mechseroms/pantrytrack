@@ -5,6 +5,15 @@ from dataclasses import dataclass, field
 import random
 import string
 import config
+import uuid
+
+
+def validateUUID(uuid_string, version):
+    try:
+        u = uuid.UUID(uuid_string, version=version)
+        return u.version == version
+    except ValueError:
+        return False
 
 class DatabaseError(Exception):
     def __init__(self, message, payload=[], sql=""):

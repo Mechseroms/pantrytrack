@@ -3,6 +3,21 @@ import json, datetime
 from database import lst2pgarr
 
 @dataclass
+class BarcodesPayload:
+    barcode: str
+    item_uuid: str
+    in_exchange: float
+    out_exchange: float
+    
+    def payload(self):
+        return (
+            self.barcode,
+            self.item_uuid,
+            self.in_exchange,
+            self.out_exchange
+        )
+
+@dataclass
 class LogisticsInfoPayload:
     barcode: str
     primary_location: int
