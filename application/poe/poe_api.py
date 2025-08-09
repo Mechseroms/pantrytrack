@@ -45,6 +45,21 @@ def getItemBarcode():
             return jsonify({"item":record,  "error":False, "message":"item fetched succesfully!"})
     return jsonify({"item":record, "error":True, "message":"There was an error with this GET statement"})
 
+@point_of_ease.route('/api/paginatePLUItems', methods=['GET'])
+@access_api.login_required
+def paginatePLUItems():
+    if request.method == 'GET':
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 50))
+        site_name = session['selected_site']
+        offset = (page - 1) * limit
+        try:
+            items = poe_database.paginatePLUItems(site_name, (limit, offset))
+            return jsonify(items=items, status=201, message="Fetch Successful!")
+        except Exception as error:
+            return jsonify(items=[], status=400, message=str(error))
+    return jsonify(items=[], status=405, message=f"The method: {request.method} is not allowed on this endpoint!")
+
 @point_of_ease.route('/postTransaction', methods=["POST"])
 @access_api.login_required
 def post_transaction():

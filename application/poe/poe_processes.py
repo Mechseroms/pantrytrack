@@ -122,6 +122,7 @@ def post_receipt(site_name, user_id, data: dict, conn=None):
             type=item['type'],
             receipt_id=receipt['id'],
             barcode=item['item']['barcode'],
+            item_uuid=item['item']['item_uuid'],
             name=item['item']['item_name'],
             qty=item['item']['qty'],
             uom=item['item']['uom'],

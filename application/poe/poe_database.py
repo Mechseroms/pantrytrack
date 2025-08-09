@@ -205,12 +205,10 @@ def selectItemByBarcode(site, payload, convert=True, conn=None):
     except (Exception, psycopg2.DatabaseError) as error:
         raise postsqldb.DatabaseError(error, payload, selectItemByBarcode_sql)
 
-def selectItemAllByBarcode(site, payload, convert=True, conn=None):
+def paginatePLUItems(site, payload, convert=True, conn=None):
+    """ payload = (limit, offset) """
     item = ()
     self_conn = False
-
-    if convert:
-        item = {}
 
     if not conn:
         database_config = config.config()
@@ -218,32 +216,23 @@ def selectItemAllByBarcode(site, payload, convert=True, conn=None):
         conn.autocommit = True
         self_conn = True
     
-    linked_item = selectLinkedItemByBarcode(site, (payload[0],))
+    with open(f"application/poe/sql/receipts/getPLUItems.sql", "r+") as file:
+        getPLUItems_sql = file.read().replace("%%site_name%%", site)
+    try:
+
+        with conn.cursor() as cur:
+            cur.execute(getPLUItems_sql, payload)
+            rows = cur.fetchall()
+            if rows and convert:
+                item = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+            if rows and not convert:
+                item = rows
     
-    if len(linked_item) > 1:
-        item = selectItemAllByID(site, payload=(linked_item['link'], ), convert=convert)
-        item['item_info']['uom_quantity'] = linked_item['conv_factor']
         if self_conn:
             conn.close()
         return item
-    else:
-        with open(f"application/poe/sql/getItemAllByBarcode.sql", "r+") as file:
-            getItemAllByBarcode_sql = file.read().replace("%%site_name%%", site)
-        try:
-
-            with conn.cursor() as cur:
-                cur.execute(getItemAllByBarcode_sql, payload)
-                rows = cur.fetchone()
-                if rows and convert:
-                    item = postsqldb.tupleDictionaryFactory(cur.description, rows)
-                if rows and not convert:
-                    item = rows
-        
-            if self_conn:
-                conn.close()
-            return item
-        except (Exception, psycopg2.DatabaseError) as error:
-            raise postsqldb.DatabaseError(error, payload, getItemAllByBarcode_sql)
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise postsqldb.DatabaseError(error, payload, getPLUItems_sql)
        
 def insertCostLayersTuple(site, payload, convert=True, conn=None):
     cost_layer = ()

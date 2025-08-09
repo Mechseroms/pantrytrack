@@ -265,6 +265,7 @@ class ReceiptItemPayload:
     type: str
     receipt_id: int
     barcode: str
+    item_uuid: str
     name: str
     qty: float = 1.0
     uom: str = "each"
@@ -276,6 +277,7 @@ class ReceiptItemPayload:
             self.type,
             self.receipt_id,
             self.barcode,
+            self.item_uuid,
             self.name,
             self.qty,
             self.uom,

@@ -44,3 +44,6 @@
 2025-08-09 08:08:51.302903 --- ERROR --- DatabaseError(message='can't adapt type 'dict'',
                                          payload={'barcode': {'barcode': 'tsath', 'descriptor': 'test', 'in_exchange': 1, 'out_exchange': 1}, 'update': {'in_exchange': '1', 'out_exchange': '1', 'descriptor': 'test ggh'}},
                                          sql='UPDATE test_barcodes SET in_exchange = %s, out_exchange = %s, descriptor = %s WHERE barcode=%s RETURNING *;')
+2025-08-09 11:07:03.004000 --- ERROR --- DatabaseError(message='not all arguments converted during string formatting',
+                                         payload=('PLU SKU', 30, None, '8cac7ce9-dfd1-4da8-8856-57f5bdbc752b', 'Bubble Bath Lavender', 1, 1, '{"cost": 0, "expires": false}', 'Unresolved'),
+                                         sql='INSERT INTO test_receipt_items(type, receipt_id, barcode, name, qty, uom, data, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')

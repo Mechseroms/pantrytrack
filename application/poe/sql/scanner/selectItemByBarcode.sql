@@ -11,17 +11,22 @@ SELECT barcodes.*,
     item.id as item_id,
     item.logistics_info_id as logistics_info_id,
     item.item_name as item_name,
+    item.item_uuid as item_uuid,
     primary_location.id as primary_location_id,
     primary_location.uuid as primary_location_uuid,
     auto_issue_location.id as auto_issue_location_id,
     auto_issue_location.uuid as auto_issue_location_uuid,
     item_info.cost as cost,
     item_info.uom_quantity as uom_quantity,
+    item_info.uom as uom,
+    food_info.expires as expires,
+    food_info.default_expiration as default_expiration,
     (SELECT COALESCE(array_agg(row_to_json(ils)), '{}') FROM cte_item_locations ils) AS item_locations
 FROM %%site_name%%_barcodes barcodes
 LEFT JOIN %%site_name%%_items item ON barcodes.item_uuid = item.item_uuid
 LEFT JOIN %%site_name%%_item_info as item_info ON item_info.id = item.item_info_id
 LEFT JOIN %%site_name%%_logistics_info logistics_info ON logistics_info.id = item.logistics_info_id
+LEFT JOIN %%site_name%%_food_info food_info ON food_info.id = item.food_info_id
 LEFT JOIN %%site_name%%_locations primary_location ON logistics_info.primary_location = primary_location.id
 LEFT JOIN %%site_name%%_locations auto_issue_location ON logistics_info.auto_issue_location = auto_issue_location.id
 WHERE barcodes.barcode = (SELECT passed_barcode FROM passed_id);

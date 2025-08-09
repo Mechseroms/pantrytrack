@@ -105,13 +105,16 @@
                     </div>
                     <div class="uk-width-1-1" uk-grid>
                         <div>
-                            <button id="receiptStart" onclick="startReceipt()" class="uk-button uk-button-default">Start Receipt</button>
+                            <button id="receiptStart" onclick="startReceipt()" class="uk-button uk-button-primary">Start Receipt</button>
                         </div>
                         <div>
                             <button id="receiptComplete" onclick="completeReceipt()" class="uk-button uk-button-default uk-disabled">Complete Receipt</button>
                         </div>
                         <div>
                             <button id="receiptClose" onclick="closeReceipt()" class="uk-button uk-button-default uk-disabled">Cancel Receipt</button>
+                        </div>
+                        <div>
+                            <button onclick="openPLUModal()" class="uk-button uk-button-default">PLU Dash</button>
                         </div>
                     </div>
                     <div class="uk-width-1-1">
@@ -152,7 +155,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>QTY</td>
+                            <td>Item Name</td>
                             <td><input id="lineName" class="uk-input" type="text"></td>
                         </tr>
                         <tr>
@@ -183,6 +186,60 @@
                     <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
                     <button id="saveLineButton" class="uk-button uk-button-primary" type="button">Save</button>
                 </p>
+            </div>
+        </div>
+        <!-- PLU Modal USED FOR RECEIPTS-->
+        <div id="PLUDASHModal" class="uk-modal-full" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <h2 class="uk-modal-title">Add PLU Line...</h2>
+                <div id="PLUCardsBody" class="uk-grid-small uk-child-width-1-3@s uk-child-width-1-5@m uk-child-width-1-6@l" uk-grid="masonry: pack">
+                        <!-- need to be built in javascript -->
+                        <div>
+                            <div class="uk-card uk-card-default uk-card-small uk-card-hover uk-text-center">
+                                <div class="uk-card-media-top uk-flex uk-flex-center uk-padding-small">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg" alt="Apple" width="60">
+                                </div>
+                                <div class="uk-card-body uk-padding-small">
+                                    <h5 class="uk-card-title" style="margin-bottom: 4px;">Apple</h5>
+                                    <div style="font-size: 0.8em; margin-bottom: 7px;">PLU: 4017</div>
+                                    <button class="uk-button uk-button-primary uk-button-small" onclick="addToReceipt('Apple', '4017')">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                                <h3 class="uk-card-title">Small</h3>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                                <h3 class="uk-card-title">Small</h3>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                                <h3 class="uk-card-title">Small</h3>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                                <h3 class="uk-card-title">Small</h3>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                                <h3 class="uk-card-title">Small</h3>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                            </div>
+                        </div>
+                </div>
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
             </div>
         </div>
     </body>
