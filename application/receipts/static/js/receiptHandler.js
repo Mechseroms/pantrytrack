@@ -195,11 +195,6 @@ async function viewFile(source) {
 
 }
 
-async function openCustomModal() {
-    console.log("custom")
-    
-}
-
 async function openLineEditModal(line_data) {
     console.log(line_data)
     document.getElementById('lineName').value = line_data.name
@@ -287,6 +282,7 @@ async function uploadFile() {
     .then(response => response.json())
     .then(data => console.log('File uploaded!', data))
     .catch(error => console.error('Error:', error));
+    await refreshReceipt()
 }
 
 async function saveLine(line_id){
@@ -363,6 +359,46 @@ async function getReceipt(id) {
     let receipt = data.receipt;
     return receipt;
 }
+
+// Custom Line Modal Functions
+async function openAddCustomLineModal() {
+    console.log("custom")
+    document.getElementById('CustomlineName').value = ""
+    document.getElementById('CustomlineQty').value = 0
+    document.getElementById('CustomlineUOM').value = 1
+    document.getElementById('CustomlineCost').value = 0.00
+    document.getElementById('saveCustomLineButton').innerHTML = "Add"
+    document.getElementById('saveCustomLineButton').onclick = async function() {
+        await addCustomLine()        
+    }
+
+    UIkit.modal(document.getElementById("CustomLineModal")).show();  
+}
+
+async function addCustomLine(){
+    let LineName = document.getElementById('CustomlineName').value
+    let LineQty = document.getElementById('CustomlineQty').value
+    let LineUOM = document.getElementById('CustomlineUOM').value
+    let LineCost = document.getElementById('CustomlineCost').value
+    console.log(LineName)
+    UIkit.modal(document.getElementById("CustomLineModal")).hide();
+
+    const response = await fetch(`/receipts/api/addCustomLine`, {
+        method: 'POST',
+        headers: {
+                'Content-Type': 'application/json',
+            },
+        body: JSON.stringify({
+            line_name: LineName,
+            line_qty: LineQty,
+            line_UOM: LineUOM,
+            line_cost: LineCost,
+            receipt_id: receipt_id
+        }),
+    });
+    await refreshReceipt()
+}
+
 
 // SKU Modal functions
 let items_limit = 50;

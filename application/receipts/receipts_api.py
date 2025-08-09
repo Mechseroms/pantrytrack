@@ -126,7 +126,6 @@ def addSKULine():
 
         site_name = session['selected_site']
         item = receipts_database.getItemAllByID(site_name, (item_id, ))
-        #pprint.pprint(item)
         data = {
             'cost': item['item_info']['cost'],
             'expires': item['food_info']['expires']
@@ -144,6 +143,33 @@ def addSKULine():
         receipts_database.insertReceiptItemsTuple(site_name, receipt_item.payload())
         return jsonify({'error': False, "message": "Line added Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while add SKU line!"})
+
+@receipt_api.route('/api/addCustomLine', methods=["POST"])
+@access_api.login_required
+def addCustomLine():
+    if request.method == "POST":
+        receipt_id = int(request.get_json()['receipt_id'])
+        site_name = session['selected_site']
+        print(receipt_id)
+        data = {
+            'cost': request.get_json()['line_cost'],
+            'expires': False
+        }
+
+        receipt_item = database_payloads.ReceiptItemPayload(
+            type="custom",
+            receipt_id=receipt_id,
+            barcode=None,
+            item_uuid=None,
+            name=request.get_json()['line_name'],
+            qty=request.get_json()['line_qty'],
+            uom=request.get_json()['line_UOM'],
+            data=data
+        )
+        receipts_database.insertReceiptItemsTuple(site_name, receipt_item.payload())
+        return jsonify({'error': False, "message": "Line added Succesfully"})
+    return jsonify({'error': True, "message": "Something went wrong while add SKU line!"})
+
 
 @receipt_api.route('/api/deleteLine', methods=["POST"])
 @access_api.login_required

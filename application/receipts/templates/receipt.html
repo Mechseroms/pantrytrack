@@ -184,7 +184,7 @@
                                     <button id="lineAddButton" class="uk-button uk-button-default" type="button">Add Line <span uk-icon="icon: triangle-down"></span></button>
                                     <div id="addLineDropDown" uk-dropdown="mode: click">
                                         <ul class="uk-nav uk-dropdown-nav">
-                                            <li><a onclick="openCustomModal()">Custom</a></li>
+                                            <li><a onclick="openAddCustomLineModal()">Custom</a></li>
                                             <li><a onclick="openSKUModal()">SKU</a></li>
                                         </ul>
                                     </div>
@@ -334,6 +334,52 @@
                     <tbody id="ItemBarcodeSelectTable">
                     </tbody>
                 </table>
+            </div>
+        </div>
+        <!-- Custom Line Modal-->
+        <div id="CustomLineModal" class="uk-modal-container" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <h2 class="uk-modal-title">Add a Custom Line...</h2>
+                <p class="uk-text-meta">Custom lines are items where you would like to solely track them through receipts and nothing more. That means
+                    that beyond saving the line on the receipt, nothing else will be saved, transacted, or handled by the over
+                    all system. Keep that in mind as you choose to add a custom line.</p>
+                <p class="uk-text-meta">Edit any fields here for the Custom Line and all the data will be saved.</p>
+                <table class="uk-table uk-table-responsive uk-table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Name</td>
+                            <td><input id="CustomlineName" class="uk-input" type="text"></td>
+                        </tr>
+                        <tr>
+                            <td>QTY</td>
+                            <td><input id="CustomlineQty" class="uk-input" type="number"></td>
+                        </tr>
+                        <tr>
+                            <td>UOM</td>
+                            <td>
+                                <select id="CustomlineUOM" class="uk-select" aria-label="Select">
+                                    {% for unit in units %}
+                                        <option value="{{unit['id']}}">{{unit['fullname']}}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>COST</td>
+                            <td><input id="CustomlineCost" class="uk-input" type="text"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button id="saveCustomLineButton" class="uk-button uk-button-primary" type="button">Save</button>
+                </p>
             </div>
         </div>
         <!-- Line Edit Modal-->
