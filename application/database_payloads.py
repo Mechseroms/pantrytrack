@@ -8,13 +8,15 @@ class BarcodesPayload:
     item_uuid: str
     in_exchange: float
     out_exchange: float
+    descriptor: str
     
     def payload(self):
         return (
             self.barcode,
             self.item_uuid,
             self.in_exchange,
-            self.out_exchange
+            self.out_exchange,
+            self.descriptor
         )
 
 @dataclass
@@ -597,7 +599,8 @@ class SiteManager:
         "shopping_list_items",
         "item_locations",
         "conversions",
-        "sku_prefix"
+        "sku_prefix",
+        "barcodes"
     ]
         self.drop_order = [
         "item_info",
@@ -621,5 +624,6 @@ class SiteManager:
         "shopping_lists",
         "item_locations",
         "conversions",
-        "sku_prefix"
+        "sku_prefix",
+        "barcodes"
     ]

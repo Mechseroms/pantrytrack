@@ -59,8 +59,12 @@ var item_subtypes = [['Food', 'FOOD'], ['Food PLU', 'FOOD_PLU'], ['Other', 'OTHE
 
 document.addEventListener('DOMContentLoaded', async function() {
     await setupFormDefaults()
+    await refreshForm()
+})
+
+
+async function refreshForm(){
     await fetchItem()
-    console.log(item)
     document.getElementById('title').innerHTML = item.item_name;
     await setBasicInfo()
     await updateWebLinksTable()
@@ -70,7 +74,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     await updateConversionsTableBody()
     await updatePrefixTableBody()
     await updateTags()
-})
+    await updateBarcodes()
+}
 
 async function setupFormDefaults() {
     let itemTypeSelect = document.getElementById('itemTypeSelect')
@@ -88,6 +93,179 @@ async function setupFormDefaults() {
         elem.value = `${item_subtypes[i][1]}`
         itemSubTypeSelect.append(elem)
     }
+}
+
+async function updateBarcodes(){
+    let barcodes = item.item_barcodes
+    let barcodesTableBody = document.getElementById('barcodesTableBody');
+    barcodesTableBody.innerHTML = "";
+
+    for (let i = 0; i < barcodes.length; i++){
+        let tableRow = document.createElement('tr')
+
+        let barcodeCell = document.createElement('td')
+        barcodeCell.innerHTML = barcodes[i].barcode
+
+        let inexchangeCell = document.createElement('td')
+        inexchangeCell.innerHTML = barcodes[i].in_exchange
+
+        let outexchangeCell = document.createElement('td')
+        outexchangeCell.innerHTML = barcodes[i].out_exchange
+
+        let descriptorCell = document.createElement('td')
+        descriptorCell.innerHTML = barcodes[i].descriptor
+
+        let operationsCell = document.createElement('td')
+
+        let editButton = document.createElement('button')
+        editButton.innerHTML = "Edit"
+        editButton.setAttribute('class', 'uk-button uk-button-default uk-button-small')
+        editButton.onclick = async function(){await openEditBarcodeModal(barcodes[i])}
+
+        let deleteButton = document.createElement('button')
+        deleteButton.innerHTML = "Delete"
+        deleteButton.setAttribute('class', 'uk-button uk-button-danger uk-button-small')
+        deleteButton.onclick = async function(){await deleteBarcodeToItem(barcodes[i].barcode)}
+
+
+        operationsCell.append(editButton, deleteButton)
+
+        tableRow.append(barcodeCell, inexchangeCell, outexchangeCell, descriptorCell, operationsCell)
+
+        barcodesTableBody.append(tableRow)
+    }
+
+}
+
+async function openAddBarcodeModal() {
+    document.getElementById('barcodeModalTitle').innerHTML = "Add Barcode"
+    document.getElementById('barcodeModalButton').innerHTML = "Add Barcode"
+    document.getElementById('barcodeNumber').value = ""
+    document.getElementById('barcodeNumber').classList.remove('uk-disabled')
+    document.getElementById('inExchangeNumber').value = ""
+    document.getElementById('outExchangeNumber').value = ""
+    document.getElementById('barcodeDescriptor').value = ""
+    document.getElementById('barcodeModalButton').onclick = async function () { await addBarcodeToItem()}
+    UIkit.modal(document.getElementById('barcodeModal')).show()
+}
+
+async function openEditBarcodeModal(barcode) {
+    document.getElementById('barcodeModalTitle').innerHTML = "Edit Barcode"
+    document.getElementById('barcodeModalButton').innerHTML = "Save Barcode"
+    document.getElementById('barcodeNumber').value = barcode.barcode
+    document.getElementById('barcodeNumber').classList.add('uk-disabled')
+    document.getElementById('inExchangeNumber').value = barcode.in_exchange
+    document.getElementById('outExchangeNumber').value = barcode.out_exchange
+    document.getElementById('barcodeDescriptor').value = barcode.descriptor
+    document.getElementById('barcodeModalButton').onclick = async function () { await saveBarcodeToItem(barcode)}
+    
+    UIkit.modal(document.getElementById('barcodeModal')).show()
+}
+
+async function addBarcodeToItem() {
+    let barcode = document.getElementById('barcodeNumber').value
+    let in_exchange = document.getElementById('inExchangeNumber').value
+    let out_exchange = document.getElementById('outExchangeNumber').value
+    let descriptor = document.getElementById('barcodeDescriptor').value
+
+    UIkit.modal(document.getElementById('barcodeModal')).hide()
+
+    const response = await fetch('/items/api/addBarcode', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            barcode: barcode,
+            item_uuid: item.item_uuid,
+            in_exchange: in_exchange,
+            out_exchange: out_exchange,
+            descriptor: descriptor
+        })
+    });
+
+    data =  await response.json();
+    response_status = 'primary'
+    if (data.status === 404){
+        response_status = 'danger'
+    }
+
+    UIkit.notification({
+        message: data.message,
+        status: response_status,
+        pos: 'top-right',
+        timeout: 5000
+    });
+    
+    await refreshForm()
+
+}
+
+async function saveBarcodeToItem(barcode) {
+    let in_exchange = document.getElementById('inExchangeNumber').value
+    let out_exchange = document.getElementById('outExchangeNumber').value
+    let descriptor = document.getElementById('barcodeDescriptor').value
+
+    UIkit.modal(document.getElementById('barcodeModal')).hide()
+
+    const response = await fetch('/items/api/saveBarcode', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            barcode: barcode.barcode,
+            update: {
+                in_exchange: in_exchange,
+                out_exchange: out_exchange,
+                descriptor: descriptor
+            }
+        })
+    });
+
+    data =  await response.json();
+    response_status = 'primary'
+    if (!data.status === 201){
+        response_status = 'danger'
+    }
+
+    UIkit.notification({
+        message: data.message,
+        status: response_status,
+        pos: 'top-right',
+        timeout: 5000
+    });
+    
+    await refreshForm()
+
+}
+
+async function deleteBarcodeToItem(barcode) {
+    const response = await fetch('/items/api/deleteBarcode', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            barcode: barcode,
+        })
+    });
+
+    data =  await response.json();
+    response_status = 'primary'
+    if (!data.status === 201){
+        response_status = 'danger'
+    }
+
+    UIkit.notification({
+        message: data.message,
+        status: response_status,
+        pos: 'top-right',
+        timeout: 5000
+    });
+    
+    await refreshForm()
+
 }
 
 async function updateConversionsTableBody(){
@@ -753,7 +931,6 @@ async function openEditConversionsModal(conversion) {
     UIkit.modal(conversionsModal).show()
 }
 
-
 async function postConversion() {
     const response = await fetch(`/items/addConversion`, {
         method: 'POST',
@@ -999,6 +1176,7 @@ async function fetchItem() {
     locations = item.item_locations
 
     brand = item.brand.name
+    return item;
 };
 
 async function searchTable(event, logis, elementID) {

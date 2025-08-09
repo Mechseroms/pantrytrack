@@ -630,6 +630,37 @@ def insertConversionTuple(site: str, payload: list, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)    
 
+def insertBarcodesTuple(site: str, payload: list, convert=True, conn=None):
+    """ payload (tuple): (barcode, item_uuid, in_exchange, out_exchange, descriptor) """
+    record = ()
+    self_conn = False
+    
+    sql = f"INSERT INTO {site}_barcodes (barcode, item_uuid, in_exchange, out_exchange, descriptor) VALUES (%s, %s, %s, %s, %s) RETURNING *;"
+
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                record = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                record = rows
+
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return record
+    
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)   
+
 def postDeleteCostLayer(site_name, payload, convert=True, conn=None):
     """ payload (tuple): (table_to_delete_from, tuple_id) """
     deleted = ()
@@ -725,6 +756,37 @@ def updateItemInfoTuple(site:str, payload: dict, convert=True, conn=None):
     set_clause, values = postsqldb.updateStringFactory(payload['update'])
     values.append(payload['id'])
     sql = f"UPDATE {site}_item_info SET {set_clause} WHERE id=%s RETURNING *;"
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = False
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, values)
+            rows = cur.fetchone()
+            if rows and convert:
+                updated = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                updated = rows
+        
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return updated
+
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+def updateBarcodesTuple(site:str, payload: dict, convert=True, conn=None):
+    """ payload (dict): {'barcode': row_id, 'update': {... column_to_update: value_to_update_to...}} """
+    updated = ()
+    self_conn = False
+    set_clause, values = postsqldb.updateStringFactory(payload['update'])
+    values.append(payload['barcode'])
+    sql = f"UPDATE {site}_barcodes SET {set_clause} WHERE barcode=%s RETURNING *;"
     try:
         if not conn:
             database_config = config.config()
@@ -1039,5 +1101,33 @@ def postUpdateItemByID(site, payload, convert=True, conn=None):
             conn.close()
 
         return updated, conn
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+
+def deleteBarcodesTuple(site, payload, convert=True, conn=None):
+    deleted = ()
+    self_conn = False
+    sql = f"WITH deleted_rows AS (DELETE FROM {site}_Barcodes WHERE Barcode IN ({','.join(['%s'] * len(payload))}) RETURNING *) SELECT * FROM deleted_rows;"
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+            
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchall()
+            if rows and convert:
+                deleted = [postsqldb.tupleDictionaryFactory(cur.description, r) for r in rows]
+            elif rows and not convert:
+                deleted = rows
+        
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return deleted
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)

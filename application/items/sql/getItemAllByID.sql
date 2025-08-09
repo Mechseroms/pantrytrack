@@ -61,6 +61,16 @@ WITH passed_id AS (SELECT %s AS passed_id),
         LEFT JOIN %%site_name%%_zones AS pz ON li.primary_zone = pz.id
         LEFT JOIN %%site_name%%_zones AS aiz ON li.auto_issue_zone = aiz.id
         WHERE li.id=(SELECT logistics_info_id FROM logistics_id)
+    ),
+    cte_barcodes AS (
+        SELECT 
+        barcode.barcode As barcode,
+        barcode.in_exchange AS in_exchange,
+        barcode.out_exchange AS out_exchange,
+        barcode.descriptor AS descriptor
+        FROM %%site_name%%_barcodes AS barcode
+        LEFT JOIN %%site_name%%_items AS item ON item.id = (SELECT passed_id FROM passed_id)
+        WHERE barcode.item_uuid = item.item_uuid
     )
 
 SELECT
@@ -73,7 +83,8 @@ SELECT
     (SELECT COALESCE(array_agg(row_to_json(g)), '{}') FROM cte_groups g) AS item_groups,
     (SELECT COALESCE(array_agg(row_to_json(sl)), '{}') FROM cte_shopping_lists sl) AS item_shopping_lists,
     (SELECT COALESCE(array_agg(row_to_json(il)), '{}') FROM cte_itemlinks il) AS linked_items,
-    (SELECT COALESCE(array_agg(row_to_json(ils)), '{}') FROM cte_item_locations ils) AS item_locations
+    (SELECT COALESCE(array_agg(row_to_json(ils)), '{}') FROM cte_item_locations ils) AS item_locations,
+    (SELECT COALESCE(array_agg(row_to_json(bar)), '{}') FROM cte_barcodes bar) AS item_barcodes
 FROM %%site_name%%_items
     LEFT JOIN %%site_name%%_item_info ON %%site_name%%_items.item_info_id = %%site_name%%_item_info.id 
     LEFT JOIN %%site_name%%_food_info ON %%site_name%%_items.food_info_id = %%site_name%%_food_info.id 

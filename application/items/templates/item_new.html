@@ -202,6 +202,7 @@
                             <li><a href="#">Food Info</a></li>
                             <li><a href="#">Logistics Info</a></li>
                             <li id="linkedListLink" class="uk-disabled"><a>Linked Items</a></li>
+                            <li id="barcodesTab"><a>Associated Barcodes</a></li>
                             <li><a href="#">Search String</a></li>
 
                         </ul>
@@ -433,6 +434,26 @@
                                     </table>
                                 </div>
                             </div>
+                            <!-- Barcodes -->
+                            <div uk-grid>
+                                <div class="uk-width-1-1">
+                                    <button onclick="openAddBarcodeModal()" class="uk-button uk-button-primary">Add Barcode</button>
+                                </div>
+                                <div class="uk-width-1-1">
+                                    <table class="uk-table uk-table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Barcode</th>
+                                                <th>In Exchange</th>
+                                                <th>Out Exchange</th>
+                                                <th>descriptor</th>
+                                                <th>Operations</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="barcodesTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
                             <!-- Search_String -->
                             <div uk-grid>
                                 <div class="uk-width-1-1">
@@ -450,7 +471,7 @@
         </div>
         <button id="saveButton" onclick="saveUpdated()" class="uk-button uk-button-primary floating-button"><span class="uk-flex material-icons">save</span></button>
         <!-- Modals -->
-         <!-- This is the modal -->
+        <!-- This is the modal -->
         <div id="zonesModal" uk-modal>
             <div id="zonesModalInner" class="uk-modal-dialog uk-modal-body">
                 <h2 class="uk-modal-title">Select Zone</h2>
@@ -550,6 +571,43 @@
                 </div>
                 <div id="weblinkModalFooter" class="uk-modal-footer">
                     <button onclick="addWebLink()" class="uk-button uk-button-default uk-align-right" type="button">Add</button>
+                </div>
+            </div>
+        </div>
+        <!-- Barcode Modal -->
+        <div id="barcodeModal" uk-modal>
+            <div id="barcodeModalBody" class="uk-modal-dialog uk-modal-body">
+                <h2 id="barcodeModalTitle" class="uk-modal-title">Add Barcode</h2>
+                <div class="uk-grid-small" uk-grid>
+                    <div class="uk-width-1-1">
+                        <label class="uk-form-label" for="barcodeNumber">Barcode</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="barcodeNumber" type="text">
+                        </div>
+                    </div>
+                    <div class="uk-width-1-1" uk-grid>
+                        <div class="uk-width-1-2">
+                            <label class="uk-form-label" for="inExchangeNumber">In Exchange</label>
+                            <div class="uk-form-controls">
+                                <input class="uk-input" id="inExchangeNumber" type="number">
+                            </div>
+                        </div>
+                        <div class="uk-width-1-2">
+                            <label class="uk-form-label" for="outExchangeNumber">Out Exchange</label>
+                            <div class="uk-form-controls">
+                                <input class="uk-input" id="outExchangeNumber" type="number">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <label class="uk-form-label" for="barcodeDescriptor">Barcode Descriptor</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="barcodeDescriptor" type="text">
+                        </div>
+                    </div>
+                </div>
+                <div id="barcodeModalFooter" class="uk-modal-footer">
+                    <button id="barcodeModalButton" onclick="" class="uk-button uk-button-default uk-align-right" type="button"></button>
                 </div>
             </div>
         </div>

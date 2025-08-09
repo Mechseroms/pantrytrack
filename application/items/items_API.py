@@ -410,3 +410,66 @@ def post_transaction():
         )  
         return jsonify(result)
     return jsonify({"error":True, "message":"There was an error with this POST statement"})
+
+
+@items_api.route('/api/addBarcode', methods=['POST'])
+@access_api.login_required
+def addBarcode():
+    """API endpoint to add a barcode
+
+    Returns:
+        Response: returns a status and status message to requestor
+    """
+    if request.method == "POST":
+        site_name = session['selected_site']
+        barcode_tuple = dbPayloads.BarcodesPayload(
+            barcode = request.get_json()['barcode'],
+            item_uuid= request.get_json()['item_uuid'],
+            in_exchange= request.get_json()['in_exchange'],
+            out_exchange= request.get_json()['out_exchange'],
+            descriptor= request.get_json()['descriptor']
+        )
+        try:
+            database_items.insertBarcodesTuple(site_name, barcode_tuple.payload())
+            return jsonify(status=201, message=f"Barcode {request.get_json()['barcode']} was added successfully.")
+        except Exception as error:
+            return jsonify(status=400, message=str(error))
+        
+    return jsonify(status=405, message=f"The request method: {request.method} is not allowed on this endpoint!")
+
+@items_api.route('/api/saveBarcode', methods=["POST"])
+@access_api.login_required
+def saveBarcode():
+    """API endpoint to update a barcode
+
+    Returns:
+        Response: returns a status and status message to requestor
+    """
+    if request.method == "POST":
+        payload = {'barcode': request.get_json()['barcode'], 'update': request.get_json()['update']}
+        print(payload)
+        site_name = session['selected_site']
+        try:
+            database_items.updateBarcodesTuple(site_name, payload)
+            return jsonify(status=201, message=f"{payload['barcode']} was updated successfully.")
+        except Exception as error:
+            return jsonify(status=400, message=str(error))
+    return jsonify(status=405, message=f"The request method: {request.method} is not allowed on this endpoint!")
+
+@items_api.route('/api/deleteBarcode', methods=["POST"])
+@access_api.login_required
+def deleteBarcode():
+    """API endpoint to delete a barcode
+
+    Returns:
+        Response: returns a status and status message to requestor
+    """
+    if request.method == "POST":
+        barcode = request.get_json()['barcode']
+        site_name = session['selected_site']
+        try:
+            database_items.deleteBarcodesTuple(site_name, (barcode,))
+            return jsonify(status=201, message=f"{barcode} was deleted successfully.")
+        except Exception as error:
+            return jsonify(status=400, message=str(error))
+    return jsonify(status=405, message=f"The request method: {request.method} is not allowed on this endpoint!")
