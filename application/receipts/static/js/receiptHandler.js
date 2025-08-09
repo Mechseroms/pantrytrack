@@ -92,13 +92,14 @@ async function replenishLinesTable(receipt_items) {
         if(receipt_items[i].type == 'api'){
             label_color = 'purple'
         }
+        if(receipt_items[i].type == 'PLU SKU'){
+            label_color = 'blue'
+        }
 
         typeCell.innerHTML = `<span style="background-color: ${label_color};" class="uk-label">${receipt_items[i].type}</span>`
         let nameCell = document.createElement('td')
         nameCell.innerHTML = receipt_items[i].name
         
-        
-
         let operationsCell = document.createElement('td')
 
         let apiOp = document.createElement('a')
@@ -285,6 +286,14 @@ async function openLineEditModal(line_data) {
         document.getElementById('lineUOM').classList.remove('uk-disabled')
     }
     
+    if(line_data.type === 'PLU SKU'){
+        document.getElementById('lineUOM').classList.add('uk-disabled')
+    } else {
+        document.getElementById('lineUOM').classList.remove('uk-disabled')
+    }
+    
+
+
     if(!line_data.data.expires){
         document.getElementById('lineExpires').classList.add('uk-disabled')
     } else {

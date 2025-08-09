@@ -299,8 +299,8 @@ async function addPLUToReceipt(item) {
                 item_uuid: item.item_uuid ,
                 item_name: item.item_name,
                 qty: 1,
-                uom: 1,
-                data: {'cost': 0.00, 'expires': false}
+                uom: item.uom,
+                data: {'cost': item.cost, 'expires': false}
             }, type: 'PLU SKU'})
     await replenishScannedReceiptTable(scannedReceiptItems)
 }
