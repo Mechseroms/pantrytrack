@@ -300,7 +300,11 @@
         <div id="ItemBarcodeSelectModal" class="uk-modal-container" uk-modal>
             <div id="ItemBarcodeSelectModalInner" class="uk-modal-dialog uk-modal-body " uk-overflow-auto>
                 <h2 class="uk-modal-title">Select Item</h2>
-                <p>Select an Item from the system...</p>
+                <p>Select an Item from the system that you would like to associate this unknown barcode to...</p>
+                <div id="searchItemsForm" onkeydown="ItemBarcodeSelectModalSearch(event)" class="uk-search uk-search-default uk-align-center">
+                    <input id="ItemBarcodeSelectSearchInput" class="uk-search-input" type="search" placeholder="" aria-label="">
+                    <span class="" uk-search-icon></span>
+                </div>
                 <nav aria-label="Pagination">
                     <ul id="ItemBarcodeSelectModalPage" class="uk-pagination uk-flex-center" uk-margin>
                         <li><a href="#"><span uk-pagination-previous></span></a></li>
@@ -324,38 +328,6 @@
                         </tr>
                     </thead>
                     <tbody id="ItemBarcodeSelectTable">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <!-- SKU LinkedList Modal -->
-        <div id="linksModal" class="uk-modal-container" uk-modal>
-            <div id="linksModalInner" class="uk-modal-dialog uk-modal-body " uk-overflow-auto>
-                <h2 class="uk-modal-title">Select Linked List</h2>
-                <p>Select an Linked List from the system...</p>
-                <nav aria-label="Pagination">
-                    <ul id="linksPage" class="uk-pagination uk-flex-center" uk-margin>
-                        <li><a href="#"><span uk-pagination-previous></span></a></li>
-                        <li><a href="#">1</a></li>
-                        <li class="uk-disabled"><span>…</span></li>
-                        <li><a href="#">5</a></li>
-                        <li><a href="#">6</a></li>
-                        <li class="uk-active"><span aria-current="page">7</span></li>
-                        <li><a href="#">8</a></li>
-                        <li><a href="#"><span uk-pagination-next></span></a></li>
-                    </ul>
-                </nav>
-                <table class="uk-table uk-table-striped uk-table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Barcode</th>
-                            <th>Name</th>
-                            <th>Conversion Factor</th>
-                            <th>Operations</th>
-                        </tr>
-                    </thead>
-                    <tbody id="linksTableBody">
                     </tbody>
                 </table>
             </div>

@@ -43,8 +43,9 @@ def getItems():
         limit = int(request.args.get('limit', 10))
         site_name = session['selected_site']
         offset = (page - 1) * limit
-        sort_order = "ID ASC"
-        payload = ("%%", limit, offset, sort_order)
+        search_string = f"%{str(request.args.get('search_string', ""))}%"
+        sort_order = "item_name ASC"
+        payload = (search_string, limit, offset, sort_order)
         recordset, count = receipts_database.getItemsWithQOH(site_name, payload)
         return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":True, "message":"There was an error with this GET statement"})
