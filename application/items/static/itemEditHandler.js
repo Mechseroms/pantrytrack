@@ -1,34 +1,3 @@
-var darkmode = false
-function toggleDarkMode(){
-    if (!darkmode){
-        document.body.classList.add('dark-mode-body')
-        document.body.classList.add('uk-light')
-        document.getElementById('navbar').classList.add('uk-light')
-        document.getElementById('navbar').style = "background-color: #121212;"
-        document.getElementById('weblinkModal').classList.add('dark-mode-element')
-        document.getElementById('weblinkModalFooter').classList.add('dark-mode-element')
-        document.getElementById('brandsModalinner').classList.add('dark-mode-element')
-        document.getElementById('locationsModalInner').classList.add('dark-mode-element')
-        document.getElementById('zonesModalInner').classList.add('dark-mode-element')
-        document.getElementById('modeToggle').innerHTML = "light_mode"
-
-        darkmode = true
-    } else {
-        document.body.classList.remove('dark-mode-body')
-        document.body.classList.remove('uk-light')
-        document.getElementById('navbar').classList.remove('uk-light')
-        document.getElementById('navbar').style = ""
-        document.getElementById('weblinkModal').classList.remove('dark-mode-element')
-        document.getElementById('weblinkModalFooter').classList.remove('dark-mode-element')
-        document.getElementById('brandsModalinner').classList.remove('dark-mode-element')
-        document.getElementById('locationsModalInner').classList.remove('dark-mode-element')
-        document.getElementById('zonesModalInner').classList.remove('dark-mode-element')
-        document.getElementById('modeToggle').innerHTML = "dark_mode"
-
-        darkmode=false
-    }
-}
-
 var item;
 var linked_items;
 var tags = new Set();
