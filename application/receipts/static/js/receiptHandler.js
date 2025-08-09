@@ -366,11 +366,13 @@ async function getReceipt(id) {
 
 // SKU Modal functions
 let items_limit = 50;
+var ItemsModal_search_string = ""
 async function getItems() {
     console.log("getting items")
     const url = new URL('/receipts/api/getItems', window.location.origin);
     url.searchParams.append('page', pagination_current);
     url.searchParams.append('limit', items_limit);
+    url.searchParams.append('search_string', ItemsModal_search_string);
     const response = await fetch(url);
     data =  await response.json();
     pagination_end = data.end
@@ -383,6 +385,15 @@ async function setPage(page) {
     let items = await getItems()
     await replenishItemsTable(items)
     await updateItemsPaginationElement()
+}
+
+async function ItemsModalSearch(event) {
+    if (event.key === "Enter"){
+        ItemsModal_search_string = document.getElementById('ItemsModalSearchInput').value
+        let items = await getItems()
+        await replenishItemsTable(items)
+        await updateItemsPaginationElement()
+    }
 }
 
 async function updateItemsPaginationElement() {
@@ -463,6 +474,8 @@ async function updateItemsPaginationElement() {
 
 async function openSKUModal() {
     pagination_current = 1
+    ItemsModal_search_string = ""
+    document.getElementById('ItemsModalSearchInput').value = ""
     let items = await getItems()
     await replenishItemsTable(items)
     await updateItemsPaginationElement()
