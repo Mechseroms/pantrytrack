@@ -47,3 +47,6 @@
 2025-08-09 11:07:03.004000 --- ERROR --- DatabaseError(message='not all arguments converted during string formatting',
                                          payload=('PLU SKU', 30, None, '8cac7ce9-dfd1-4da8-8856-57f5bdbc752b', 'Bubble Bath Lavender', 1, 1, '{"cost": 0, "expires": false}', 'Unresolved'),
                                          sql='INSERT INTO test_receipt_items(type, receipt_id, barcode, name, qty, uom, data, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')
+2025-08-09 11:52:23.005675 --- ERROR --- DatabaseError(message='duplicate key value violates unique constraint "test_barcodes_pkey"DETAIL:  Key (barcode)=(%6589%) already exists.',
+                                         payload=('%6589%', '7bdc9602-ca87-4e9f-b9ef-fc5e8f0eceb7', 1.0, 1.0, 'Test Item 22'),
+                                         sql='INSERT INTO test_barcodes (barcode, item_uuid, in_exchange, out_exchange, descriptor) VALUES (%s, %s, %s, %s, %s) RETURNING *;')

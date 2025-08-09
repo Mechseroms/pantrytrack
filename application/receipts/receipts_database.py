@@ -151,7 +151,39 @@ def getItemAllByBarcode(site, payload, convert=True, conn=None):
                 return item
             except (Exception, psycopg2.DatabaseError) as error:
                 raise postsqldb.DatabaseError(error, payload, getItemAllByBarcode_sql)
+
+def getItemAllByUUID(site, payload, convert=True, conn=None):
+        item = ()
+        self_conn = False
+
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        if convert:
+            item = {}
+
         
+        with open(f"application/receipts/sql/getItemAllByUUID.sql", "r+") as file:
+            getItemAllByUUID_sql = file.read().replace("%%site_name%%", site)
+        try:
+            with conn.cursor() as cur:
+                cur.execute(getItemAllByUUID_sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    item = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                if rows and not convert:
+                    item = rows
+
+            if self_conn:
+                conn.close()
+
+            return item
+        except (Exception, psycopg2.DatabaseError) as error:
+            raise postsqldb.DatabaseError(error, payload, getItemAllByUUID_sql)
+
 def getItemAllByID(site, payload, convert=True, conn=None):
     item = ()
     self_conn = False
@@ -586,6 +618,37 @@ def insertReceiptsTuple(site, payload, convert=True, conn=None):
         return receipt
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
+
+def insertBarcodesTuple(site: str, payload: list, convert=True, conn=None):
+    """ payload (tuple): (barcode, item_uuid, in_exchange, out_exchange, descriptor) """
+    record = ()
+    self_conn = False
+    
+    sql = f"INSERT INTO {site}_barcodes (barcode, item_uuid, in_exchange, out_exchange, descriptor) VALUES (%s, %s, %s, %s, %s) RETURNING *;"
+
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                record = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                record = rows
+
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return record
+    
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)   
 
 def updateItemsTuple(site, payload, convert=True, conn=None):
     """payload (dict): {'id': row_id, 'update': {... column_to_update: value_to_update_to...}}"""

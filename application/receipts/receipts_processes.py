@@ -107,28 +107,31 @@ def postLine(site, user_id, data, conn=None):
         conn = psycopg2.connect(**database_config)
         conn.autocommit = False
         self_conn = True
+
     transaction_time = datetime.datetime.now()
     receipt_item = receipts_database.selectReceiptItemsTuple(site, (data['line_id'],), conn=conn)
     receipt = receipts_database.getReceiptByID(site, (receipt_item['receipt_id'], ), conn=conn)
     conv_factor = 1.0
+    
     if receipt_item['data']['expires'] is not False:
         expiration = datetime.datetime.strptime(receipt_item['data']['expires'], "%Y-%m-%d")
     else:
         expiration = None
 
-    if receipt_item['type'] == 'sku':
-        linked_item = receipts_database.getLinkedItemByBarcode(site, (receipt_item['barcode'], ), conn=conn)
-        if len(linked_item) > 1:
-            conv_factor = linked_item['conv_factor']
-            receipt_item['data']['linked_child'] = linked_item['barcode']
-        
+    #if receipt_item['type'] == 'sku':
+     #   linked_item = receipts_database.getLinkedItemByBarcode(site, (receipt_item['barcode'], ), conn=conn)
+      #  if len(linked_item) > 1:
+       #     conv_factor = linked_item['conv_factor']
+        #    receipt_item['data']['linked_child'] = linked_item['barcode']
+
+    item_uuid = receipt_item['item_uuid']
     if receipt_item['type'] == 'api':     
         new_item_data = {
             'barcode': receipt_item['barcode'], 
             'name': receipt_item['name'], 
             'subtype': 'FOOD'
         }
-        postNewBlankItem(site, user_id, new_item_data, conn=conn)
+        _, item_uuid = postNewBlankItem(site, user_id, new_item_data, conn=conn)
 
     if receipt_item['type'] == "new sku":
         new_item_data = {
@@ -136,14 +139,24 @@ def postLine(site, user_id, data, conn=None):
             'name': receipt_item['name'], 
             'subtype': 'FOOD'
         }
-        postNewBlankItem(site, user_id, new_item_data, conn=conn)
+        _, item_uuid = postNewBlankItem(site, user_id, new_item_data, conn=conn)
+        barcodes_tuple = database_payloads.BarcodesPayload(
+            barcode=receipt_item['barcode'],
+            item_uuid=item_uuid,
+            in_exchange=1.0,
+            out_exchange=1.0,
+            descriptor=receipt_item['name']
+        )
+        receipts_database.insertBarcodesTuple(site, barcodes_tuple.payload())
 
-    item = receipts_database.getItemAllByBarcode(site, (receipt_item['barcode'], ), conn=conn)
+
+    item = receipts_database.getItemAllByUUID(site, (item_uuid, ), conn=conn)
 
     location = receipts_database.selectItemLocationsTuple(site, (item['id'], item['logistics_info']['primary_location']['id']), conn=conn)
     cost_layers: list = location['cost_layers']
 
     receipt_item['data']['location'] = item['logistics_info']['primary_location']['uuid']
+    receipt_item['item_uuid'] = item_uuid
 
     transaction = database_payloads.TransactionPayload(
         timestamp=transaction_time,
@@ -182,8 +195,6 @@ def postLine(site, user_id, data, conn=None):
 
     receipts_database.updateReceiptItemsTuple(site, {'id': receipt_item['id'], 'update': {'status': "Resolved"}}, conn=conn)
     
-
-
     if self_conn:
         conn.commit()
         conn.close()

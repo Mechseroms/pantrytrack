@@ -100,12 +100,14 @@ def postNewBlankItem(site_name: str, user_id: int, data: dict, conn=None):
 
     database_items.postAddTransaction(site_name, creation_tuple.payload(), conn=conn)
 
+    item_uuid = item['item_uuid']
+
     if self_conn:
         conn.commit()
         conn.close()
-        return False
+        return False, item_uuid
     
-    return conn
+    return conn, item_uuid
 
 def postLinkedItem(site, payload):
     """
