@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS %%site_name%%_receipt_items (
     item_uuid UUID,
     name VARCHAR(255) NOT NULL, 
     qty FLOAT8 NOT NULL,
-    uom VARCHAR(32) NOT NULL,
+    uom INTEGER NOT NULL,
     data JSONB, 
     status VARCHAR (64),
     CONSTRAINT fk_receipt

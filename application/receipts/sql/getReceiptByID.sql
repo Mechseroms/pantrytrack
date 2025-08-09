@@ -4,6 +4,7 @@ WITH passed_id AS (SELECT %s AS passed_id),
             (SELECT COALESCE(row_to_json(un), '{}') FROM units un WHERE un.id = items.uom LIMIT 1) AS uom
             FROM %%site_name%%_receipt_items items
             WHERE items.receipt_id = (SELECT passed_id FROM passed_id)
+            ORDER BY items.name ASC
         )
 
 SELECT (SELECT passed_id FROM passed_id) AS passed_id,
