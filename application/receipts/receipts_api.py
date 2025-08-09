@@ -6,6 +6,7 @@ import math
 import postsqldb
 import mimetypes
 import os
+import pprint
 
 # APPLICATION IMPORTS
 import webpush
@@ -125,6 +126,7 @@ def addSKULine():
 
         site_name = session['selected_site']
         item = receipts_database.getItemAllByID(site_name, (item_id, ))
+        #pprint.pprint(item)
         data = {
             'cost': item['item_info']['cost'],
             'expires': item['food_info']['expires']
@@ -133,6 +135,7 @@ def addSKULine():
             type="sku",
             receipt_id=receipt_id,
             barcode=item['barcode'],
+            item_uuid=item['item_uuid'],
             name=item['item_name'],
             qty=item['item_info']['uom_quantity'],
             uom=item['item_info']['uom']['id'],
