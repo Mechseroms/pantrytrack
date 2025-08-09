@@ -12,10 +12,16 @@
         <!-- Material Symbols - Sharp Set -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/pantry.css') }}"/>
+        {% if session['user']['flags']['darkmode'] %}
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}"/>
+        {% endif %}
 
-        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}" disabled/>
     </head>
+    {% if session['user']['flags']['darkmode'] %}
+    <body class="uk-light">
+    {% else %}
     <body>
+    {% endif %}
         <nav class="uk-navbar-container">
             <div class="uk-container uk-container-expand">
                 <div class="uk-navbar uk-navbar-primary">

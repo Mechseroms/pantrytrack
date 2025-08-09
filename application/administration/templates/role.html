@@ -12,10 +12,15 @@
         <!-- Material Symbols - Sharp Set -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/pantry.css') }}"/>
-
-        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}" disabled/>
+        {% if session['user']['flags']['darkmode'] %}
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}"/>
+        {% endif %}
     </head>
+    {% if session['user']['flags']['darkmode'] %}
+    <body class="uk-light">
+    {% else %}
     <body>
+    {% endif %}
         <div class="uk-container uk-section">
             <div uk-grid>
                 <div class="uk-width-1-1" >
@@ -83,24 +88,6 @@
             }
             await replenishForm(role, mode)
         })
-
-        var mode = false
-        async function toggleDarkMode() {
-            let darkMode = document.getElementById("dark-mode");    
-            darkMode.disabled = !darkMode.disabled;
-            mode = !mode;
-            if(mode){
-                document.getElementById('modeToggle').innerHTML = "light_mode"
-                document.getElementById('main_html').classList.add('uk-light')
-            } else {
-                document.getElementById('modeToggle').innerHTML = "dark_mode"
-                document.getElementById('main_html').classList.remove('uk-light')
-            }
-        }
-
-        if(session.user.flags.darkmode){
-            toggleDarkMode()
-        }
 
         async function replenishForm(role, mode){
             document.getElementById('role_name').value = role.role_name
