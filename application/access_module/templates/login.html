@@ -15,14 +15,14 @@
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
         
         <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
-        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}" disabled/>
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('access_api.static', filename='css/logins-dark.css') }}"/>
 
 
         <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
 
     </head>
-    <body>
+    <body class="uk-light">
         <div class="uk-container">
             <div class="uk-section">
                 <div class="uk-flex-center" uk-grid>
@@ -30,7 +30,9 @@
                         <img class="uk-align-center" src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 200px; border-radius: 50%;">
                         <ul uk-tab>
                             <li><a href="#">Login</a></li>
+                            {% if signup_enabled %}
                             <li><a href="#">Sign Up</a></li>
+                            {% endif %}
                         </ul>
                         <div class="uk-switcher">
                             <div class="uk-grid-small" uk-grid>
@@ -58,6 +60,7 @@
                                     <a href="/access/login/oidc" class="uk-button uk-button-primary uk-align-center">Login with Authentik</a>
                                 </div>
                             </div>
+                            {% if signup_enabled %}
                             <!-- Sign up Form -->
                             <div class="uk-grid-small" uk-grid>
                                 <div class="uk-width-1-1">
@@ -96,6 +99,7 @@
                                     <button onclick="signupUser()" class="uk-button uk-button-default uk-align-right">Sign Up</button>
                                 </div>
                             </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

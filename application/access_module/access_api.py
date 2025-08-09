@@ -111,7 +111,7 @@ def login():
     if 'user' not in session.keys():
         session['user'] = None
 
-    return render_template("login.html")
+    return render_template("login.html", sign_up_enabled=instance_config['signup_enabled'])
 
 @access_api.route('/dashboard')
 def dashboard():

@@ -23,17 +23,22 @@
         <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
 
     </head>
+    <style>
+    :root {
+        --primary-color: {{ session['user']['flags']['styles']['primary_color']}};
+    }
+    </style>
     {% if session['user']['flags']['darkmode'] %}
     <body class="uk-light">
     {% else %}
     <body>
     {% endif %}
-        <nav class="uk-navbar-container">
+        <nav class="uk-navbar-container" style="color: aqua;">
             <div class="uk-container uk-container-expand">
                 <div class="uk-navbar uk-navbar-primary">
                     <!-- Application Navigation-->
                     <div class="uk-navbar-left">
-                        <ul class="uk-navbar-nav">
+                        <ul class="uk-navbar-nav "> 
                             <li>
                                 <a href>Apps</a>
                                 <div class="uk-navbar-dropdown" uk-drop="mode: click; multi:false">
@@ -221,6 +226,16 @@
         </div>
 
     </body>
+    <!-- footer class="uk-section uk-section-secondary uk-padding-small">
+        <div uk-grid>
+            <div class="uk-width-1-2">
+                <p>Made by Mechseroms, using <a href="https://getuikit.com/">UIkit</a></p>
+            </div>
+            <div class="uk-width-1-2 uk-text-right">
+                <a href="https://git.treehousefullofstars.com/jadowyne/pantry-track/issues/new">Report Issue</a>
+            </div>
+        </div>
+    </footer -->
     <script>const session = {{session|tojson}}</script>
     <script src="{{ url_for('items_api.static', filename='itemListHandler.js') }}"></script>
 </html>

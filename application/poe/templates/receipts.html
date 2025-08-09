@@ -24,6 +24,23 @@
             background-color: rgb(230, 230, 230) !important;
             cursor: pointer;
         }
+        html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        }
+        body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        }
+        .page-content {
+        flex: 1 0 auto;
+        }
+        footer {
+        flex-shrink: 0;
+        }
+
     </style>
     {% if session['user']['flags']['darkmode'] %}
     <body class="uk-light">

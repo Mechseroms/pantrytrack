@@ -10,8 +10,8 @@
     --error: #CF6679;
     --error-text: #000000;
     
-    --primary-color: #BB86FC;
-    --primary-text: #000000;
+    --primary-color: #4e76aa;
+    --primary-text: #ffffff;
 
     --secondary-color: #03DAC6;
     --secondary-text: #000000;
@@ -36,31 +36,33 @@ select, option {
     box-shadow: var(--elevation-low);
 }
 
-#navbar {
-    background: var(--surface);
-    color: var(--surface-text);
-    box-shadow: var(--elevation-medium);
-    
+.uk-navbar-container, footer {
+    background-color: var(--primary-color) !important;
 }
 
-#navbar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-color: rgba(255, 255, 255, 0.08);
-    pointer-events: none;
+.uk-navbar-container > .uk-container > .uk-navbar > div > ul >li > a {
+    color: var(--primary-text);
 }
 
-.uk-navbar-container {
-    background-color: var(--surface) !important;
+.uk-navbar-container > .uk-container > .uk-navbar > div > ul > li > span {
+    color: var(--primary-text);
+}
+
+.uk-navbar-container > ul.uk-navbar-nav > li {
+    color: var(--primary-text);
 }
 
 .uk-navbar-dropdown {
     background-color: var(--surface-two) !important;
     box-shadow: var(--elevation-low);
+}
+
+.uk-nav-header {
+    color:#ffffff !important;
+}
+
+.uk-navbar-dropdown-nav > li.uk-active > a {
+    color: var(--primary-color) !important;
 }
 
 .uk-input.uk-disabled {
