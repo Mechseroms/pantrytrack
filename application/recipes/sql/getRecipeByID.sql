@@ -1,7 +1,7 @@
 WITH passed_id AS (SELECT %s AS passed_id),
     cte_recipe_items AS (
             SELECT items.*,
-            COALESCE(%%site_name%%_items.barcode, items.uuid) AS uuid,
+            /*COALESCE(%%site_name%%_items.barcode, items.uuid) AS uuid,*/
             (SELECT COALESCE(row_to_json(units.*), '{}') FROM units WHERE units.id=%%site_name%%_item_info.uom) AS item_uom,
             COALESCE(%%site_name%%_items.item_name, items.item_name) AS item_name,
             COALESCE(%%site_name%%_items.links, items.links) AS links,

@@ -5,6 +5,8 @@
     --surface: #121212;
     --surface-text: #ffffff;
 
+    --surface-two: #252525;
+
     --error: #CF6679;
     --error-text: #000000;
     
@@ -52,6 +54,14 @@ select, option {
     pointer-events: none;
 }
 
+.uk-navbar-container {
+    background-color: var(--surface) !important;
+}
+
+.uk-navbar-dropdown {
+    background-color: var(--surface-two) !important;
+    box-shadow: var(--elevation-low);
+}
 
 .uk-input.uk-disabled {
     background-color: var(--background-secondary);

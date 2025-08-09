@@ -1,22 +1,3 @@
-var mode = false
-async function toggleDarkMode() {
-    let darkMode = document.getElementById("dark-mode");    
-    darkMode.disabled = !darkMode.disabled;
-    mode = !mode;
-    if(mode){
-        document.getElementById('modeToggle').innerHTML = "light_mode"
-        document.getElementById('main_html').classList.add('uk-light')
-        
-    } else {
-        document.getElementById('modeToggle').innerHTML = "dark_mode"
-        document.getElementById('main_html').classList.remove('uk-light')
-    }
-}
-
-if(session.user.flags.darkmode){
-    toggleDarkMode()
-}
-
 // Beginning of site specific code!
 var recipe = [];
 document.addEventListener('DOMContentLoaded', async function() {

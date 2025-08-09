@@ -26,6 +26,7 @@ def recipes():
 def recipe(id, mode='view'):
     units = database_recipes.getUnits()
     print("woot")
+    print(session)
     if mode == "edit":
         return render_template("recipe_edit.html", recipe_id=id, current_site=session['selected_site'], units=units)
     if mode == "view":
