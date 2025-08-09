@@ -197,6 +197,19 @@ def postLinkedItem():
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
+@receipt_api.route('/api/saveBarcodeLink', methods=["POST"])
+@access_api.login_required
+def saveBarcodeLink():
+    if request.method == "POST":
+        print(request.get_json())
+        site_name = session['selected_site']    
+        user_id = session['user_id']
+        receipts_processes.linkBarcodeToItem(site_name, user_id, request.get_json())
+        #receipts_processes.linkItem(site_name, user_id, payload)
+            
+        return jsonify({'error': False, "message": "Line Saved Succesfully"})
+    return jsonify({'error': True, "message": "Something went wrong while saving line!"})
+
 @receipt_api.route('/api/resolveLine', methods=["POST"])
 @access_api.login_required
 def resolveLine():

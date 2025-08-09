@@ -118,7 +118,7 @@ async function replenishLinesTable(receipt_items) {
         linkOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
         linkOp.setAttribute('uk-icon', 'icon: link')
         linkOp.onclick = async function () {
-            await openLinksSelectModal(receipt_items[i].id)
+            await openItemBarcodeSelectModal(receipt_items[i].id)
         }
 
         let editOp = document.createElement('a')
@@ -870,4 +870,177 @@ async function updateLinksPaginationElement() {
         console.log(nextElement.innerHTML)
     }
     paginationElement.append(nextElement)
+}
+
+// Select Barcode Link Functions
+var ItemBarcodeSelectModal_limit = 50
+var ItemBarcodeSelectModal_page = 1
+var ItemBarcodeSelectModal_page_end = 1
+var selectedReceiptItemID = 0
+
+async function openItemBarcodeSelectModal(receipt_item_id) {
+    selectedReceiptItemID = receipt_item_id
+    await setupItemsBarcodeSelect()
+    UIkit.modal(document.getElementById("ItemBarcodeSelectModal")).show();
+}
+
+async function setupItemsBarcodeSelect() {
+    let items = await getItemsForModal()
+    await generateItemsBarcodeSelectTable(items)
+    await updateItemsBarcodeSelectPagination()
+}
+
+async function generateItemsBarcodeSelectTable(items) {
+    let ItemBarcodeSelectTable = document.getElementById('ItemBarcodeSelectTable')
+    ItemBarcodeSelectTable.innerHTML = ""
+
+    for(let i = 0; i < items.length; i++){
+        let tableRow = document.createElement('tr')
+
+        let nameCell = document.createElement('td')
+        nameCell.innerHTML = items[i].item_name
+
+        let inCell = document.createElement('td')
+        inCell.innerHTML = `<input id="${items[i].item_uuid}_in" class="uk-input" type="number" value="1" aria-label="Input">`
+
+        let outCell = document.createElement('td')
+        outCell.innerHTML = `<input id="${items[i].item_uuid}_out" class="uk-input" type="number" value="1" aria-label="Input">`
+        
+        let descriptorCell = document.createElement('td')
+        descriptorCell.innerHTML = `<input id="${items[i].item_uuid}_descriptor" class="uk-input" type="text" value="${items[i].item_name}" aria-label="Input">`
+        
+
+        let opCell = document.createElement('td')
+
+        let selectButton = document.createElement('button')
+        selectButton.setAttribute('class', 'uk-button uk-button-small uk-button-primary')
+        selectButton.innerHTML = "Select"
+        selectButton.onclick = async function() {
+            let payload = {
+                item_uuid: items[i].item_uuid,
+                in_exchange: parseFloat(document.getElementById(`${items[i].item_uuid}_in`).value),
+                out_exchange: parseFloat(document.getElementById(`${items[i].item_uuid}_out`).value),
+                descriptor: document.getElementById(`${items[i].item_uuid}_descriptor`).value
+            }
+            await updateReceiptItemBarcode(payload)
+        }
+
+        opCell.append(selectButton)
+
+        tableRow.append(nameCell, inCell, outCell, descriptorCell, opCell)
+
+        ItemBarcodeSelectTable.append(tableRow)
+    }
+}
+
+
+async function getItemsForModal() {
+    const url = new URL('/receipts/api/getItems', window.location.origin);
+    url.searchParams.append('page', ItemBarcodeSelectModal_page);
+    url.searchParams.append('limit', ItemBarcodeSelectModal_limit);
+    const response = await fetch(url);
+    data =  await response.json();
+    ItemBarcodeSelectModal_page_end = data.end
+    let items = data.items;
+    return items;
+}
+
+async function updateItemsBarcodeSelectPagination() {
+    let paginationElement = document.getElementById("ItemBarcodeSelectModalPage");
+    paginationElement.innerHTML = "";
+    // previous
+    let previousElement = document.createElement('li')
+    if(pagination_current<=1){
+        previousElement.innerHTML = `<a><span uk-pagination-previous></span></a>`;
+        previousElement.classList.add('uk-disabled');
+    }else {
+        previousElement.innerHTML = `<a onclick="ItemBarcodeSelectModalPage(${ItemBarcodeSelectModal_page-1})"><span uk-pagination-previous></span></a>`;
+    }
+    paginationElement.append(previousElement)
+    
+    //first
+    let firstElement = document.createElement('li')
+    if(pagination_current<=1){
+        firstElement.innerHTML = `<a><strong>1</strong></a>`;
+        firstElement.classList.add('uk-disabled');
+    }else {
+        firstElement.innerHTML = `<a onclick="ItemBarcodeSelectModalPage(1)">1</a>`;
+    }
+    paginationElement.append(firstElement)
+    
+    // ...
+    if(pagination_current-2>1){
+        let firstDotElement = document.createElement('li')
+        firstDotElement.classList.add('uk-disabled')
+        firstDotElement.innerHTML = `<span>…</span>`;
+        paginationElement.append(firstDotElement)
+    }
+    // last
+    if(ItemBarcodeSelectModal_page-2>0){
+        let lastElement = document.createElement('li')
+        lastElement.innerHTML = `<a onclick="ItemBarcodeSelectModalPage(${ItemBarcodeSelectModal_page-1})">${ItemBarcodeSelectModal_page-1}</a>`
+        paginationElement.append(lastElement)
+    }
+    // current
+    if(ItemBarcodeSelectModal_page!=1 && ItemBarcodeSelectModal_page != ItemBarcodeSelectModal_page_end){
+    let currentElement = document.createElement('li')
+    currentElement.innerHTML = `<li class="uk-active"><span aria-current="page"><strong>${ItemBarcodeSelectModal_page}</strong></span></li>`
+    paginationElement.append(currentElement)
+    }
+    // next
+    if(ItemBarcodeSelectModal_page+2<ItemBarcodeSelectModal_page_end+1){
+        let nextElement = document.createElement('li')
+        nextElement.innerHTML = `<a onclick="ItemBarcodeSelectModalPage(${ItemBarcodeSelectModal_page+1})">${ItemBarcodeSelectModal_page+1}</a>`
+        paginationElement.append(nextElement)
+    }
+    // ...
+    if(ItemBarcodeSelectModal_page+2<=ItemBarcodeSelectModal_page_end){
+        let secondDotElement = document.createElement('li')
+        secondDotElement.classList.add('uk-disabled')
+        secondDotElement.innerHTML = `<span>…</span>`;
+        paginationElement.append(secondDotElement)
+    }
+    //end
+    let endElement = document.createElement('li')
+    if(pagination_current>=ItemBarcodeSelectModal_page_end){
+        endElement.innerHTML = `<a><strong>${ItemBarcodeSelectModal_page_end}</strong></a>`;
+        endElement.classList.add('uk-disabled');
+    }else {
+        endElement.innerHTML = `<a onclick="ItemBarcodeSelectModalPage(${ItemBarcodeSelectModal_page_end})">${ItemBarcodeSelectModal_page_end}</a>`;
+    }
+    paginationElement.append(endElement)
+    //next button
+    let nextElement = document.createElement('li')
+    if(pagination_current>=ItemBarcodeSelectModal_page_end){
+        nextElement.innerHTML = `<a><span uk-pagination-next></span></a>`;
+        nextElement.classList.add('uk-disabled');
+    }else {
+        nextElement.innerHTML = `<a onclick="ItemBarcodeSelectModalPage(${ItemBarcodeSelectModal_page+1})"><span uk-pagination-next></span></a>`;
+        console.log(nextElement.innerHTML)
+    }
+    paginationElement.append(nextElement)
+}
+
+async function ItemBarcodeSelectModalPage(pageNumber){
+    ItemBarcodeSelectModal_page = pageNumber;
+    await setupItemsBarcodeSelect()
+}
+
+async function updateReceiptItemBarcode(payload) {
+
+    UIkit.modal(document.getElementById("ItemBarcodeSelectModal")).hide();
+
+    const response = await fetch(`/receipts/api/saveBarcodeLink`, {
+        method: 'POST',
+        headers: {
+                'Content-Type': 'application/json',
+            },
+        body: JSON.stringify({
+            receipt_item_id: selectedReceiptItemID,
+            payload: payload
+        }),
+    });
+    await refreshReceipt()
+
+
 }

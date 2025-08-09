@@ -5,7 +5,7 @@ import PIL
 import openfoodfacts
 import psycopg2
 import datetime
-
+import pprint
 # APPLICATION IMPORTS
 from application.receipts import receipts_database
 from application import database_payloads
@@ -22,6 +22,52 @@ def create_pdf_preview(pdf_path, output_path, size=(600, 400)):
     img.thumbnail(size)
     img.save(output_path)
     return file_name + '.jpg'
+
+def linkBarcodeToItem(site, user_id, data, conn=None):
+    self_conn = False
+    if not conn:
+        database_config = config.config()
+        conn = psycopg2.connect(**database_config)
+        conn.autocommit = False
+        self_conn = True
+
+    receipt_item_id = data['receipt_item_id']
+    payload = data['payload']
+    item_uuid = payload['item_uuid']
+
+    receipt_item = receipts_database.selectReceiptItemsTuple(site, (receipt_item_id,))
+    item = receipts_database.getItemAllByUUID(site, (item_uuid,))
+
+    barcode_tuple = database_payloads.BarcodesPayload(
+        barcode=receipt_item['barcode'],
+        item_uuid=item_uuid,
+        in_exchange=payload['in_exchange'],
+        out_exchange=payload['out_exchange'],
+        descriptor=payload['descriptor']
+    )
+
+    receipts_database.insertBarcodesTuple(site, barcode_tuple.payload(), conn=conn)
+
+    new_data = receipt_item['data']
+    new_quantity = float(receipt_item['qty'] * payload['in_exchange'])
+    new_data['expires'] = item['food_info']['expires']
+    receipts_item_update = {'id': receipt_item_id, 'update': {
+        'type': 'sku',
+        'name': item['item_name'],
+        'uom': item['item_info']['uom']['id'],
+        'item_uuid': item['item_uuid'],
+        'data': new_data,
+        'qty': new_quantity
+    }}
+
+    receipts_database.updateReceiptItemsTuple(site, receipts_item_update, conn=conn)
+
+    if self_conn:
+        conn.commit()
+        conn.close()
+        return False
+    
+    return conn
 
 def linkItem(site, user_id, data, conn=None):
     """ this is a higher level function used to process a new item into the system,
@@ -119,6 +165,7 @@ def postLine(site, user_id, data, conn=None):
         expiration = None
 
     #if receipt_item['type'] == 'sku':
+     #   receipts_database.get
      #   linked_item = receipts_database.getLinkedItemByBarcode(site, (receipt_item['barcode'], ), conn=conn)
       #  if len(linked_item) > 1:
        #     conv_factor = linked_item['conv_factor']

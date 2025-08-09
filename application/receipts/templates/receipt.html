@@ -296,6 +296,38 @@
                 </table>
             </div>
         </div>
+        <!-- ItemBarcodeSelect Modal -->
+        <div id="ItemBarcodeSelectModal" class="uk-modal-container" uk-modal>
+            <div id="ItemBarcodeSelectModalInner" class="uk-modal-dialog uk-modal-body " uk-overflow-auto>
+                <h2 class="uk-modal-title">Select Item</h2>
+                <p>Select an Item from the system...</p>
+                <nav aria-label="Pagination">
+                    <ul id="ItemBarcodeSelectModalPage" class="uk-pagination uk-flex-center" uk-margin>
+                        <li><a href="#"><span uk-pagination-previous></span></a></li>
+                        <li><a href="#">1</a></li>
+                        <li class="uk-disabled"><span>…</span></li>
+                        <li><a href="#">5</a></li>
+                        <li><a href="#">6</a></li>
+                        <li class="uk-active"><span aria-current="page">7</span></li>
+                        <li><a href="#">8</a></li>
+                        <li><a href="#"><span uk-pagination-next></span></a></li>
+                    </ul>
+                </nav>
+                <table class="uk-table uk-table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>In Exchange</th>
+                            <th>Out Exchange</th>
+                            <th>Descriptor</th>
+                            <th>Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ItemBarcodeSelectTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <!-- SKU LinkedList Modal -->
         <div id="linksModal" class="uk-modal-container" uk-modal>
             <div id="linksModalInner" class="uk-modal-dialog uk-modal-body " uk-overflow-auto>
