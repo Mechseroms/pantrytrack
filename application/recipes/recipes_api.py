@@ -110,7 +110,7 @@ def postCustomItem():
         site_name = session['selected_site']
         rp_id = int(request.get_json()['rp_id'])
         recipe_item = db.RecipesTable.ItemPayload(
-            uuid=f"%{int(request.get_json()['rp_id'])}{database_recipes.getUUID(6)}%",
+            item_uuid=None,
             rp_id=rp_id,
             item_type=request.get_json()['item_type'],
             item_name=request.get_json()['item_name'],
@@ -133,7 +133,7 @@ def postSKUItem():
         site_name = session['selected_site']
         item = database_recipes.getItemData(site_name, (item_id, ))
         recipe_item = db.RecipesTable.ItemPayload(
-            uuid=item['barcode'],
+            item_uuid=item['item_uuid'],
             rp_id=recipe_id,
             item_type='sku',
             item_name=item['item_name'],

@@ -232,3 +232,13 @@ select, option {
     list-style-type: none; 
     padding: 0;
 }
+
+.uk-label.uk-label-success {
+    background-color: rgb(54, 160, 98);
+    color: var(--background-text)
+}
+
+.uk-label.uk-label-danger {
+    background-color: #b6596a;
+    color: var(--background-text)
+}

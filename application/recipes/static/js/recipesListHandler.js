@@ -70,10 +70,27 @@ async function replenishRecipesTable() {
 
     let table_body = document.createElement('tbody')
     for(let i = 0; i < recipes.length; i++){
+        console.log(recipes[i])
+
+
+        
+        let rp_items = recipes[i].rp_items
+        let rp_items_count = 0
+        let rp_items_availble = 0
+
+        for(let y = 0; y < rp_items.length; y++){
+            if (rp_items[y].quantity_on_hand >= rp_items[y].qty && rp_items[y].item_type == "sku"){
+                rp_items_availble = rp_items_availble + 1
+            }
+            if (rp_items[y].item_type == "sku"){
+                rp_items_count = rp_items_count + 1
+            }
+        }
+
         let table_row = document.createElement('tr')
 
         let nameCell = document.createElement('td')
-        nameCell.innerHTML = recipes[i].name
+        nameCell.innerHTML = `${recipes[i].name} ${rp_items_availble}/${rp_items_count}`
         nameCell.setAttribute('class', 'uk-width-1-4')
         let descriptionCell = document.createElement('td')
         descriptionCell.innerHTML = recipes[i].description
@@ -113,6 +130,25 @@ async function replenishRecipesCards() {
     console.log('cards')
 
     for(let i=0; i < recipes.length; i++){
+
+        let rp_items = recipes[i].rp_items
+        let rp_items_count = 0
+        let rp_items_availble = 0
+        let badge_color = 'uk-label-success'
+
+        for(let y = 0; y < rp_items.length; y++){
+            if (rp_items[y].quantity_on_hand >= rp_items[y].qty && rp_items[y].item_type == "sku"){
+                rp_items_availble = rp_items_availble + 1
+            }
+            if (rp_items[y].item_type == "sku"){
+                rp_items_count = rp_items_count + 1
+            }
+        }
+
+        if (rp_items_availble < rp_items_count){
+            badge_color = 'uk-label-danger'
+        }
+
         let main_div = document.createElement('div')
         main_div.setAttribute('class', 'uk-card uk-card-default uk-card-small uk-margin')
 
@@ -125,7 +161,7 @@ async function replenishRecipesCards() {
 
         let title_div = document.createElement('div')
         title_div.setAttribute('class', '')
-        title_div.innerHTML = `
+        title_div.innerHTML = `<div class="uk-card-badge uk-label ${badge_color}">${rp_items_availble}/${rp_items_count} Ingredients</div>
             <h3 class="my-card uk-card-title uk-margin-remove-bottom">${recipes[i].name}</h3>`
 
         header_grid_div.append(title_div)
@@ -144,12 +180,12 @@ async function replenishRecipesCards() {
         editOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
         editOp.innerHTML = '<span uk-icon="icon: pencil"></span>   Edit'
         editOp.style = "margin-right: 10px;"
-        editOp.href = `/recipe/edit/${recipes[i].id}`
+        editOp.href = `/recipes/edit/${recipes[i].id}`
 
         let viewOp = document.createElement('a')
         viewOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
         viewOp.innerHTML = '<span uk-icon="icon: eye"></span>    View'
-        viewOp.href = `/recipe/view/${recipes[i].id}`
+        viewOp.href = `/recipes/view/${recipes[i].id}`
         
         footer_div.append(editOp, viewOp)
 

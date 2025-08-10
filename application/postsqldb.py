@@ -560,7 +560,7 @@ class RecipesTable:
     
     @dataclass
     class ItemPayload:
-        uuid: str
+        item_uuid: str
         rp_id: int
         item_type: str
         item_name:str
@@ -571,7 +571,7 @@ class RecipesTable:
 
         def payload(self):
             return (
-                self.uuid,
+                self.item_uuid,
                 self.rp_id,
                 self.item_type,
                 self.item_name,
