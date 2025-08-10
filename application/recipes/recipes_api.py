@@ -8,7 +8,7 @@ import math
 import main
 import webpush
 from application.access_module import access_api
-from application.recipes import database_recipes 
+from application.recipes import database_recipes, recipe_processes
 from application import postsqldb as db
 
 recipes_api = Blueprint('recipes_api', __name__, template_folder="templates", static_folder="static")
@@ -199,3 +199,16 @@ def saveRecipeItem():
         recipe = database_recipes.getRecipe(site_name, (int(updated_line['rp_id']), ))
         return jsonify({'recipe': recipe, 'error': False, 'message': f'Recipe Item {updated_line['item_name']} was updated successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} not allowed!'})
+
+
+@recipes_api.route('/api/receiptRecipe', methods=["POST"])
+@access_api.login_required
+def receiptRecipe():
+    if request.method == "POST":
+        site_name = session['selected_site']
+        user_id = session['user_id']
+        status, message = recipe_processes.process_recipe_receipt(site_name, user_id, request.get_json())
+        if not status:
+            return jsonify(status=400, message=message)
+        return jsonify(status=201, message="Recipe Transacted Successfully!")
+    return jsonify(status=405, message=f"{request.method} is not an allowed method on this endpoint!")

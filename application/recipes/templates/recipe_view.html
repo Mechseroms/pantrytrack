@@ -140,9 +140,34 @@
                         </table>
                     </div>
                     <div id="tileList" class="uk-width-1-2@l uk-child-width-1-1 uk-grid-collapse">
-                    
+                    </div>
+                    <div class="uk-width-1-1">
+                        <button class="uk-button uk-button-primary" type="button" uk-toggle="target: #receiptRecipeModal">Receipt Recipe</button>
                     </div>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Receipt Recipe Modal  -->
+        <div id="receiptRecipeModal" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <h2 class="uk-modal-title">Recipe Receipt Transaction</h2>
+                <p>You are about to receipt these items from the system, please confirm before completing these Transaction as once they have been completed
+                    this cannot be reversed.</p>
+                <table class="uk-table uk-table-striped">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody id="receiptRecipeTableBody">
+                    </tbody>
+                </table>
+                <p class="uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button onclick="receiptRecipe()" class="uk-button uk-button-primary" type="button">Complete</button>
+                </p>
             </div>
         </div>
     </body>

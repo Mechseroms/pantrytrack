@@ -21,6 +21,7 @@ async function replenishRecipe() {
 
     await replenishIngrediantsTable()
     await replenishInstructions()
+    await replenishTransactionsTable()
     
     await getImage()
     
@@ -32,16 +33,21 @@ async function replenishIngrediantsTable() {
 
 
     for(let i=0; i<recipe.recipe_items.length; i++){
+        let qty_needed = recipe.recipe_items[i].qty
+        let quantity_on_hand = recipe.recipe_items[i].quantity_on_hand
+        let item_type = recipe.recipe_items[i].item_type
+
         let tableRow = document.createElement('tr')
 
         let markerCell = document.createElement('td')
-        if (recipe.recipe_items[i].qty <= recipe.recipe_items[i].quantity_on_hand){
-            markerCell.innerHTML = `<span class="uk-label uk-label-success">Have</span>`
-        } else {
+        if (qty_needed <= quantity_on_hand && item_type === "sku"){
+            markerCell.innerHTML = `<span class="uk-label uk-label-success">On Hand</span>`
+        } else if (qty_needed > quantity_on_hand && item_type === "sku") {
             markerCell.innerHTML = `<span class="uk-label uk-label-danger">Missing</span>`
+        } else {
+            markerCell.innerHTML = ""
         }
 
-        
         let nameCell = document.createElement('td')
         nameCell.innerHTML = `${recipe.recipe_items[i].item_name}`
 
@@ -50,6 +56,27 @@ async function replenishIngrediantsTable() {
 
         tableRow.append(markerCell, nameCell, qtyUOMCell)
         ingrediantsTableBody.append(tableRow)
+    }
+
+}
+
+async function replenishTransactionsTable() {
+    let receiptRecipeTableBody = document.getElementById('receiptRecipeTableBody')
+    receiptRecipeTableBody.innerHTML = ""
+
+    for(let i=0; i < recipe.recipe_items.length; i++){
+        if (recipe.recipe_items[i].item_type === "sku"){
+            let tableRow = document.createElement('tr')
+
+            let nameCell = document.createElement('td')
+            nameCell.innerHTML = `${recipe.recipe_items[i].item_name}`
+
+            let qtyUOMCell = document.createElement('td')
+            qtyUOMCell.innerHTML = `${recipe.recipe_items[i].qty}`
+
+            tableRow.append(nameCell, qtyUOMCell)
+            receiptRecipeTableBody.append(tableRow)
+        }
     }
 
 }
@@ -88,5 +115,29 @@ async function getImage(){
     .then(imageBlob => {
         const imageURL = URL.createObjectURL(imageBlob);
         document.getElementById('recipeImage').src = imageURL;
+    });
+}
+
+async function receiptRecipe(){
+    let recipe_id = recipe.id
+    const response = await fetch(`/recipes/api/receiptRecipe`, {
+        method: 'POST',
+        headers: {
+                'Content-Type': 'application/json',
+            },
+        body: JSON.stringify({
+            recipe_id: recipe_id
+        }),
+    });
+    data = await response.json()
+    message_type = "primary"
+    if(data.error){
+        message_type = "danger"
+    }
+    UIkit.notification({
+        message: data.message,
+        status: message_type,
+        pos: 'top-right',
+        timeout: 5000
     });
 }
