@@ -30,16 +30,25 @@ async function replenishIngrediantsTable() {
     let ingrediantsTableBody = document.getElementById('ingrediantsTableBody')
     ingrediantsTableBody.innerHTML = ""
 
+
     for(let i=0; i<recipe.recipe_items.length; i++){
         let tableRow = document.createElement('tr')
 
+        let markerCell = document.createElement('td')
+        if (recipe.recipe_items[i].qty <= recipe.recipe_items[i].quantity_on_hand){
+            markerCell.innerHTML = `<span class="uk-label uk-label-success">Have</span>`
+        } else {
+            markerCell.innerHTML = `<span class="uk-label uk-label-danger">Missing</span>`
+        }
+
+        
         let nameCell = document.createElement('td')
         nameCell.innerHTML = `${recipe.recipe_items[i].item_name}`
 
         let qtyUOMCell = document.createElement('td')
         qtyUOMCell.innerHTML = `${recipe.recipe_items[i].qty} ${recipe.recipe_items[i].uom.fullname}`
 
-        tableRow.append(nameCell, qtyUOMCell)
+        tableRow.append(markerCell, nameCell, qtyUOMCell)
         ingrediantsTableBody.append(tableRow)
     }
 
