@@ -242,3 +242,13 @@ select, option {
     background-color: #b6596a;
     color: var(--background-text)
 }
+
+.uk-button.uk-button-primary {
+    background-color: var(--primary-color);
+    color: var(--primary-text);
+}
+
+.uk-button.uk-button-danger {
+    background-color: var(--error);
+    color: var(--error-text);
+}

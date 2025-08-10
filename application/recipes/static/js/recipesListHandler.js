@@ -183,8 +183,9 @@ async function replenishRecipesCards() {
         editOp.href = `/recipes/edit/${recipes[i].id}`
 
         let viewOp = document.createElement('a')
-        viewOp.setAttribute('class', 'uk-button uk-button-small uk-button-primary')
+        viewOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
         viewOp.innerHTML = '<span uk-icon="icon: eye"></span>    View'
+        viewOp.style = "margin-right: 10px;"
         viewOp.href = `/recipes/view/${recipes[i].id}`
 
         let deleteOp = document.createElement('button')
