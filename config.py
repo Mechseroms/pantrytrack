@@ -31,7 +31,6 @@ def sites_config(filename='database.ini', section='manage'):
     first_setup = False
     if parser.has_section(section): 
         params = parser.items(section)
-        print(params)
         for param in params: 
             instance_config[param[0]] = param[1].split(',')
     else: 
@@ -39,9 +38,8 @@ def sites_config(filename='database.ini', section='manage'):
     
     instance_config['first_setup'] = parser.getboolean('manage', 'first_setup')
     instance_config['signup_enabled'] = parser.getboolean('manage', 'signup_enabled')
+    instance_config['internal_login_enabled'] = parser.getboolean('manage', 'internal_login_enabled')
 
-
-    print(instance_config)
     return instance_config
 
 def setFirstSetupDone():

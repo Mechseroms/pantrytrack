@@ -30,12 +30,13 @@
                         <img class="uk-align-center" src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 200px; border-radius: 50%;">
                         <ul uk-tab>
                             <li><a href="#">Login</a></li>
-                            {% if signup_enabled %}
+                            {% if instance_settings['signup_enabled'] %}
                             <li><a href="#">Sign Up</a></li>
                             {% endif %}
                         </ul>
                         <div class="uk-switcher">
                             <div class="uk-grid-small" uk-grid>
+                                {% if instance_settings['internal_login_enabled'] %}
                                 <div class="uk-width-1-1">
                                     <div class="uk-margin">
                                         <label class="uk-form-label" for="login_username">Username</label>
@@ -56,11 +57,16 @@
                                     <a onclick="loginUser()" class="uk-button uk-button-primary uk-align-center">Login</a>
                                 </div>
                                 <p class="uk-text-meta uk-align-center uk-margin-remove-bottom">OR</p>
+                                {% else %}
+                                <p class="uk-text-meta uk-align-center">This instance only allows external logins through their configured authenticator. If you need to use your interal 
+                                    login you will need to contact your system admin.
+                                </p>
+                                {% endif %}
                                 <div class="uk-width-1-1">
                                     <a href="/access/login/oidc" class="uk-button uk-button-primary uk-align-center">Login with Authentik</a>
                                 </div>
                             </div>
-                            {% if signup_enabled %}
+                            {% if instance_settings['signup_enabled'] %}
                             <!-- Sign up Form -->
                             <div class="uk-grid-small" uk-grid>
                                 <div class="uk-width-1-1">

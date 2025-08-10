@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS %%site_name%%_recipe_items (
     id SERIAL PRIMARY KEY,
-    uuid VARCHAR(32) NOT NULL,
+    item_uuid UUID,
     rp_id INTEGER NOT NULL,
     item_type VARCHAR(32) NOT NULL,
     item_name TEXT NOT NULL,
@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS %%site_name%%_recipe_items (
     qty FLOAT8 NOT NULL,
     item_id INTEGER DEFAULT NULL,
     links JSONB DEFAULT '{"main": ""}',
-    UNIQUE(uuid),
     CONSTRAINT fk_rp_id
         FOREIGN KEY(rp_id) 
         REFERENCES %%site_name%%_recipes(id)

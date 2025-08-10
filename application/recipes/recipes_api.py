@@ -177,7 +177,7 @@ def deleteRecipeItem():
         return jsonify({'recipe': recipe, 'error': False, 'message': f'Recipe Item {deleted_item['item_name']} was deleted successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} is not allowed!'})
 
-@recipes_api.route('/saveRecipeItem', methods=["POST"])
+@recipes_api.route('/api/saveRecipeItem', methods=["POST"])
 @access_api.login_required
 def saveRecipeItem():
     recipe = {}

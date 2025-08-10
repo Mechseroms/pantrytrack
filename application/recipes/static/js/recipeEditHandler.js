@@ -148,7 +148,7 @@ async function saveLineItem(item){
         uom: document.getElementById('lineUOM').value,
         links: item.links
     }
-    const response = await fetch(`/recipe/saveRecipeItem`, {
+    const response = await fetch(`/recipes/api/saveRecipeItem`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',
