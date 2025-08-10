@@ -64,6 +64,26 @@ def getItemAllByID(site:str, payload: tuple, convert:bool=True):
     except Exception as error:
         postsqldb.DatabaseError(error, payload, sql)
 
+def getItemsAll(site:str, convert:bool=True):
+    database_config = config.config()
+    with open('application/items/sql/getItemsAll.sql', 'r+') as file:
+        sql = file.read().replace("%%site_name%%", site)
+    record = ()
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql)
+                rows = cur.fetchall()
+                headers = [desc[0] for desc in cur.description]
+                types = [desc[1] for desc in cur.description]
+                if rows and convert:
+                    record = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                if rows and not convert:
+                    record = rows
+            return record, headers, types
+    except Exception as error:
+        postsqldb.DatabaseError(error, (), sql)
+
 def getItemAllByBarcode(site:str, payload: tuple, convert:bool=True):
     database_config = config.config()
     with open('application/items/sql/getItemAllByBarcode.sql', 'r+') as file:

@@ -3,7 +3,10 @@ from flask import (
     Blueprint, request, render_template, redirect, session, url_for, send_file, jsonify, Response
     )
 import psycopg2
-import math 
+import math
+import io
+import csv
+import datetime
 
 # APPLICATION IMPORTS
 from config import config
@@ -472,4 +475,24 @@ def deleteBarcode():
             return jsonify(status=201, message=f"{barcode} was deleted successfully.")
         except Exception as error:
             return jsonify(status=400, message=str(error))
+    return jsonify(status=405, message=f"The request method: {request.method} is not allowed on this endpoint!")
+
+@items_api.route('/download_csv', methods=["GET"])
+def downloadItemsCSV():
+    if request.method == "GET":
+        site_name = session['selected_site']
+        records, headers, types = database_items.getItemsAll(site_name, convert=False)
+        si = io.StringIO()
+        writer = csv.writer(si)
+        writer.writerow(headers)
+        writer.writerow(types)
+        writer.writerows(records)
+        output = si.getvalue()
+        filename = f"{site_name}_items_{str(datetime.datetime.now())}.csv"
+        response = Response(
+            output,
+            mimetype='text/csv',
+            headers={"Content-Disposition": f"attachment;filename={filename}"}
+        )
+        return response
     return jsonify(status=405, message=f"The request method: {request.method} is not allowed on this endpoint!")
