@@ -156,6 +156,26 @@
                 </div>
             </div>
         </div>
+        <!-- Delete Recipe modal -->
+        <div id="deleteRecipeModal" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 class="uk-modal-title">Delte Recipe...</h2>
+                </div>
+                <div class="uk-modal-body">
+                    <p class="uk-text-meta">You are attempting to delete something that will be hard to get back, please confirm you want to 
+                        complete this action by typing the <strong>DELETE</strong> in the box below!</p>
+                    </p>
+                    <div class="uk-margin">
+                        <input id="deleteRecipeConfirm" class="uk-input" type="text" placeholder="" aria-label="Input">
+                    </div>
+                </div>
+                <div class="uk-modal-footer">
+                    <button onclick="deleteRecipe()" class="uk-button uk-button-default uk-align-right" type="button">Delete Recipe</button>
+                </div>
+            </div>
+        </div>
     </body>
     <script>
         const session = {{session|tojson}}

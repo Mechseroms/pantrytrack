@@ -199,3 +199,17 @@ def postDeleteRecipeItem(site:str, payload:tuple, convert:bool=True):
             elif rows and not convert:
                 deleted = rows
     return deleted
+
+def deleteRecipe(site:str, payload:tuple, convert:bool=True):
+    database_config = config.config()
+    deleted = ()
+    sql = f"DELETE FROM {site}_recipes WHERE id=%s RETURNING *;"
+    with psycopg2.connect(**database_config) as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                deleted = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                deleted = rows
+    return deleted

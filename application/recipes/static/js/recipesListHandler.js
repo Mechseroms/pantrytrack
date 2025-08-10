@@ -177,17 +177,25 @@ async function replenishRecipesCards() {
         footer_div.style = 'height: 40px; border: none;'
 
         let editOp = document.createElement('a')
-        editOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
+        editOp.setAttribute('class', 'uk-button uk-button-small uk-button-primary')
         editOp.innerHTML = '<span uk-icon="icon: pencil"></span>   Edit'
         editOp.style = "margin-right: 10px;"
         editOp.href = `/recipes/edit/${recipes[i].id}`
 
         let viewOp = document.createElement('a')
-        viewOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
+        viewOp.setAttribute('class', 'uk-button uk-button-small uk-button-primary')
         viewOp.innerHTML = '<span uk-icon="icon: eye"></span>    View'
         viewOp.href = `/recipes/view/${recipes[i].id}`
+
+        let deleteOp = document.createElement('button')
+        deleteOp.setAttribute('class', 'uk-button uk-button-small uk-button-danger')
+        deleteOp.innerHTML = '<span uk-icon="icon: trash"></span>    Delete'
+        deleteOp.onclick = async function() {
+            await openDeleteRecipeModal(recipes[i].id)
+        }
         
-        footer_div.append(editOp, viewOp)
+        
+        footer_div.append(editOp, viewOp, deleteOp)
 
         main_div.append(card_header_div, body_div, footer_div)
 
@@ -240,6 +248,53 @@ async function addRecipe() {
     await updatePaginationElement()
     UIkit.modal(document.getElementById('addRecipeModal')).hide();
 
+}
+
+var select_recipe_id_to_delete = 0
+async function openDeleteRecipeModal(recipe_id) {
+    select_recipe_id_to_delete = recipe_id
+    document.getElementById('deleteRecipeConfirm').value = ""
+    UIkit.modal(document.getElementById('deleteRecipeModal')).show();
+}
+
+
+async function deleteRecipe() {
+    let confirm = String(document.getElementById('deleteRecipeConfirm').value)
+    if (confirm === "DELETE"){
+        const response = await fetch(`/recipes/api/deleteRecipe`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                recipe_id: select_recipe_id_to_delete
+            }),
+        });
+        data =  await response.json();
+        transaction_status = "success"
+        if (data.error){
+            transaction_status = "danger"
+        }
+
+        UIkit.notification({
+            message: data.message,
+            status: transaction_status,
+            pos: 'top-right',
+            timeout: 5000
+        });
+        recipes = await getRecipes()
+        await replenishRecipes()
+        await updatePaginationElement()
+        UIkit.modal(document.getElementById('deleteRecipeModal')).hide();
+    } else {
+        UIkit.modal(document.getElementById('deleteRecipeModal')).hide();
+        UIkit.notification({
+            message: "Confirmation Incorrect!",
+            status: "danger",
+            pos: 'top-right',
+            timeout: 5000
+        });
+    }
 }
 
 async function updatePaginationElement() {

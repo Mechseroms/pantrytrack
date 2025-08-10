@@ -46,6 +46,16 @@ def getRecipes():
         return jsonify({'recipes': recipes, 'end': math.ceil(count/limit), 'error': False, 'message': 'fetch was successful!'})
     return jsonify({'recipes': recipes, 'end': math.ceil(count/limit), 'error': True, 'message': f'method is not allowed: {request.method}'})
 
+@recipes_api.route('/api/deleteRecipe', methods=["POST"])
+@access_api.login_required
+def deleteRecipe():
+    if request.method == "POST":
+        recipe_id = request.get_json()['recipe_id']
+        site_name = session['selected_site']
+        database_recipes.deleteRecipe(site_name, (recipe_id, ))
+        return jsonify(status=201, message="Recipe deleted successfully!")
+    return jsonify(status=405, message=f"{request.method} is not an allowed method on this endpoint.")
+
 @recipes_api.route('/getRecipe', methods=["GET"])
 @access_api.login_required
 def getRecipe():
