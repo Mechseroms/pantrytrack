@@ -115,7 +115,7 @@ async function openLineItemModal(item){
 }
 
 async function deleteLineItem(index){
-    const response = await fetch(`/recipe/deleteRecipeItem`, {
+    const response = await fetch(`/recipes/deleteRecipeItem`, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',

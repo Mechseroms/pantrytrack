@@ -225,6 +225,34 @@ def selectItemTupleByUUID(site, payload, convert=True, conn=None):
         return selected
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
+    
+def selectConversionTuple(site, payload, convert=True, conn=None):
+    """payload=(item_id, uom_id)"""
+    selected = ()
+    self_conn = False
+    sql = f"SELECT conversions.conv_factor FROM {site}_conversions conversions WHERE item_id = %s AND uom_id = %s;"
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                selected = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                selected = rows
+
+        if self_conn:
+            conn.close()
+
+        return selected
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
 
 def insertCostLayersTuple(site, payload, convert=True, conn=None):
     cost_layer = ()

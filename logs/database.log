@@ -140,3 +140,9 @@
 2025-08-10 09:26:25.470903 --- ERROR --- DatabaseError(message='syntax error at or near "{"LINE 1: SELECT items.*, lginf.* AS logistics_info FROM {site}_items ...                                                       ^',
                                          payload=('44c41878-e645-4e16-a402-e480936ac4aa',),
                                          sql='SELECT items.*, lginf.* AS logistics_info FROM {site}_items items LEFT JOIN {site}_logistics_info lginf ON lginf.id = items.logistics_info_id WHERE item_uuid=%s;')
+2025-08-10 10:17:09.169270 --- ERROR --- DatabaseError(message='syntax error at or near ","LINE 1: ... test_conversions conversions WHERE part_id = 2016, uom_id =...                                                             ^',
+                                         payload=(2016, 6),
+                                         sql='SELECT conversions.conv_factor FROM test_conversions conversions WHERE part_id = %s, uom_id = %s;')
+2025-08-10 10:18:03.658146 --- ERROR --- DatabaseError(message='column "part_id" does not existLINE 1: ...nv_factor FROM test_conversions conversions WHERE part_id = ...                                                             ^',
+                                         payload=(2016, 6),
+                                         sql='SELECT conversions.conv_factor FROM test_conversions conversions WHERE part_id = %s AND uom_id = %s;')

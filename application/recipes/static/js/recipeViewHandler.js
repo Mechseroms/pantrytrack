@@ -45,7 +45,7 @@ async function replenishIngrediantsTable() {
         } else if (qty_needed > quantity_on_hand && item_type === "sku") {
             markerCell.innerHTML = `<span class="uk-label uk-label-danger">Missing</span>`
         } else {
-            markerCell.innerHTML = ""
+            markerCell.innerHTML = `<span class="uk-label uk-label-default">Untracked</span>`
         }
 
         let nameCell = document.createElement('td')
@@ -140,4 +140,6 @@ async function receiptRecipe(){
         pos: 'top-right',
         timeout: 5000
     });
+    UIkit.modal(document.getElementById('receiptRecipeModal')).hide();
+
 }
