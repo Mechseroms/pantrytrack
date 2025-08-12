@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS %%site_name%%_logistics_info(
     id SERIAL PRIMARY KEY,
-    barcode VARCHAR(255) NOT NULL,
+    logistics_info_uuid UUID gen_random_uuid(),
+    barcode VARCHAR(255),
     primary_location INTEGER NOT NULL,
     primary_zone INTEGER NOT NULL,
     auto_issue_location INTEGER NOT NULL,

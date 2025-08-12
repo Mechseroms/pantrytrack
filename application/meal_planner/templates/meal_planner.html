@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="main_html">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title id="title"></title>
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/pantry.css') }}"/>
+        <link rel="stylesheet" href="{{ url_for('meal_planner_api.static', filename='css/planner.css') }}"/>
+
+        {% if session['user']['flags']['darkmode'] %}
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}"/>
+        {% endif %}
+
+
+
+    </head>
+    {% if session['user']['flags']['darkmode'] %}
+    <body class="uk-light">
+    {% else %}
+    <body>
+    {% endif %}
+        <nav class="uk-navbar-container">
+            <div class="uk-container uk-container-expand">
+                <div class="uk-navbar uk-navbar-primary">
+                    <!-- Application Navigation-->
+                    <div class="uk-navbar-left">
+                        <ul class="uk-navbar-nav">
+                            <li>
+                                <a href>Apps</a>
+                                <div class="uk-navbar-dropdown" uk-drop="mode: click; multi:false">
+                                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                                        <li class="uk-active"><a href="/planner">Planner</a></li>
+                                        <li><a href="/recipes">Recipes</a></li>
+                                        <li><a href="/shopping-lists">Shopping Lists</a></li>
+                                        <li class="uk-nav-header">Logistics</li>
+                                        <li><a href="/items">Items</a></li>
+                                        <li><a href="/items/transaction">Transaction</a></li>
+                                        <li><a href="/receipts">Receipts</a></li>
+                                        <li class="uk-nav-header">Points of Ease</li>
+                                        <li><a href="/poe/scanner">Transaction Scanner</a></li>
+                                        <li class="uk-active"><a href="/poe/receipts">Receipts Scanner</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+
+                    </div>
+                    <!-- Breadcrumbs Navigation -->
+                    <div class="uk-navbar-center uk-visible@m">
+                        <ul class="uk-breadcrumb uk-margin-remove">
+                            <li style="cursor: pointer;"><span><strong>{{current_site}}</strong></span>
+                                <div uk-dropdown="mode: hover">
+                                    <ul class="uk-nav uk-dropdown-nav">
+                                        <li class="uk-nav-header">Select Site</li>
+                                        <li class="uk-nav-divider"></li>
+                                        {% for site in sites %}
+                                        {% if site == current_site %}
+                                        <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                        {% else %}
+                                        <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </li>
+                            <li style="cursor: default; user-select: none;" class="uk-disabled"><span>Meal Planner</span></li>
+                        </ul>
+                    </div>
+                    <!-- Profile/Management Navigation-->
+                    <div class="uk-navbar-right">
+                        <ul class="uk-navbar-nav">
+                            <li>
+                                <a href="#">
+                                    <img src="{{session['user']['profile_pic_url']}}" alt="Profile Picture" class="profile-pic uk-visible@m" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 5px;">
+                                            {{username}}
+                                </a>
+                                <div class="uk-navbar-dropdown" uk-drop="mode: click; multi:false">
+                                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                                        <li><a href="/profile">Profile</a></li>
+                                        <li><a onclick="toggleDarkMode()">Dark Mode</a></li>
+                                        <li><a href="/site-management">Site Management</a></li>
+                                        <li><a href="/administration">System Management</a></li>
+                                        <li><a href="/access/logout">Logout</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="uk-section">
+            <div class="uk-container uk-text-center">
+                <div uk-grid>
+                    <div class="uk-width-1-5">
+                        <a onclick="backOneMonth()" uk-icon="icon: chevron-left"></a>
+                    </div>
+                    <div class="uk-width-3-5">
+                        <h3 id="month-year-title" class=""></h3>
+                    </div>
+                    <div class="uk-width-1-5">
+                        <a onclick="forwardOneMonth()" uk-icon="icon: chevron-right"></a>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-container-xlarge uk-align-center">
+                <div id='calendar_container' class="uk-align-center uk-overflow-auto">
+                </div>
+            </div>
+            <div id="calendarContextMenu"
+                class="uk-dropdown uk-open"
+                style="display:none; position:absolute; z-index:9999;">
+                <ul class="uk-nav uk-dropdown-nav">
+                    <li onclick="addEventContextAction()"><a href="#">Add Event</a></li>
+                    <li onclick=""><a href="#">Edit</a></li>
+                    <li onclick=""><a href="#">Remove</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- Event Edit Modal-->
+        <div id="eventEditModal" class="uk-flex-top" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 class="uk-modal-title">Event Form</h2>
+                </div>
+                <div class="uk-modal-body">
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="event_uuid_edit">Event UUID</label>
+                                <div class="uk-form-controls">
+                                    <input id="event_uuid_edit" class="uk-input uk-disabled uk-form-blank" type="text">
+                                </div> 
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="event_date_edit_start">Event Date</label>
+                                <div class="uk-form-controls">
+                                    <input id="event_date_edit_start" class="uk-input" type="date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="event_date_edit_end">Event Date</label>
+                                <div class="uk-form-controls">
+                                    <input id="event_date_edit_end" class="uk-input" type="date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="event_type_edit">Event Type</label>
+                                <div class="uk-form-controls">
+                                    <input id="event_type_edit" class="uk-input uk-disabled uk-form-blank" type="text">
+                                </div> 
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1" id="recipe_label_edit_parent">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="recipe_label_modal_edit">Event Recipe UUID</label>
+                                <div class="uk-form-controls">
+                                    <input id="recipe_label_modal_edit" class="uk-input uk-disabled uk-form-blank" type="text">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="event_name_edit">Event Name</label>
+                                <div class="uk-form-controls">
+                                    <input class="uk-input" id="event_name_edit" type="text" placeholder="Enter Event Name...">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="event_description_edit">Event Description</label>
+                                <div class="uk-form-controls">
+                                    <textarea id="event_description_edit" class="uk-textarea" rows="5" placeholder="Enter Event Description..." aria-label="Textarea"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-modal-footer uk-text-right" id="eventsModalFooter">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button onclick="postEditEvent()" class="uk-button uk-button-primary" type="button">Save</button>
+                </div>
+            </div>
+        </div>
+        <!-- Event Modal-->
+        <div id="eventModal" class="uk-flex-top" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 class="uk-modal-title">Event Form</h2>
+                </div>
+                <div id="paginationModalBody" class="uk-modal-body" hidden>
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-1">
+                            <div id="searchItemsForm" onkeydown="" class="uk-search uk-search-default uk-align-center">
+                                <input id="searchItemsInput" class="uk-border-pill uk-search-input" type="search" placeholder="" aria-label="">
+                                <span class="uk-search-icon-flip" uk-search-icon></span>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <nav aria-label="Pagination">
+                                <ul id="eventPage" class="uk-pagination uk-flex-center" uk-margin>
+                                    <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                    <li><a href="#">1</a></li>
+                                    <li class="uk-disabled"><span>…</span></li>
+                                    <li><a href="#">5</a></li>
+                                    <li><a href="#">6</a></li>
+                                    <li class="uk-active"><span aria-current="page">7</span></li>
+                                    <li><a href="#">8</a></li>
+                                    <li><a href="#"><span uk-pagination-next></span></a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <caption>Select a Recipe from the system...</caption>
+                            <table class="uk-table uk-table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Operations</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="eventsTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div id="mainEventBody" class="uk-modal-body">
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-1">
+                            <p>Adding an event requires a type of event and the following information.</p>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="event_date_start">Event Date Start</label>
+                                <div class="uk-form-controls">
+                                    <input id="event_date_start" class="uk-input uk-disabled" type="date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="event_date_end">Event Date End</label>
+                                <div class="uk-form-controls">
+                                    <input id="event_date_end" class="uk-input uk-disabled" type="date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="event_type">Select Event Type</label>
+                                <div class="uk-form-controls">
+                                    <select onchange="setEventTypeForm()" class="uk-select" id="event_type">
+                                        <option value="custom" selected>Custom</option>
+                                        <option value="recipe">Recipe</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1" id="recipe_button_modal" hidden>
+                            <div class="uk-margin">
+                                <button class="uk-button uk-button-default" type="button" onclick="selectRecipeEvent()">Choose Recipe...</button>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1" id="recipe_label_modal" hidden>
+                            <div class="uk-margin">
+                                <input id="selected-recipe" class="uk-input uk-disabled" type="text" placeholder="No recipe selected">
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="event_name">Event Name</label>
+                                <div class="uk-form-controls">
+                                    <input class="uk-input" id="event_name" type="text" placeholder="Enter Event Name...">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="event_description">Event Description</label>
+                                <div class="uk-form-controls">
+                                    <textarea id="event_description" class="uk-textarea" rows="5" placeholder="Enter Event Description..." aria-label="Textarea"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-modal-footer uk-text-right" id="eventsModalFooter">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button onclick="postNewEvent()" class="uk-button uk-button-primary" type="button">Save</button>
+                </div>
+            </div>
+        </div>
+    </body>
+    {% assets "js_all" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    <script src="{{ url_for('meal_planner_api.static', filename='js/mealPlannerHandler.js') }}"></script>
+</html>

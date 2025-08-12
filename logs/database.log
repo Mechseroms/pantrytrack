@@ -146,3 +146,94 @@
 2025-08-10 10:18:03.658146 --- ERROR --- DatabaseError(message='column "part_id" does not existLINE 1: ...nv_factor FROM test_conversions conversions WHERE part_id = ...                                                             ^',
                                          payload=(2016, 6),
                                          sql='SELECT conversions.conv_factor FROM test_conversions conversions WHERE part_id = %s AND uom_id = %s;')
+2025-08-10 11:11:24.348070 --- ERROR --- DatabaseError(message='duplicate key value violates unique constraint "test_logistics_info_barcode_key"DETAIL:  Key (barcode)=() already exists.',
+                                         payload=('', 1, 1, 1, 1),
+                                         sql='INSERT INTO test_logistics_info(barcode, primary_location, primary_zone, auto_issue_location, auto_issue_zone) VALUES (%s, %s, %s, %s, %s) RETURNING *;')
+2025-08-10 19:30:16.195296 --- ERROR --- DatabaseError(message='duplicate key value violates unique constraint "test_logistics_info_barcode_key"DETAIL:  Key (barcode)=(%PLU0%) already exists.',
+                                         payload=('%PLU0%', 1, 1, 1, 1),
+                                         sql='INSERT INTO test_logistics_info(barcode, primary_location, primary_zone, auto_issue_location, auto_issue_zone) VALUES (%s, %s, %s, %s, %s) RETURNING *;')
+2025-08-10 19:30:27.706841 --- ERROR --- DatabaseError(message='syntax error at or near "gen_random_uuid"LINE 3:     event_uuid UUID gen_random_uuid(),                            ^',
+                                         payload=CREATE TABLE IF NOT EXISTS test_plan_events(
+    id SERIAL PRIMARY KEY,
+    event_uuid UUID gen_random_uuid(),
+    plan_uuid UUID,
+    event_shortname VARCHAR(32) NOT NULL,
+    event_description TEXT,
+    event_date TIMESTAMP NOT NULL,
+    created_by INTEGER NOT NULL,
+    UNIQUE(event_uuid)
+)
+,
+                                         sql='plan_events')
+2025-08-11 17:29:32.899829 --- ERROR --- DatabaseError(message='invalid input syntax for type uuid: ""LINE 3: VALUES ('', 'Mongolian Beef Noodles', 'test', '2025-08-04T00...                ^',
+                                         payload=('', 'Mongolian Beef Noodles', 'test', datetime.datetime(2025, 8, 4, 0, 0), 1, '1cc556f6-48b6-459f-8a3e-072c6c69ce3a', 'recipe'),
+                                         sql='INSERT INTO test_plan_events(plan_uuid, event_shortname, event_description, event_date, created_by, recipe_uuid, event_type) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING *;')
+2025-08-11 18:10:54.890311 --- ERROR --- DatabaseError(message='invalid input syntax for type uuid: ""LINE 3: ... WORK YAY!', '2025-08-07T00:00:00'::timestamp, 1, '', 'custo...                                                             ^',
+                                         payload=(None, 'No Work', 'WE DONT HAVE WORK YAY!', datetime.datetime(2025, 8, 7, 0, 0), 1, '', 'custom'),
+                                         sql='INSERT INTO test_plan_events(plan_uuid, event_shortname, event_description, event_date, created_by, recipe_uuid, event_type) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING *;')
+2025-08-11 18:47:53.328502 --- ERROR --- DatabaseError(message='relation "main_plan_events" does not existLINE 1: SELECT * FROM main_plan_events                      ^',
+                                         payload=('2025', '8'),
+                                         sql='SELECT * FROM main_plan_eventsWHERE EXTRACT(YEAR FROM event_date) = %s  AND EXTRACT(MONTH FROM event_date) = %s;')
+2025-08-11 18:47:56.885307 --- ERROR --- DatabaseError(message='relation "main_plan_events" does not existLINE 1: SELECT * FROM main_plan_events                      ^',
+                                         payload=('2025', '8'),
+                                         sql='SELECT * FROM main_plan_eventsWHERE EXTRACT(YEAR FROM event_date) = %s  AND EXTRACT(MONTH FROM event_date) = %s;')
+2025-08-11 18:48:24.644410 --- ERROR --- DatabaseError(message='relation "main_plan_events" does not existLINE 1: SELECT * FROM main_plan_events                      ^',
+                                         payload=('2025', '8'),
+                                         sql='SELECT * FROM main_plan_eventsWHERE EXTRACT(YEAR FROM event_date) = %s  AND EXTRACT(MONTH FROM event_date) = %s;')
+2025-08-11 18:52:46.905608 --- ERROR --- DatabaseError(message='relation "main_plan_events" does not existLINE 1: SELECT * FROM main_plan_events                      ^',
+                                         payload=('2025', '8'),
+                                         sql='SELECT * FROM main_plan_eventsWHERE EXTRACT(YEAR FROM event_date) = %s  AND EXTRACT(MONTH FROM event_date) = %s;')
+2025-08-11 18:53:54.266726 --- ERROR --- DatabaseError(message='relation "main_plan_events" does not existLINE 1: SELECT * FROM main_plan_events                      ^',
+                                         payload=('2025', '8'),
+                                         sql='SELECT * FROM main_plan_eventsWHERE EXTRACT(YEAR FROM event_date) = %s  AND EXTRACT(MONTH FROM event_date) = %s;')
+2025-08-12 07:40:16.852940 --- ERROR --- DatabaseError(message='relation "main_plan_events" does not existLINE 1: SELECT * FROM main_plan_events                      ^',
+                                         payload=('2025', '8'),
+                                         sql='SELECT * FROM main_plan_eventsWHERE EXTRACT(YEAR FROM event_date) = %s  AND EXTRACT(MONTH FROM event_date) = %s;')
+2025-08-12 08:43:31.049364 --- ERROR --- DatabaseError(message='invalid input syntax for type uuid: ""LINE 1: ...test 2', event_date = '2025-09-05', recipe_uuid = '', event_...                                                             ^',
+                                         payload={'uuid': 'c703059d-d03d-4046-866a-64ebfad7f12c', 'update': {'event_shortname': 'Spicy Bacon Chilli', 'event_description': 'test 2', 'event_date': '2025-09-05', 'recipe_uuid': '', 'event_type': 'recipe'}},
+                                         sql='UPDATE test_plan_events SET event_shortname = %s, event_description = %s, event_date = %s, recipe_uuid = %s, event_type = %s WHERE event_uuid=%s RETURNING *;')
+2025-08-12 09:02:56.840495 --- ERROR --- DatabaseError(message='column "event_date" does not existLINE 2: WHERE EXTRACT(YEAR FROM event_date) = '2025'                                ^HINT:  Perhaps you meant to reference the column "test_plan_events.event_type".',
+                                         payload=('2025', '8'),
+                                         sql='SELECT * FROM test_plan_eventsWHERE EXTRACT(YEAR FROM event_date) = %s  AND EXTRACT(MONTH FROM event_date) = %s;')
+2025-08-12 09:44:45.289711 --- ERROR --- DatabaseError(message='relation "main_plan_events" does not existLINE 1: SELECT * FROM main_plan_events                      ^',
+                                         payload=('2025', '8'),
+                                         sql='SELECT * FROM main_plan_eventsWHERE EXTRACT(YEAR FROM event_date_start) = %s  AND EXTRACT(MONTH FROM event_date_start) = %s;')
+2025-08-12 09:44:49.727766 --- ERROR --- DatabaseError(message='relation "main_plan_events" does not existLINE 1: SELECT * FROM main_plan_events                      ^',
+                                         payload=('2025', '8'),
+                                         sql='SELECT * FROM main_plan_eventsWHERE EXTRACT(YEAR FROM event_date_start) = %s  AND EXTRACT(MONTH FROM event_date_start) = %s;')
+2025-08-12 09:58:22.528782 --- ERROR --- DatabaseError(message='argument formats can't be mixed',
+                                         payload=('2025', '8'),
+                                         sql='/*SELECT * FROM test_plan_eventsWHERE EXTRACT(YEAR FROM event_date_start) = %s  AND EXTRACT(MONTH FROM event_date_start) = %s;  */SELECT *FROM test_plan_eventsWHERE event_date_start <= (MAKE_DATE(%(year)s, %(month)s, 1) + INTERVAL '1 month' - INTERVAL '1 day')::date  AND event_date_end   >= MAKE_DATE(%(year)s, %(month)s, 1)')
+2025-08-12 10:02:49.084186 --- ERROR --- DatabaseError(message='tuple index out of range',
+                                         payload=('2025', '8'),
+                                         sql='/*SELECT * FROM test_plan_eventsWHERE EXTRACT(YEAR FROM event_date_start) = %s  AND EXTRACT(MONTH FROM event_date_start) = %s;  */SELECT *FROM test_plan_eventsWHERE event_date_start <= %s  AND event_date_end >= %s')
+2025-08-12 10:03:17.111210 --- ERROR --- DatabaseError(message='invalid input syntax for type timestamp: "2025"LINE 5: WHERE event_date_start <= '2025'                                  ^',
+                                         payload=('2025', '8'),
+                                         sql='SELECT *FROM test_plan_eventsWHERE event_date_start <= %s  AND event_date_end >= %s')
+2025-08-12 10:04:55.071530 --- ERROR --- DatabaseError(message='operator does not exist: numeric = dateLINE 2: WHERE EXTRACT(YEAR FROM event_date_start) = '2025-08-01'::da...                                                  ^HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.',
+                                         payload=('2025', '8'),
+                                         sql='SELECT * FROM test_plan_eventsWHERE EXTRACT(YEAR FROM event_date_start) = %s  AND EXTRACT(MONTH FROM event_date_start) = %s;')
+2025-08-12 10:09:58.906650 --- ERROR --- DatabaseError(message='missing FROM-clause entry for table "arguments"LINE 4: WHERE EXTRACT(YEAR FROM event_date_start) = arguments.year                                                    ^',
+                                         payload=('2025', '8'),
+                                         sql='WITH arguments AS (SELECT %s AS year, %s AS month)SELECT * FROM test_plan_eventsWHERE EXTRACT(YEAR FROM event_date_start) = arguments.year  AND EXTRACT(MONTH FROM event_date_start) = arguments.month;')
+2025-08-12 10:10:33.179512 --- ERROR --- DatabaseError(message='operator does not exist: numeric = textLINE 4: WHERE EXTRACT(YEAR FROM event_date_start) = (SELECT year FRO...                                                  ^HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.',
+                                         payload=('2025', '8'),
+                                         sql='WITH arguments AS (SELECT %s AS year, %s AS month)SELECT * FROM test_plan_eventsWHERE EXTRACT(YEAR FROM event_date_start) = (SELECT year FROM arguments)  AND EXTRACT(MONTH FROM event_date_start) = (SELECT month FROM arguments);')
+2025-08-12 10:11:48.528557 --- ERROR --- DatabaseError(message='tuple index out of range',
+                                         payload=('2025', '8'),
+                                         sql='WITH arguments AS (SELECT %s AS year, %s AS month)WITH arguments AS (  SELECT %s AS year, %s AS month)SELECT *FROM test_plan_eventsWHERE  event_date_end >= make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1)  AND  event_date_start <  (make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1) + INTERVAL '1 month');')
+2025-08-12 10:12:03.257652 --- ERROR --- DatabaseError(message='function make_date(text, text, integer) does not existLINE 7:   event_date_end >= make_date((SELECT year FROM arguments), ...                            ^HINT:  No function matches the given name and argument types. You might need to add explicit type casts.',
+                                         payload=('2025', '8'),
+                                         sql='WITH arguments AS (  SELECT %s AS year, %s AS month)SELECT *FROM test_plan_eventsWHERE  event_date_end >= make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1)  AND  event_date_start <  (make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1) + INTERVAL '1 month');')
+2025-08-12 11:05:42.431102 --- ERROR --- DatabaseError(message='missing FROM-clause entry for table "main_brands"LINE 5:       COALESCE(row_to_json(main_brands.*), "{}") as recipe                                   ^',
+                                         payload=(2025, 8),
+                                         sql='WITH arguments AS (  SELECT %s AS year, %s AS month)SELECT events.*,      COALESCE(row_to_json(main_brands.*), "{}") as recipeFROM main_plan_events eventsLEFT JOIN main_recipes recipes ON recipes.recipe_uuid = events.recipe_uuidWHERE  event_date_end >= make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1)  AND  event_date_start <  (make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1) + INTERVAL '1 month');')
+2025-08-12 11:05:56.643860 --- ERROR --- DatabaseError(message='column "{}" does not existLINE 5:       COALESCE(row_to_json(recipes.*), "{}") as recipe                                               ^',
+                                         payload=(2025, 8),
+                                         sql='WITH arguments AS (  SELECT %s AS year, %s AS month)SELECT events.*,      COALESCE(row_to_json(recipes.*), "{}") as recipeFROM main_plan_events eventsLEFT JOIN main_recipes recipes ON recipes.recipe_uuid = events.recipe_uuidWHERE  event_date_end >= make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1)  AND  event_date_start <  (make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1) + INTERVAL '1 month');')
+2025-08-12 11:09:37.978621 --- ERROR --- DatabaseError(message='column g.rp_id does not existLINE 17: ..._to_json(g)), '{}') FROM cte_recipe_items g WHERE g.rp_id = ...                                                              ^',
+                                         payload=(2025, 8),
+                                         sql='WITH arguments AS (  SELECT %s AS year, %s AS month),sum_cte AS (      SELECT mi.item_uuid, SUM(mil.quantity_on_hand)::FLOAT8 AS total_sum      FROM main_item_locations mil      JOIN main_items mi ON mil.part_id = mi.id      GROUP BY mi.id    ),cte_recipe_items AS (        SELECT rp_item.qty, COALESCE(sum_cte.total_sum, 0) as quantity_on_hand FROM main_recipe_items rp_item        LEFT JOIN sum_cte ON sum_cte.item_uuid = rp_item.item_uuid    )SELECT events.*,      COALESCE(row_to_json(recipes.*), '{}') as recipe,      (SELECT COALESCE(array_agg(row_to_json(g)), '{}') FROM cte_recipe_items g WHERE g.rp_id = recipes.id) AS rp_itemsFROM main_plan_events eventsLEFT JOIN main_recipes recipes ON recipes.recipe_uuid = events.recipe_uuidWHERE  event_date_end >= make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1)  AND  event_date_start <  (make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1) + INTERVAL '1 month');')
+2025-08-12 11:13:30.870202 --- ERROR --- DatabaseError(message='missing FROM-clause entry for table "recipe_missing_items"LINE 25:       COALESCE(recipe_missing_items.has_missing_ingredients,...                        ^',
+                                         payload=(2025, 8),
+                                         sql='WITH arguments AS (  SELECT %s AS year, %s AS month),sum_cte AS (      SELECT mi.item_uuid, SUM(mil.quantity_on_hand)::FLOAT8 AS total_sum      FROM main_item_locations mil      JOIN main_items mi ON mil.part_id = mi.id      GROUP BY mi.id    ),cte_recipe_items AS (        SELECT rp_item.rp_id, rp_item.qty, COALESCE(sum_cte.total_sum, 0) as quantity_on_hand FROM main_recipe_items rp_item        LEFT JOIN sum_cte ON sum_cte.item_uuid = rp_item.item_uuid    ), recipe_missing_items AS (  SELECT    rp_id,    bool_or(qty > quantity_on_hand) AS has_missing_ingredients  FROM cte_recipe_items  GROUP BY rp_id)SELECT events.*,      COALESCE(row_to_json(recipes.*), '{}') as recipe,      (SELECT COALESCE(array_agg(row_to_json(g)), '{}') FROM cte_recipe_items g WHERE g.rp_id = recipes.id) AS rp_items,      COALESCE(recipe_missing_items.has_missing_ingredients, FALSE) AS has_missing_ingredientsFROM main_plan_events eventsLEFT JOIN main_recipes recipes ON recipes.recipe_uuid = events.recipe_uuidWHERE  event_date_end >= make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1)  AND  event_date_start <  (make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1) + INTERVAL '1 month');')

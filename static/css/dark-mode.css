@@ -2,10 +2,11 @@
     --background: #121212;
     --background-text: #ffffff;
     
-    --surface: #121212;
+    --surface: #181818;
     --surface-text: #ffffff;
 
     --surface-two: #252525;
+    --surface-three: #383838;
 
     --error: #CF6679;
     --error-text: #000000;
@@ -251,4 +252,128 @@ select, option {
 .uk-button.uk-button-danger {
     background-color: var(--error);
     color: var(--error-text);
+}
+
+
+
+/* Darkmode settings for planner plage */
+
+#calendar_container {
+    background-color: var(--surface);
+    box-shadow: var(--elevation-high);
+    border-radius: var(--radius);
+}
+
+#calender_table {
+    background-color: var(--surface);
+}
+
+#calender_table th{
+    background-color: var(--surface);
+    font-weight: bold;
+}
+
+.calendar-cell-empty {
+    background-color: var(--surface);
+    border: 1px solid var(--surface-three);
+}
+
+.calendar-cell {
+    background-color: var(--surface-two);
+    border: 1px solid var(--surface-three);
+    position: relative;
+    width: 150px;
+    height: 120px;
+    vertical-align: top;
+    padding: 5px;
+    margin: 5px;
+}
+
+.calendar-cell:hover{
+    background-color: var(--surface-two);
+    border: 2px solid var(--primary-color);
+}
+
+
+.calendar-cell:hover, .calendar-cell-selected{
+    background-color: var(--surface-two);
+    border: 2px solid var(--primary-color);
+}
+
+.date-box {
+    width: 25px;
+    height: 25px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    z-index: 2;
+}
+
+.recipes-box {
+    position: absolute;
+    top: 5px;
+    left: 35px;
+    right: 5px;
+    bottom: 5px;
+    padding: 3px;
+    overflow: auto;
+    z-index: 1;
+}
+
+.recipe-label.recipe-success {
+    background:rgba(158, 221, 145, 0.479);
+    margin-bottom: 3px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.recipe-label.recipe-error {
+    background-color: rgba(218, 143, 143, 0.425);
+    margin-bottom: 3px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.recipe-label.recipe-success:hover{
+    background-color: rgba(158, 221, 145, 0.185);
+    cursor: pointer;
+}
+
+.recipe-label.recipe-success:hover, .recipe-label-selected {
+    background-color:  rgba(158, 221, 145, 0.185);
+}
+
+.recipe-label.recipe-error:hover{
+    background-color:rgba(218, 143, 143, 0.185);
+    cursor: pointer;
+}
+
+.recipe-label.recipe-error:hover, .recipe-label-selected {
+    background-color:  rgba(218, 143, 143, 0.185);
+}
+
+.custom-label {
+    background:rgba(211, 211, 211, 0.459);
+    margin-bottom: 3px;
+    padding: 2px 5px;
+    border-radius: 1px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.custom-label:hover{
+    background-color: rgba(211, 211, 211, 0.185);
+    cursor: pointer;
+}
+
+.custom-label:hover, .custom-label-selected {
+    background-color: rgba(211, 211, 211, 0.185);
 }

@@ -1,6 +1,7 @@
 CREATE TABLE IF NOt EXISTS %%site_name%%_item_info (
     id SERIAL PRIMARY KEY,
-    barcode VARCHAR(255) NOT NULL,
+    item_info_uuid UUID gen_random_uuid(),
+    barcode VARCHAR(255),
     packaging VARCHAR(255),
     uom_quantity FLOAT8,
     uom INTEGER,

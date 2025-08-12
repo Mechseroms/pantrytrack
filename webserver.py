@@ -12,6 +12,7 @@ from application.items import items_API
 from application.poe import poe_api
 from application.shoppinglists import shoplist_api
 from application.receipts import receipts_api
+from application.meal_planner import meal_planner_api
 from flasgger import Swagger
 from outh import oauth
 
@@ -43,6 +44,7 @@ app.register_blueprint(site_management_api.site_management_api, url_prefix="/sit
 app.register_blueprint(receipts_api.receipt_api, url_prefix='/receipts')
 app.register_blueprint(shoplist_api.shopping_list_api, url_prefix="/shopping-lists")
 app.register_blueprint(recipes_api.recipes_api, url_prefix='/recipes')
+app.register_blueprint(meal_planner_api.meal_planner_api, url_prefix='/planner')
 
 js = Bundle('js/uikit.min.js', 'js/uikit-icons.min.js', output='gen/main.js')
 assets.register('js_all', js)

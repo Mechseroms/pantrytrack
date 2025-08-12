@@ -1,0 +1,138 @@
+#calendar_container {
+    background-color: whitesmoke;
+    box-shadow: wheat;
+    border-radius: 10px;
+}
+
+#calender_table {
+    table-layout: fixed;
+    width: 100%;    
+}
+
+#calender_table th {
+    width: 14.28%;
+    min-width: 100px;
+    max-width: 1fr;
+    height: 40px;
+    vertical-align: top;
+    box-sizing: border-box;
+    font-weight: bold;
+    background-color: whitesmoke;
+}
+
+#calender_table td {
+    width: 14.28%;
+    min-width: 100px;
+    max-width: 1fr;
+    height: 120px;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+
+.calendar-cell-empty {
+    background-color: whitesmoke;
+    border: 1px solid rgba(155, 155, 155, 30%);
+}
+
+.calendar-cell {
+    position: relative;
+    width: 150px;
+    height: 120px;
+    vertical-align: top;
+    padding: 5px;
+    margin: 5px;
+    background-color: white;
+    border: 1px solid rgba(155, 155, 155, 30%);
+}
+.calendar-cell:hover{
+    background-color: whitesmoke;
+    border: 2px solid rgba(155, 155, 155, 30%);
+}
+
+
+.calendar-cell:hover, .calendar-cell-selected{
+    background-color: whitesmoke;
+    border: 2px solid rgba(155, 155, 155, 30%);
+}
+
+.date-box {
+    width: 25px;
+    height: 25px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    z-index: 2;
+}
+
+.recipes-box {
+    position: absolute;
+    top: 5px;
+    left: 35px;
+    right: 5px;
+    bottom: 5px;
+    padding: 3px;
+    overflow: auto;
+    z-index: 1;
+}
+
+.recipe-label.recipe-success {
+    background:rgb(158, 221, 145);
+    margin-bottom: 3px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.recipe-label.recipe-error {
+    background-color: rgb(218, 143, 143);
+    margin-bottom: 3px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.recipe-label.recipe-success:hover{
+    background-color: rgb(178, 241, 165);
+    cursor: pointer;
+}
+
+.recipe-label.recipe-success:hover, .recipe-label-selected {
+    background-color:  rgb(178, 241, 165);
+}
+
+.recipe-label.recipe-error:hover{
+    background-color:rgb(238, 163, 163);
+    cursor: pointer;
+}
+
+.recipe-label.recipe-error:hover, .recipe-label-selected {
+    background-color:  rgb(238, 163, 163);
+}
+
+.custom-label {
+    background:rgb(211, 211, 211);
+    margin-bottom: 3px;
+    padding: 2px 5px;
+    border-radius: 1px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.custom-label:hover{
+    background-color: rgb(225, 255, 255);
+    cursor: pointer;
+}
+
+.custom-label:hover, .custom-label-selected {
+    background-color: rgb(255, 255, 255);
+}
+
+.my-list-item:hover {
+    background-color: whitesmoke;
+}

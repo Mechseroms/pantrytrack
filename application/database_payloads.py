@@ -564,6 +564,30 @@ class BrandsPayload:
             self.name,
         )
 
+
+@dataclass
+class PlanEventPayload:
+    plan_uuid: str
+    event_shortname: str
+    event_description: str
+    event_date_start: datetime.datetime
+    event_date_end: datetime.datetime
+    created_by: int
+    recipe_uuid: str
+    event_type: str
+
+    def payload(self):
+        return (
+            self.plan_uuid,
+            self.event_shortname,
+            self.event_description,
+            self.event_date_start,
+            self.event_date_end,
+            self.created_by,
+            self.recipe_uuid,
+            self.event_type
+        )
+
 @dataclass
 class SiteManager:
     site_name: str
