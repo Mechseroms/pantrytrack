@@ -23,6 +23,11 @@
         <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
     </head>
+    <style>
+    :root {
+        --primary-color: {{ session['user']['flags']['styles']['primary_color']}};
+    }
+    </style>
     {% if session['user']['flags']['darkmode'] %}
     <body class="uk-light">
     {% else %}

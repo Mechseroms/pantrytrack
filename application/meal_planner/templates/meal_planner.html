@@ -21,6 +21,11 @@
 
 
     </head>
+    <style>
+    :root {
+        --primary-color: {{ session['user']['flags']['styles']['primary_color']}};
+    }
+    </style>
     {% if session['user']['flags']['darkmode'] %}
     <body class="uk-light">
     {% else %}

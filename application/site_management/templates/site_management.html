@@ -16,6 +16,11 @@
         <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}"/>
         {% endif %}
     </head>
+    <style>
+    :root {
+        --primary-color: {{ session['user']['flags']['styles']['primary_color']}};
+    }
+    </style>
     {% if session['user']['flags']['darkmode'] %}
     <body class="uk-light">
     {% else %}
