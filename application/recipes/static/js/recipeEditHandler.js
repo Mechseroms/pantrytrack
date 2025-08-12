@@ -254,6 +254,47 @@ async function addSKUItem(item_id) {
     UIkit.modal(document.getElementById('itemsModal')).hide();
 }
 
+async function addNewSKUItem() {
+    let newSKUName = document.getElementById('newSKUName').value
+    let newSKUSubtype = document.getElementById('newSKUSubtype').value
+    let newSKUQty = parseFloat(document.getElementById('newSKUQty').value)
+    let newSKUUOM = parseInt(document.getElementById('newSKUUOM').value)
+    let newWeblink = document.getElementById('newWeblink').value
+    let newSKUCost = parseFloat(document.getElementById('newSKUCost').value)
+
+
+    const response = await fetch(`/recipes/api/postNewSKUItem`, {
+        method: 'POST',
+        headers: {
+                'Content-Type': 'application/json',
+            },
+        body: JSON.stringify({
+            recipe_id: recipe.id,
+            name: newSKUName,
+            subtype: newSKUSubtype,
+            qty: newSKUQty,
+            uom_id: newSKUUOM,
+            main_link: newWeblink,
+            cost: newSKUCost
+        }),
+    });
+    data = await response.json()
+    message_type = "primary"
+    if(data.error){
+        message_type = "danger"
+    }
+    UIkit.notification({
+        message: data.message,
+        status: message_type,
+        pos: 'top-right',
+        timeout: 5000
+    });
+    recipe = data.recipe
+    await replenishRecipe()
+    UIkit.modal(document.getElementById('addNewSKUItem')).hide();
+}
+
+
 let updated = {}
 async function postUpdate() {
     let description = document.getElementById('recipeDescription').value
@@ -324,6 +365,18 @@ async function deleteInstruction(index){
     recipe.instructions = instructions
     updated.instructions = instructions
     await replenishInstructions()
+}
+
+
+async function openNewSKUModal() {
+    let itemsModal = document.getElementById('addNewSKUItem')
+    document.getElementById('newSKUName').value = ""
+    document.getElementById('newSKUSubtype').value = "FOOD"
+    document.getElementById('newSKUQty').value = 1
+    document.getElementById('newSKUUOM').value = "1"
+    document.getElementById('newWeblink').value = ""
+    document.getElementById('newSKUCost').value = 0.00
+    UIkit.modal(itemsModal).show();
 }
 
 let pagination_current = 1;

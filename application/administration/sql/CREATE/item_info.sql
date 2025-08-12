@@ -9,6 +9,6 @@ CREATE TABLE IF NOt EXISTS %%site_name%%_item_info (
     safety_stock FLOAT8,
     lead_time_days FLOAT8,
     ai_pick BOOLEAN,
-    prefixes INTEGER [],
-    UNIQUE(barcode)
+    prefixes INTEGER []
+    UNIQUE(item_info_uuid)
 );

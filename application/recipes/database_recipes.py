@@ -126,6 +126,59 @@ def getPicturePath(site:str, payload:tuple):
             rows = cur.fetchone()[0]
             return rows
 
+def selectSiteTuple(payload, convert=True):
+    """ payload (tuple): (site_name,) """
+    site = ()
+    database_config = config.config()
+    select_site_sql = f"SELECT * FROM sites WHERE site_name = %s;"
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(select_site_sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    site = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    site = rows
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, select_site_sql)
+    return site
+
+def getZone(site:str, payload:tuple, convert:bool=True):
+    selected = ()
+    database_config = config.config()
+    sql = f"SELECT * FROM {site}_zones WHERE id=%s;"
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    selected = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    selected = rows
+        return selected
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+    
+
+def getLocation(site:str, payload:tuple, convert:bool=True):
+    selected = ()
+    database_config = config.config()
+    sql = f"SELECT * FROM {site}_locations WHERE id=%s;"
+    try:
+        with psycopg2.connect(**database_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    selected = postsqldb.tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    selected = rows
+        return selected
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
 def selectItemLocationsTuple(site_name, payload, convert=True, conn=None):
     item_locations = ()
     self_conn = False
@@ -311,6 +364,158 @@ def insertTransactionsTuple(site, payload, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
     return transaction
+
+def insertLogisticsInfoTuple(site, payload, convert=True, conn=None):
+    """ payload (tuple): (barcode[str], primary_location[str], auto_issue_location[str], dynamic_locations[jsonb], 
+                        location_data[jsonb], quantity_on_hand[float]) """
+    logistics_info = ()
+    self_conn = False
+
+    with open(f"application/recipes/sql/insertLogisticsInfoTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                logistics_info = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                logistics_info = rows
+
+        if self_conn:
+            conn.commit()
+            conn.close()
+        
+        return logistics_info
+    
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+def insertItemInfoTuple(site, payload, convert=True, conn=None):
+    """ payload (tuple): (barcode[str], linked_items[lst2pgarr], shopping_lists[lst2pgarr], recipes[lst2pgarr], groups[lst2pgarr], 
+                            packaging[str], uom[str], cost[float], safety_stock[float], lead_time_days[float], ai_pick[bool]) """
+    item_info = ()
+    self_conn = False
+    with open(f"application/recipes/sql/insertItemInfoTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                item_info = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                item_info = rows
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return item_info
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+def insertFoodInfoTuple(site, payload, convert=True, conn=None):
+    """ payload (_type_): (ingrediants[lst2pgarr], food_groups[lst2pgarr], nutrients[jsonstr], expires[bool]) """
+    food_info = ()
+    self_conn = False
+    with open(f"application/recipes/sql/insertFoodInfoTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                food_info = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                food_info = rows
+        
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return food_info
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+    
+def insertItemTuple(site, payload, convert=True, conn=None):
+    """ payload (tuple): (barcode[str], item_name[str], brand[int], description[str], 
+        tags[lst2pgarr], links[jsonb], item_info_id[int], logistics_info_id[int], 
+        food_info_id[int], row_type[str], item_type[str], search_string[str]) """
+    item = ()
+    self_conn = False
+    with open(f"application/recipes/sql/insertItemTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                item = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                item = rows
+
+        if self_conn:
+            conn.commit()
+            conn.close()
+        
+        return item
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+
+def insertItemLocationsTuple(site, payload, convert=True, conn=None):
+    """ payload (tuple): (part_id[int], location_id[int], quantity_on_hand[float], cost_layers[lst2pgarr]) """
+    location = ()
+    self_conn = False
+    database_config = config.config()
+    with open(f"application/recipes/sql/insertItemLocationsTuple.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                location = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                location = rows
+        
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return location
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
 
 def postAddRecipe(site:str, payload:tuple, convert:bool=True):
     database_config = config.config()

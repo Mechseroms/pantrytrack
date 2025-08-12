@@ -157,6 +157,34 @@ def postSKUItem():
         return jsonify({'recipe': recipe, 'error': False, 'message': 'Recipe Item was added successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} is not allowed!'})
 
+@recipes_api.route('/api/postNewSKUItem', methods=["POST"])
+@access_api.login_required
+def postNewSKUItem():
+    recipe = {}
+    if request.method == "POST":
+        recipe_id = int(request.get_json()['recipe_id'])
+        site_name = session['selected_site']
+        user_id = session['user_id']
+
+        _, item_uuid= recipe_processes.postNewSkuFromRecipe(site_name, user_id, request.get_json())    
+
+        item = database_recipes.selectItemTupleByUUID(site_name, (item_uuid,))
+
+        recipe_item = db.RecipesTable.ItemPayload(
+            item_uuid=item_uuid,
+            rp_id=recipe_id,
+            item_type='sku',
+            item_name=request.get_json()['name'],
+            uom=request.get_json()['uom_id'],
+            qty=float(request.get_json()['qty']),
+            item_id=item['item_id'],
+            links={'main': request.get_json()['main_link']}
+        )
+        database_recipes.postAddRecipeItem(site_name, recipe_item.payload())
+        recipe = database_recipes.getRecipe(site_name, (recipe_id, ))
+        return jsonify({'recipe': recipe, 'error': False, 'message': 'Recipe Item was added successful!'})
+    return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} is not allowed!'})
+
 @recipes_api.route('/postImage/<recipe_id>', methods=["POST"])
 @access_api.login_required
 def uploadImage(recipe_id):

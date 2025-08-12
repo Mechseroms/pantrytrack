@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS %%site_name%%_food_info (
     ingrediants TEXT [],
     nutrients JSONB,
     expires BOOLEAN,
-    default_expiration FLOAT8
+    default_expiration FLOAT8,
+    UNIQUE(food_info_uuid)
 );

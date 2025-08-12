@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS %%site_name%%_logistics_info(
     primary_zone INTEGER NOT NULL,
     auto_issue_location INTEGER NOT NULL,
     auto_issue_zone INTEGER NOT NULL,
-    UNIQUE(barcode),
+    UNIQUE(logistics_info_uuid),
     CONSTRAINT fk_primary_location
         FOREIGN KEY(primary_location) 
         REFERENCES %%site_name%%_locations(id),

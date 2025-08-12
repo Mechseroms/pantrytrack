@@ -45,10 +45,6 @@ class ItemInfoPayload:
     lead_time_days: float = 0.0
     ai_pick: bool = False
     prefixes: list = field(default_factory=list)
-
-    def __post_init__(self):
-        if not isinstance(self.barcode, str):
-            raise TypeError(f"barcode must be of type str; not {type(self.barcode)}")
         
     def payload(self):
         return (

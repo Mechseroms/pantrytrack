@@ -174,6 +174,8 @@
                                         <div class="uk-button-group  class="uk-width-expand" ">
                                             <button uk-toggle="target: #addCustomItem" type="button" id="addCustom" class="uk-button uk-button-default">Add Custom</button>
                                             <button id="addSku" onclick="openSKUModal()" class="uk-button uk-button-default">Add SKU</button>
+                                            <button id="addSku" onclick="openNewSKUModal()" class="uk-button uk-button-default">Create SKU</button>
+
                                         </div>
                                     </div>
                                     <div class="uk-width-1-1 uk-margin-small-top">
@@ -315,6 +317,69 @@
                 </div>
                 <div class="uk-modal-footer uk-text-right">
                     <button onclick="addCustomItem()" class="uk-button uk-button-primary" type="button">Add</button>
+                </div>
+            </div>
+        </div>
+        <!-- add New SKU Line Modal-->
+        <div id="addNewSKUItem" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 id="lineHeader" class="uk-modal-title">Add New Item...</h2>
+                </div>
+                <div class="uk-modal-body">
+                    <div class="uk-margin-small">
+                        <p class="uk-text-meta">Adding a new sku with both create a new item in the system with the information you provide and also add it to the recipe.
+                        </p>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="newSKUType">Line Type</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input uk-disabled" id="newSKUType" type="text" placeholder="" value="new sku">
+                        </div>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="newSKUName">Item Name</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="newSKUName" type="text" placeholder="">
+                        </div>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="newSKUSubtype">Item Type</label>
+                        <select id="newSKUSubtype" class="uk-select" aria-label="Select">
+                            <option value="FOOD">Food</option>
+                            <option value="FOOD_PLU">Food (PLU)</option>
+                        </select>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="newSKUQty">Quantity</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="newSKUQty" type="number">
+                        </div>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="newSKUUOM">Unit of Measure</label>
+                        <select id="newSKUUOM" class="uk-select" aria-label="Select">
+                            {% for unit in units %}
+                                <option value="{{unit['id']}}">{{unit['fullname']}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="newSKUCost">Cost</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="newSKUCost" type="number">
+                        </div>
+                    </div>
+                    <div class="uk-margin-small">
+                        <label class="uk-form-label" for="newWeblink">Weblink</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="newWeblink" type="text" placeholder="">
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-modal-footer uk-text-right">
+                    <button onclick="addNewSKUItem()" class="uk-button uk-button-primary" type="button">Add</button>
                 </div>
             </div>
         </div>
