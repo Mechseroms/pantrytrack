@@ -341,8 +341,13 @@
                     <div class="uk-margin-small">
                         <label class="uk-form-label" for="newSKUName">Item Name</label>
                         <div class="uk-form-controls">
-                            <input class="uk-input" id="newSKUName" type="text" placeholder="">
+                            <input class="uk-input" id="newSKUName" autocomplete="off" type="text" placeholder="">
                         </div>
+                        <div id="item-warning" class="uk-alert uk-alert-warning uk-padding-small uk-margin-small-top">
+                            <p class="uk-text-small uk-margin-small-top uk-margin-remove-bottom" id="similar-items-list"><span uk-icon="icon: warning"></span><strong>Similar item(s) found:</strong></p>
+                            <div class="uk-text-small uk-margin-remove-top">Are you sure you want to add a new item?</div>
+                        </div>
+                        <ul id="suggestions"></ul>
                     </div>
                     <div class="uk-margin-small">
                         <label class="uk-form-label" for="newSKUSubtype">Item Type</label>

@@ -379,6 +379,62 @@ async function openNewSKUModal() {
     UIkit.modal(itemsModal).show();
 }
 
+
+
+// Suggestions for new sku Model
+var fullsuggestions = '';
+var shortsuggestions = '';
+async function showMoreSuggestions(){
+    document.getElementById('similar-items-list').innerHTML = fullsuggestions;
+}
+
+async function showLessSuggestions(){
+    document.getElementById('similar-items-list').innerHTML = shortsuggestions;
+}
+
+document.getElementById('newSKUName').addEventListener('input', async function(e) {
+    let query = e.target.value.trim();
+    if(query.length === 0) {
+        document.getElementById('suggestions').innerHTML = '';
+        return;
+    }
+    let resp = await fetch(`/recipes/api/fuzzy-match?q=${encodeURIComponent(query)}`);
+    let data = await resp.json();
+    let matches = data.matches
+    let total_matches = 3
+    let html = `<span uk-icon="icon: warning"></span> Similar item(s) found: `
+    let fullhtml = '<span uk-icon="icon: warning"></span> Similar item(s) found: '
+
+    if(matches.length){
+        document.getElementById('item-warning').hidden = false
+        if (matches.length < total_matches){
+            total_matches = matches.length
+        }
+
+        for (let i = 0; i < total_matches; i++){
+            html = html + `<a class="uk-link-muted" href="/items/${matches[i][0]}" target="_blank"><strong>${matches[i][1]}</strong></a>, `
+            fullhtml = fullhtml + `<a class="uk-link-muted" href="/items/${matches[i][0]}" target="_blank"><strong>${matches[i][1]}</strong></a>, `
+            shortsuggestions = html
+            fullsuggestions = fullhtml
+        }
+
+        for (let i = total_matches + 1; i < matches.length; i++){
+            fullhtml = fullhtml + `<a class="uk-link-muted" href="/items/${matches[i][0]}" target="_blank"><strong>${matches[i][1]}</strong></a>, `
+            fullsuggestions = fullhtml + `<a class="uk-link-muted" onclick="showLessSuggestions()"><strong>Show less</strong></a>`
+        }
+
+        if(matches.length > 3 ){
+            html = html + `<a class="uk-link-muted" onclick="showMoreSuggestions()"><strong>${matches.length - (total_matches+1)}</strong></a> more matches...`
+        }
+        shortsuggestions = html
+        document.getElementById('similar-items-list').innerHTML = html;
+    } else {
+        document.getElementById('item-warning').hidden = true
+        document.getElementById('similar-items-list').innerHTML = '';
+    }
+});
+
+
 let pagination_current = 1;
 let pagination_end = 10;
 let search_string = "";

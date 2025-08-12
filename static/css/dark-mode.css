@@ -254,7 +254,11 @@ select, option {
     color: var(--error-text);
 }
 
-
+.uk-alert {
+    background-color: rgba(255, 115, 0, 0.404);
+    color: var(--primary-text);
+    border-radius: var(--radius);
+}
 
 /* Darkmode settings for planner plage */
 

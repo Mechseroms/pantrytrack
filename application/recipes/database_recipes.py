@@ -125,6 +125,33 @@ def getPicturePath(site:str, payload:tuple):
             cur.execute(f"SELECT picture_path FROM {site}_recipes WHERE id=%s;", payload)
             rows = cur.fetchone()[0]
             return rows
+        
+def getFuzzyMatch(site: str, payload, convert=True, conn=None):
+    matches = []
+    self_conn = False
+    sql = f"SELECT id, item_name FROM {site}_items WHERE LOWER(item_name) ILIKE '%%' || LOWER(TRIM(%s)) || '%%';"
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+        print(payload)
+        with conn.cursor() as cur:
+            cur.execute(sql, (payload,))
+            rows = cur.fetchall()
+            print(rows)
+            if rows and convert:
+                matches = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+            elif rows and not convert:
+                matches = rows
+
+        if self_conn:
+            conn.close()
+
+        return matches
+    except Exception as error:
+        return error
 
 def selectSiteTuple(payload, convert=True):
     """ payload (tuple): (site_name,) """

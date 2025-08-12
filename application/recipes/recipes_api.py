@@ -228,7 +228,6 @@ def saveRecipeItem():
         return jsonify({'recipe': recipe, 'error': False, 'message': f'Recipe Item {updated_line['item_name']} was updated successful!'})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} not allowed!'})
 
-
 @recipes_api.route('/api/receiptRecipe', methods=["POST"])
 @access_api.login_required
 def receiptRecipe():
@@ -240,3 +239,13 @@ def receiptRecipe():
             return jsonify(status=400, message=message)
         return jsonify(status=201, message="Recipe Transacted Successfully!")
     return jsonify(status=405, message=f"{request.method} is not an allowed method on this endpoint!")
+
+@recipes_api.route('/api/fuzzy-match')
+@access_api.login_required
+def fuzzyMatchItems():
+    query = request.args.get('q', '').strip().lower()
+    site_name = session['selected_site']
+    print(query)
+    matches = database_recipes.getFuzzyMatch(site_name, query, convert=False)
+    return jsonify(status=201, message="matches fetched Successfully!", matches=matches)
+    
