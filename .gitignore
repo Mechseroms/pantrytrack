@@ -7,3 +7,4 @@ static/css/uikit.min.css
 instance/application.cfg.py
 test.py
 .VScodeCounter
+celerybeat-schedule
