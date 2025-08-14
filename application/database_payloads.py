@@ -305,24 +305,22 @@ class ReceiptPayload:
     
 @dataclass
 class ShoppingListItemPayload:
-    uuid: str
-    sl_id: int
+    list_uuid: str
     item_type: str
     item_name: str
-    uom: str
+    uom: int
     qty: float
-    item_id: int = None
+    item_uuid: str = None
     links: dict = field(default_factory=dict)
 
     def payload(self):
         return (
-            self.uuid,
-            self.sl_id,
+            self.list_uuid,
             self.item_type,
             self.item_name,
             self.uom,
             self.qty,
-            self.item_id,
+            self.item_uuid,
             json.dumps(self.links)
         )
     

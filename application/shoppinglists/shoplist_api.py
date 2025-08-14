@@ -7,7 +7,7 @@ import math
 # APPLICATION IMPORTS
 from application import postsqldb, database_payloads
 from application.access_module import access_api
-from application.shoppinglists import shoplist_database
+from application.shoppinglists import shoplist_database, shoplist_processess
 
 shopping_list_api = Blueprint('shopping_list_API', __name__, template_folder="templates", static_folder="static")
 
@@ -19,14 +19,14 @@ def shopping_lists():
     sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
     return render_template("lists.html", current_site=session['selected_site'], sites=sites)
 
-@shopping_list_api.route("/<mode>/<id>")
+@shopping_list_api.route("/<mode>/<list_uuid>")
 @access_api.login_required
-def shopping_list(mode, id):
+def shopping_list(mode, list_uuid):
     sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
     if mode == "view":
-        return render_template("view.html", id=id, current_site=session['selected_site'], sites=sites)
+        return render_template("view.html", list_uuid=list_uuid, current_site=session['selected_site'], sites=sites)
     if mode == "edit":
-        return render_template("edit.html", id=id, current_site=session['selected_site'], sites=sites)
+        return render_template("edit.html", list_uuid=list_uuid, current_site=session['selected_site'], sites=sites)
     return redirect("/")
 
 # API CALLS
@@ -65,20 +65,19 @@ def getShoppingLists():
 
         for list in lists:
             
-            if list['type'] == 'calculated':
+            if list['sub_type'] == 'calculated':
                 items = []
                 not_items = shoplist_database.getItemsSafetyStock(site_name)
                 for item in not_items:
                     new_item = {
-                        'id': item['id'], 
-                        'uuid': item['barcode'],
-                        'sl_id': 0,
+                        'list_item_uuid': 0,
+                        'list_uuid': list['list_uuid'],
                         'item_type': 'sku',
                         'item_name': item['item_name'],
-                        'uom': item['uom'],
-                        'qty': float(float(item['safety_stock']) - float(item['total_sum'])),
-                        'item_id': item['id'],
-                        'links': item['links']
+                        'uom': item['item_info']['uom'],
+                        'qty': float(float(item['item_info']['safety_stock']) - float(item['total_sum'])),
+                        'links': item['links'],
+                        'uom_fullname': ['uom_fullname']
                         }
                     items.append(new_item)
                 list['sl_items'] = items
@@ -90,9 +89,9 @@ def getShoppingLists():
 @access_api.login_required
 def getShoppingList():
     if request.method == "GET":
-        sl_id = int(request.args.get('id', 1))
+        list_uuid = request.args.get('list_uuid', 1)
         site_name = session['selected_site']
-        list = shoplist_database.getShoppingList(site_name, (sl_id, ))
+        list = shoplist_database.getShoppingList(site_name, (list_uuid, ))
         return jsonify({'shopping_list': list, 'error': False, 'message': 'Lists queried successfully!'})
 
 # Added to Database
@@ -101,9 +100,9 @@ def getShoppingList():
 def getShoppingListItem():
     list_item = {}
     if request.method == "GET":
-        sli_id = int(request.args.get('sli_id', 1))
+        list_item_uuid = request.args.get('list_item_uuid', '')
         site_name = session['selected_site']
-        list_item = shoplist_database.getShoppingListItem(site_name, (sli_id, ))
+        list_item = shoplist_database.getShoppingListItem(site_name, (list_item_uuid, ))
         return jsonify({'list_item': list_item, 'error': False, 'message': 'Lists Items queried successfully!'})
     return jsonify({'list_item': list_item, 'error': True, 'message': 'List Items queried unsuccessfully!'})
 
@@ -125,6 +124,24 @@ def getItems():
         return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":True, "message":"There was an error with this GET statement"})
 
+@shopping_list_api.route('/api/getRecipesModal', methods=["GET"])
+@access_api.login_required
+def getRecipesModal():
+    recordsets = []
+    count = 0
+    if request.method == "GET":
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        search_string = request.args.get('search_string', 10)
+        site_name = session['selected_site']
+        offset = (page - 1) * limit        
+        
+        payload = (search_string, limit, offset)
+        recordsets, count = shoplist_database.getRecipesModal(site_name, payload)
+        return jsonify(status=201, recipes=recordsets, end=math.ceil(count/limit), message=f"Recipes fetched successfully!")
+    return jsonify(status=405, recipes=recordsets, end=math.ceil(count/limit), message=f"{request.method} is not an accepted method on this endpoint!")
+
+
 # Added to database
 @shopping_list_api.route('/api/postListItem', methods=["POST"])
 @access_api.login_required
@@ -133,6 +150,27 @@ def postListItem():
         data = request.get_json()['data']
         site_name = session['selected_site']
         sl_item = database_payloads.ShoppingListItemPayload(
+            list_uuid = data['list_uuid'],
+            item_type=data['item_type'],
+            item_name=data['item_name'],
+            uom=data['uom'],
+            qty=data['qty'],
+            item_uuid=data['item_uuid'],
+            links=data['links']
+        )
+        shoplist_database.insertShoppingListItemsTuple(site_name, sl_item.payload())
+        return jsonify({"error":False, "message":"items fetched succesfully!"})
+    return jsonify({"error":True, "message":"There was an error with this GET statement"})
+
+@shopping_list_api.route('/api/postRecipeLine', methods=["POST"])
+@access_api.login_required
+def postRecipeLine():
+    if request.method == "POST":
+        data = request.get_json()
+        
+        site_name = session['selected_site']
+        user_id = session['user_id']
+        """sl_item = database_payloads.ShoppingListItemPayload(
             uuid = data['uuid'],
             sl_id = data['sl_id'],
             item_type=data['item_type'],
@@ -142,7 +180,9 @@ def postListItem():
             item_id=data['item_id'],
             links=data['links']
         )
-        shoplist_database.insertShoppingListItemsTuple(site_name, sl_item.payload())
+        shoplist_database.insertShoppingListItemsTuple(site_name, sl_item.payload())"""
+        shoplist_processess.addRecipeItemsToList(site_name, data, user_id)
+
         return jsonify({"error":False, "message":"items fetched succesfully!"})
     return jsonify({"error":True, "message":"There was an error with this GET statement"})
 
@@ -162,10 +202,10 @@ def deleteListItem():
 @access_api.login_required
 def saveListItem():
     if request.method == "POST":
-        sli_id = request.get_json()['sli_id']
+        list_item_uuid = request.get_json()['list_item_uuid']
         update = request.get_json()['update']
         site_name = session['selected_site']
-        shoplist_database.updateShoppingListItemsTuple(site_name, {'id': sli_id, 'update': update})
+        shoplist_database.updateShoppingListItemsTuple(site_name, {'uuid': list_item_uuid, 'update': update})
         return jsonify({"error":False, "message":"items fetched succesfully!"})
     return jsonify({"error":True, "message":"There was an error with this GET statement"})
 
@@ -179,6 +219,7 @@ def getSKUItemsFull():
         site_name = session['selected_site']
         
         not_items = shoplist_database.getItemsSafetyStock(site_name)
+        print(not_items)
         for item in not_items:
             new_item = {
                 'id': item['id'], 
@@ -186,10 +227,11 @@ def getSKUItemsFull():
                 'sl_id': 0,
                 'item_type': 'sku',
                 'item_name': item['item_name'],
-                'uom': item['uom'],
-                'qty': float(float(item['safety_stock']) - float(item['total_sum'])),
+                'uom': item['item_info']['uom'],
+                'qty': float(float(item['item_info']['safety_stock']) - float(item['total_sum'])),
                 'item_id': item['id'],
-                'links': item['links']
+                'links': item['links'],
+                'uom_fullname': item['uom_fullname']
                 }
             items.append(new_item)
         return jsonify({"list_items":items, "error":False, "message":"items fetched succesfully!"})

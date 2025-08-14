@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     await replenishForm(shopping_list)
 
     list_items = shopping_list.sl_items
-    if(shopping_list.type == "calculated"){
+    if(shopping_list.sub_type == "calculated"){
         list_items = await fetchItemsFullCalculated()
     }
 
@@ -37,7 +37,7 @@ async function replenishLineTable(sl_items){
         nameCell.innerHTML = namefield
 
         let qtyuomCell = document.createElement('td')
-        qtyuomCell.innerHTML = `${sl_items[i].qty} ${sl_items[i].uom.fullname}`
+        qtyuomCell.innerHTML = `${sl_items[i].qty} ${sl_items[i].uom_fullname}`
 
         tableRow.append(checkboxCell, nameCell, qtyuomCell)
         listItemsTableBody.append(tableRow)
@@ -46,7 +46,7 @@ async function replenishLineTable(sl_items){
 
 async function fetchShoppingList() {
     const url = new URL('/shopping-lists/api/getList', window.location.origin);
-    url.searchParams.append('id', sl_id);
+    url.searchParams.append('list_uuid', list_uuid);
     const response = await fetch(url);
     data =  await response.json();
     return data.shopping_list; 

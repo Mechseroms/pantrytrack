@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function replenishShoppingListCards(lists) {
     let shopping_list_lists = document.getElementById('shopping_list_lists')
     shopping_list_lists.innerHTML = ""
-
+    console.log(lists)
     for(let i=0; i < lists.length; i++){
         console.log(lists[i])
         let main_div = document.createElement('div')
@@ -25,7 +25,7 @@ async function replenishShoppingListCards(lists) {
 
         let badge_div_dos = document.createElement('div')
         badge_div_dos.setAttribute('class', 'uk-card-badge uk-label')
-        badge_div_dos.innerHTML = lists[i].type
+        badge_div_dos.innerHTML = lists[i].sub_type
         badge_div_dos.style = "margin-top: 30px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width:150px; text-align: right;"
 
         let card_header_div = document.createElement('div')
@@ -58,12 +58,12 @@ async function replenishShoppingListCards(lists) {
         editOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
         editOp.innerHTML = '<span uk-icon="icon: pencil"></span>   Edit'
         editOp.style = "margin-right: 10px;"
-        editOp.href = `/shopping-lists/edit/${lists[i].id}`
+        editOp.href = `/shopping-lists/edit/${lists[i].list_uuid}`
 
         let viewOp = document.createElement('a')
         viewOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
         viewOp.innerHTML = '<span uk-icon="icon: eye"></span>    View'
-        viewOp.href = `/shopping-lists/view/${lists[i].id}`
+        viewOp.href = `/shopping-lists/view/${lists[i].list_uuid}`
         //viewOp.style = "margin-right: 20px;"
 
         

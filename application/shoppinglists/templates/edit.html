@@ -160,6 +160,7 @@
                                     <li class="uk-nav-header">Line Type</li>
                                     <li><a href="#customModal" uk-toggle>Custom</a></li>
                                     <li><a onclick="openSKUModal()">SKU</a></li>
+                                    <li><a onclick="openRecipesModal()">Recipes</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -209,6 +210,39 @@
             </div>
         </div>
         <!-- This is the modal -->
+        <!-- Recipes modal lookup -->
+        <div id="recipesModal" uk-modal>
+            <div id="recipesModalInner" class="uk-modal-dialog uk-modal-body " uk-overflow-auto>
+                <h2 class="uk-modal-title">Select Item</h2>
+                <p>Select a Recipe from the system...</p>
+                <div id="searchRecipesForm" onkeydown="searchRecipesTable(event)" class="uk-search uk-search-default uk-align-center">
+                    <input id="searchRecipesInput" class="uk-border-pill uk-search-input" type="search" placeholder="" aria-label="">
+                    <span class="uk-search-icon-flip" uk-search-icon></span>
+                </div>
+                <nav aria-label="Pagination">
+                    <ul id="recipesPage" class="uk-pagination uk-flex-center" uk-margin>
+                        <li><a href="#"><span uk-pagination-previous></span></a></li>
+                        <li><a href="#">1</a></li>
+                        <li class="uk-disabled"><span>…</span></li>
+                        <li><a href="#">5</a></li>
+                        <li><a href="#">6</a></li>
+                        <li class="uk-active"><span aria-current="page">7</span></li>
+                        <li><a href="#">8</a></li>
+                        <li><a href="#"><span uk-pagination-next></span></a></li>
+                    </ul>
+                </nav>
+                <table class="uk-table uk-table-striped uk-table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="receipesTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <!-- Items modal lookup -->
         <div id="itemsModal" uk-modal>
             <div id="itemsModalInner" class="uk-modal-dialog uk-modal-body " uk-overflow-auto>
@@ -230,12 +264,11 @@
                         <li><a href="#"><span uk-pagination-next></span></a></li>
                     </ul>
                 </nav>
-                <table class="uk-table uk-table-striped uk-table-hover">
+                <table class="uk-table uk-table-striped">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Barcode</th>
                             <th>Name</th>
+                            <th>Operations</th>
                         </tr>
                     </thead>
                     <tbody id="itemsTableBody">
@@ -324,5 +357,5 @@
         </div>
     </body>
     <script src="{{ url_for('shopping_list_API.static', filename='js/shoppingListEditHandler.js') }}"></script>
-    <script>const sl_id = {{id|tojson}}</script>
+    <script>const list_uuid = {{list_uuid|tojson}}</script>
 </html>

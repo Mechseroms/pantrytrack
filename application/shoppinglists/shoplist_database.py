@@ -122,6 +122,35 @@ def getShoppingListItem(site, payload, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def getRecipeItemsByUUID(site, payload, convert=True, conn=None):
+    recordset = ()
+    self_conn = False
+    with open('application/shoppinglists/sql/getRecipeItemsByUUID.sql', 'r') as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchall()
+            if rows and convert:
+                recordset = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+            elif rows and not convert:
+                recordset = rows
+        
+        if self_conn:
+            conn.close()
+
+        return recordset
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+
 def getItemsWithQOH(site, payload, convert=True, conn=None):
     recordset = []
     count = 0
@@ -161,11 +190,47 @@ def getItemsWithQOH(site, payload, convert=True, conn=None):
 
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
+    
+def getRecipesModal(site, payload, convert=True, conn=None):
+    recordsets = []
+    count = 0
+    self_conn = False
+
+    
+    sql = f"SELECT recipes.recipe_uuid, recipes.name FROM {site}_recipes recipes WHERE recipes.name LIKE '%%' || %s || '%%' LIMIT %s OFFSET %s;"
+    sql_count = f"SELECT COUNT(*) FROM {site}_recipes recipes WHERE recipes.name LIKE '%%' || %s || '%%';"
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchall()
+            if rows and convert:
+                recordsets = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+            if rows and not convert:
+                recordsets = rows
+            
+
+            cur.execute(sql_count, (payload[0], ))
+            count = cur.fetchone()[0]
+           
+        if self_conn:
+            conn.close()
+
+        return recordsets, count
+
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
 
 def deleteShoppingListItemsTuple(site_name, payload, convert=True, conn=None):
     deleted = ()
     self_conn = False
-    sql = f"WITH deleted_rows AS (DELETE FROM {site_name}_shopping_list_items WHERE id IN ({','.join(['%s'] * len(payload))}) RETURNING *) SELECT * FROM deleted_rows;"
+    sql = f"WITH deleted_rows AS (DELETE FROM {site_name}_shopping_list_items WHERE {site_name}_shopping_list_items.list_item_uuid IN ({','.join(['%s'] * len(payload))}) RETURNING *) SELECT * FROM deleted_rows;"
     try:
 
         if not conn:
@@ -252,8 +317,8 @@ def updateShoppingListItemsTuple(site, payload, convert=True, conn=None):
     updated = ()
     self_conn = False
     set_clause, values = postsqldb.updateStringFactory(payload['update'])
-    values.append(payload['id'])
-    sql = f"UPDATE {site}_shopping_list_items SET {set_clause} WHERE id=%s RETURNING *;"
+    values.append(payload['uuid'])
+    sql = f"UPDATE {site}_shopping_list_items SET {set_clause} WHERE list_item_uuid=%s::uuid RETURNING *;"
     try:
         if not conn:
             database_config = config.config()
