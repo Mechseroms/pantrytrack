@@ -7,5 +7,6 @@ CREATE TABLE IF NOT EXISTS %%site_name%%_shopping_list_items (
     qty FLOAT8 NOT NULL,
     item_uuid UUID DEFAULT NULL,
     links JSONB DEFAULT '{"main": ""}',
+    list_item_state BOOLEAN DEFAULT false,
     UNIQUE(list_uuid, item_uuid)
 );
