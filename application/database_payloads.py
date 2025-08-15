@@ -628,7 +628,8 @@ class SiteManager:
         "item_locations",
         "conversions",
         "sku_prefix",
-        "barcodes"
+        "barcodes",
+        "plan_events"
     ]
         self.drop_order = [
         "item_info",
@@ -653,5 +654,6 @@ class SiteManager:
         "item_locations",
         "conversions",
         "sku_prefix",
-        "barcodes"
+        "barcodes",
+        "plan_events"
     ]

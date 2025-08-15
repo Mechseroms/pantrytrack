@@ -26,7 +26,7 @@ def postNewBlankItem(site_name: str, user_id: int, data: dict, conn=None):
         self_conn = True
 
     site = database_items.selectSiteTuple((site_name,))
-    default_zone = database_items.getZone(site_name,(site['default_zone'], ))
+    default_zone = database_items.getZone(site_name, (site['default_zone'], ))
     default_location = database_items.getLocation(site_name, (site['default_primary_location'],))
     uuid = f"{default_zone['name']}@{default_location['name']}"
     

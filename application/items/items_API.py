@@ -121,7 +121,6 @@ def pagninate_items():
             sort_order = f"item.{sort} {order}"
         
         items, count = database_items.getItemsWithQOH(site_name, (search_string, limit, offset, sort_order))
-        
         return jsonify({'items': items, "end": math.ceil(count/limit), 'error':False, 'message': 'Items Loaded Successfully!'})
     return jsonify({'items': items, "end": math.ceil(count/limit), 'error':True, 'message': 'There was a problem loading the items!'})
 
@@ -151,7 +150,6 @@ def getModalPrefixes():
         site_name = session['selected_site']
         offset = (page - 1) * limit
         recordset, count = database_items.getPrefixes(site_name, (limit, offset))
-        print(recordset, count)
         return jsonify({"prefixes":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"prefixes":recordset, "end":math.ceil(count/limit), "error":True, "message":f"method {request.method} is not allowed!"})
 
