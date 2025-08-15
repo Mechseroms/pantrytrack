@@ -728,3 +728,176 @@
 2025-08-09 16:19:19.975659 --- INFO --- conversions DROPPED!
 2025-08-09 16:19:19.979690 --- INFO --- sku_prefix DROPPED!
 2025-08-09 16:19:19.983693 --- INFO --- barcodes DROPPED!
+2025-08-14 19:29:53.905799 --- INFO --- logins Created!
+2025-08-14 19:29:53.913684 --- INFO --- sites Created!
+2025-08-14 19:29:53.921143 --- INFO --- roles Created!
+2025-08-14 19:29:53.927994 --- INFO --- units Created!
+2025-08-14 19:29:53.938165 --- INFO --- cost_layers Created!
+2025-08-14 19:29:53.948815 --- INFO --- linked_items Created!
+2025-08-14 19:29:53.957434 --- INFO --- brands Created!
+2025-08-14 19:29:53.969109 --- ERROR --- DatabaseError(message='syntax error at or near "gen_random_uuid"LINE 3:     food_info_uuid UUID gen_random_uuid(),                                ^', payload=CREATE TABLE IF NOT EXISTS teast_food_info (
+    id SERIAL PRIMARY KEY,
+    food_info_uuid UUID gen_random_uuid(),
+    food_groups TEXT [],
+    ingrediants TEXT [],
+    nutrients JSONB,
+    expires BOOLEAN,
+    default_expiration FLOAT8,
+    UNIQUE(food_info_uuid)
+);, sql='food_info')
+2025-08-14 19:34:05.685135 --- INFO --- logins Created!
+2025-08-14 19:34:05.689988 --- INFO --- sites Created!
+2025-08-14 19:34:05.694012 --- INFO --- roles Created!
+2025-08-14 19:34:05.697705 --- INFO --- units Created!
+2025-08-14 19:34:05.704841 --- INFO --- cost_layers Created!
+2025-08-14 19:34:05.712139 --- INFO --- linked_items Created!
+2025-08-14 19:34:05.718040 --- INFO --- brands Created!
+2025-08-14 19:34:05.725611 --- INFO --- food_info Created!
+2025-08-14 19:34:05.737597 --- ERROR --- DatabaseError(message='syntax error at or near "gen_random_uuid"LINE 3:     item_info_uuid UUID gen_random_uuid(),                                ^', payload=CREATE TABLE IF NOt EXISTS teat_item_info (
+    id SERIAL PRIMARY KEY,
+    item_info_uuid UUID gen_random_uuid(),
+    barcode VARCHAR(255),
+    packaging VARCHAR(255),
+    uom_quantity FLOAT8,
+    uom INTEGER,
+    cost FLOAT8,
+    safety_stock FLOAT8,
+    lead_time_days FLOAT8,
+    ai_pick BOOLEAN,
+    prefixes INTEGER []
+    UNIQUE(item_info_uuid)
+);, sql='item_info')
+2025-08-14 19:34:50.829663 --- INFO --- logins Created!
+2025-08-14 19:34:50.834886 --- INFO --- sites Created!
+2025-08-14 19:34:50.839194 --- INFO --- roles Created!
+2025-08-14 19:34:50.843224 --- INFO --- units Created!
+2025-08-14 19:34:50.850921 --- INFO --- cost_layers Created!
+2025-08-14 19:34:50.858422 --- INFO --- linked_items Created!
+2025-08-14 19:34:50.863795 --- INFO --- brands Created!
+2025-08-14 19:34:50.870953 --- INFO --- food_info Created!
+2025-08-14 19:34:50.883113 --- ERROR --- DatabaseError(message='syntax error at or near "("LINE 13:     UNIQUE(item_info_uuid)                   ^', payload=CREATE TABLE IF NOt EXISTS teat_item_info (
+    id SERIAL PRIMARY KEY,
+    item_info_uuid UUID DEFAULT gen_random_uuid() NOT NULL,
+    barcode VARCHAR(255),
+    packaging VARCHAR(255),
+    uom_quantity FLOAT8,
+    uom INTEGER,
+    cost FLOAT8,
+    safety_stock FLOAT8,
+    lead_time_days FLOAT8,
+    ai_pick BOOLEAN,
+    prefixes INTEGER []
+    UNIQUE(item_info_uuid)
+);, sql='item_info')
+2025-08-14 19:35:21.145030 --- INFO --- logins Created!
+2025-08-14 19:35:21.150356 --- INFO --- sites Created!
+2025-08-14 19:35:21.154977 --- INFO --- roles Created!
+2025-08-14 19:35:21.159169 --- INFO --- units Created!
+2025-08-14 19:35:21.167029 --- INFO --- cost_layers Created!
+2025-08-14 19:35:21.174711 --- INFO --- linked_items Created!
+2025-08-14 19:35:21.180712 --- INFO --- brands Created!
+2025-08-14 19:35:21.188182 --- INFO --- food_info Created!
+2025-08-14 19:35:21.199559 --- INFO --- item_info Created!
+2025-08-14 19:35:21.210793 --- INFO --- zones Created!
+2025-08-14 19:35:21.221603 --- INFO --- locations Created!
+2025-08-14 19:35:21.235380 --- ERROR --- DatabaseError(message='syntax error at or near "gen_random_uuid"LINE 3:     logistics_info_uuid UUID gen_random_uuid(),                                     ^', payload=CREATE TABLE IF NOT EXISTS tet_logistics_info(
+    id SERIAL PRIMARY KEY,
+    logistics_info_uuid UUID gen_random_uuid(),
+    barcode VARCHAR(255),
+    primary_location INTEGER NOT NULL,
+    primary_zone INTEGER NOT NULL,
+    auto_issue_location INTEGER NOT NULL,
+    auto_issue_zone INTEGER NOT NULL,
+    UNIQUE(logistics_info_uuid),
+    CONSTRAINT fk_primary_location
+        FOREIGN KEY(primary_location) 
+        REFERENCES tet_locations(id),
+    CONSTRAINT fk_primary_zone
+        FOREIGN KEY(primary_zone) 
+        REFERENCES tet_zones(id),
+    CONSTRAINT fk_auto_issue_location
+        FOREIGN KEY(auto_issue_location) 
+        REFERENCES tet_locations(id),
+    CONSTRAINT fk_auto_issue_zone
+        FOREIGN KEY(auto_issue_zone) 
+        REFERENCES tet_zones(id)
+);, sql='logistics_info')
+2025-08-14 19:35:53.264323 --- INFO --- logins Created!
+2025-08-14 19:35:53.269766 --- INFO --- sites Created!
+2025-08-14 19:35:53.274221 --- INFO --- roles Created!
+2025-08-14 19:35:53.278186 --- INFO --- units Created!
+2025-08-14 19:35:53.286015 --- INFO --- cost_layers Created!
+2025-08-14 19:35:53.293742 --- INFO --- linked_items Created!
+2025-08-14 19:35:53.299834 --- INFO --- brands Created!
+2025-08-14 19:35:53.307312 --- INFO --- food_info Created!
+2025-08-14 19:35:53.314780 --- INFO --- item_info Created!
+2025-08-14 19:35:53.322039 --- INFO --- zones Created!
+2025-08-14 19:35:53.328841 --- INFO --- locations Created!
+2025-08-14 19:35:53.339467 --- INFO --- logistics_info Created!
+2025-08-14 19:35:53.350521 --- INFO --- transactions Created!
+2025-08-14 19:35:53.362940 --- INFO --- item Created!
+2025-08-14 19:35:53.372902 --- INFO --- vendors Created!
+2025-08-14 19:35:53.383192 --- INFO --- groups Created!
+2025-08-14 19:35:53.394254 --- INFO --- group_items Created!
+2025-08-14 19:35:53.404915 --- INFO --- receipts Created!
+2025-08-14 19:35:53.414635 --- INFO --- receipt_items Created!
+2025-08-14 19:35:53.424929 --- INFO --- recipes Created!
+2025-08-14 19:35:53.434896 --- INFO --- recipe_items Created!
+2025-08-14 19:35:53.445431 --- INFO --- shopping_lists Created!
+2025-08-14 19:35:53.455619 --- INFO --- shopping_list_items Created!
+2025-08-14 19:35:53.467104 --- INFO --- item_locations Created!
+2025-08-14 19:35:53.476479 --- INFO --- conversions Created!
+2025-08-14 19:35:53.486471 --- INFO --- sku_prefix Created!
+2025-08-14 19:35:53.494002 --- INFO --- barcodes Created!
+2025-08-14 19:35:53.498636 --- INFO --- Admin User Created!
+2025-08-14 19:47:18.752121 --- INFO --- item_info DROPPED!
+2025-08-14 19:47:18.763169 --- INFO --- items DROPPED!
+2025-08-14 19:47:18.771525 --- INFO --- cost_layers DROPPED!
+2025-08-14 19:47:18.779844 --- INFO --- linked_items DROPPED!
+2025-08-14 19:47:18.787643 --- INFO --- transactions DROPPED!
+2025-08-14 19:47:18.795036 --- INFO --- brands DROPPED!
+2025-08-14 19:47:18.802983 --- INFO --- food_info DROPPED!
+2025-08-14 19:47:18.811352 --- INFO --- logistics_info DROPPED!
+2025-08-14 19:47:18.818889 --- INFO --- zones DROPPED!
+2025-08-14 19:47:18.826319 --- INFO --- locations DROPPED!
+2025-08-14 19:47:18.833208 --- INFO --- vendors DROPPED!
+2025-08-14 19:47:18.840648 --- INFO --- group_items DROPPED!
+2025-08-14 19:47:18.847262 --- INFO --- groups DROPPED!
+2025-08-14 19:47:18.854357 --- INFO --- receipt_items DROPPED!
+2025-08-14 19:47:18.861218 --- INFO --- receipts DROPPED!
+2025-08-14 19:47:18.868511 --- INFO --- recipe_items DROPPED!
+2025-08-14 19:47:18.876124 --- INFO --- recipes DROPPED!
+2025-08-14 19:47:18.882823 --- INFO --- shopping_list_items DROPPED!
+2025-08-14 19:47:18.890711 --- INFO --- shopping_lists DROPPED!
+2025-08-14 19:47:18.897792 --- INFO --- item_locations DROPPED!
+2025-08-14 19:47:18.905273 --- INFO --- conversions DROPPED!
+2025-08-14 19:47:18.911977 --- INFO --- sku_prefix DROPPED!
+2025-08-14 19:47:18.919101 --- INFO --- barcodes DROPPED!
+2025-08-14 19:48:11.092829 --- INFO --- logins Created!
+2025-08-14 19:48:11.097983 --- INFO --- sites Created!
+2025-08-14 19:48:11.102722 --- INFO --- roles Created!
+2025-08-14 19:48:11.107103 --- INFO --- units Created!
+2025-08-14 19:48:11.115720 --- INFO --- cost_layers Created!
+2025-08-14 19:48:11.123721 --- INFO --- linked_items Created!
+2025-08-14 19:48:11.129515 --- INFO --- brands Created!
+2025-08-14 19:48:11.137977 --- INFO --- food_info Created!
+2025-08-14 19:48:11.149504 --- INFO --- item_info Created!
+2025-08-14 19:48:11.157006 --- INFO --- zones Created!
+2025-08-14 19:48:11.164004 --- INFO --- locations Created!
+2025-08-14 19:48:11.175285 --- INFO --- logistics_info Created!
+2025-08-14 19:48:11.182147 --- INFO --- transactions Created!
+2025-08-14 19:48:11.191631 --- INFO --- item Created!
+2025-08-14 19:48:11.198138 --- INFO --- vendors Created!
+2025-08-14 19:48:11.206077 --- INFO --- groups Created!
+2025-08-14 19:48:11.214252 --- INFO --- group_items Created!
+2025-08-14 19:48:11.222024 --- INFO --- receipts Created!
+2025-08-14 19:48:11.228913 --- INFO --- receipt_items Created!
+2025-08-14 19:48:11.236880 --- INFO --- recipes Created!
+2025-08-14 19:48:11.243995 --- INFO --- recipe_items Created!
+2025-08-14 19:48:11.252122 --- INFO --- shopping_lists Created!
+2025-08-14 19:48:11.259184 --- INFO --- shopping_list_items Created!
+2025-08-14 19:48:11.267776 --- INFO --- item_locations Created!
+2025-08-14 19:48:11.274118 --- INFO --- conversions Created!
+2025-08-14 19:48:11.281552 --- INFO --- sku_prefix Created!
+2025-08-14 19:48:11.286512 --- INFO --- barcodes Created!
+2025-08-14 19:48:11.290933 --- INFO --- Admin User Created!

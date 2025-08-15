@@ -79,11 +79,14 @@ class FoodInfoPayload:
     
 @dataclass
 class ItemsPayload:
-    barcode: str
-    item_name: str
     item_info_id: int
+    item_info_uuid: str
     logistics_info_id: int
+    logistics_info_uuid: str
     food_info_id: int
+    food_info_uuid: str
+    barcode: str = ""
+    item_name: str = ""
     brand: int = 0
     description: str = ""
     tags: list = field(default_factory=list)
@@ -102,8 +105,11 @@ class ItemsPayload:
             lst2pgarr(self.tags),
             json.dumps(self.links),
             self.item_info_id,
+            self.item_info_uuid,
             self.logistics_info_id,
+            self.logistics_info_uuid,
             self.food_info_id,
+            self.food_info_uuid,
             self.row_type,
             self.item_type,
             self.search_string
@@ -329,8 +335,9 @@ class ShoppingListPayload:
     name: str
     description: str
     author: int
-    type: str = "plain"
+    sub_type: str = "plain"
     creation_date: datetime.datetime = field(init=False)
+    list_type: str = "temporary"
 
     def __post_init__(self):
         self.creation_date = datetime.datetime.now()
@@ -341,7 +348,8 @@ class ShoppingListPayload:
             self.description,
             self.author,
             self.creation_date,
-            self.type
+            self.sub_type,
+            self.list_type
         )
 
 

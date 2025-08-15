@@ -44,7 +44,7 @@ def addList():
             name=list_name,
             description=list_description,
             author=user_id,
-            type=list_type
+            sub_type=list_type
         )
         shoplist_database.insertShoppingListsTuple(site_name, shopping_list.payload())
         return jsonify({'error': False, 'message': 'List added!!'})

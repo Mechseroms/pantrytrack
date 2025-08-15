@@ -2,7 +2,6 @@ var item;
 var linked_items;
 var tags = new Set();
 var weblinks;
-var groups;
 var shopping_lists;
 var food_groups = new Set();
 var ingrediants = new Set();
@@ -324,21 +323,6 @@ async function updatePrefixModalTableBody(prefixes) {
 async function updateReferenceTable(){
     let referenceTableBody = document.getElementById('referenceTableBody')
     referenceTableBody.innerHTML = "";
-    for(let i=0; i < groups.length; i++){
-        let tableRow = document.createElement('tr')
-
-        let typeCell = document.createElement('td')
-        typeCell.innerHTML = `group`
-        let nameCell = document.createElement('td')
-        nameCell.innerHTML = `${groups[i].name}`
-        nameCell.classList.add('uk-text-truncate')
-        nameCell.classList.add('uk-table-expand')
-        nameCell.classList.add('uk-width-3-4')
-
-        tableRow.append(typeCell)
-        tableRow.append(nameCell)
-        referenceTableBody.append(tableRow)
-    }
     for(let i=0; i < shopping_lists.length; i++){
         let tableRow = document.createElement('tr')
 
@@ -1130,7 +1114,6 @@ async function fetchItem() {
     item = data.item;
     tags = new Set(item.tags);
     weblinks = item.links;
-    groups = item.item_groups;
     shopping_lists = item.item_shopping_lists;
     food_groups = new Set(item.food_info.food_groups);
     ingrediants = new Set(item.food_info.ingrediants);

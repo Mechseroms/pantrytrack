@@ -1,6 +1,6 @@
 CREATE TABLE IF NOt EXISTS %%site_name%%_item_info (
     id SERIAL PRIMARY KEY,
-    item_info_uuid UUID gen_random_uuid(),
+    item_info_uuid UUID DEFAULT uuid_generate_v4(),
     barcode VARCHAR(255),
     packaging VARCHAR(255),
     uom_quantity FLOAT8,
@@ -9,6 +9,6 @@ CREATE TABLE IF NOt EXISTS %%site_name%%_item_info (
     safety_stock FLOAT8,
     lead_time_days FLOAT8,
     ai_pick BOOLEAN,
-    prefixes INTEGER []
+    prefixes INTEGER [],
     UNIQUE(item_info_uuid)
 );

@@ -51,6 +51,7 @@ def getItemAllByID(site:str, payload: tuple, convert:bool=True):
     with open('application/items/sql/getItemAllByID.sql', 'r+') as file:
         sql = file.read().replace("%%site_name%%", site)
     record = ()
+    print(sql)
     try:
         with psycopg2.connect(**database_config) as conn:
             with conn.cursor() as cur:

@@ -64,11 +64,14 @@ def postNewBlankItem(site_name: str, user_id: int, data: dict, conn=None):
 
 
     item = dbPayloads.ItemsPayload(
-        data['barcode'], 
-        data['name'], 
-        item_info['id'], 
-        logistics_info['id'], 
-        food_info['id'], 
+        barcode = data['barcode'], 
+        item_name = data['name'], 
+        item_info_id=item_info['id'],
+        item_info_uuid=item_info['item_info_uuid'],
+        logistics_info_id=logistics_info['id'],
+        logistics_info_uuid=logistics_info['logistics_info_uuid'],
+        food_info_id=food_info['id'],
+        food_info_uuid=food_info['food_info_uuid'], 
         brand=brand_id, 
         row_type="single", 
         item_type=data['subtype'], 

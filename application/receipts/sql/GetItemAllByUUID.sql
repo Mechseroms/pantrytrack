@@ -1,4 +1,4 @@
-WITH passed_id AS (SELECT id AS passed_id FROM %%site_name%%_items WHERE item_uuid=%s),
+WITH passed_id AS (SELECT id AS passed_id, item_uuid as passed_uuid FROM %%site_name%%_items WHERE item_uuid=%s),
     logistics_id AS (SELECT logistics_info_id FROM %%site_name%%_items WHERE id=(SELECT passed_id FROM passed_id)),
     info_id AS (SELECT item_info_id FROM %%site_name%%_items WHERE id=(SELECT passed_id FROM passed_id)),
     cte_item_info AS (
@@ -9,25 +9,14 @@ WITH passed_id AS (SELECT id AS passed_id FROM %%site_name%%_items WHERE item_uu
         LEFT JOIN units ON %%site_name%%_item_info.uom = units.id
         WHERE %%site_name%%_item_info.id = (SELECT item_info_id FROM info_id)
     ),
-    cte_groups AS (
-        SELECT 
-            %%site_name%%_groups.*, 
-            %%site_name%%_group_items.uuid,
-            %%site_name%%_group_items.item_type,
-            %%site_name%%_group_items.qty
-        FROM %%site_name%%_groups
-        JOIN %%site_name%%_group_items ON %%site_name%%_groups.id = %%site_name%%_group_items.gr_id
-        WHERE %%site_name%%_group_items.item_id = (SELECT passed_id FROM passed_id)
-    ),
     cte_shopping_lists AS (
         SELECT 
             %%site_name%%_shopping_lists.*, 
-            %%site_name%%_shopping_list_items.uuid,
             %%site_name%%_shopping_list_items.item_type,
             %%site_name%%_shopping_list_items.qty
         FROM %%site_name%%_shopping_lists
-        JOIN %%site_name%%_shopping_list_items ON %%site_name%%_shopping_lists.id = %%site_name%%_shopping_list_items.sl_id
-        WHERE %%site_name%%_shopping_list_items.item_id = (SELECT passed_id FROM passed_id)
+        JOIN %%site_name%%_shopping_list_items ON %%site_name%%_shopping_lists.list_uuid = %%site_name%%_shopping_list_items.list_uuid
+        WHERE %%site_name%%_shopping_list_items.item_uuid = (SELECT passed_uuid FROM passed_id)
     ),
     cte_itemlinks AS (
         SELECT * FROM %%site_name%%_itemlinks WHERE link=(SELECT passed_id FROM passed_id)
@@ -59,7 +48,6 @@ SELECT
     row_to_json(%%site_name%%_food_info.*) as food_info, 
     row_to_json(%%site_name%%_brands.*) as brand,
     (SELECT COALESCE(row_to_json(ii), '{}') FROM cte_item_info ii) AS item_info,
-    (SELECT COALESCE(array_agg(row_to_json(g)), '{}') FROM cte_groups g) AS item_groups,
     (SELECT COALESCE(array_agg(row_to_json(sl)), '{}') FROM cte_shopping_lists sl) AS item_shopping_lists,
     (SELECT COALESCE(array_agg(row_to_json(il)), '{}') FROM cte_itemlinks il) AS linked_items,
     (SELECT COALESCE(array_agg(row_to_json(ils)), '{}') FROM cte_item_locations ils) AS item_locations
@@ -68,7 +56,6 @@ FROM %%site_name%%_items
     LEFT JOIN %%site_name%%_food_info ON %%site_name%%_items.food_info_id = %%site_name%%_food_info.id 
     LEFT JOIN %%site_name%%_brands ON %%site_name%%_items.brand = %%site_name%%_brands.id
     LEFT JOIN units ON %%site_name%%_item_info.uom = units.id 
-    LEFT JOIN cte_groups ON %%site_name%%_items.id = cte_groups.id
     LEFT JOIN cte_shopping_lists ON %%site_name%%_items.id = cte_shopping_lists.id
 WHERE %%site_name%%_items.id=(SELECT passed_id FROM passed_id)
 GROUP BY 
