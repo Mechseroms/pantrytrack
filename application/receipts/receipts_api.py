@@ -123,7 +123,7 @@ def addSKULine():
     if request.method == "POST":
         item_id = int(request.get_json()['item_id'])
         receipt_id = int(request.get_json()['receipt_id'])
-
+        print(item_id, receipt_id)
         site_name = session['selected_site']
         item = receipts_database.getItemAllByID(site_name, (item_id, ))
         data = {

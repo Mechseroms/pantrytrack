@@ -309,6 +309,8 @@ def selectItemTupleByUUID(site, payload, convert=True, conn=None):
 def selectConversionTuple(site, payload, convert=True, conn=None):
     """payload=(item_id, uom_id)"""
     selected = ()
+    if convert:
+        selected = {}
     self_conn = False
     sql = f"SELECT conversions.conv_factor FROM {site}_conversions conversions WHERE item_id = %s AND uom_id = %s;"
     try:

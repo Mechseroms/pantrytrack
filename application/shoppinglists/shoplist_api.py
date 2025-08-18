@@ -29,6 +29,13 @@ def shopping_list(mode, list_uuid):
         return render_template("edit.html", list_uuid=list_uuid, current_site=session['selected_site'], sites=sites)
     return redirect("/")
 
+@shopping_list_api.route("/generate")
+@access_api.login_required
+def generateList():
+    sites = [site[1] for site in postsqldb.get_sites(session['user']['sites'])]
+    units = postsqldb.get_units_of_measure()
+    return render_template("generate.html", current_site=session['selected_site'], sites=sites, units=units)
+
 # API CALLS
 # Added to Database
 @shopping_list_api.route('/api/addList', methods=["POST"])
@@ -107,7 +114,7 @@ def getShoppingListItem():
     return jsonify({'list_item': list_item, 'error': True, 'message': 'List Items queried unsuccessfully!'})
 
 # Added to database
-@shopping_list_api.route('/api/getItems', methods=["GET"])
+@shopping_list_api.route('/api/getItemstwo', methods=["GET"])
 @access_api.login_required
 def getItems():
     recordset = []
@@ -140,6 +147,40 @@ def getRecipesModal():
         recordsets, count = shoplist_database.getRecipesModal(site_name, payload)
         return jsonify(status=201, recipes=recordsets, end=math.ceil(count/limit), message=f"Recipes fetched successfully!")
     return jsonify(status=405, recipes=recordsets, end=math.ceil(count/limit), message=f"{request.method} is not an accepted method on this endpoint!")
+
+@shopping_list_api.route('/api/getListsModal', methods=["GET"])
+@access_api.login_required
+def getListsModal():
+    recordsets = []
+    count = 0
+    if request.method == "GET":
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        search_string = request.args.get('search_string', 10)
+        site_name = session['selected_site']
+        offset = (page - 1) * limit        
+        
+        payload = (search_string, limit, offset)
+        recordsets, count = shoplist_database.getListsModal(site_name, payload)
+        return jsonify(status=201, lists=recordsets, end=math.ceil(count/limit), message=f"Recipes fetched successfully!")
+    return jsonify(status=405, lists=recordsets, end=math.ceil(count/limit), message=f"{request.method} is not an accepted method on this endpoint!")
+
+
+@shopping_list_api.route("/api/getItems", methods=["GET"])
+@access_api.login_required
+def getItemsModal():
+    items = []
+    count = 0
+    if request.method == "GET":
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        search_string = request.args.get('search_string', 10)
+        site_name = session['selected_site']
+        offset = (page - 1) * limit        
+        payload = (search_string, limit, offset)
+        items, count = shoplist_database.getItemsModal(site_name, payload)
+        return jsonify(status=201, items=items, end=math.ceil(count/limit), message=f"Items fetched successfully!")
+    return jsonify(status=405, items=items, end=math.ceil(count/limit), message=f"{request.method} is not an accepted method on this endpoint!")
 
 
 # Added to database
@@ -231,8 +272,24 @@ def getSKUItemsFull():
                 'qty': float(float(item['item_info']['safety_stock']) - float(item['total_sum'])),
                 'item_id': item['id'],
                 'links': item['links'],
-                'uom_fullname': item['uom_fullname']
+                'uom_fullname': item['uom_fullname'],
+                'list_item_state': False
                 }
             items.append(new_item)
+        return jsonify({"list_items":items, "error":False, "message":"items fetched succesfully!"})
+    return jsonify({"list_items":items, "error":True, "message":"There was an error with this GET statement"})
+
+# Added to Database
+@shopping_list_api.route('/api/setListItemState', methods=["POST"])
+@access_api.login_required
+def setListItemState():
+    items = []
+    count = {'count': 0}
+    if request.method == "POST":
+        site_name = session['selected_site']
+        print(request.get_json())
+        
+        shoplist_database.updateShoppingListItemsTuple(site_name, {'uuid': request.get_json()['list_item_uuid'], 'update': {'list_item_state': request.get_json()['list_item_state']}})
+
         return jsonify({"list_items":items, "error":False, "message":"items fetched succesfully!"})
     return jsonify({"list_items":items, "error":True, "message":"There was an error with this GET statement"})

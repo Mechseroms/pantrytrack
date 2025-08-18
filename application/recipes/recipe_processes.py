@@ -112,7 +112,9 @@ def process_recipe_receipt(site_name, user_id, data:dict, conn=None):
         rp_item_uom = item['uom']['id']
         item_stuff = database_recipes.selectItemTupleByUUID(site_name, (item['item_uuid'],), conn=conn)
         conv_factor = database_recipes.selectConversionTuple(site_name, (item_stuff['item_id'], rp_item_uom))
-        qty = float(item['qty']) / float(conv_factor['conv_factor'])
+        print(conv_factor)
+        conversion = conv_factor.get('conv_factor', 1)
+        qty = float(item['qty']) / float(conversion)
         payload = {
             'item_id': item_stuff['item_id'],
             'logistics_info_id': item_stuff['logistics_info_id'],
@@ -164,7 +166,7 @@ def postNewSkuFromRecipe(site_name: str, user_id: int, data: dict, conn=None):
             )
     
     # create item info
-    item_info = database_payloads.ItemInfoPayload(barcode=None)
+    item_info = database_payloads.ItemInfoPayload(barcode=None, uom=data['uom_id'], cost=data['cost'])
 
     # create Food Info
     food_info = database_payloads.FoodInfoPayload()
@@ -184,6 +186,7 @@ def postNewSkuFromRecipe(site_name: str, user_id: int, data: dict, conn=None):
     links = {'main': data['main_link']}
     search_string = f"&&{name}&&"
 
+    print(item_info)
 
     item = database_payloads.ItemsPayload(
         barcode=None, 

@@ -3,6 +3,8 @@
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
         <title id="title"></title>
+        <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
         
         
         <!-- Material Icons -->
@@ -111,6 +113,7 @@
                     <div class="uk-width-1-2@m">
                         <ul class="uk-iconnav uk-flex-center uk-flex-left@m">
                             <li><a onclick="openAddListModal()" uk-icon="icon: plus">Add List</a></li>
+                            <li><a href="/shopping-lists/generate" uk-icon="icon: plus">Generate List</a></li>
                             <li><a href="#" uk-icon="icon: cloud-download">download</a></li>
                         </ul>
                     </div>

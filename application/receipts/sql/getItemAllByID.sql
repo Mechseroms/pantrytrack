@@ -1,4 +1,4 @@
-WITH passed_id AS (SELECT %s AS passed_id),
+WITH passed_id AS (SELECT id AS passed_id, item_uuid as passed_uuid FROM %%site_name%%_items WHERE id=%s),
     logistics_id AS (SELECT logistics_info_id FROM %%site_name%%_items WHERE id=(SELECT passed_id FROM passed_id)),
     info_id AS (SELECT item_info_id FROM %%site_name%%_items WHERE id=(SELECT passed_id FROM passed_id)),
     cte_conversions AS (
@@ -33,12 +33,11 @@ WITH passed_id AS (SELECT %s AS passed_id),
     cte_shopping_lists AS (
         SELECT 
             %%site_name%%_shopping_lists.*, 
-            %%site_name%%_shopping_list_items.uuid,
             %%site_name%%_shopping_list_items.item_type,
             %%site_name%%_shopping_list_items.qty
         FROM %%site_name%%_shopping_lists
-        JOIN %%site_name%%_shopping_list_items ON %%site_name%%_shopping_lists.id = %%site_name%%_shopping_list_items.sl_id
-        WHERE %%site_name%%_shopping_list_items.item_id = (SELECT passed_id FROM passed_id)
+        JOIN %%site_name%%_shopping_list_items ON %%site_name%%_shopping_lists.list_uuid = %%site_name%%_shopping_list_items.list_uuid
+        WHERE %%site_name%%_shopping_list_items.item_uuid = (SELECT passed_uuid FROM passed_id)
     ),
     cte_itemlinks AS (
         SELECT * FROM %%site_name%%_itemlinks WHERE link=(SELECT passed_id FROM passed_id)

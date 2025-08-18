@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session, request, redirect, jsonify
+from flask import Flask, render_template, session, request, redirect, jsonify, send_from_directory
 from flask_assets import Environment, Bundle
 from authlib.integrations.flask_client import OAuth
 import config, psycopg2, main
@@ -104,6 +104,12 @@ def create_push_subscription():
 @app.route("/subscribe")
 def subscribe():
     return render_template("subscribe.html")
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        app.static_folder, 'pictures/favicon.ico', mimetype='image/vnd.microsoft.icon'
+    )
 
 @app.route("/")
 @access_api.login_required

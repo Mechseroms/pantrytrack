@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="main_html">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title id="title"></title>
+        <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
+        
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+        {% if session['user']['flags']['darkmode'] %}
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}"/>
+        {% endif %}
+
+
+        <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
+
+    </head>
+    <style>
+    :root {
+        --primary-color: {{ session['user']['flags']['styles']['primary_color']}};
+    }
+    </style>
+    {% if session['user']['flags']['darkmode'] %}
+    <body class="uk-light">
+    {% else %}
+    <body>
+    {% endif %}
+        <nav class="uk-navbar-container">
+            <div class="uk-container uk-container-expand">
+                <div class="uk-navbar uk-navbar-primary">
+                    <!-- Application Navigation-->
+                    <div class="uk-navbar-left">
+                        <ul class="uk-navbar-nav">
+                            <li>
+                                <a href>Apps</a>
+                                <div class="uk-navbar-dropdown" uk-drop="mode: click; multi:false">
+                                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                                        <li><a href="/planner">Planner</a></li>
+                                        <li><a href="/recipes">Recipes</a></li>
+                                        <li><a href="/shopping-lists">Shopping Lists</a></li>
+                                        <li class="uk-nav-header">Logistics</li>
+                                        <li><a href="/items">Items</a></li>
+                                        <li><a href="/items/transaction">Transaction</a></li>
+                                        <li><a href="/receipts">Receipts</a></li>
+                                        <li class="uk-nav-header">Points of Ease</li>
+                                        <li><a href="/poe/scanner">Transaction Scanner</a></li>
+                                        <li><a href="/poe/receipts">Receipts Scanner</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+
+                    </div>
+                    <!-- Breadcrumbs Navigation -->
+                    <div class="uk-navbar-center uk-visible@m">
+                        <ul class="uk-breadcrumb uk-margin-remove">
+                            <li class="uk-disabled" style="cursor: pointer;"><span><strong>{{current_site}}</strong></span>
+                                <div uk-dropdown="mode: hover">
+                                    <ul class="uk-nav uk-dropdown-nav">
+                                        <li class="uk-nav-header">Select Site</li>
+                                        <li class="uk-nav-divider"></li>
+                                        {% for site in sites %}
+                                        {% if site == current_site %}
+                                        <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                        {% else %}
+                                        <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </li>
+                            <li style="cursor: default; user-select: none;" class="uk-disabled"><span>Modules</span></li>
+                            <li class="uk-disabled"><span>Shopping Lists</span></li>
+                            <li class="uk-disabled"><span>Editing Shopping List</span></li>
+                        </ul>
+                    </div>
+                    <!-- Profile/Management Navigation-->
+                    <div class="uk-navbar-right">
+                        <ul class="uk-navbar-nav">
+                            <li>
+                                <a href="#">
+                                    <img src="{{session['user']['profile_pic_url']}}" alt="Profile Picture" class="profile-pic uk-visible@m" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 5px;">
+                                            {{username}}
+                                </a>
+                                <div class="uk-navbar-dropdown" uk-drop="mode: click; multi:false">
+                                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                                        <li><a href="/profile">Profile</a></li>
+                                        <li><a onclick="toggleDarkMode()">Dark Mode</a></li>
+                                        <li><a href="/site-management">Site Management</a></li>
+                                        <li><a href="/administration">System Management</a></li>
+                                        <li><a href="/access/logout">Logout</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="uk-container">
+            <div class="uk-section">
+                <div class="uk-grid-small" uk-grid>
+                    <div class="uk-width-1-1">
+                        <h1 class="uk-heading-medium uk-heading-divider">Generate Shopping List</h1>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <p class="uk-text-small">Generating a shopping list is as powerful as you wish to make it. In this form you will make the choices of what and when you want to 
+                            generate the list for. You will be adding specific items in the system, even can add all the safety stock items or specific ones, recipes, even other shopping lists
+                            can be added to this one list. This is a snapshot of a moment though and any calculated safety stocks become static and can change if there is a long wait.
+                        </p>
+                    </div>
+                    <!-- type section -->
+                    <div class="uk-width-1-1">
+                        <h1 class="uk-heading-xsmall uk-heading-divider">Shopping List Type</h1>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <p class="uk-text-small">Choosing the shopping list type informs the system of your intent when actually using the list when viewed. It will inform the system if it should 
+                            completely delete the list (known as a "Temporary" list) or if it should just change the states of all items to new (known as a "Permanent" list). Permanent lists would be used
+                            for reoccuring lists that never change and can be reused. Temporary lists will generally be used when generating a huge one time list, or something small that you just want to
+                            track quickly.
+                        </p>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <label class="uk-form-label" for="generated_list_type">Select List Type</label>                            
+                        <select id="generated_list_type" class="uk-select" aria-label="Select">
+                            <option value="temporary" selected>Temporary</option>
+                            <option value="permanent">Permanent</option>
+                        </select>
+                    </div>
+                    <!-- basic info section -->
+                    <div class="uk-width-1-1">
+                        <h1 class="uk-heading-xsmall uk-heading-divider">Shopping List Type</h1>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <p class="uk-text-small">Fill out the basic info asked for here, the description could be helpful to remind yourself and others what the list was generated for. 
+                            The shopping list name must be unique!
+                        </p>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <label class="uk-form-label" for="generated_list_name">Shopping List Name</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="generated_list_name" type="text" placeholder="Enter list name here...">
+                        </div>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <label class="uk-form-label" for="generated_list_name">Shopping List Description</label>
+                        <div class="uk-form-controls">
+                            <textarea id="generated_list_name" class="uk-textarea" rows="5" placeholder="Enter list description here..." aria-label="Textarea"></textarea>                        
+                        </div>
+                    </div>
+                    <!-- Part section -->
+                    <div class="uk-width-1-1">
+                        <h1 class="uk-heading-xsmall uk-heading-divider">Shopping List Operators</h1>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <p class="uk-text-small"> Operators are what drives the engine that is a shopping list. You can configure each on specifically for the list you
+                            want to generate and each will operate in their own manner behind the scenes.
+                        </p>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <button class="uk-button uk-button-primary" type="button">Add Operator</button>
+                        <div uk-dropdown>
+                            <ul class="uk-nav uk-dropdown-nav">
+                                <li class="uk-nav-header">Active Operators</li>
+                                <li class="uk-nav-divider"></li>
+                                <li><a onclick="addCustomItemsCard()" uk-tooltip="title: Create Custom items to add into the generated list.; pos: right">Custom Items</a></li>
+                                <li><a onclick="addUncalculatedItemsCard()" uk-tooltip="title: Add items from the system that take a static quantity into the generated list.; pos: right">Non-Calculated System Items</a></li>
+                                <li><a onclick="addCalculatedItemsCard()" uk-tooltip="title: Add items from the system that calculate quantity using quantity on hand and a set safety stocks into the generated list.; pos: right">Calculated System Items</a></li>
+                                <li><a onclick="addRecipesCard()" uk-tooltip="title: Add Recipes that will take all the ingrediants and add them into the generated list.; pos: right">System Recipes</a></li>
+                                <li><a onclick="addFullSKUCard()" uk-tooltip="title: Takes a full safety stock count from the system and adds any quantities below their safety stocks into the generated list.; pos: right">Full System Calculated</a></li>
+                                <li><a class="uk-disabled" uk-tooltip="title: Uses a date range and selected planners for each to add any planned recipes into the generated list.; pos: right">Site Planners</a></li>
+                                <li><a onclick="addListsCard()" uk-tooltip="title: Combine already made lists into this one; pos: right">Shopping Lists</a></li>
+
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <div id="operators_deck" class="uk-grid-small uk-child-width-1-1" uk-grid>
+                            <!-- Items Custom -->
+                            <div id="customItemsCard" hidden>
+                                <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                                    <h3>Custom Items Operator
+                                        <span class="">
+                                            <button onclick="changeCustomZoneState()" class="uk-button uk-button-small" title="Show/Hide the card body." uk-tooltip>Show/Hide</button>
+                                        </span>
+                                        <span class="uk-align-right">
+                                            <button onclick="removeCustomItemsCard()" class="uk-button uk-button-small" title="Will remove the custom items card and data from the list." uk-tooltip>Remove</button>
+                                        </span>
+                                    </h3>
+                                    <p class="uk-text-meta">A custom Item is an item that does not exist in your system but you would like to show up on your shopping list. This is useful for items 
+                                    you dont often have to buy or do not want to keep track of but give the users the ability to see it.
+                                    </p>
+                                    <div id="customCardZone">
+                                        <table class="uk-table uk-table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Qty/UOM</th>
+                                                    <th>Operations</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="customItemsTableBody"></tbody>
+                                        </table>
+                                        <button onclick="openCustomItemsModal()" class="uk-button uk-button-secondary uk-width-1-1">Add Item</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Items Uncalculated -->
+                            <div id="uncalcedItemsCard" hidden>
+                                <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                                    <h3>Un-Calculated System Item Operator
+                                        <span class="">
+                                            <button onclick="changeUncalculatedZoneState()" class="uk-button uk-button-small"  title="Show/Hide the card body." uk-tooltip>Show/Hide</button>
+                                        </span>
+                                        <span class="uk-align-right">
+                                            <button onclick="removeUncalcedItemsCard()" class="uk-button uk-button-small"  title="Will remove the uncalculated system items card and data from the list." uk-tooltip >Remove</button>
+                                        </span>
+                                    </h3>
+                                    <p class="uk-text-meta"> An Uncalulated System Item is an item choosen from the configured SKUs in your 
+                                            system. The uncalculated part means the quantity asked for in the list will always remain to be what 
+                                            you set it to during configuration of the list or while editing.
+                                        </p>
+
+                                    <div id="uncalculatedCardZone">
+                                        <table class="uk-table uk-table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Qty/UOM</th>
+                                                    <th>Operations</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="uncalculatedItemsTableBody"></tbody>
+                                        </table>
+                                        <button onclick="openUncalculatedItemsModal()" class="uk-button uk-button-secondary uk-width-1-1">Add Item</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Items Calculated -->
+                            <div id="calculatedItemsCard" hidden>
+                                <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                                    <h3>Calculated System Item Operator
+                                        <span class="">
+                                            <button onclick="changeCalculatedZoneState()" class="uk-button uk-button-small"  title="Show/Hide the card body." uk-tooltip>Show/Hide</button>
+                                        </span>
+                                        <span class="uk-align-right">
+                                            <button onclick="removeCalculatedItemsCard()" class="uk-button uk-button-small"  title="Will remove the calculated system items card and data from the list." uk-tooltip >Remove</button>
+                                        </span>
+                                    </h3>
+                                    <p class="uk-text-meta"> A Calculated System Item is an item choosen from the configured SKUs in your 
+                                            system. The calculated part means the quantity asked for in the list will be calculated at the time 
+                                            that the list is generated based on set safety stock and quantity on hand.
+                                        </p>
+
+                                    <div id="calculatedCardZone">
+                                        <table class="uk-table uk-table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Operations</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="calculatedItemsTableBody"></tbody>
+                                        </table>
+                                        <button onclick="openCalculatedItemsModal()" class="uk-button uk-button-secondary uk-width-1-1">Add Item</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Recipes -->
+                            <div id="recipesCard" hidden>
+                                <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                                    <h3>Recipes Operator
+                                        <span class="">
+                                            <button onclick="changeRecipesZoneState()" class="uk-button uk-button-small"  title="Show/Hide the card body." uk-tooltip>Show/Hide</button>
+                                        </span>
+                                        <span class="uk-align-right">
+                                            <button onclick="removeRecipesItemsCard()" class="uk-button uk-button-small"  title="Will remove the Recipes card and data from the list." uk-tooltip >Remove</button>
+                                        </span>
+                                    </h3>
+                                    <p class="uk-text-meta">Recipes can be built into the system and when added through this operator each ingrediant will be added to the list at the recipes quantity and UOM.</p>
+
+                                    <div id="recipesCardZone">
+                                        <table class="uk-table uk-table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Operations</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="recipesTableBody"></tbody>
+                                        </table>
+                                        <button onclick="openRecipesModal()" class="uk-button uk-button-secondary uk-width-1-1">Add Item</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Shopping List -->
+                            <div id="listsCard" hidden>
+                                <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                                    <h3>Shopping Lists Operator
+                                        <span class="">
+                                            <button onclick="changeListsZoneState()" class="uk-button uk-button-small"  title="Show/Hide the card body." uk-tooltip>Show/Hide</button>
+                                        </span>
+                                        <span class="uk-align-right">
+                                            <button onclick="removeListsItemsCard()" class="uk-button uk-button-small"  title="Will remove the Recipes card and data from the list." uk-tooltip >Remove</button>
+                                        </span>
+                                    </h3>
+                                    <p class="uk-text-meta">This operator allows you to select other shopping lists that already exist to have their 
+                                        items added onto this lists items.
+                                    </p>
+                                    <div id="listsCardZone">
+                                        <table class="uk-table uk-table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Operations</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="listsTableBody"></tbody>
+                                        </table>
+                                        <button onclick="openListsModal()" class="uk-button uk-button-secondary uk-width-1-1">Add Item</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Full Calculated SKU -->
+                            <div id="fullSKUCard" hidden>
+                                <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                                    <h3>Full Calculation Operator
+                                        <span class="uk-align-right">
+                                            <button onclick="removeFullSKUCard()" class="uk-button uk-button-small"  title="Will remove the Recipes card and data from the list." uk-tooltip >Remove</button>
+                                        </span>
+                                    </h3>
+                                    <p class="uk-text-meta">Full SKU calculations will go through your whole system and grab all items that have safety stocks. 
+                                        It will then use the safety stocks and quantity on hand to determine if you need to purchase more to add to the list. With 
+                                        this in mind you CANNOT have full SKU calculation enabled and also have the Calculated Items Operator.
+                                    </p>
+
+                                    <div id="fullSKUZone" uk-grid>
+                                        <div class="uk-width-1-1">
+                                            <label><input autocomplete="off" id="fullSKUCheckbox" onclick="fullSKUEnabledChange(event)" class="uk-checkbox" type="checkbox"> Enabled</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                    
+            <div id="modals_deck">
+                <!-- Custom Item Modal -->
+                <div id="CustomItemModal" class="uk-modal">
+                    <div class="uk-modal-dialog uk-modal-body">
+                        <h2 class="uk-modal-title">Add Custom Line...</h2>
+                        <p class="uk-text-small">A custom Item is an item that does not exist in your system but you would like to show up on your shopping list. This is useful for items 
+                            you dont often have to buy or do not want to keep track of but give the users the ability to see it.
+                        </p>
+                        <table class="uk-table uk-table-responsive uk-table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Name</td>
+                                    <td><input id="customName" class="uk-input" type="text"></td>
+                                </tr>
+                                <tr>
+                                    <td>QTY</td>
+                                    <td><input id="customQty" class="uk-input" type="number"></td>
+                                </tr>
+                                <tr>
+                                    <td>UOM</td>
+                                    <td>
+                                        <select id="customUnit" class="uk-select" aria-label="Select">
+                                            {% for unit in units %}
+                                            <option value={{unit['id']}} data-fullname={{unit['fullname']}}>{{unit['fullname']}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Main Link</td>
+                                    <td><input id="customLink" class="uk-input" type="text"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="uk-text-right">
+                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                            <button id="customItemModalButton" onclick="addCustomItem()" class="uk-button uk-button-primary" type="button">Add Line</button>
+                        </p>
+                    </div>
+                </div>
+                <!-- Uncalculated Item Modals -->
+                <div id="uncalculatedItemModal" class="uk-flex-top" uk-modal>
+                    <div class="uk-modal-dialog">
+                        <button class="uk-modal-close-default" type="button" uk-close></button>
+                        <div class="uk-modal-header">
+                            <h2 class="uk-modal-title">System Item Search</h2>
+                        </div>
+                        <div id="paginationModalBody" class="uk-modal-body">
+                            <div class="uk-grid-small" uk-grid>
+                                <div class="uk-width-1-1">
+                                    <p class="uk-text-small"> An Uncalulated System Item is an item choosen from the configured SKUs in your 
+                                        system. The uncalculated part means the quantity asked for in the list will always remain to be what 
+                                        you set it to during configuration of the list or while editing.
+                                    </p>
+                                </div>
+                                <div class="uk-width-1-1">
+                                    <div id="searchItemsForm" onkeydown="searchItemTable(event)" class="uk-search uk-search-default uk-align-center">
+                                        <input id="searchItemsInput" class="uk-border-pill uk-search-input" type="search" placeholder="" aria-label="">
+                                        <span class="uk-search-icon-flip" uk-search-icon></span>
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-1">
+                                    <nav aria-label="Pagination">
+                                        <ul id="itemsPage" class="uk-pagination uk-flex-center" uk-margin>
+                                            <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                            <li><a href="#">1</a></li>
+                                            <li class="uk-disabled"><span>…</span></li>
+                                            <li><a href="#">5</a></li>
+                                            <li><a href="#">6</a></li>
+                                            <li class="uk-active"><span aria-current="page">7</span></li>
+                                            <li><a href="#">8</a></li>
+                                            <li><a href="#"><span uk-pagination-next></span></a></li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                                <div class="uk-width-1-1">
+                                    <caption>Select an Item from the system...</caption>
+                                    <table class="uk-table uk-table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Qty</th>
+                                                <th>UOM</th>
+                                                <th>Operations</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="uncalculatedItemsModalTableBody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="uncalculatedItemModalEdit" class="uk-modal">
+                    <div class="uk-modal-dialog uk-modal-body">
+                        <h2 class="uk-modal-title">Edit Uncalulated Item...</h2>
+                        <p class="uk-text-small"> An Uncalulated System Item is an item choosen from the configured SKUs in your 
+                            system. The uncalculated part means the quantity asked for in the list will always remain to be what 
+                            you set it to during configuration of the list or while editing.
+                        </p>
+                        <div class="uk-alert uk-alert-warning">While editing System Items the <strong>Name</strong> and <strong>UOM</strong> inputs will be Disabled!</div>
+                        <table class="uk-table uk-table-responsive uk-table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Name</td>
+                                    <td><input id="uncalculatedItemName" class="uk-input uk-disabled" type="text"></td>
+                                </tr>
+                                <tr>
+                                    <td>QTY</td>
+                                    <td><input id="uncalculatedItemQty" class="uk-input" type="number"></td>
+                                </tr>
+                                <tr>
+                                    <td>UOM</td>
+                                    <td>
+                                        <select id="uncalculatedItemUnit" class="uk-select uk-disabled" aria-label="Select">
+                                            {% for unit in units %}
+                                            <option value={{unit['id']}} data-fullname={{unit['fullname']}}>{{unit['fullname']}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Main Link</td>
+                                    <td><input id="uncalculatedItemLink" class="uk-input" type="text"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="uk-text-right">
+                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                            <button id="uncalculatedItemModalEditButton" class="uk-button uk-button-primary" type="button">Add Line</button>
+                        </p>
+                    </div>
+                </div>
+                <!-- Calculated Item Modals -->
+                <div id="calculatedItemModal" class="uk-flex-top" uk-modal>
+                    <div class="uk-modal-dialog">
+                        <button class="uk-modal-close-default" type="button" uk-close></button>
+                        <div class="uk-modal-header">
+                            <h2 class="uk-modal-title">System Item Search</h2>
+                        </div>
+                        <div class="uk-modal-body">
+                            <div class="uk-grid-small" uk-grid>
+                                <div class="uk-width-1-1">
+                                    <p class="uk-text-small"> A Calculated System Item is an item choosen from the configured SKUs in your 
+                                    system. The calculated part means the quantity asked for in the list will be calculated at the time 
+                                    that the list is generated based on set safety stock and quantity on hand.
+                                    </p>
+                                </div>
+                                <div class="uk-width-1-1">
+                                    <div id="searcCalculatedItemsForm" onkeydown="searchCalculatedItemTable(event)" class="uk-search uk-search-default uk-align-center">
+                                        <input id="searchCalculatedItemsInput" class="uk-border-pill uk-search-input" type="search" placeholder="" aria-label="">
+                                        <span class="uk-search-icon-flip" uk-search-icon></span>
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-1">
+                                    <nav aria-label="Pagination">
+                                        <ul id="itemsCalculatedPage" class="uk-pagination uk-flex-center" uk-margin>
+                                            <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                            <li><a href="#">1</a></li>
+                                            <li class="uk-disabled"><span>…</span></li>
+                                            <li><a href="#">5</a></li>
+                                            <li><a href="#">6</a></li>
+                                            <li class="uk-active"><span aria-current="page">7</span></li>
+                                            <li><a href="#">8</a></li>
+                                            <li><a href="#"><span uk-pagination-next></span></a></li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                                <div class="uk-width-1-1">
+                                    <caption>Select an Item from the system...</caption>
+                                    <table class="uk-table uk-table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Operations</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="calculatedItemsModalTableBody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Recipes Modals -->
+                <div id="recipesModal" class="uk-flex-top" uk-modal>
+                    <div class="uk-modal-dialog">
+                        <button class="uk-modal-close-default" type="button" uk-close></button>
+                        <div class="uk-modal-header">
+                            <h2 class="uk-modal-title">System Recipes Search</h2>
+                        </div>
+                        <div class="uk-modal-body">
+                            <div class="uk-grid-small" uk-grid>
+                                <div class="uk-width-1-1">
+                                    <p class="uk-text-small">Recipes can be built into the system and when added through this operator each ingrediant will be added to the list at the recipes quantity and UOM.</p>
+                                </div>
+                                <div class="uk-width-1-1">
+                                    <div id="searchRecipesForm" onkeydown="searchRecipesTable(event)" class="uk-search uk-search-default uk-align-center">
+                                        <input id="searchRecipesInput" class="uk-border-pill uk-search-input" type="search" placeholder="" aria-label="">
+                                        <span class="uk-search-icon-flip" uk-search-icon></span>
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-1">
+                                    <nav aria-label="Pagination">
+                                        <ul id="recipesPage" class="uk-pagination uk-flex-center" uk-margin>
+                                            <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                            <li><a href="#">1</a></li>
+                                            <li class="uk-disabled"><span>…</span></li>
+                                            <li><a href="#">5</a></li>
+                                            <li><a href="#">6</a></li>
+                                            <li class="uk-active"><span aria-current="page">7</span></li>
+                                            <li><a href="#">8</a></li>
+                                            <li><a href="#"><span uk-pagination-next></span></a></li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                                <div class="uk-width-1-1">
+                                    <caption>Select a Recipe from the system...</caption>
+                                    <table class="uk-table uk-table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Operations</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recipesModalTableBody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Shopping Lists Modals -->
+                <div id="listsModal" class="uk-flex-top" uk-modal>
+                    <div class="uk-modal-dialog">
+                        <button class="uk-modal-close-default" type="button" uk-close></button>
+                        <div class="uk-modal-header">
+                            <h2 class="uk-modal-title">System Shopping Lists Search</h2>
+                        </div>
+                        <div class="uk-modal-body">
+                            <div class="uk-grid-small" uk-grid>
+                                <div class="uk-width-1-1">
+                                    <p class="uk-text-small">This operator allows you to select other shopping lists that already exist to have their 
+                                        items added onto this lists items.</p>
+                                </div>
+                                <div class="uk-width-1-1">
+                                    <div id="searchListsForm" onkeydown="searchListsTable(event)" class="uk-search uk-search-default uk-align-center">
+                                        <input id="searchListsInput" class="uk-border-pill uk-search-input" type="search" placeholder="" aria-label="">
+                                        <span class="uk-search-icon-flip" uk-search-icon></span>
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-1">
+                                    <nav aria-label="Pagination">
+                                        <ul id="listsPage" class="uk-pagination uk-flex-center" uk-margin>
+                                            <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                            <li><a href="#">1</a></li>
+                                            <li class="uk-disabled"><span>…</span></li>
+                                            <li><a href="#">5</a></li>
+                                            <li><a href="#">6</a></li>
+                                            <li class="uk-active"><span aria-current="page">7</span></li>
+                                            <li><a href="#">8</a></li>
+                                            <li><a href="#"><span uk-pagination-next></span></a></li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                                <div class="uk-width-1-1">
+                                    <caption>Select a List from the system...</caption>
+                                    <table class="uk-table uk-table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Operations</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="listsModalTableBody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>const units = {{units|tojson}}</script>
+    <script src="{{ url_for('shopping_list_API.static', filename='js/shoppingListGeneratorHandler.js') }}"></script>
+</html>

@@ -227,6 +227,77 @@ def getRecipesModal(site, payload, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def getListsModal(site, payload, convert=True, conn=None):
+    recordsets = []
+    count = 0
+    self_conn = False
+
+    
+    sql = f"SELECT lists.list_uuid, lists.name FROM {site}_shopping_lists lists WHERE lists.name LIKE '%%' || %s || '%%' LIMIT %s OFFSET %s;"
+    sql_count = f"SELECT COUNT(*) FROM {site}_shopping_lists lists WHERE lists.name LIKE '%%' || %s || '%%';"
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchall()
+            if rows and convert:
+                recordsets = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+            if rows and not convert:
+                recordsets = rows
+            
+
+            cur.execute(sql_count, (payload[0], ))
+            count = cur.fetchone()[0]
+           
+        if self_conn:
+            conn.close()
+
+        return recordsets, count
+
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+
+def getItemsModal(site, payload, convert=True, conn=None):
+    recordsets = []
+    count = 0
+    self_conn = False
+    with open(f"application/shoppinglists/sql/getItemsForModal.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchall()
+            if rows and convert:
+                recordsets = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+            if rows and not convert:
+                recordsets = rows
+
+            cur.execute(f"SELECT COUNT(*) FROM {site}_items WHERE search_string LIKE '%%' || %s || '%%';", (payload[0], ))
+            count = cur.fetchone()[0]
+           
+        if self_conn:
+            conn.close()
+
+        return recordsets, count
+
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
 def deleteShoppingListItemsTuple(site_name, payload, convert=True, conn=None):
     deleted = ()
     self_conn = False

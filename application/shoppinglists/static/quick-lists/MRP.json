@@ -1,0 +1,10 @@
+{
+    "name": "MRP - %DATE%",
+    "description": "This is a shopping list generated using Full Calculated SKUs Operator Only! Generated on %DATE%",
+    "custom_items": [],
+    "uncalculated_items": [],
+    "calculated_items": [],
+    "recipes": [],
+    "planner": [],
+    "full_sku_enabled": true
+}

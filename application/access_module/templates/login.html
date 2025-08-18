@@ -3,6 +3,7 @@
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
         <title id="title">Login</title>
+        <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
         
         
         <!-- Material Icons -->
@@ -15,19 +16,20 @@
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
         
         <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
-        <link id="dark-mode" rel="stylesheet" href="{{ url_for('access_api.static', filename='css/logins-dark.css') }}"/>
+        <!--link id="dark-mode" rel="stylesheet" href="{{ url_for('access_api.static', filename='css/logins-dark.css') }}"/-->
 
 
         <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
 
     </head>
-    <body class="uk-light">
+    <body>
         <div class="uk-container">
             <div class="uk-section">
                 <div class="uk-flex-center" uk-grid>
                     <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m uk-flex-center">
-                        <img class="uk-align-center" src="{{ url_for('static', filename='pictures/logo.jpg') }}" style="width: 200px; border-radius: 50%;">
+                        <img class="uk-align-center" src="{{ url_for('static', filename='pictures/logo.png') }}" style="width: 200px;">
+                        <h1 class="uk-text-center">PantryTrack</h1>
                         <ul uk-tab>
                             <li><a href="#">Login</a></li>
                             {% if instance_settings['signup_enabled'] %}

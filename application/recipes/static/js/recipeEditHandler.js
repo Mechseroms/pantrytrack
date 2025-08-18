@@ -369,14 +369,14 @@ async function deleteInstruction(index){
 
 
 async function openNewSKUModal() {
-    let itemsModal = document.getElementById('addNewSKUItem')
+    let addNewSKUItem = document.getElementById('addNewSKUItem')
     document.getElementById('newSKUName').value = ""
     document.getElementById('newSKUSubtype').value = "FOOD"
     document.getElementById('newSKUQty').value = 1
     document.getElementById('newSKUUOM').value = "1"
     document.getElementById('newWeblink').value = ""
     document.getElementById('newSKUCost').value = 0.00
-    UIkit.modal(itemsModal).show();
+    UIkit.modal(addNewSKUItem).show();
 }
 
 

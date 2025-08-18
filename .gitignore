@@ -8,3 +8,4 @@ instance/application.cfg.py
 test.py
 .VScodeCounter
 celerybeat-schedule
+instance/application.cfg.py
