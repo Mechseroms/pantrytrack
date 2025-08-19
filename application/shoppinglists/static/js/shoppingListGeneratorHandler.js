@@ -1075,3 +1075,27 @@ async function generateListsTable() {
     }
 
 }
+
+
+// Generate Functions
+async function postGenerateList() {
+    let data = {
+        list_type: String(document.getElementById('generated_list_type').value),
+        list_name: String(document.getElementById('generated_list_name').value),
+        list_description: String(document.getElementById('generated_list_description').value),
+        custom_items: Object.values(custom_items),
+        uncalculated_items: Object.values(uncalculated_items),
+        calculated_items: Object.keys(calculated_items),
+        recipes: Object.keys(recipes),
+        full_system_calculated: full_sku_enabled,
+        shopping_lists: Object.keys(shopping_lists)
+    }
+
+    const response = await fetch(`/shopping-lists/api/postGeneratedList`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    });
+}

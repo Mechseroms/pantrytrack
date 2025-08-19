@@ -54,11 +54,11 @@ async function replenishShoppingListCards(lists) {
         footer_div.setAttribute('class', 'uk-card-footer')
         footer_div.style = 'height: 40px; border: none;'
 
-        let editOp = document.createElement('a')
-        editOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
-        editOp.innerHTML = '<span uk-icon="icon: pencil"></span>   Edit'
-        editOp.style = "margin-right: 10px;"
-        editOp.href = `/shopping-lists/edit/${lists[i].list_uuid}`
+        //let editOp = document.createElement('a')
+        //editOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
+        //editOp.innerHTML = '<span uk-icon="icon: pencil"></span>   Edit'
+        //editOp.style = "margin-right: 10px;"
+        //editOp.href = `/shopping-lists/edit/${lists[i].list_uuid}`
 
         let viewOp = document.createElement('a')
         viewOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
@@ -66,8 +66,14 @@ async function replenishShoppingListCards(lists) {
         viewOp.href = `/shopping-lists/view/${lists[i].list_uuid}`
         //viewOp.style = "margin-right: 20px;"
 
+        let deleteOp = document.createElement('a')
+        deleteOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
+        deleteOp.innerHTML = '<span uk-icon="icon: eye"></span>    Delete'
+        deleteOp.onclick = async function(params) { await deleteList(lists[i].list_uuid)}
+        //viewOp.style = "margin-right: 20px;"
+
         
-        footer_div.append(editOp, viewOp)
+        footer_div.append(viewOp, deleteOp)
 
         main_div.append(card_header_div, body_div, footer_div)
 
@@ -121,6 +127,35 @@ async function addList() {
         pos: 'top-right',
         timeout: 5000
     });
+}
+
+async function deleteList(shopping_list_uuid) {
+    const response = await fetch(`/shopping-lists/api/deleteList`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            shopping_list_uuid: shopping_list_uuid
+        }),
+    });
+    data =  await response.json();
+    transaction_status = "success"
+    if (data.error){
+        transaction_status = "danger"
+    }
+
+    UIkit.notification({
+        message: data.message,
+        status: transaction_status,
+        pos: 'top-right',
+        timeout: 5000
+    });
+
+    let lists = await getShoppingLists()
+    await replenishShoppingListCards(lists)
+    await updatePaginationElement()
+
 }
 
 async function changeSite(site){

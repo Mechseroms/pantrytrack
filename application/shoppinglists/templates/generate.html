@@ -138,7 +138,7 @@
                     </div>
                     <!-- basic info section -->
                     <div class="uk-width-1-1">
-                        <h1 class="uk-heading-xsmall uk-heading-divider">Shopping List Type</h1>
+                        <h1 class="uk-heading-xsmall uk-heading-divider">Shopping List Info</h1>
                     </div>
                     <div class="uk-width-1-1">
                         <p class="uk-text-small">Fill out the basic info asked for here, the description could be helpful to remind yourself and others what the list was generated for. 
@@ -152,10 +152,13 @@
                         </div>
                     </div>
                     <div class="uk-width-1-1">
-                        <label class="uk-form-label" for="generated_list_name">Shopping List Description</label>
+                        <label class="uk-form-label" for="generated_list_description">Shopping List Description</label>
                         <div class="uk-form-controls">
-                            <textarea id="generated_list_name" class="uk-textarea" rows="5" placeholder="Enter list description here..." aria-label="Textarea"></textarea>                        
+                            <textarea id="generated_list_description" class="uk-textarea" rows="5" placeholder="Enter list description here..." aria-label="Textarea"></textarea>                        
                         </div>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <button onclick="postGenerateList()" class="uk-button uk-button-primary uk-align-right">Generate List</button>
                     </div>
                     <!-- Part section -->
                     <div class="uk-width-1-1">

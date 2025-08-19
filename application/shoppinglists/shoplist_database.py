@@ -1,7 +1,6 @@
 # 3rd Party imports
 import psycopg2
 
-
 # applications imports
 import config
 from application import postsqldb
@@ -150,7 +149,6 @@ def getRecipeItemsByUUID(site, payload, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
-
 def getItemsWithQOH(site, payload, convert=True, conn=None):
     recordset = []
     count = 0
@@ -263,7 +261,6 @@ def getListsModal(site, payload, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
-
 def getItemsModal(site, payload, convert=True, conn=None):
     recordsets = []
     count = 0
@@ -295,6 +292,63 @@ def getItemsModal(site, payload, convert=True, conn=None):
 
         return recordsets, count
 
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+def getItemByUUID(site, payload:dict, convert=True, conn=None):
+    """ payload: dict = {'item_uuid'}"""
+    record = ()
+    self_conn = False
+    with open('application/shoppinglists/sql/getItemByUUID.sql', 'r') as file:
+        sql = file.read().replace("%%site_name%%", site)
+    try:
+
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                record = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            elif rows and not convert:
+                record = rows
+        
+        if self_conn:
+            conn.close()
+
+        return record
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
+def deleteShoppingListsTuple(site_name, payload, convert=True, conn=None):
+    deleted = ()
+    self_conn = False
+    sql = f"WITH deleted_rows AS (DELETE FROM {site_name}_shopping_lists WHERE {site_name}_shopping_lists.list_uuid IN ({','.join(['%s'] * len(payload))}) RETURNING *) SELECT * FROM deleted_rows;"
+    try:
+
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchall()
+            if rows and convert:
+                deleted = [postsqldb.tupleDictionaryFactory(cur.description, r) for r in rows]
+            elif rows and not convert:
+                deleted = rows
+
+        if self_conn:
+            conn.commit()
+            conn.close()
+
+        return deleted
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 

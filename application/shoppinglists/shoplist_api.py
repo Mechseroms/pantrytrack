@@ -238,6 +238,18 @@ def deleteListItem():
         return jsonify({"error":False, "message":"item deleted succesfully!"})
     return jsonify({"error":True, "message":"There was an error with this POST statement"})
 
+@shopping_list_api.route('/api/deleteList', methods=["POST"])
+@access_api.login_required
+def deleteList():
+    if request.method == "POST":
+        shopping_list_uuid = request.get_json()['shopping_list_uuid']
+        site_name = session['selected_site']
+        user_id = session['user_id']
+        shoplist_processess.deleteShoppingList(site_name, {'shopping_list_uuid': shopping_list_uuid}, user_id)
+        return jsonify({"error":False, "message":"List Deleted succesfully!"})
+    return jsonify({"error":True, "message":"There was an error with this POST statement"})
+
+
 # Added to Database
 @shopping_list_api.route('/api/saveListItem', methods=["POST"])
 @access_api.login_required
@@ -293,3 +305,15 @@ def setListItemState():
 
         return jsonify({"list_items":items, "error":False, "message":"items fetched succesfully!"})
     return jsonify({"list_items":items, "error":True, "message":"There was an error with this GET statement"})
+
+
+@shopping_list_api.route('/api/postGeneratedList', methods=["POST"])
+@access_api.login_required
+def postGeneratedList():
+    if request.method == "POST":
+        payload: dict = request.get_json()
+        site_name: str = session['selected_site']
+        user_id: int = session['user_id']
+        shoplist_processess.postNewGeneratedList(site_name, payload, user_id)
+        return jsonify(status=201,  message=f"List Generated successfully!")
+    return jsonify(status=405, message=f"{request.method} is not an accepted method on this endpoint!")
