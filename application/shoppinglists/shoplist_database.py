@@ -324,6 +324,36 @@ def getItemByUUID(site, payload:dict, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def getEventRecipes(site, payload, convert=True, conn=None):
+    """ payload: dict = {'plan_uuid', 'start_date', 'end_date'}"""
+    records = ()
+    self_conn = False
+    with open('application/shoppinglists/sql/getEventsRecipes.sql', 'r') as file:
+        sql = file.read().replace("%%site_name%%", site)
+
+    try:
+
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchall()
+            if rows and convert:
+                records = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+            elif rows and not convert:
+                records = rows
+        
+        if self_conn:
+            conn.close()
+
+        return records
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+    
 def deleteShoppingListsTuple(site_name, payload, convert=True, conn=None):
     deleted = ()
     self_conn = False

@@ -176,11 +176,11 @@
                                 <li class="uk-nav-header">Active Operators</li>
                                 <li class="uk-nav-divider"></li>
                                 <li><a onclick="addCustomItemsCard()" uk-tooltip="title: Create Custom items to add into the generated list.; pos: right">Custom Items</a></li>
-                                <li><a onclick="addUncalculatedItemsCard()" uk-tooltip="title: Add items from the system that take a static quantity into the generated list.; pos: right">Non-Calculated System Items</a></li>
+                                <li><a onclick="addUncalculatedItemsCard()" uk-tooltip="title: Add items from the system that take a static quantity into the generated list.; pos: right">Un-Calculated System Items</a></li>
                                 <li><a onclick="addCalculatedItemsCard()" uk-tooltip="title: Add items from the system that calculate quantity using quantity on hand and a set safety stocks into the generated list.; pos: right">Calculated System Items</a></li>
                                 <li><a onclick="addRecipesCard()" uk-tooltip="title: Add Recipes that will take all the ingrediants and add them into the generated list.; pos: right">System Recipes</a></li>
                                 <li><a onclick="addFullSKUCard()" uk-tooltip="title: Takes a full safety stock count from the system and adds any quantities below their safety stocks into the generated list.; pos: right">Full System Calculated</a></li>
-                                <li><a class="uk-disabled" uk-tooltip="title: Uses a date range and selected planners for each to add any planned recipes into the generated list.; pos: right">Site Planners</a></li>
+                                <li><a onclick="addPlannerCard()" uk-tooltip="title: Uses a date range and selected planners for each to add any planned recipes into the generated list.; pos: right">Site Planners</a></li>
                                 <li><a onclick="addListsCard()" uk-tooltip="title: Combine already made lists into this one; pos: right">Shopping Lists</a></li>
 
                             </ul>
@@ -349,6 +349,39 @@
                                     <div id="fullSKUZone" uk-grid>
                                         <div class="uk-width-1-1">
                                             <label><input autocomplete="off" id="fullSKUCheckbox" onclick="fullSKUEnabledChange(event)" class="uk-checkbox" type="checkbox"> Enabled</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Full Calculated SKU -->
+                            <div id="plannerCard" hidden>
+                                <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                                    <h3>Site Planner Operator
+                                        <span class="">
+                                            <button onclick="changePlannerZoneState()" class="uk-button uk-button-small"  title="Show/Hide the card body." uk-tooltip>Show/Hide</button>
+                                        </span>
+                                        <span class="uk-align-right">
+                                            <button onclick="removePlannerCard()" class="uk-button uk-button-small"  title="Will remove the Recipes card and data from the list." uk-tooltip >Remove</button>
+                                        </span>
+                                    </h3>
+                                    <p class="uk-text-meta">Site Planner Operators allow you to select specific plans and a date range on that planner to insert any planned recipes into the list. This is best
+                                        utilized without the Recipe Operator, but it has been allowed to have both. Currently you can only have one date range for a plan. If you 
+                                        do attempt to add from the same plan twice it will overwrite the last date range.
+                                    </p>
+                                    <div id="plannerZone" uk-grid>
+                                        <div class="uk-width-1-1">
+                                            <table class="uk-table uk-table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Plan Name</th>
+                                                        <th>Start Date</th>
+                                                        <th>End Date</th>
+                                                        <th>Operations</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="plannerTableBody"></tbody>
+                                            </table>
+                                            <button onclick="openPlannerModal()" class="uk-button uk-button-secondary uk-width-1-1">Add Item</button>
                                         </div>
                                     </div>
                                 </div>
@@ -653,6 +686,45 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <!-- Site Planner Modal -->
+                <div id="plannerModal" class="uk-modal">
+                    <div class="uk-modal-dialog uk-modal-body">
+                        <h2 class="uk-modal-title">Add Planner Date Range...</h2>
+                        <p class="uk-text-small">Site Planner Operators allow you to select specific plans and a date range on that planner to insert any planned recipes into the list. This is best
+                            utilized without the Recipe Operator, but it has been allowed to have both.
+                        </p>
+                        <table class="uk-table uk-table-responsive uk-table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Plan</td>
+                                    <td>
+                                        <select id="planUUID" class="uk-select" aria-label="Select">
+                                            <option value="site">Site Planner</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Start Date</td>
+                                    <td><input id="planStartDate" class="uk-input" type="date"></td>
+                                </tr>
+                                <tr>
+                                    <td>End Date</td>
+                                    <td><input id="planEndDate" class="uk-input" type="date"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="uk-text-right">
+                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                            <button id="plannerModalButton" onclick="addPlanner()" class="uk-button uk-button-primary" type="button">Add Planner</button>
+                        </p>
                     </div>
                 </div>
             </div>

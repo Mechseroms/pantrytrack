@@ -48,6 +48,7 @@ def postNewGeneratedList(site: str, data: dict, user_id: int, conn=None):
     recipes: list = data['recipes']
     full_system_calculated: list = data['full_system_calculated']
     shopping_lists: list = data['shopping_lists']
+    site_plans: list = data['site_plans']
 
 
     self_conn=False
@@ -157,6 +158,26 @@ def postNewGeneratedList(site: str, data: dict, user_id: int, conn=None):
                 )
                 items_to_add_to_system.append(temp_item)
     
+
+    if site_plans:
+        for site_plan in site_plans:
+            if site_plan['plan_uuid'] == 'site': site_plan['plan_uuid'] = None
+            plan_recipes = [event['recipe_uuid'] for event in shoplist_database.getEventRecipes(site, site_plan, conn=conn)]
+            if plan_recipes:
+                for recipe_uuid in plan_recipes:
+                    recipe_items = shoplist_database.getRecipeItemsByUUID(site, (recipe_uuid,), conn=conn)
+                    for item in recipe_items:
+                        temp_item = database_payloads.ShoppingListItemPayload(
+                            list_uuid=shopping_list['list_uuid'],
+                            item_type='recipe',
+                            item_name=item['item_name'],
+                            uom=item['uom'],
+                            qty=float(item['qty']),
+                            item_uuid=item['item_uuid'],
+                            links=item['links']
+                        )
+                        items_to_add_to_system.append(temp_item)
+
     
     if items_to_add_to_system:
         for item in items_to_add_to_system:
@@ -180,7 +201,9 @@ def deleteShoppingList(site: str, data: dict, user_id: int, conn=None):
     shopping_list_items = [item['list_item_uuid'] for item in shopping_list_items]
 
     shoplist_database.deleteShoppingListsTuple(site, (shopping_list_uuid,), conn=conn)
-    shoplist_database.deleteShoppingListItemsTuple(site, shopping_list_items, conn=conn)
+    if shopping_list_items:
+        shoplist_database.deleteShoppingListItemsTuple(site, shopping_list_items, conn=conn)
+
 
     if self_conn:
         conn.commit()

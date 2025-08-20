@@ -578,3 +578,27 @@
 2025-08-19 15:45:32.184317 --- ERROR --- DatabaseError(message='syntax error at or near "FROM"LINE 11: FROM main_items items         ^',
                                          payload={'item_uuid': '392f05b5-4ccd-41da-875d-0e593f51b610'},
                                          sql='WITH sum_cte AS (  SELECT mi.id, SUM(mil.quantity_on_hand) AS total_sum  FROM main_item_locations mil  JOIN main_items mi ON mil.part_id = mi.id  GROUP BY mi.id)SELECT items.*,    COALESCE(row_to_json(item_info.*), '{}') AS item_info,    COALESCE(sum_cte.total_sum, 0) AS total_sum,FROM main_items itemsLEFT JOIN main_item_info item_info ON items.item_info_id = item_info.idLEFT JOIN units ON units.id = item_info.uomLEFT JOIN sum_cte ON items.id = sum_cte.idWHERE items.item_uuid = %(item_uuid)s')
+2025-08-19 17:38:27.622014 --- ERROR --- DatabaseError(message='syntax error at or near ")"LINE 1: ...WHERE main_shopping_list_items.list_item_uuid IN () RETURNIN...                                                             ^',
+                                         payload=[],
+                                         sql='WITH deleted_rows AS (DELETE FROM main_shopping_list_items WHERE main_shopping_list_items.list_item_uuid IN () RETURNING *) SELECT * FROM deleted_rows;')
+2025-08-19 17:39:39.750553 --- ERROR --- DatabaseError(message='syntax error at or near ")"LINE 1: ...WHERE main_shopping_list_items.list_item_uuid IN () RETURNIN...                                                             ^',
+                                         payload=[],
+                                         sql='WITH deleted_rows AS (DELETE FROM main_shopping_list_items WHERE main_shopping_list_items.list_item_uuid IN () RETURNING *) SELECT * FROM deleted_rows;')
+2025-08-19 17:55:16.825854 --- ERROR --- DatabaseError(message='duplicate key value violates unique constraint "main_shopping_lists_name_key"DETAIL:  Key (name)=() already exists.',
+                                         payload=('', '', 1, datetime.datetime(2025, 8, 19, 17, 55, 16, 816288), 'plain', 'temporary'),
+                                         sql='INSERT INTO main_shopping_lists(name, description, author, creation_date, sub_type, list_type) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;')
+2025-08-20 05:17:43.764499 --- ERROR --- DatabaseError(message='syntax error at or near ")"LINE 1: ...WHERE main_shopping_list_items.list_item_uuid IN () RETURNIN...                                                             ^',
+                                         payload=[],
+                                         sql='WITH deleted_rows AS (DELETE FROM main_shopping_list_items WHERE main_shopping_list_items.list_item_uuid IN () RETURNING *) SELECT * FROM deleted_rows;')
+2025-08-20 05:17:54.498269 --- ERROR --- DatabaseError(message='syntax error at or near ")"LINE 1: ...WHERE main_shopping_list_items.list_item_uuid IN () RETURNIN...                                                             ^',
+                                         payload=[],
+                                         sql='WITH deleted_rows AS (DELETE FROM main_shopping_list_items WHERE main_shopping_list_items.list_item_uuid IN () RETURNING *) SELECT * FROM deleted_rows;')
+2025-08-20 05:17:57.313016 --- ERROR --- DatabaseError(message='syntax error at or near ")"LINE 1: ...WHERE main_shopping_list_items.list_item_uuid IN () RETURNIN...                                                             ^',
+                                         payload=[],
+                                         sql='WITH deleted_rows AS (DELETE FROM main_shopping_list_items WHERE main_shopping_list_items.list_item_uuid IN () RETURNING *) SELECT * FROM deleted_rows;')
+2025-08-20 15:32:51.822870 --- ERROR --- DatabaseError(message='duplicate key value violates unique constraint "main_shopping_lists_name_key"DETAIL:  Key (name)=(test) already exists.',
+                                         payload=('test', 'test', 1, datetime.datetime(2025, 8, 20, 15, 32, 51, 814595), 'plain', 'temporary'),
+                                         sql='INSERT INTO main_shopping_lists(name, description, author, creation_date, sub_type, list_type) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;')
+2025-08-20 15:38:30.303845 --- ERROR --- DatabaseError(message='column "start_date" does not existLINE 1: ... FROM main_plan_events WHERE plan_uuid = NULL AND start_date...                                                             ^',
+                                         payload={'start_date': '2025-08-18', 'end_date': '2025-08-24', 'plan_uuid': None, 'plan_name': 'Site Planner'},
+                                         sql='SELECT * FROM main_plan_events WHERE plan_uuid = %(plan_uuid)s AND start_date <= %(end_date)s AND end_date >= %(start_date)s;')

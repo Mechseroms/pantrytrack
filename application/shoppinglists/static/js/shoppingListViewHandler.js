@@ -23,29 +23,54 @@ async function replenishLineTable(sl_items){
     listItemsTableBody.innerHTML = ""
     console.log(sl_items)
 
-    for(let i = 0; i < sl_items.length; i++){
-        let tableRow = document.createElement('tr')
+    let grouped = sl_items.reduce((accumen, item) => {
+        if (!accumen[item.item_type]) {
+            accumen[item.item_type] = [];
+        }
+        accumen[item.item_type].push(item);
+        return accumen;
+        }, {});
+    
+    console.log(grouped)
+    for(let key in grouped){
+        console.log(key)
+        let items = grouped[key]
+        let headerRow = document.createElement('tr')
+        let headerCell = document.createElement('td')
+        headerCell.colSpan = 3;
+        headerCell.textContent = key.toUpperCase();
+        headerCell.className = 'type-header';
+        headerCell.style = `font-weight: bold;background: #eee; text-align: left;`
+        headerRow.appendChild(headerCell);
+        listItemsTableBody.appendChild(headerRow);
 
-        let checkboxCell = document.createElement('td')
-        checkboxCell.innerHTML = `<label><input class="uk-checkbox" type="checkbox" ${sl_items[i].list_item_state ? 'checked' : ''}></label>`
-        checkboxCell.onclick = async function (event) {
-            await updateListItemState(sl_items[i].list_item_uuid, event.target.checked)
+        for(let i = 0; i < items.length; i++){
+            console.log(items)
+            let tableRow = document.createElement('tr')
+            let item = items[i]
+            let checkboxCell = document.createElement('td')
+            checkboxCell.innerHTML = `<label><input class="uk-checkbox" type="checkbox" ${item.list_item_state ? 'checked' : ''}></label>`
+            checkboxCell.onclick = async function (event) {
+                console.log(item)
+                await updateListItemState(item.list_item_uuid, event.target.checked)
+            }
+
+            namefield = items[i].item_name
+            if(items[i].links.hasOwnProperty('main')){
+                namefield = `<a href=${item.links.main} target='_blank'>${item.item_name}</a>`
+            }
+
+            let nameCell = document.createElement('td')
+            nameCell.innerHTML = namefield
+
+            let qtyuomCell = document.createElement('td')
+            qtyuomCell.innerHTML = `${item.qty} ${item.uom.fullname}`
+
+            checkboxCell.checked = item.list_item_state
+            tableRow.append(checkboxCell, nameCell, qtyuomCell)
+            listItemsTableBody.append(tableRow)
         }
 
-        namefield = sl_items[i].item_name
-        if(sl_items[i].links.hasOwnProperty('main')){
-            namefield = `<a href=${sl_items[i].links.main} target='_blank'>${sl_items[i].item_name}</a>`
-        }
-
-        let nameCell = document.createElement('td')
-        nameCell.innerHTML = namefield
-
-        let qtyuomCell = document.createElement('td')
-        qtyuomCell.innerHTML = `${sl_items[i].qty} ${sl_items[i].uom.fullname}`
-
-        checkboxCell.checked = sl_items[i].list_item_state
-        tableRow.append(checkboxCell, nameCell, qtyuomCell)
-        listItemsTableBody.append(tableRow)
     }
 }
 

@@ -1076,6 +1076,130 @@ async function generateListsTable() {
 
 }
 
+// Site Planner Functions
+var site_planners = {}
+var site_planner_card_active = false;
+async function addPlannerCard(){
+    if(!site_planner_card_active){ 
+        document.getElementById('plannerCard').hidden = false
+        site_planner_card_active = true;
+    }
+}
+
+async function removePlannerCard(){
+    document.getElementById('plannerCard').hidden = true
+    site_planner_card_active = false;
+    site_planners = []
+}
+
+var PlannerZoneState = true
+async function changePlannerZoneState() {
+    PlannerZoneState = !PlannerZoneState
+    document.getElementById('plannerZone').hidden = !PlannerZoneState
+}
+
+async function openPlannerModal(){
+    document.getElementById('planUUID').setAttribute('class', 'uk-input uk-disabled')
+    document.getElementById('planUUID').value = 'site'
+    document.getElementById('planStartDate').value = ''
+    document.getElementById('planEndDate').value = ''
+    document.getElementById('plannerModalButton').innerHTML = "Save"
+    document.getElementById('plannerModalButton').onclick = async function () { await addPlanner()}
+    UIkit.modal(document.getElementById('plannerModal')).show()
+}
+
+async function addPlanner() {
+    var planner_select = document.getElementById('planUUID')
+    planner_uuid = planner_select.value
+    plan_name = planner_select.options[planner_select.selectedIndex].text
+    startDate = document.getElementById('planStartDate').value
+    endDate = document.getElementById('planEndDate').value
+    site_planners[planner_uuid] = {
+        start_date: startDate,
+        end_date: endDate,
+        plan_uuid: planner_uuid,
+        plan_name: plan_name
+    }
+    UIkit.modal(document.getElementById('plannerModal')).hide()
+    console.log(site_planners)
+    await generatePlannerTable()
+}
+
+async function editPlanner(planUUID) {
+    let data = site_planners[planUUID]
+    document.getElementById('planUUID').setAttribute('class', 'uk-input uk-disabled')
+    document.getElementById('planUUID').value = data['plan_uuid']
+    document.getElementById('planStartDate').value = data['start_date']
+    document.getElementById('planEndDate').value = data['end_date']
+    document.getElementById('plannerModalButton').innerHTML = "Save"
+    document.getElementById('plannerModalButton').onclick = async function () {
+            var planner_select = document.getElementById('planUUID')
+            planner_uuid = planner_select.value
+            plan_name = planner_select.options[planner_select.selectedIndex].text
+            startDate = document.getElementById('planStartDate').value
+            endDate = document.getElementById('planEndDate').value
+            site_planners[planner_uuid] = {
+                start_date: startDate,
+                end_date: endDate,
+                plan_uuid: planner_uuid,
+                plan_name: plan_name
+            }
+        
+            await generatePlannerTable()
+            UIkit.modal(document.getElementById('plannerModal')).hide()
+        }
+    
+    UIkit.modal(document.getElementById('plannerModal')).show()
+}
+
+
+async function deletePlan(plannerUUID) {
+    delete site_planners[plannerUUID]
+    await generatePlannerTable()
+}
+
+async function generatePlannerTable() {
+    let plannerTableBody = document.getElementById('plannerTableBody')
+    plannerTableBody.innerHTML = ""
+
+    for(const key in site_planners){
+        if(site_planners.hasOwnProperty(key)){
+            let tableRow = document.createElement('tr')
+
+
+            let nameCell = document.createElement('td')
+            nameCell.innerHTML = `${site_planners[key].plan_name}`
+
+            let startCell = document.createElement('td')
+            startCell.innerHTML = `${site_planners[key].start_date}`
+
+            let endCell = document.createElement('td')
+            endCell.innerHTML = `${site_planners[key].end_date}`
+
+            let opCell = document.createElement('td')
+
+            let editButton = document.createElement('button')
+            editButton.setAttribute('class', 'uk-button uk-button-default uk-button-small')
+            editButton.setAttribute('uk-tooltip', 'Edits this rows plan dates.')
+            editButton.innerHTML = "Edit"
+            editButton.onclick = async function() {await editPlanner(site_planners[key].plan_uuid)}
+
+
+            let removeButton = document.createElement('button')
+            removeButton.setAttribute('class', 'uk-button uk-button-default uk-button-small')
+            removeButton.setAttribute('uk-tooltip', 'Removes Shopping List from the saved shopping lists')
+            removeButton.innerHTML = "Remove"
+            removeButton.onclick = async function() {await deletePlan(site_planners[key].plan_uuid)}
+
+            opCell.append(editButton, removeButton)
+
+            tableRow.append(nameCell, startCell, endCell, opCell)
+            plannerTableBody.append(tableRow)
+
+        }
+    }
+
+}
 
 // Generate Functions
 async function postGenerateList() {
@@ -1088,7 +1212,8 @@ async function postGenerateList() {
         calculated_items: Object.keys(calculated_items),
         recipes: Object.keys(recipes),
         full_system_calculated: full_sku_enabled,
-        shopping_lists: Object.keys(shopping_lists)
+        shopping_lists: Object.keys(shopping_lists),
+        site_plans: Object.values(site_planners)
     }
 
     const response = await fetch(`/shopping-lists/api/postGeneratedList`, {
@@ -1098,4 +1223,5 @@ async function postGenerateList() {
         },
         body: JSON.stringify(data),
     });
+    location.href = "/shopping-lists"
 }

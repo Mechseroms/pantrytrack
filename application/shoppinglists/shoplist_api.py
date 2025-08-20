@@ -314,6 +314,7 @@ def postGeneratedList():
         payload: dict = request.get_json()
         site_name: str = session['selected_site']
         user_id: int = session['user_id']
+        print(payload)
         shoplist_processess.postNewGeneratedList(site_name, payload, user_id)
         return jsonify(status=201,  message=f"List Generated successfully!")
     return jsonify(status=405, message=f"{request.method} is not an accepted method on this endpoint!")
