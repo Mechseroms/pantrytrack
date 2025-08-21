@@ -131,6 +131,23 @@ def getItems():
         return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count['count']/limit), "error":True, "message":"There was an error with this GET statement"})
 
+@shopping_list_api.route("/api/getCalculatedItems", methods=["GET"])
+@access_api.login_required
+def getCalculatedItemsModal():
+    items = []
+    count = 0
+    if request.method == "GET":
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        search_string = request.args.get('search_string', 10)
+        site_name = session['selected_site']
+        offset = (page - 1) * limit        
+        payload = (search_string, limit, offset)
+        items, count = shoplist_database.getCalculatedItemsForModal(site_name, payload)
+        return jsonify(status=201, items=items, end=math.ceil(count/limit), message=f"Items fetched successfully!")
+    return jsonify(status=405, items=items, end=math.ceil(count/limit), message=f"{request.method} is not an accepted method on this endpoint!")
+
+
 @shopping_list_api.route('/api/getRecipesModal', methods=["GET"])
 @access_api.login_required
 def getRecipesModal():

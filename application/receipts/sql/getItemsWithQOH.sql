@@ -13,6 +13,7 @@ FROM %%site_name%%_items
 LEFT JOIN sum_cte ON %%site_name%%_items.id = sum_cte.id
 LEFT JOIN %%site_name%%_item_info ON %%site_name%%_items.item_info_id = %%site_name%%_item_info.id
 WHERE %%site_name%%_items.search_string LIKE '%%' || %s || '%%'
+    AND %%site_name%%_items.inactive IS false
 ORDER BY %%sort_order%%
 LIMIT %s OFFSET %s;
 

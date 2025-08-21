@@ -480,6 +480,16 @@ async function setBasicInfo() {
     document.getElementById('main_barcode').value = item.barcode
     document.getElementById('search_string_main').value = item.search_string
 
+    console.log(item)
+    let referenceCount = 0
+    referenceCount += item.item_shopping_lists.length
+    referenceCount += item.item_recipes.length
+
+    if (referenceCount> 0){
+        document.getElementById('inactiveButton').classList.add('uk-disabled')
+    }
+    
+
 }
 
 function addTag(event){
@@ -1303,6 +1313,26 @@ async function saveUpdated() {
     await fetchItem()
     await setBasicInfo()
 };
+
+async function inactivateItem() {
+    if (!updated.hasOwnProperty('item')){
+        updated['item'] = {}
+    }
+
+    updated['item']['inactive'] = !item.inactive
+
+    const response = await fetch(`/items/api/inactivateItem`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            item_id: parseInt(item_id),
+            data: updated
+        }),
+    });
+    location.href = "/items"
+}
 
 async function refreshSearchString() {
     const response = await fetch(`/items/refreshSearchString`, {

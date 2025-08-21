@@ -8,5 +8,6 @@ LEFT JOIN %%site_name%%_item_info item_info ON item_info.id = items.item_info_id
 LEFT JOIN units ON item_info.uom = units.id
 WHERE items.search_string LIKE '%%' || %s || '%%'
     AND items.inactive IS false
+    AND item_info.safety_stock > 0
 ORDER BY items.item_name 
 LIMIT %s OFFSET %s;

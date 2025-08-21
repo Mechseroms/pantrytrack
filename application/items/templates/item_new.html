@@ -216,7 +216,8 @@
                             <li><a href="#">Logistics Info</a></li>
                             <li id="linkedListLink" class="uk-disabled"><a>Linked Items</a></li>
                             <li id="barcodesTab"><a>Associated Barcodes</a></li>
-                            <li><a href="#">Search String</a></li>
+                            <li><a href="">Search String</a></li>
+                            <li><a href="">Danger Zone</a></li>
 
                         </ul>
                         <div class="uk-switcher uk-margin">
@@ -475,6 +476,15 @@
                                         <textarea id="search_string_main" class="uk-textarea" rows="5" placeholder="Textarea" aria-label="Textarea"></textarea>
                                     </div>
                                     <button onclick="refreshSearchString()" class="uk-button add-button"><i class="uk-flex-middle material-symbols-outlined" style="">refresh</i></button>
+                                </div>
+                            </div>
+                            <!-- Danger Zone -->
+                            <div uk-grid>
+                                <div class="uk-width-1-1">
+                                    <p class="uk-text-small">This place holds the secret dangerous buttons, for this purpose you will only be allowed here by the system admin. If there are any refrences to this item you will not be able to 
+                                        inactivate this item.
+                                    </p>
+                                    <button id="inactiveButton" onclick="inactivateItem()" class="uk-button uk-button-danger">Inactivate</button>
                                 </div>
                             </div>
                         </div>

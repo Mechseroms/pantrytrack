@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS %%site_name%%_items(
     row_type VARCHAR(255) NOT NULL,
     item_type VARCHAR(255) NOT NULL,
     search_string TEXT NOT NULL,
+    inactive BOOLEAN DEFAULT false NOT NULL,
     UNIQUE(item_uuid),
     CONSTRAINT fk_item_info
         FOREIGN KEY(item_info_id) 

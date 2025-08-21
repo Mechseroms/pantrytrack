@@ -29,6 +29,11 @@ WITH passed_id AS (SELECT id AS passed_id, item_uuid as passed_uuid FROM %%site_
         JOIN %%site_name%%_shopping_list_items ON %%site_name%%_shopping_lists.list_uuid = %%site_name%%_shopping_list_items.list_uuid
         WHERE %%site_name%%_shopping_list_items.item_uuid = (SELECT passed_uuid FROM passed_id)
     ),
+    cte_recipes AS (
+        SELECT rp_items.*
+        FROM %%site_name%%_recipe_items rp_items
+        WHERE rp_items.item_uuid = (SELECT passed_uuid FROM passed_id)
+    ),
     cte_itemlinks AS (
         SELECT * FROM %%site_name%%_itemlinks WHERE link=(SELECT passed_id FROM passed_id)
     ),
@@ -70,6 +75,7 @@ SELECT
     row_to_json(%%site_name%%_brands.*) as brand,
     (SELECT COALESCE(row_to_json(ii), '{}') FROM cte_item_info ii) AS item_info,
     (SELECT COALESCE(array_agg(row_to_json(sl)), '{}') FROM cte_shopping_lists sl) AS item_shopping_lists,
+    (SELECT COALESCE(array_agg(row_to_json(rp)), '{}') FROM cte_recipes rp) as item_recipes,
     (SELECT COALESCE(array_agg(row_to_json(il)), '{}') FROM cte_itemlinks il) AS linked_items,
     (SELECT COALESCE(array_agg(row_to_json(ils)), '{}') FROM cte_item_locations ils) AS item_locations,
     (SELECT COALESCE(array_agg(row_to_json(bar)), '{}') FROM cte_barcodes bar) AS item_barcodes

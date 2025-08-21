@@ -295,6 +295,40 @@ def getItemsModal(site, payload, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def getCalculatedItemsForModal(site, payload, convert=True, conn=None):
+    recordsets = []
+    count = 0
+    self_conn = False
+    with open(f"application/shoppinglists/sql/getCalculatedItemsForModal.sql", "r+") as file:
+        sql = file.read().replace("%%site_name%%", site)
+
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchall()
+            if rows and convert:
+                recordsets = [postsqldb.tupleDictionaryFactory(cur.description, row) for row in rows]
+            if rows and not convert:
+                recordsets = rows
+
+            cur.execute(f"SELECT COUNT(items.*) FROM {site}_items items LEFT JOIN {site}_item_info item_info ON item_info.id = items.item_info_id WHERE items.search_string LIKE '%%' || %s || '%%' AND items.inactive IS false AND item_info.safety_stock > 0;", (payload[0], ))
+            count = cur.fetchone()[0]
+           
+        if self_conn:
+            conn.close()
+
+        return recordsets, count
+
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
 def getItemByUUID(site, payload:dict, convert=True, conn=None):
     """ payload: dict = {'item_uuid'}"""
     record = ()

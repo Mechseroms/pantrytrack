@@ -206,6 +206,17 @@ def updateItem():
         return jsonify({'error': False, 'message': f'Item was updated successfully!'})
     return jsonify({'error': True, 'message': f'method {request.method} is not allowed!'})
 
+@items_api.route('/api/inactivateItem', methods=['POST'])
+@access_api.login_required
+def inactivateItem():
+    if request.method == "POST":
+        id = request.get_json()['item_id']
+        data = request.get_json()['data']
+        site_name = session['selected_site']
+        database_items.postUpdateItem(site_name, {'id': id, 'update': data, 'user_id': session['user_id']})
+        return jsonify({'error': False, 'message': f'Item was updated successfully!'})
+    return jsonify({'error': True, 'message': f'method {request.method} is not allowed!'})
+
 @items_api.route('/updateItemLink', methods=['POST'])
 @access_api.login_required
 def updateItemLink():

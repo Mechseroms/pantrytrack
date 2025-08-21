@@ -906,6 +906,7 @@ def postUpdateItem(site:str, payload:dict):
     transaction_data = {}
     database_config = config.config()
     data = payload['update']
+    print(data)
     for key in data.keys():
         for key_2 in data[key].keys():
             transaction_data[f"{key_2}_new"] = data[key][key_2]

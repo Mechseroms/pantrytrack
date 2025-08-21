@@ -11,6 +11,7 @@ LEFT JOIN sum_cte ON item.id = sum_cte.id
 LEFT JOIN %%site_name%%_item_info item_info ON item.item_info_id = item_info.id
 LEFT JOIN units u ON item_info.uom = u.id
 WHERE item.search_string LIKE '%%' || %s || '%%'
+  AND item.inactive IS false
 ORDER BY %%sort_order%%
 LIMIT %s OFFSET %s;
 

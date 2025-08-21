@@ -27,6 +27,17 @@ async function fetchItems(){
     return data.items; 
 }
 
+async function fetchCalculatedItems(){
+    const url = new URL('/shopping-lists/api/getCalculatedItems', window.location.origin);
+    url.searchParams.append('page', item_current_page);
+    url.searchParams.append('limit', items_limit);
+    url.searchParams.append('search_string', item_search_string);
+    const response = await fetch(url);
+    data =  await response.json();
+    item_end_page = data.end
+    return data.items; 
+}
+
 var recipes_limit = 25
 var recipes_current_page = 1
 var recipes_end_page = 1
@@ -202,6 +213,9 @@ async function changeUncalculatedZoneState() {
 }
 
 async function openUncalculatedItemsModal(){
+    item_current_page = 1
+    item_search_string = ""
+    item_end_page = 1 
     let items = await fetchItems()
     console.log(items)
     await generateUncalculatedItemsModalTable(items)
@@ -467,8 +481,10 @@ async function changeCalculatedZoneState() {
 }
 
 async function openCalculatedItemsModal(){
-    let items = await fetchItems()
-    console.log(items)
+    item_current_page = 1
+    item_search_string = ""
+    item_end_page = 1 
+    let items = await fetchCalculatedItems()
     await generateCalculatedItemsModalTable(items)
     await updateCalculatedItemsModalPagination()
     UIkit.modal(document.getElementById('calculatedItemModal')).show()
