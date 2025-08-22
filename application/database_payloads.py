@@ -576,6 +576,7 @@ class PlanEventPayload:
     event_date_end: datetime.datetime
     created_by: int
     recipe_uuid: str
+    receipt_uuid: str
     event_type: str
 
     def payload(self):
@@ -587,6 +588,7 @@ class PlanEventPayload:
             self.event_date_end,
             self.created_by,
             self.recipe_uuid,
+            self.receipt_uuid,
             self.event_type
         )
 

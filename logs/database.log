@@ -653,3 +653,6 @@
 2025-08-21 17:32:19.598403 --- ERROR --- DatabaseError(message='syntax error at or near "%"LINE 1: ...CT COUNT(items.*) FROM main_items items LEFT JOIN %site_name...                                                             ^',
                                          payload=('', 25, 0),
                                          sql='SELECT items.item_uuid as item_uuid,    items.item_name as item_name,    units.fullname AS fullname,    units.id AS unit_id,    items.links AS linksFROM main_items itemsLEFT JOIN main_item_info item_info ON item_info.id = items.item_info_idLEFT JOIN units ON item_info.uom = units.idWHERE items.search_string LIKE '%%' || %s || '%%'    AND items.inactive IS false    AND item_info.safety_stock > 0ORDER BY items.item_name LIMIT %s OFFSET %s;')
+2025-08-21 18:44:41.870684 --- ERROR --- DatabaseError(message='column "name" does not existLINE 1: SELECT * FROM test_vendors ORDER BY name ASC LIMIT 10 OFFSET...                                            ^',
+                                         payload=(10, 0),
+                                         sql='SELECT * FROM test_vendors ORDER BY name ASC LIMIT %s OFFSET %s;')

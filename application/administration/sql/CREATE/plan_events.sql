@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS %%site_name%%_plan_events(
     event_uuid UUID DEFAULT gen_random_uuid(),
     plan_uuid UUID,
     recipe_uuid UUID,
+    receipt_uuid UUID DEFAULT NULL,
     event_shortname VARCHAR(32) NOT NULL,
     event_description TEXT,
     event_date_start TIMESTAMP NOT NULL,

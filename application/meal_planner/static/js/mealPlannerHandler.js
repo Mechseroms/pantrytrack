@@ -105,6 +105,7 @@ async function setupCalendarAndEvents(){
         let recipeLabel = e.target.closest('.recipe-label');
         let calendarCell = e.target.closest('.calendar-cell');
         let customLabel = e.target.closest('.custom-label');
+        let takeOutLabel = e.target.closest('.take-out-label')
         if (recipeLabel) {
             recipeLabel.classList.add('recipe-label-selected')
             let rect = recipeLabel.getBoundingClientRect();
@@ -121,6 +122,14 @@ async function setupCalendarAndEvents(){
             let menuX = rect.left + scrollLeft;
             let menuY = rect.bottom + scrollTop;
             showContextMenuForEvent(customLabel, menuX, menuY);
+        } else if (takeOutLabel) {
+            takeOutLabel.classList.add('take-out-label-selected')
+            let rect = takeOutLabel.getBoundingClientRect();
+            let scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            let menuX = rect.left + scrollLeft;
+            let menuY = rect.bottom + scrollTop;
+            showContextMenuForTOEvent(takeOutLabel, menuX, menuY);
         } else if (calendarCell) {
             calendarCell.classList.add('calendar-cell-selected')
             let rect = calendarCell.getBoundingClientRect();
@@ -167,6 +176,8 @@ async function createCalender() {
                 eventsHTML += `<div class="recipe-label recipe-error" data-event_uuid="${event.event_uuid}" data-day="${day}">${event.event_shortname}</div>`;
             }  else if (event.event_type==="recipe" && !event.has_missing_ingredients){
                 eventsHTML += `<div class="recipe-label recipe-success" data-event_uuid="${event.event_uuid}" data-day="${day}">${event.event_shortname}</div>`;
+            } else if (event.event_type==="take out"){
+                eventsHTML += `<div class="take-out-label" data-event_uuid="${event.event_uuid}" data-day="${day}">${event.event_shortname}</div>`;
             } else {
                 eventsHTML += `<div class="custom-label" data-event_uuid="${event.event_uuid}" data-day="${day}">${event.event_shortname}</div>`;
             }
@@ -218,6 +229,21 @@ function showContextMenuForEvent(eventLabel, x, y) {
     menu.style.top = y + 'px';
 }
 
+function showContextMenuForTOEvent(eventLabel, x, y) {
+    const menu = document.getElementById('calendarContextMenu');
+    // Set only "Edit" and "Remove" (and optionally "Add Another")
+    menu.className = "uk-dropdown uk-open";
+    menu.innerHTML = `
+    <ul class="uk-nav uk-dropdown-nav">
+        <li><a href="#" onclick="postRemoveEvent('${eventLabel.dataset.event_uuid}')">Remove Event</a></li>
+    </ul>
+    `;
+    menu.style.display = 'block';
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+}
+
+
 function showContextMenuForCell(calendarCell, x, y) {
     const menu = document.getElementById('calendarContextMenu');
     // Only "Add Event"
@@ -225,6 +251,7 @@ function showContextMenuForCell(calendarCell, x, y) {
     menu.innerHTML = `
     <ul class="uk-nav uk-dropdown-nav">
         <li><a href="#" onclick="addEvent('${calendarCell.dataset.day}')">Add Event</a></li>
+        <li><a href="#" onclick="addTakeOut('${calendarCell.dataset.day}')">Add Take Out</a></li>
     </ul>
     `;
     menu.style.display = 'block';
@@ -237,6 +264,7 @@ window.addEventListener('click', function() {
     document.querySelectorAll('.calendar-cell-selected').forEach(el => el.classList.remove('calendar-cell-selected'));
     document.querySelectorAll('.custom-label-selected').forEach(el => el.classList.remove('custom-label-selected'));
     document.querySelectorAll('.recipe-label-selected').forEach(el => el.classList.remove('recipe-label-selected'));
+    document.querySelectorAll('.take-out-label-selected').forEach(el => el.classList.remove('recipe-label-selected'));
 });
 
 async function addEvent(day) {
@@ -593,4 +621,207 @@ async function updateEventsPaginationElement() {
         console.log(nextElement.innerHTML)
     }
     paginationElement.append(nextElement)
+}
+
+// Take Out Event Functions
+var TO_current_page = 1;
+var TO_end_page = 1;
+var TO_Limit = 10;
+var TO_search_string = "";
+
+async function addTakeOut(day) {
+    TO_current_page = 1;
+    TO_end_page = 1;
+    TO_Limit = 10;
+    TO_search_string = "";
+    let menu = document.getElementById('calendarContextMenu');
+    //let day = menu.getAttribute('data-day')
+    console.log(year, month, day)
+    let customDate = new Date(year, month-1, day);
+    document.getElementById('TO_date_start').value = customDate.toISOString().split('T')[0];
+    document.getElementById('TO_date_end').value = customDate.toISOString().split('T')[0];
+    UIkit.modal(document.getElementById('takeOutOrderModal')).show();
+}
+
+async function selectTOEvent() {
+    document.getElementById('TOModalBody').hidden = true
+    document.getElementById('paginationTOModalBody').hidden = false
+    document.getElementById('TOModalFooter').hidden = true
+    let vendors = await fetchVendors()
+    await updateTOPaginationElement()
+    await updateTOTableWithVendors(vendors)
+}
+
+async function fetchVendors() {
+    const url = new URL('/planner/api/getVendors', window.location.origin);
+    url.searchParams.append('page', TO_current_page);
+    url.searchParams.append('limit', TO_Limit);
+    url.searchParams.append('search_string', TO_search_string);
+    const response = await fetch(url);
+    data =  await response.json();
+    TO_end_page = data.end
+    return data.vendors; 
+}
+
+async function updateTOTableWithVendors(vendors) {
+    let vendorsTableBody = document.getElementById('vendorsTableBody')
+    vendorsTableBody.innerHTML = ""
+
+
+    for (let i = 0; i < vendors.length; i++){
+        let tableRow = document.createElement('tr')
+
+        let nameCell = document.createElement('td')
+        nameCell.innerHTML = `${vendors[i].vendor_name}`
+
+
+        let opCell = document.createElement('td')
+
+        let selectButton = document.createElement('button')
+        selectButton.setAttribute('class', 'uk-button uk-button-primary uk-button-small')
+        selectButton.innerHTML = "Select"
+        selectButton.onclick = async function() {
+            document.getElementById('vendor_id').value = vendors[i].id
+            document.getElementById('selected_vendor_name').value = vendors[i].vendor_name
+            document.getElementById('TOModalBody').hidden = false
+            document.getElementById('paginationTOModalBody').hidden = true
+            document.getElementById('TOModalFooter').hidden = false
+        }
+
+        opCell.append(selectButton)
+
+        tableRow.append(nameCell, opCell)
+        vendorsTableBody.append(tableRow)   
+    }
+}
+
+async function setTOModalPage(pageNumber){
+    TO_current_page = pageNumber;
+    let vendors = await fetchVendors()
+    await updateTOTableWithVendors(vendors)
+    await updateTOPaginationElement()
+}
+
+async function updateTOPaginationElement() {
+    let paginationElement = document.getElementById('takeOutOrderPage');
+    paginationElement.innerHTML = "";
+    // previous
+    let previousElement = document.createElement('li')
+    if(TO_current_page<=1){
+        previousElement.innerHTML = `<a><span uk-pagination-previous></span></a>`;
+        previousElement.classList.add('uk-disabled');
+    }else {
+        previousElement.innerHTML = `<a onclick="setTOModalPage(${TO_current_page-1})"><span uk-pagination-previous></span></a>`;
+    }
+    paginationElement.append(previousElement)
+    
+    //first
+    let firstElement = document.createElement('li')
+    if(TO_current_page<=1){
+        firstElement.innerHTML = `<a><strong>1</strong></a>`;
+        firstElement.classList.add('uk-disabled');
+    }else {
+        firstElement.innerHTML = `<a onclick="setTOModalPage(1)">1</a>`;
+    }
+    paginationElement.append(firstElement)
+    
+    // ...
+    if(TO_current_page-2>1){
+        let firstDotElement = document.createElement('li')
+        firstDotElement.classList.add('uk-disabled')
+        firstDotElement.innerHTML = `<span>…</span>`;
+        paginationElement.append(firstDotElement)
+    }
+    // last
+    if(TO_current_page-2>0){
+        let lastElement = document.createElement('li')
+        lastElement.innerHTML = `<a onclick="setTOModalPage(${TO_current_page-1})">${TO_current_page-1}</a>`
+        paginationElement.append(lastElement)
+    }
+    // current
+    if(TO_current_page!=1 && TO_current_page != TO_end_page){
+    let currentElement = document.createElement('li')
+    currentElement.innerHTML = `<li class="uk-active"><span aria-current="page"><strong>${TO_current_page}</strong></span></li>`
+    paginationElement.append(currentElement)
+    }
+    // next
+    if(TO_current_page+2<TO_end_page+1){
+        let nextElement = document.createElement('li')
+        nextElement.innerHTML = `<a onclick="setTOModalPage(${TO_current_page+1})">${TO_current_page+1}</a>`
+        paginationElement.append(nextElement)
+    }
+    // ...
+    if(TO_current_page+2<=TO_end_page){
+        let secondDotElement = document.createElement('li')
+        secondDotElement.classList.add('uk-disabled')
+        secondDotElement.innerHTML = `<span>…</span>`;
+        paginationElement.append(secondDotElement)
+    }
+    //end
+    let endElement = document.createElement('li')
+    if(TO_current_page>=TO_end_page){
+        endElement.innerHTML = `<a><strong>${TO_end_page}</strong></a>`;
+        endElement.classList.add('uk-disabled');
+    }else {
+        endElement.innerHTML = `<a onclick="setTOModalPage(${TO_end_page})">${TO_end_page}</a>`;
+    }
+    paginationElement.append(endElement)
+    //next button
+    let nextElement = document.createElement('li')
+    if(TO_current_page>=TO_end_page){
+        nextElement.innerHTML = `<a><span uk-pagination-next></span></a>`;
+        nextElement.classList.add('uk-disabled');
+    }else {
+        nextElement.innerHTML = `<a onclick="setTOModalPage(${TO_current_page+1})"><span uk-pagination-next></span></a>`;
+        console.log(nextElement.innerHTML)
+    }
+    paginationElement.append(nextElement)
+}
+
+async function postTOEvent(){
+    let event_shortname = `Take Out: ${document.getElementById('selected_vendor_name').value}`
+    let event_description = `Take out dining at ${event_shortname}`
+    let event_date_start = document.getElementById('TO_date_start').value
+    let event_date_end = document.getElementById('TO_date_end').value
+    let event_type = 'take out'
+    let recipe_uuid = null
+
+    let vendor_id = parseInt(document.getElementById('vendor_id').value)
+    let attendees = parseInt(document.getElementById('TO_attendees').value)
+    let cost = parseFloat(document.getElementById('TO_cost').value)
+
+    const response = await fetch('/planner/api/addTOEvent', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            event_shortname: event_shortname,
+            event_description: event_description,
+            event_date_start: event_date_start,
+            event_date_end: event_date_end,
+            recipe_uuid: recipe_uuid,
+            event_type: event_type,
+            vendor_id: vendor_id,
+            attendees: attendees,
+            cost: cost
+        })
+    });
+
+    data =  await response.json();
+    response_status = 'primary'
+    if (!data.status === 201){
+        response_status = 'danger'
+    }
+
+    UIkit.notification({
+        message: data.message,
+        status: response_status,
+        pos: 'top-right',
+        timeout: 5000
+    });
+
+    await setupCalendarAndEvents()
+    UIkit.modal(document.getElementById('takeOutOrderModal')).hide();
+
 }

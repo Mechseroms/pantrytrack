@@ -203,6 +203,103 @@
                 </div>
             </div>
         </div>
+        <!-- Take Out Order -->
+        <div id="takeOutOrderModal" class="uk-flex-top" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 class="uk-modal-title">Take Out Form</h2>
+                </div>
+                <div id="paginationTOModalBody" class="uk-modal-body" hidden>
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-1">
+                            <div id="searchItemsForm" onkeydown="" class="uk-search uk-search-default uk-align-center">
+                                <input id="searchVendorsInput" class="uk-border-pill uk-search-input" type="search" placeholder="" aria-label="">
+                                <span class="uk-search-icon-flip" uk-search-icon></span>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <nav aria-label="Pagination">
+                                <ul id="takeOutOrderPage" class="uk-pagination uk-flex-center" uk-margin>
+                                    <li><a href="#"><span uk-pagination-previous></span></a></li>
+                                    <li><a href="#">1</a></li>
+                                    <li class="uk-disabled"><span>…</span></li>
+                                    <li><a href="#">5</a></li>
+                                    <li><a href="#">6</a></li>
+                                    <li class="uk-active"><span aria-current="page">7</span></li>
+                                    <li><a href="#">8</a></li>
+                                    <li><a href="#"><span uk-pagination-next></span></a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <caption>Select a Vendor from the system...</caption>
+                            <table class="uk-table uk-table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Operations</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vendorsTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div id="TOModalBody" class="uk-modal-body">
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="TO_date_start">Date</label>
+                                <div class="uk-form-controls">
+                                    <input id="TO_date_start" class="uk-input uk-disabled" type="date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1" hidden>
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="TO_date_end"></label>
+                                <div class="uk-form-controls">
+                                    <input id="TO_date_end" class="uk-input uk-disabled" type="date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1" id="vendor_button_modal">
+                            <div class="uk-margin">
+                                <button class="uk-button uk-button-default" type="button" onclick="selectTOEvent()">Choose Vendor...</button>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1" id="vendor_name">
+                            <div class="uk-margin">
+                                <input id="selected_vendor_name" class="uk-input uk-disabled" type="text" placeholder="No Vendor selected">
+                            </div>
+                            <input id="vendor_id" hidden>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="TO_attendees">Attendees</label>
+                                <div class="uk-form-controls">
+                                    <input id="TO_attendees" class="uk-input" type="number" step="1" min="1" placeholder="1" value="1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <label class="uk-form-label" for="TO_cost">Cost</label>
+                                <div class="uk-form-controls">
+                                    <input id="TO_cost" class="uk-input" type="number" step="0.01" min="0" placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-modal-footer uk-text-right" id="TOModalFooter">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button onclick="postTOEvent()" class="uk-button uk-button-primary" type="button">Save</button>
+                </div>
+            </div>
+        </div>
         <!-- Event Modal-->
         <div id="eventModal" class="uk-flex-top" uk-modal>
             <div class="uk-modal-dialog">

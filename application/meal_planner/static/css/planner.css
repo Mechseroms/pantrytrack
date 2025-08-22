@@ -133,6 +133,24 @@
     background-color: rgb(255, 255, 255);
 }
 
+.take-out-label {
+    background:rgb(250, 162, 238);
+    margin-bottom: 3px;
+    padding: 2px 5px;
+    border-radius: 1px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.take-out-label:hover{
+    background-color: rgb(225, 255, 255);
+    cursor: pointer;
+}
+
+.take-out-label:hover, .custom-label-selected {
+    background-color: rgb(255, 255, 255);
+}
+
 .my-list-item:hover {
     background-color: whitesmoke;
 }
