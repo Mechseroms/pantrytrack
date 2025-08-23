@@ -619,8 +619,8 @@ class SiteManager:
         "transactions",
         "item",
         "vendors",
-        "groups",
-        "group_items",
+        #"groups",
+        #"group_items",
         "receipts",
         "receipt_items",
         "recipes",
@@ -631,6 +631,7 @@ class SiteManager:
         "conversions",
         "sku_prefix",
         "barcodes",
+        "plans",
         "plan_events"
     ]
         self.drop_order = [
@@ -657,5 +658,6 @@ class SiteManager:
         "conversions",
         "sku_prefix",
         "barcodes",
+        "plans",
         "plan_events"
     ]

@@ -1,0 +1,1 @@
+DROP TABLE %%site_name%%_plan_events CASCADE;

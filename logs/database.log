@@ -659,3 +659,48 @@
 2025-08-23 07:01:48.754381 --- ERROR --- DatabaseError(message='column rp_item.type does not existLINE 11: ...       SELECT items.id AS item_id, rp_item.rp_id, rp_item.ty...                                                              ^',
                                          payload=(2025, 8),
                                          sql='WITH arguments AS (  SELECT %s AS year, %s AS month),sum_cte AS (      SELECT mi.item_uuid, SUM(mil.quantity_on_hand)::FLOAT8 AS total_sum      FROM main_item_locations mil      JOIN main_items mi ON mil.part_id = mi.id      GROUP BY mi.id    ),cte_recipe_items AS (        SELECT items.id AS item_id, rp_item.rp_id, rp_item.type, rp_item.qty, rp_item.uom AS ingrediant_uom, item_info.uom AS item_uom, COALESCE(sum_cte.total_sum, 0) as quantity_on_hand FROM main_recipe_items rp_item        LEFT JOIN sum_cte ON sum_cte.item_uuid = rp_item.item_uuid        LEFT JOIN main_items items ON rp_item.item_uuid = items.item_uuid        LEFT JOIN main_item_info item_info ON items.item_info_id = item_info.id     )  SELECT events.*,      COALESCE(row_to_json(recipes.*), '{}') as recipe,      COALESCE(ritems.recipe_items, '{}') as recipe_itemsFROM main_plan_events eventsLEFT JOIN main_recipes recipes ON recipes.recipe_uuid = events.recipe_uuidLEFT JOIN LATERAL (  SELECT array_agg(row_to_json(ri.*)) AS recipe_items  FROM cte_recipe_items ri  WHERE ri.rp_id = recipes.id) ritems ON TRUEWHERE  event_date_end >= make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1)  AND  event_date_start <  (make_date((SELECT year FROM arguments), (SELECT month FROM arguments), 1) + INTERVAL '1 month');')
+2025-08-23 09:44:32.979264 --- ERROR --- DatabaseError(message='can't adapt type 'dict'',
+                                         payload={'food_groups': [], 'ingrediants': [], 'nutrients': {}, 'expires': False, 'default_expiration': 0.0},
+                                         sql='INSERT INTO test2_food_info(ingrediants, food_groups, nutrients, expires, default_expiration) VALUES (%(ingrediants)s, %(food_groups)s, %(nutrients)s, %(expires)s, %(default_expiration)s) RETURNING *;')
+2025-08-23 09:47:55.518415 --- ERROR --- DatabaseError(message=''default_expiration'',
+                                         payload={'food_groups': '[]', 'ingrediants': '[]', 'nutrients': '{}', 'expires': False, 'default_exipration': 0.0},
+                                         sql='INSERT INTO test2_food_info(ingrediants, food_groups, nutrients, expires, default_expiration) VALUES (%(ingrediants)s, %(food_groups)s, %(nutrients)s, %(expires)s, %(default_expiration)s) RETURNING *;')
+2025-08-23 09:48:20.421772 --- ERROR --- DatabaseError(message='malformed array literal: "[]"LINE 3: VALUES ('[]', '[]', '{}', false, 0.0)                 ^DETAIL:  "[" must introduce explicitly-specified array dimensions.',
+                                         payload={'food_groups': '[]', 'ingrediants': '[]', 'nutrients': '{}', 'expires': False, 'default_expiration': 0.0},
+                                         sql='INSERT INTO test2_food_info(ingrediants, food_groups, nutrients, expires, default_expiration) VALUES (%(ingrediants)s, %(food_groups)s, %(nutrients)s, %(expires)s, %(default_expiration)s) RETURNING *;')
+2025-08-23 09:56:18.404047 --- ERROR --- DatabaseError(message='malformed array literal: "[]"LINE 3: VALUES ('1234', '', 1.0, 1, 0.0, 0.0, 0.0, false, '[]')                                                           ^DETAIL:  "[" must introduce explicitly-specified array dimensions.',
+                                         payload={'barcode': '1234', 'packaging': '', 'uom_quantity': 1.0, 'uom': 1, 'cost': 0.0, 'safety_stock': 0.0, 'lead_time_days': 0.0, 'ai_pick': False, 'prefixes': '[]'},
+                                         sql='INSERT INTO test2_item_info(barcode, packaging, uom_quantity, uom, cost, safety_stock, lead_time_days, ai_pick, prefixes) VALUES (%(barcode)s, %(packaging)s, %(uom_quantity)s, %(uom)s, %(cost)s, %(safety_stock)s, %(lead_time_days)s, %(ai_pick)s, %(prefixes)s) RETURNING *;')
+2025-08-23 10:00:20.053169 --- ERROR --- DatabaseError(message='relation "test2_locations" does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_logistics_info(
+    id SERIAL PRIMARY KEY,
+    logistics_info_uuid UUID DEFAULT uuid_generate_v4(),
+    barcode VARCHAR(255),
+    primary_location INTEGER NOT NULL,
+    primary_zone INTEGER NOT NULL,
+    auto_issue_location INTEGER NOT NULL,
+    auto_issue_zone INTEGER NOT NULL,
+    UNIQUE(logistics_info_uuid),
+    CONSTRAINT fk_primary_location
+        FOREIGN KEY(primary_location) 
+        REFERENCES test2_locations(id),
+    CONSTRAINT fk_primary_zone
+        FOREIGN KEY(primary_zone) 
+        REFERENCES test2_zones(id),
+    CONSTRAINT fk_auto_issue_location
+        FOREIGN KEY(auto_issue_location) 
+        REFERENCES test2_locations(id),
+    CONSTRAINT fk_auto_issue_zone
+        FOREIGN KEY(auto_issue_zone) 
+        REFERENCES test2_zones(id)
+);,
+                                         sql='logistics_info')
+2025-08-23 11:30:10.936510 --- ERROR --- DatabaseError(message='function gen_random_uuid4() does not existLINE 2:     plan_uuid UUID PRIMARY KEY DEFAULT gen_random_uuid4(),                                               ^HINT:  No function matches the given name and argument types. You might need to add explicit type casts.',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_plans(
+    plan_uuid UUID PRIMARY KEY DEFAULT gen_random_uuid4(),
+    plan_shortname VARCHAR(32) NOT NULL,
+    plan_description TEXT,
+    created_by INTEGER NOT NULL
+)
+,
+                                         sql='plans')

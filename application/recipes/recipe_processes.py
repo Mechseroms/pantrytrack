@@ -112,7 +112,6 @@ def process_recipe_receipt(site_name, user_id, data:dict, conn=None):
         rp_item_uom = item['uom']['id']
         item_stuff = database_recipes.selectItemTupleByUUID(site_name, (item['item_uuid'],), conn=conn)
         conv_factor = database_recipes.selectConversionTuple(site_name, (item_stuff['item_id'], rp_item_uom))
-        print(conv_factor)
         conversion = conv_factor.get('conv_factor', 1)
         qty = float(item['qty']) / float(conversion)
         payload = {
