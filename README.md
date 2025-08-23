@@ -15,3 +15,5 @@ You then edit and receive that receipt into the system.
 
 There is also the ability to use a kiosk like interface to set up a scan in and out system, where as you use things
 the system will remove those items by scanning them.
+
+test
