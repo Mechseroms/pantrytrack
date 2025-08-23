@@ -116,7 +116,7 @@
 }
 
 .custom-label {
-    background:rgb(211, 211, 211);
+    background:rgb(195, 113, 243);
     margin-bottom: 3px;
     padding: 2px 5px;
     border-radius: 1px;
@@ -153,4 +153,14 @@
 
 .my-list-item:hover {
     background-color: whitesmoke;
+}
+
+
+.old-event-label {
+    background:rgb(230, 230, 230);
+    margin-bottom: 3px;
+    padding: 2px 5px;
+    border-radius: 1px;
+    font-size: 12px;
+    font-weight: bold;
 }

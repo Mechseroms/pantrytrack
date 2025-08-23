@@ -151,6 +151,9 @@ async function createCalender() {
     let firstDay = new Date(year, month - 1, 1);
     let numDays = new Date(year, month, 0).getDate();
     let startDay = firstDay.getDay();
+    let today = new Date()
+    let todays_day = today.getUTCDate()
+    console.log(todays_day)
 
     let calender_table = document.createElement('table')
     calender_table.setAttribute('id', 'calender_table')
@@ -172,13 +175,15 @@ async function createCalender() {
         let eventsHTML = "";
         if (eventsByDay[day]) {
         eventsByDay[day].forEach(event => {
-            if(event.event_type==="recipe" && event.has_missing_ingredients){
+            if(todays_day > day){
+                eventsHTML += `<div class="old-event-label" data-event_uuid="${event.event_uuid}" data-day="${day}">${event.event_shortname}</div>`;
+            } else if (event.event_type==="recipe" && event.has_missing_ingredients){
                 eventsHTML += `<div class="recipe-label recipe-error" data-event_uuid="${event.event_uuid}" data-day="${day}">${event.event_shortname}</div>`;
             }  else if (event.event_type==="recipe" && !event.has_missing_ingredients){
                 eventsHTML += `<div class="recipe-label recipe-success" data-event_uuid="${event.event_uuid}" data-day="${day}">${event.event_shortname}</div>`;
             } else if (event.event_type==="take out"){
                 eventsHTML += `<div class="take-out-label" data-event_uuid="${event.event_uuid}" data-day="${day}">${event.event_shortname}</div>`;
-            } else {
+            } else if (event.event_type==="custom") {
                 eventsHTML += `<div class="custom-label" data-event_uuid="${event.event_uuid}" data-day="${day}">${event.event_shortname}</div>`;
             }
 
@@ -187,6 +192,10 @@ async function createCalender() {
 
         table_cell.innerHTML = `<div class="date-box" data-day="${day}">${day}</div><div class="recipes-box">${eventsHTML}</div>`;
         table_cell.classList.add("calendar-cell");
+        if(todays_day === day){
+            table_cell.classList.add('calendar-cell-today')
+        }
+        
         table_cell.dataset.day = day;
 
         tableRow.append(table_cell)
