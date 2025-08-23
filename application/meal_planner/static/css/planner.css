@@ -44,6 +44,11 @@
     background-color: white;
     border: 1px solid rgba(155, 155, 155, 30%);
 }
+
+.calendar-cell-today {
+    border: 3px solid rgba(85, 188, 206, 0.9);
+}
+
 .calendar-cell:hover{
     background-color: whitesmoke;
     border: 2px solid rgba(155, 155, 155, 30%);
@@ -154,7 +159,6 @@
 .my-list-item:hover {
     background-color: whitesmoke;
 }
-
 
 .old-event-label {
     background:rgb(230, 230, 230);
