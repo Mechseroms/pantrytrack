@@ -28,8 +28,9 @@ def getEventsByMonth():
         site_name = session['selected_site']
         year = int(request.args.get('year', 2025))
         month = int(request.args.get('month', 1))
-        events = ()
-        events = meal_planner_database.selectPlanEventsByMonth(site_name, (year, month))
+
+        events = meal_planner_processes.selectPlanEventsByMonth(site_name, year, month)
+        
         return jsonify(status=201, message="Events fetched Successfully!", events=events)
     return jsonify(status=405, message=f"{request.method} is not an allowed method on this endpoint!", events=events)
 

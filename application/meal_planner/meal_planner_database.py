@@ -167,6 +167,36 @@ def selectPlanEventByUUID(site: str, payload: tuple, convert=True, conn=None):
     except Exception as error:
         raise postsqldb.DatabaseError(error, payload, sql)
 
+def selectConversionsTuple(site: str, payload: tuple, convert=True, conn=None):
+    """payload=(event_uuid,)"""
+    self_conn = False
+    conversions = ()
+
+    sql = f"SELECT * FROM {site}_conversions WHERE item_id = %s AND uom_id = %s;"
+
+    try:
+        if not conn:
+            database_config = config.config()
+            conn = psycopg2.connect(**database_config)
+            conn.autocommit = True
+            self_conn = True
+
+        with conn.cursor() as cur:
+            cur.execute(sql, payload)
+            rows = cur.fetchone()
+            if rows and convert:
+                conversions = postsqldb.tupleDictionaryFactory(cur.description, rows)
+            if rows and not convert:
+                conversions = rows
+
+
+        if self_conn:
+            conn.close()
+
+        return conversions
+    except Exception as error:
+        raise postsqldb.DatabaseError(error, payload, sql)
+
 def insertPlanEventTuple(site: str, payload: tuple, convert=True, conn=None):
     self_conn = False
     event_tuple = ()

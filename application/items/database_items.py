@@ -51,7 +51,6 @@ def getItemAllByID(site:str, payload: tuple, convert:bool=True):
     with open('application/items/sql/getItemAllByID.sql', 'r+') as file:
         sql = file.read().replace("%%site_name%%", site)
     record = ()
-    print(sql)
     try:
         with psycopg2.connect(**database_config) as conn:
             with conn.cursor() as cur:
@@ -138,7 +137,6 @@ def getModalSKUs(site:str, payload:tuple, convert:bool=True):
     try:
         with psycopg2.connect(**database_config) as conn:
             with conn.cursor() as cur:
-                print(payload)
                 cur.execute(sql, payload)
                 rows = cur.fetchall()
                 if rows and convert:
@@ -906,7 +904,6 @@ def postUpdateItem(site:str, payload:dict):
     transaction_data = {}
     database_config = config.config()
     data = payload['update']
-    print(data)
     for key in data.keys():
         for key_2 in data[key].keys():
             transaction_data[f"{key_2}_new"] = data[key][key_2]

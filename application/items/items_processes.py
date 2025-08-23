@@ -141,16 +141,12 @@ def postLinkedItem(site, payload):
             'location_id': location['location_id']
         }
 
-        print(conn)
         conn = postAdjustment(site, payload['user_id'], adjustment_payload, conn=conn)
-        print(conn)
         #process.postTransaction(conn, site_name, user_id, payload)
 
-        print(sum_child_qoh)
-
+        
     primary_location = database_items.selectItemLocationsTuple(site, (parent_item['id'], parent_item['logistics_info']['primary_location']['id']), convert=True)
 
-    print(primary_location)
 
     adjustment_payload = {
             'item_id': parent_item['id'],
@@ -165,9 +161,9 @@ def postLinkedItem(site, payload):
             'expires': None,
             'location_id': primary_location['location_id']
         }
-    print(conn)
+
     conn=postAdjustment(site, payload['user_id'], adjustment_payload, conn=conn)
-    print(conn)
+ 
     itemLink = db.ItemLinkPayload(
         barcode=child_item['barcode'],
         link=parent_item['id'],
@@ -176,11 +172,10 @@ def postLinkedItem(site, payload):
     )
 
     _, conn = database_items.postInsertItemLink(site, itemLink.payload(), conn=conn)
-    print(conn)
-    print(_['id'])
+
+
     _, conn = database_items.postUpdateItemByID(site, {'id': child_item['id'], 'update': {'row_type': 'link'}}, conn=conn)
-    print(conn)
-    print(_['id'])
+
     conn.commit()
     conn.close()
 

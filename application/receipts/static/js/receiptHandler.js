@@ -67,7 +67,11 @@ async function replenishLinesTable(receipt_items) {
             label_color = 'purple'
         }
         if(receipt_items[i].type == 'PLU SKU'){
-            label_color = 'blue'
+            label_color = 'light blue'
+        }
+        if(receipt_items[i].type == 'take out'){
+            console.log(receipt_items[i])
+            label_color = 'brown'
         }
 
         typeCell.innerHTML = `<span style="background-color: ${label_color};" class="uk-label">${receipt_items[i].type}</span>`
@@ -75,7 +79,6 @@ async function replenishLinesTable(receipt_items) {
         nameCell.innerHTML = receipt_items[i].name
         
         let operationsCell = document.createElement('td')
-
 
         let linkOp = document.createElement('a')
         linkOp.style = "margin-right: 5px;"
@@ -98,7 +101,7 @@ async function replenishLinesTable(receipt_items) {
         resolveOp.setAttribute('class', 'uk-button uk-button-small uk-button-default')
         resolveOp.setAttribute('uk-icon', 'icon: check')
         resolveOp.onclick = async function(){
-            await resolveLine(receipt_items[i].id)
+            await resolveLine(receipt_items[i].id, receipt_items[i].type)
         }
 
         let denyOp = document.createElement('a')
@@ -244,8 +247,12 @@ async function addSKULine(item_id) {
 
 }
 
-async function resolveLine(line_id) {
-    const response = await fetch(`/receipts/api/resolveLine`, {
+async function resolveLine(line_id, type) {
+    let url = '/receipts/api/resolveLine'
+    if(type==="take out"){
+        url = '/receipts/api/resolveServiceLine'
+    }
+    const response = await fetch(url, {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',

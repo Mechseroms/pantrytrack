@@ -146,6 +146,26 @@ def linkItem(site, user_id, data, conn=None):
     
     return conn
 
+
+def postService(site, user_id, data, conn=None):
+    self_conn = False
+    if not conn:
+        database_config = config.config()
+        conn = psycopg2.connect(**database_config)
+        conn.autocommit = False
+        self_conn = True
+
+    receipt_item = receipts_database.selectReceiptItemsTuple(site, (data['line_id'],), conn=conn)
+
+    receipts_database.updateReceiptItemsTuple(site, {'id': receipt_item['id'], 'update': {'status': "Resolved"}}, conn=conn)
+    
+    if self_conn:
+        conn.commit()
+        conn.close()
+        return False
+    
+    return conn
+
 def postLine(site, user_id, data, conn=None):
     self_conn = False
     if not conn:

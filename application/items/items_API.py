@@ -135,7 +135,6 @@ def getModalItems():
         site_name = session['selected_site']
         offset = (page - 1) * limit
         recordset, count = database_items.getModalSKUs(site_name, (search_string, limit, offset))
-        print(recordset, count)
         return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message": f"method {request.method} is not allowed."})
 
@@ -459,7 +458,6 @@ def saveBarcode():
     """
     if request.method == "POST":
         payload = {'barcode': request.get_json()['barcode'], 'update': request.get_json()['update']}
-        print(payload)
         site_name = session['selected_site']
         try:
             database_items.updateBarcodesTuple(site_name, payload)

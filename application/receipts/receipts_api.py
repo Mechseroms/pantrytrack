@@ -252,6 +252,18 @@ def resolveLine():
         return jsonify({'error': False, "message": "Line Saved Succesfully"})
     return jsonify({'error': True, "message": "Something went wrong while saving line!"})
 
+@receipt_api.route('/api/resolveServiceLine', methods=["POST"])
+@access_api.login_required
+def resolveServiceLine():
+    if request.method == "POST":
+        line_id = int(request.get_json()['line_id'])
+        site_name = session['selected_site']
+        user_id = session['user_id']
+        payload = {'line_id': line_id}
+        receipts_processes.postService(site_name, user_id, payload)
+        return jsonify({'error': False, "message": "Line Saved Succesfully"})
+    return jsonify({'error': True, "message": "Something went wrong while saving line!"})
+
 @receipt_api.route('/api/postVendorUpdate', methods=["POST"])
 @access_api.login_required
 def postVendorUpdate():
