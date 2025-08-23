@@ -1,19 +1,10 @@
 CREATE TABLE IF NOT EXISTS %%site_name%%_recipe_items (
-    id SERIAL PRIMARY KEY,
+    recipe_item_uuid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    recipe_uuid UUID REFERENCES %%site_name%%_recipes(recipe_uuid) ON DELETE CASCADE NOT NULL,
     item_uuid UUID,
-    rp_id INTEGER NOT NULL,
-    item_type VARCHAR(32) NOT NULL,
-    item_name TEXT NOT NULL,
-    uom INTEGER NOT NULL,
-    qty FLOAT8 NOT NULL,
-    item_id INTEGER DEFAULT NULL,
-    links JSONB DEFAULT '{"main": ""}',
-    CONSTRAINT fk_rp_id
-        FOREIGN KEY(rp_id) 
-        REFERENCES %%site_name%%_recipes(id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_item_id
-        FOREIGN KEY(item_id) 
-        REFERENCES %%site_name%%_items(id)
-        ON DELETE CASCADE
+    recipe_item_type VARCHAR(32) DEFAULT 'custom' NOT NULL,
+    recipe_item_name TEXT DEFAULT '' NOT NULL,
+    recipe_item_uom INTEGER DEFAULT 1 NOT NULL,
+    recipe_item_quantity FLOAT8 DEFAULT 0.00 NOT NULL,
+    links JSONB DEFAULT '{"main": ""}' NOT NULL
 );

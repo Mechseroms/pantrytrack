@@ -704,3 +704,213 @@
 )
 ,
                                          sql='plans')
+2025-08-23 12:31:31.722476 --- ERROR --- DatabaseError(message='relation "test2_item_locations" does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_cost_layers (
+    item_location_uuid UUID REFERENCES test2_item_locations(item_location_uuid) ON DELETE SET NULL,
+    layer_aquisition_date TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    layer_quantity FLOAT8 DEFAULT 0.00 NOT NULL,
+    layer_cost FLOAT8 DEFAULT 0.00 NOT NULL,
+    layer_currency_type VARCHAR(16) DEFAULT 'USD' NOT NULL,
+    layer_expires TIMESTAMP DEFAULT NULL,
+    layer_vendor INTEGER DEFAULT 0 NOT NULL
+);,
+                                         sql='cost_layers')
+2025-08-23 12:31:58.480965 --- ERROR --- DatabaseError(message='relation "test2_items" does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_food_info (
+    item_uuid UUID PRIMARY KEY REFERENCES test2_items(item_uuid) ON DELETE CASCADE,
+    food_groups TEXT [] DEFAULT '{}' NOT NULL,
+    ingredients TEXT [] DEFAULT '{}' NOT NULL,
+    nutrients JSONB DEFAULT '{}' NOT NULL,
+    expires BOOLEAN DEFAULT false NOT NULL,
+    default_expiration FLOAT8 DEFAULT 0.00 NOT NULL
+);,
+                                         sql='food_info')
+2025-08-23 12:32:33.418128 --- ERROR --- DatabaseError(message='relation "test2_logistics_info" does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_Transactions (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMP,
+    logistics_info_id INTEGER NOT NULL,
+    barcode VARCHAR(255),
+    name VARCHAR(255),
+    transaction_type VARCHAR(255) NOT NULL,
+    quantity FLOAT8 NOT NULL,
+    description TEXT,
+    user_id INTEGER NOT NULL,
+    data JSONB,
+    CONSTRAINT fk_logistics_info
+        FOREIGN KEY(logistics_info_id) 
+        REFERENCES test2_logistics_info(id)
+        ON DELETE CASCADE
+);,
+                                         sql='transactions')
+2025-08-23 12:32:59.145550 --- ERROR --- DatabaseError(message='column "brand_uuid" referenced in foreign key constraint does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_items(
+    item_uuid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    item_name VARCHAR(255) NOT NULL,
+    item_description TEXT DEFAULT '' NOT NULL,
+    item_tags TEXT [] DEFAULT '{}' NOT NULL,
+    item_links JSONB DEFAULT '{}' NOT NULL,
+    brand_uuid UUID DEFAULT NULL,
+    item_category VARCHAR(255) NOT NULL,
+    search_string TEXT DEFAULT '' NOT NULL,
+    inactive BOOLEAN DEFAULT false NOT NULL,
+    CONSTRAINT fk_brand
+        FOREIGN KEY(brand_uuid)
+        REFERENCES test2_brands(brand_uuid)
+        ON DELETE SET NULL
+);
+,
+                                         sql='items')
+2025-08-23 12:33:48.793121 --- ERROR --- DatabaseError(message='column "brand_uuid" referenced in foreign key constraint does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_items(
+    item_uuid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    item_name VARCHAR(255) NOT NULL,
+    item_description TEXT DEFAULT '' NOT NULL,
+    item_tags TEXT [] DEFAULT '{}' NOT NULL,
+    item_links JSONB DEFAULT '{}' NOT NULL,
+    brand_uuid UUID DEFAULT NULL,
+    item_category VARCHAR(255) NOT NULL,
+    search_string TEXT DEFAULT '' NOT NULL,
+    inactive BOOLEAN DEFAULT false NOT NULL,
+    CONSTRAINT fk_brand
+        FOREIGN KEY(brand_uuid)
+        REFERENCES test2_brands(brand_uuid)
+        ON DELETE SET NULL
+);
+,
+                                         sql='items')
+2025-08-23 12:34:28.182864 --- ERROR --- DatabaseError(message='table "test2_cost_layers" does not exist',
+                                         payload=DROP TABLE test2_cost_layers CASCADE;,
+                                         sql='cost_layers')
+2025-08-23 13:32:49.821424 --- ERROR --- DatabaseError(message='column "zones_uuid" referenced in foreign key constraint does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_logistics_info(
+    item_uuid UUID PRIMARY KEY REFERENCES test2_items(item_uuid) ON DELETE CASCADE,
+    primary_location UUID REFERENCES test2_locations(zones_uuid) ON DELETE SET NULL,
+    primary_zone UUID REFERENCES test2_zones(zones_uuid) ON DELETE SET NULL,
+    auto_issue_location UUID REFERENCES test2_locations(zones_uuid) ON DELETE SET NULL,
+    auto_issue_zone UUID REFERENCES test2_zones(zones_uuid) ON DELETE SET NULL
+);,
+                                         sql='logistics_info')
+2025-08-23 13:33:48.791869 --- ERROR --- DatabaseError(message='table "test2_cost_layers" does not exist',
+                                         payload=DROP TABLE test2_cost_layers CASCADE;,
+                                         sql='cost_layers')
+2025-08-23 13:36:33.932188 --- ERROR --- DatabaseError(message='column "zones_uuid" referenced in foreign key constraint does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_logistics_info(
+    item_uuid UUID PRIMARY KEY REFERENCES test2_items(item_uuid) ON DELETE CASCADE,
+    primary_location UUID REFERENCES test2_locations(zones_uuid) ON DELETE SET NULL,
+    primary_zone UUID REFERENCES test2_zones(zones_uuid) ON DELETE SET NULL,
+    auto_issue_location UUID REFERENCES test2_locations(zones_uuid) ON DELETE SET NULL,
+    auto_issue_zone UUID REFERENCES test2_zones(zones_uuid) ON DELETE SET NULL
+);,
+                                         sql='logistics_info')
+2025-08-23 13:37:28.841496 --- ERROR --- DatabaseError(message='column "zones_uuid" referenced in foreign key constraint does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_logistics_info(
+    item_uuid UUID PRIMARY KEY REFERENCES test2_items(item_uuid) ON DELETE CASCADE,
+    primary_location UUID REFERENCES test2_locations(zones_uuid) ON DELETE SET NULL,
+    primary_zone UUID REFERENCES test2_zones(zones_uuid) ON DELETE SET NULL,
+    auto_issue_location UUID REFERENCES test2_locations(zones_uuid) ON DELETE SET NULL,
+    auto_issue_zone UUID REFERENCES test2_zones(zones_uuid) ON DELETE SET NULL
+);,
+                                         sql='logistics_info')
+2025-08-23 13:38:23.460512 --- ERROR --- DatabaseError(message='there is no unique constraint matching given keys for referenced table "test2_locations"',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_logistics_info(
+    item_uuid UUID PRIMARY KEY REFERENCES test2_items(item_uuid) ON DELETE CASCADE,
+    primary_location UUID REFERENCES test2_locations(zone_uuid) ON DELETE SET NULL,
+    primary_zone UUID REFERENCES test2_zones(zone_uuid) ON DELETE SET NULL,
+    auto_issue_location UUID REFERENCES test2_locations(zone_uuid) ON DELETE SET NULL,
+    auto_issue_zone UUID REFERENCES test2_zones(zone_uuid) ON DELETE SET NULL
+);,
+                                         sql='logistics_info')
+2025-08-23 13:38:58.644650 --- ERROR --- DatabaseError(message='column "id" referenced in foreign key constraint does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_Transactions (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMP,
+    logistics_info_id INTEGER NOT NULL,
+    barcode VARCHAR(255),
+    name VARCHAR(255),
+    transaction_type VARCHAR(255) NOT NULL,
+    quantity FLOAT8 NOT NULL,
+    description TEXT,
+    user_id INTEGER NOT NULL,
+    data JSONB,
+    CONSTRAINT fk_logistics_info
+        FOREIGN KEY(logistics_info_id) 
+        REFERENCES test2_logistics_info(id)
+        ON DELETE CASCADE
+);,
+                                         sql='transactions')
+2025-08-23 13:44:59.778889 --- ERROR --- DatabaseError(message='column "logistics_info_uuid" referenced in foreign key constraint does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_transactions (
+    logistics_info_uuid INTEGER PRIMARY KEY REFERENCES test2_logistics_info(logistics_info_uuid) ON DELETE CASCADE,    
+    transaction_created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    transaction_name VARCHAR(255) DEFAULT NULL,
+    transaction_type VARCHAR(64) DEFAULT '' NOT NULL,
+    transaction_quantity FLOAT8 DEFAULT 0.00 NOT NULL,
+    transaction_description TEXT DEFAULT '' NOT NULL,
+    transaction_cost FLOAT8 DEFAULT 0.00 NOT NULL,
+    user_id INTEGER NOT NULL,
+    transaction_data JSONB DEFAULT '{}' NOT NULL
+);,
+                                         sql='transactions')
+2025-08-23 13:45:12.041464 --- ERROR --- DatabaseError(message='column "logistics_info_uuid" referenced in foreign key constraint does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_transactions (
+    logistics_info_uuid UUID PRIMARY KEY REFERENCES test2_logistics_info(logistics_info_uuid) ON DELETE CASCADE,    
+    transaction_created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    transaction_name VARCHAR(255) DEFAULT NULL,
+    transaction_type VARCHAR(64) DEFAULT '' NOT NULL,
+    transaction_quantity FLOAT8 DEFAULT 0.00 NOT NULL,
+    transaction_description TEXT DEFAULT '' NOT NULL,
+    transaction_cost FLOAT8 DEFAULT 0.00 NOT NULL,
+    user_id INTEGER NOT NULL,
+    transaction_data JSONB DEFAULT '{}' NOT NULL
+);,
+                                         sql='transactions')
+2025-08-23 13:47:37.787017 --- ERROR --- DatabaseError(message='column "id" referenced in foreign key constraint does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_recipe_items (
+    id SERIAL PRIMARY KEY,
+    item_uuid UUID,
+    rp_id INTEGER NOT NULL,
+    item_type VARCHAR(32) NOT NULL,
+    item_name TEXT NOT NULL,
+    uom INTEGER NOT NULL,
+    qty FLOAT8 NOT NULL,
+    item_id INTEGER DEFAULT NULL,
+    links JSONB DEFAULT '{"main": ""}',
+    CONSTRAINT fk_rp_id
+        FOREIGN KEY(rp_id) 
+        REFERENCES test2_recipes(id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_item_id
+        FOREIGN KEY(item_id) 
+        REFERENCES test2_items(id)
+        ON DELETE CASCADE
+);,
+                                         sql='recipe_items')
+2025-08-23 14:16:10.788720 --- ERROR --- DatabaseError(message='column "item_id" named in key does not existLINE 6:     UNIQUE(item_id, conversion_uom_id)            ^',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_conversions (
+    conversion_uuid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    item_uuid uuid REFERENCES test2_items(item_uuid) ON DELETE CASCADE NOT NULL,
+    conversion_uom_id INTEGER DEFAULT 1 NOT NULL,
+    conversion_conv_factor FLOAT8 DEFAULT 0.00 NOT NULL,
+    UNIQUE(item_id, conversion_uom_id)
+);,
+                                         sql='conversions')
+2025-08-23 14:16:21.833781 --- ERROR --- DatabaseError(message='column "id" referenced in foreign key constraint does not exist',
+                                         payload=CREATE TABLE IF NOT EXISTS test2_receipts (
+    id SERIAL PRIMARY KEY,
+    receipt_id VARCHAR (32) NOT NULL,
+    receipt_status VARCHAR (64) NOT NULL,
+    date_submitted TIMESTAMP NOT NULL,
+    submitted_by INTEGER NOT NULL,
+    vendor_id INTEGER,
+    files JSONB,
+    UNIQUE(receipt_id),
+    CONSTRAINT fk_vendor
+        FOREIGN KEY(vendor_id) 
+        REFERENCES test2_vendors(id)
+);,
+                                         sql='receipts')

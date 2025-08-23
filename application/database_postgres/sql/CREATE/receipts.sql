@@ -1,13 +1,10 @@
 CREATE TABLE IF NOT EXISTS %%site_name%%_receipts (
-    id SERIAL PRIMARY KEY,
+    receipt_uuid UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
     receipt_id VARCHAR (32) NOT NULL,
-    receipt_status VARCHAR (64) NOT NULL,
-    date_submitted TIMESTAMP NOT NULL,
-    submitted_by INTEGER NOT NULL,
-    vendor_id INTEGER,
-    files JSONB,
-    UNIQUE(receipt_id),
-    CONSTRAINT fk_vendor
-        FOREIGN KEY(vendor_id) 
-        REFERENCES %%site_name%%_vendors(id)
+    receipt_status VARCHAR (64) DEFAULT 'Unresolved' NOT NULL,
+    receipt_created_on TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    receipt_created_by INTEGER DEFAULT 1 NOT NULL,
+    receipt_vendor_uuid UUID REFERENCES %%site_name%%_vendors(vendor_uuid) ON DELETE RESTRICT,
+    receipt_files JSONB DEFAULT '{}' NOT NULL,
+    UNIQUE(receipt_id)
 );

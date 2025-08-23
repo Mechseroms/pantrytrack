@@ -1,22 +1,7 @@
 CREATE TABLE IF NOT EXISTS %%site_name%%_logistics_info(
-    id SERIAL PRIMARY KEY,
-    logistics_info_uuid UUID DEFAULT uuid_generate_v4(),
-    barcode VARCHAR(255),
-    primary_location INTEGER NOT NULL,
-    primary_zone INTEGER NOT NULL,
-    auto_issue_location INTEGER NOT NULL,
-    auto_issue_zone INTEGER NOT NULL,
-    UNIQUE(logistics_info_uuid),
-    CONSTRAINT fk_primary_location
-        FOREIGN KEY(primary_location) 
-        REFERENCES %%site_name%%_locations(id),
-    CONSTRAINT fk_primary_zone
-        FOREIGN KEY(primary_zone) 
-        REFERENCES %%site_name%%_zones(id),
-    CONSTRAINT fk_auto_issue_location
-        FOREIGN KEY(auto_issue_location) 
-        REFERENCES %%site_name%%_locations(id),
-    CONSTRAINT fk_auto_issue_zone
-        FOREIGN KEY(auto_issue_zone) 
-        REFERENCES %%site_name%%_zones(id)
+    item_uuid UUID PRIMARY KEY REFERENCES %%site_name%%_items(item_uuid) ON DELETE CASCADE,
+    item_primary_location UUID REFERENCES %%site_name%%_locations(location_uuid) ON DELETE SET NULL,
+    item_primary_zone UUID REFERENCES %%site_name%%_zones(zone_uuid) ON DELETE SET NULL,
+    item_auto_issue_location UUID REFERENCES %%site_name%%_locations(location_uuid) ON DELETE SET NULL,
+    item_auto_issue_zone UUID REFERENCES %%site_name%%_zones(zone_uuid) ON DELETE SET NULL
 );

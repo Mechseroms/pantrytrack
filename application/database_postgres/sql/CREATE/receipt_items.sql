@@ -1,16 +1,11 @@
 CREATE TABLE IF NOT EXISTS %%site_name%%_receipt_items (
-    id SERIAL PRIMARY KEY, 
-    type VARCHAR(255) NOT NULL,
-    receipt_id INTEGER NOT NULL,
-    barcode VARCHAR(255), 
-    item_uuid UUID,
-    name VARCHAR(255) NOT NULL, 
-    qty FLOAT8 NOT NULL,
-    uom INTEGER NOT NULL,
-    data JSONB, 
-    status VARCHAR (64),
-    CONSTRAINT fk_receipt
-        FOREIGN KEY(receipt_id) 
-        REFERENCES %%site_name%%_receipts(id)
-        ON DELETE CASCADE
+    receipt_item_uuid UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+    receipt_uuid UUID REFERENCES %%site_name%%_receipts(receipt_uuid) ON DELETE CASCADE NOT NULL,
+    receipt_item_type VARCHAR(255) DEFAULT 'unknown' NOT NULL,
+    receipt_item_barcode VARCHAR(255) DEFAULT NULL,
+    receipt_item_name VARCHAR(255) DEFAULT '' NOT NULL, 
+    receipt_item_quantity FLOAT8 DEFAULT 0.00 NOT NULL,
+    receipt_item_uom INTEGER DEFAULT 1 NOT NULL,
+    receipt_item_data JSONB DEFAULT '{}' NOT NULL, 
+    receipt_item_status VARCHAR (64) DEFAULT 'unknown' NOT NULL
 );
