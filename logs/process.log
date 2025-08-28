@@ -1054,3 +1054,139 @@
 2025-08-21 15:17:18.089331 --- INFO --- sku_prefix DROPPED!
 2025-08-21 15:17:18.095712 --- INFO --- barcodes DROPPED!
 2025-08-21 15:17:18.102641 --- INFO --- plan_events DROPPED!
+2025-08-23 15:47:56.200244 --- INFO --- Admin User Created!
+2025-08-23 15:47:56.220267 --- ERROR --- DatabaseError(message='column "name" of relation "test2_zones" does not existLINE 2: (name, description)          ^', payload=('all', ''), sql='INSERT INTO test2_zones(name, description) VALUES (%s, %s) RETURNING *;')
+2025-08-23 15:49:56.089291 --- INFO --- Admin User Created!
+2025-08-23 15:49:56.099841 --- ERROR --- DatabaseError(message='column "name" of relation "test2_zones" does not existLINE 2: (name, description)          ^', payload=('kitchen', ''), sql='INSERT INTO test2_zones(name, description) VALUES (%s, %s) RETURNING *;')
+2025-08-23 15:50:05.762721 --- INFO --- Admin User Created!
+2025-08-23 15:50:05.776618 --- ERROR --- DatabaseError(message=''name'', payload={'zone_name': 'kitchen', 'zone_description': ''}, sql='INSERT INTO test2_zones(name, description) VALUES (%(name)s, %(description)s) RETURNING *;')
+2025-08-23 15:50:43.707065 --- INFO --- Admin User Created!
+2025-08-23 15:50:43.721469 --- ERROR --- DatabaseError(message=''name'', payload={'zone_name': 'kitchen', 'zone_description': ''}, sql='INSERT INTO test2_zones(zone_name, zone_description) VALUES (%(name)s, %(description)s) RETURNING *;')
+2025-08-23 15:51:05.792640 --- INFO --- Admin User Created!
+2025-08-23 15:51:05.802795 --- ERROR --- 'id'
+2025-08-23 15:52:59.368555 --- INFO --- Admin User Created!
+2025-08-23 15:54:32.013319 --- INFO --- Admin User Created!
+2025-08-23 16:24:14.240500 --- ERROR --- DatabaseError(message='column "username" named in key does not existLINE 14:     UNIQUE(username),             ^', payload=CREATE TABLE IF NOT EXISTS users(
+    user_uuid UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+    user_name VARCHAR(255) NOT NULL,
+    user_password VARCHAR(255) DEFAULT NULL,
+    user_email VARCHAR(255) UNIQUE NOT NULL,
+    user_favorites JSONB DEFAULT '{}' NOT NULL,
+    user_sites INTEGER [] DEFAULT '{}' NOT NULL,
+    user_roles INTEGER [] DEFAULT '{}' NOT NULL,
+    user_is_system_admin BOOLEAN DEFAULT FALSE NOT NULL,
+    user_flags JSONB DEFAULT '{}' NOT NULL,
+    user_row_type VARCHAR(50) NOT NULL,
+    user_profile_pic_url VARCHAR(255) NOT NULL,
+    user_login_type VARCHAR(32) NOT NULL,
+    UNIQUE(username),
+    CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+);
+
+, sql='users')
+2025-08-23 16:24:27.949693 --- ERROR --- DatabaseError(message='function uuid_generate_v4() does not existLINE 2:     user_uuid UUID PRIMARY KEY DEFAULT uuid_generate_v4() NO...                                               ^HINT:  No function matches the given name and argument types. You might need to add explicit type casts.', payload=CREATE TABLE IF NOT EXISTS users(
+    user_uuid UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+    user_name VARCHAR(255) NOT NULL,
+    user_password VARCHAR(255) DEFAULT NULL,
+    user_email VARCHAR(255) UNIQUE NOT NULL,
+    user_favorites JSONB DEFAULT '{}' NOT NULL,
+    user_sites INTEGER [] DEFAULT '{}' NOT NULL,
+    user_roles INTEGER [] DEFAULT '{}' NOT NULL,
+    user_is_system_admin BOOLEAN DEFAULT FALSE NOT NULL,
+    user_flags JSONB DEFAULT '{}' NOT NULL,
+    user_row_type VARCHAR(50) NOT NULL,
+    user_profile_pic_url VARCHAR(255) NOT NULL,
+    user_login_type VARCHAR(32) NOT NULL,
+    UNIQUE(user_name),
+    CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+);
+
+, sql='users')
+2025-08-23 16:26:32.149906 --- ERROR --- permission denied to create extension "uuid-ossp"
+HINT:  Must have CREATE privilege on current database to create this extension.
+
+2025-08-23 16:29:01.750728 --- ERROR --- DatabaseError(message='column "email" does not existLINE 15:     CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z...                    ^', payload=CREATE TABLE IF NOT EXISTS users(
+    user_uuid UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+    user_name VARCHAR(255) NOT NULL,
+    user_password VARCHAR(255) DEFAULT NULL,
+    user_email VARCHAR(255) UNIQUE NOT NULL,
+    user_favorites JSONB DEFAULT '{}' NOT NULL,
+    user_sites INTEGER [] DEFAULT '{}' NOT NULL,
+    user_roles INTEGER [] DEFAULT '{}' NOT NULL,
+    user_is_system_admin BOOLEAN DEFAULT FALSE NOT NULL,
+    user_flags JSONB DEFAULT '{}' NOT NULL,
+    user_row_type VARCHAR(50) NOT NULL,
+    user_profile_pic_url VARCHAR(255) NOT NULL,
+    user_login_type VARCHAR(32) NOT NULL,
+    UNIQUE(user_name),
+    CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+);
+
+, sql='users')
+2025-08-23 16:29:12.520195 --- ERROR --- column "username" does not exist
+LINE 1: ...est', 'jadowyne@outlook.com', 'user') ON CONFLICT (username)...
+                                                             ^
+HINT:  Perhaps you meant to reference the column "users.user_name" or the column "excluded.user_name".
+
+2025-08-23 16:30:01.154597 --- ERROR --- null value in column "user_profile_pic_url" of relation "users" violates not-null constraint
+DETAIL:  Failing row contains (6527c4a4-d1b0-4c62-a1ae-9dcf5d266bca, jadowyne, test, jadowyne@outlook.com, {}, {}, {}, f, {}, user, null, null).
+
+2025-08-23 16:31:17.437628 --- INFO --- Admin User Created!
+2025-08-23 16:31:17.441506 --- ERROR --- module 'application.database_payloads' has no attribute 'StePayload'
+2025-08-23 16:32:59.133569 --- INFO --- Admin User Created!
+2025-08-23 16:32:59.137731 --- ERROR --- 'Payload' object has no attribute 'payload'
+2025-08-23 16:37:08.370102 --- INFO --- Admin User Created!
+2025-08-23 16:37:08.383751 --- ERROR --- DatabaseError(message=''site_created_on'', payload={'site_name': 'test', 'site_description': 'Test Site', 'site_created_by': '1a5f4974-45a4-41c2-951b-d391eb19dbd5', 'site_default_zone_uuid': None, 'site_default_auto_issue_location_uuid': None, 'site_default_primary_location_uuid': None, 'site_flags': '{}', 'creation_date': datetime.datetime(2025, 8, 23, 16, 37, 8, 370249)}, sql='INSERT INTO sites(site_name, site_description, site_created_by, site_default_zone_uuid, site_default_auto_issue_location_uuid,site_default_primary_location_uuid, site_created_on, site_flags) VALUES (%(site_name)s, %(site_description)s, %(site_created_by)s, %(site_default_zone_uuid)s, %(site_default_auto_issue_location_uuid)s, %(site_default_primary_location_uuid)s, %(site_created_on)s, %(site_flags)s) RETURNING *;')
+2025-08-23 16:38:50.617369 --- INFO --- Admin User Created!
+2025-08-23 16:38:50.639831 --- ERROR --- DatabaseError(message='invalid input syntax for type integer: "00210dd7-44c1-41e0-8272-3583eb85e6fc"LINE 4: VALUES ('test', 'Test Site', '00210dd7-44c1-41e0-8272-3583eb...                                     ^', payload={'site_name': 'test', 'site_description': 'Test Site', 'site_created_by': '00210dd7-44c1-41e0-8272-3583eb85e6fc', 'site_default_zone_uuid': None, 'site_default_auto_issue_location_uuid': None, 'site_default_primary_location_uuid': None, 'site_flags': '{}', 'site_created_on': datetime.datetime(2025, 8, 23, 16, 38, 50, 617486)}, sql='INSERT INTO sites(site_name, site_description, site_created_by, site_default_zone_uuid, site_default_auto_issue_location_uuid,site_default_primary_location_uuid, site_created_on, site_flags) VALUES (%(site_name)s, %(site_description)s, %(site_created_by)s, %(site_default_zone_uuid)s, %(site_default_auto_issue_location_uuid)s, %(site_default_primary_location_uuid)s, %(site_created_on)s, %(site_flags)s) RETURNING *;')
+2025-08-23 16:39:36.427017 --- INFO --- Admin User Created!
+2025-08-23 16:39:36.433239 --- ERROR --- 'id'
+2025-08-23 16:48:55.484197 --- INFO --- Admin User Created!
+2025-08-23 16:48:55.492650 --- ERROR --- 'id'
+2025-08-23 16:58:58.514948 --- ERROR --- 'id'
+2025-08-23 17:04:20.166776 --- ERROR --- DatabaseError(message='relation "logins" does not existLINE 1: UPDATE logins SET sites = sites || '5c850d2d-ee69-4ac4-bfd5-...               ^', payload={'user_uuid': '50743800-3079-455e-a670-5f7877788dec', 'site_uuid': 'b25fffee-4cef-4709-8715-db530e3c9384', 'role_uuid': '5c850d2d-ee69-4ac4-bfd5-06e7c0975ca9'}, sql='UPDATE logins SET sites = sites || %(role_uuid)s, site_roles = site_roles || %(site_uuid)s WHERE user_uuid=%(user_uuid)s RETURNING *;')
+2025-08-23 17:04:40.007890 --- ERROR --- DatabaseError(message='column "sites" does not existLINE 1: UPDATE users SET sites = sites || '08c400af-3ddc-470f-9c9b-6...                                 ^', payload={'user_uuid': 'c5bd7fa0-1fcb-4191-8a55-bf41fd758526', 'site_uuid': 'bb8e2c49-6ad4-4f94-9046-cf5115719cb5', 'role_uuid': '08c400af-3ddc-470f-9c9b-6bb6d1d1b9f4'}, sql='UPDATE users SET sites = sites || %(role_uuid)s, site_roles = site_roles || %(site_uuid)s WHERE user_uuid=%(user_uuid)s RETURNING *;')
+2025-08-23 17:05:24.724897 --- ERROR --- DatabaseError(message='malformed array literal: "ed4d4296-5b95-4845-80d4-1b9332c948a2"LINE 1: UPDATE users SET user_sites = user_sites || 'ed4d4296-5b95-4...                                                    ^DETAIL:  Array value must start with "{" or dimension information.', payload={'user_uuid': '9fbc9988-2e58-4495-b7a6-a90bb9163cce', 'site_uuid': 'ed4d4296-5b95-4845-80d4-1b9332c948a2', 'role_uuid': '75d88aad-3631-4f20-b4af-af84fc966a0e'}, sql='UPDATE users SET user_sites = user_sites || %(site_uuid)s, user_roles = user_roles || %(role_uuid)s WHERE user_uuid=%(user_uuid)s RETURNING *;')
+2025-08-23 17:08:18.737775 --- ERROR --- 'id'
+2025-08-23 17:08:37.076305 --- ERROR --- 'site_namm'
+2025-08-23 17:08:46.649822 --- ERROR --- DatabaseError(message='relation "test_sites" does not existLINE 1: UPDATE test_sites SET default_zone = '121010a4-80f2-4e77-954...               ^', payload={'key': '9eea0818-071c-47d0-8545-d3fde380a84c', 'update': {'default_zone': '121010a4-80f2-4e77-9542-b5f2e08bca6e', 'default_auto_issue_location': '4c50a4b6-066c-4be2-9cd9-a642d6c022c5', 'default_primary_location': '4c50a4b6-066c-4be2-9cd9-a642d6c022c5'}}, sql='UPDATE test_sites SET default_zone = %s, default_auto_issue_location = %s, default_primary_location = %s WHERE site_uuid=%s RETURNING *;')
+2025-08-23 17:11:26.904676 --- ERROR --- type object 'BaseModel' has no attribute 'updateStringFactory'
+2025-08-23 17:12:17.236998 --- ERROR --- 'str' object has no attribute 'table_name'
+2025-08-23 17:12:43.694531 --- ERROR --- string indices must be integers, not 'str'
+2025-08-23 17:13:28.577340 --- ERROR --- DatabaseError(message='column "default_zone" of relation "sites" does not existLINE 1: UPDATE sites SET default_zone = 'b8c335a8-3813-43ff-857c-548...                         ^', payload={'key': 'ff81d4f6-a21b-48cf-b2d9-510ca9f0185b', 'update': {'default_zone': 'b8c335a8-3813-43ff-857c-54870f9c8471', 'default_auto_issue_location': '8af88ddc-7c7a-4daa-a797-708aa47080fc', 'default_primary_location': '8af88ddc-7c7a-4daa-a797-708aa47080fc'}}, sql='UPDATE sites SET default_zone = %s, default_auto_issue_location = %s, default_primary_location = %s WHERE site_uuid=%s RETURNING *;')
+2025-08-23 17:17:18.408708 --- ERROR --- DatabaseError(message=''created_by'', payload={'vendor_name': 'None', 'vendor_created_by': '3ba91bc5-277e-4601-abb2-a5b27245a1fd', 'vendor_address': '', 'vendor_phone_number': '', 'creation_date': datetime.datetime(2025, 8, 23, 17, 17, 18, 396948)}, sql='INSERT INTO test_vendors(vendor_name, vendor_address, creation_date, created_by, phone_number) VALUES (%(vendor_name)s, %(vendor_address)s, %(creation_date)s, %(created_by)s, %(phone_number)s) RETURNING *;')
+2025-08-23 17:18:26.770976 --- ERROR --- DatabaseError(message=''vendor_creation_date'', payload={'vendor_name': 'None', 'vendor_created_by': 'd7f2db01-ccef-4318-8b0b-68e53da39c91', 'vendor_address': '', 'vendor_phone_number': '', 'creation_date': datetime.datetime(2025, 8, 23, 17, 18, 26, 756696)}, sql='INSERT INTO test_vendors(vendor_name, vendor_address, vendor_creation_date, vendor_created_by, vendor_phone_number) VALUES (%(vendor_name)s, %(vendor_address)s, %(vendor_creation_date)s, %(vendor_created_by)s, %(vendor_phone_number)s) RETURNING *;')
+2025-08-23 17:18:56.506382 --- ERROR --- DatabaseError(message='column "name" of relation "test_brands" does not existLINE 2: (name)          ^', payload={'name': 'None'}, sql='INSERT INTO test_brands(name) VALUES (%(name)s) RETURNING *;')
+2025-08-23 17:32:23.726444 --- ERROR --- DatabaseError(message='invalid input syntax for type uuid: ""LINE 1: SELECT * FROM roles WHERE role_site_uuid = '';                                                   ^', payload={'site_uuid': ''}, sql='SELECT * FROM roles WHERE role_site_uuid = %(site_uuid)s;')
+2025-08-23 17:33:03.405287 --- ERROR --- DatabaseError(message='invalid input syntax for type uuid: ""LINE 1: SELECT * FROM roles WHERE role_site_uuid = '';                                                   ^', payload={'site_uuid': ''}, sql='SELECT * FROM roles WHERE role_site_uuid = %(site_uuid)s;')
+2025-08-23 17:33:20.698805 --- ERROR --- DatabaseError(message='invalid input syntax for type uuid: ""LINE 1: SELECT * FROM roles WHERE role_site_uuid = ''::uuid;                                                   ^', payload={'site_uuid': ''}, sql='SELECT * FROM roles WHERE role_site_uuid = %(site_uuid)s::uuid;')
+2025-08-23 17:34:16.123751 --- ERROR --- 'id'
+2025-08-23 17:34:21.617218 --- ERROR --- 'id'
+2025-08-23 17:35:11.957920 --- ERROR --- DatabaseError(message='relation "_roles" does not existLINE 1: WITH deleted_rows AS (DELETE FROM _roles WHERE id IN ('606f8...                                          ^', payload=['606f8ca9-dcbe-4ad2-8af6-931e23a6e191'], sql='WITH deleted_rows AS (DELETE FROM _roles WHERE id IN (%s) RETURNING *) SELECT * FROM deleted_rows;')
+2025-08-23 17:36:53.469812 --- ERROR --- DatabaseError(message='syntax error at or near ")"LINE 1: ...ed_rows AS (DELETE FROM roles WHERE role_uuid IN () RETURNIN...                                                             ^', payload=, sql='WITH deleted_rows AS (DELETE FROM roles WHERE role_uuid IN () RETURNING *) SELECT * FROM deleted_rows;')
+2025-08-23 17:37:59.391466 --- ERROR --- DatabaseError(message='syntax error at or near ")"LINE 1: ...ed_rows AS (DELETE FROM roles WHERE role_uuid IN () RETURNIN...                                                             ^', payload=, sql='WITH deleted_rows AS (DELETE FROM roles WHERE role_uuid IN () RETURNING *) SELECT * FROM deleted_rows;')
+2025-08-23 17:39:20.977935 --- ERROR --- 'id'
+2025-08-23 17:41:05.777447 --- ERROR --- 'id'
+2025-08-24 09:35:52.902187 --- ERROR --- DatabaseError(message='syntax error at or near ")"LINE 13: );         ^', payload=CREATE TABLE IF NOT EXISTS test_items(
+    item_uuid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    item_created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    item_updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    item_name VARCHAR(255) NOT NULL,
+    item_description TEXT DEFAULT '' NOT NULL,
+    item_tags TEXT [] DEFAULT '{}' NOT NULL,
+    item_links JSONB DEFAULT '{}' NOT NULL,
+    item_brand_uuid UUID DEFAULT NULL,
+    item_category VARCHAR(255) NOT NULL,
+    item_search_string TEXT DEFAULT '' NOT NULL,
+    item_inactive BOOLEAN DEFAULT false NOT NULL,
+);
+, sql='items')
+2025-08-24 17:22:46.028941 --- ERROR --- DatabaseError(message='relation "test_vendors" does not exist', payload=CREATE TABLE IF NOT EXISTS test_cost_layers (
+    item_location_uuid UUID REFERENCES test_item_locations(item_location_uuid) ON DELETE SET NULL,
+    layer_aquisition_date TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    layer_quantity FLOAT8 DEFAULT 0.00 NOT NULL,
+    layer_cost FLOAT8 DEFAULT 0.00 NOT NULL,
+    layer_currency_type VARCHAR(16) DEFAULT 'USD' NOT NULL,
+    layer_expires TIMESTAMP DEFAULT NULL,
+    layer_vendor UUID DEFAULT NULL REFERENCES test_vendors(vendor_uuid) ON DELETE SET NULL
+);, sql='cost_layers')

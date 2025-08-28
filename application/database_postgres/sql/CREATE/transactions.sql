@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS %%site_name%%_transactions (
     transaction_quantity FLOAT8 DEFAULT 0.00 NOT NULL,
     transaction_description TEXT DEFAULT '' NOT NULL,
     transaction_cost FLOAT8 DEFAULT 0.00 NOT NULL,
-    transaction_created_by INTEGER NOT NULL,
+    transaction_created_by UUID DEFAULT NULL REFERENCES users(user_uuid) ON DELETE SET NULL,
     transaction_data JSONB DEFAULT '{}' NOT NULL
 );

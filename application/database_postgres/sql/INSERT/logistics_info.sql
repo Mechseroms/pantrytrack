@@ -1,4 +1,16 @@
 INSERT INTO %%site_name%%_logistics_info
-(barcode, primary_location, primary_zone, auto_issue_location, auto_issue_zone) 
-VALUES (%(barcode)s, %(primary_location)s, %(primary_zone)s, %(auto_issue_location)s, %(auto_issue_zone)s) 
+(
+    item_uuid,
+    item_primary_location,
+    item_primary_zone,
+    item_auto_issue_location,
+    item_auto_issue_zone
+) 
+VALUES (
+    %(item_uuid)s,
+    %(item_primary_location)s,
+    %(item_primary_zone)s,
+    %(item_auto_issue_location)s,
+    %(item_auto_issue_zone)s
+) 
 RETURNING *;

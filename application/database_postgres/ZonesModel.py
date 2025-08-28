@@ -7,6 +7,6 @@ class ZonesModel(BaseModel):
 
     @dataclass
     class Payload(BasePayload):
-        name: str
-        description: str = ""
+        zone_name: str
+        zone_description: str = ""
     

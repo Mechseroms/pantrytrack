@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS %%site_name%%_item_info (
     item_uuid UUID PRIMARY KEY REFERENCES %%site_name%%_items(item_uuid) ON DELETE CASCADE,
-    item_uom INTEGER NOT NULL,
+    item_uom UUID DEFAULT NULL REFERENCES units(unit_uuid) ON DELETE SET NULL,
     item_packaging VARCHAR(255) DEFAULT '' NOT NULL,
     item_uom_quantity FLOAT8 DEFAULT 0.00 NOT NULL,
     item_cost FLOAT8 DEFAULT 0.00 NOT NULL,

@@ -9,10 +9,10 @@ class VendorsModel(BaseModel):
     @dataclass
     class Payload(BasePayload):
         vendor_name: str
-        created_by: int
+        vendor_created_by: str
         vendor_address: str = ""
-        creation_date: datetime.datetime = field(init=False)
-        phone_number: str = ""
+        vendor_creation_date: datetime.datetime = field(init=False)
+        vendor_phone_number: str = ""
         
         def __post_init__(self):
-            self.creation_date = datetime.datetime.now()
+            self.vendor_creation_date = datetime.datetime.now()

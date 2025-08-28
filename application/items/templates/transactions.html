@@ -17,7 +17,7 @@
         
         <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
 
-        {% if session['user']['flags']['darkmode'] %}
+        {% if session['user']['user_flags']['darkmode'] %}
         <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}"/>
         {% endif %}
 
@@ -27,10 +27,10 @@
     </head>
     <style>
     :root {
-        --primary-color: {{ session['user']['flags']['styles']['primary_color']}};
+        --primary-color: {{ session['user']['user_flags']['styles']['primary_color']}};
     }
     </style>
-    {% if session['user']['flags']['darkmode'] %}
+    {% if session['user']['user_flags']['darkmode'] %}
     <body class="uk-light">
     {% else %}
     <body>
@@ -89,7 +89,7 @@
                         <ul class="uk-navbar-nav">
                             <li>
                                 <a href="#">
-                                    <img src="{{session['user']['profile_pic_url']}}" alt="Profile Picture" class="profile-pic uk-visible@m" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 5px;">
+                                    <img src="{{session['user']['user_profile_pic_url']}}" alt="Profile Picture" class="profile-pic uk-visible@m" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 5px;">
                                             {{username}}
                                 </a>
                                 <div class="uk-navbar-dropdown" uk-drop="mode: click; multi:false">
@@ -153,5 +153,5 @@
         </div>
     </body>
     <script src="{{ url_for('items_api.static', filename='transactionsHandler.js') }}"></script>
-    <script>const item_id = {{id|tojson}}</script>
+    <script>const item_uuid = {{item_uuid|tojson}}</script>
     </html>

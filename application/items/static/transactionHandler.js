@@ -37,68 +37,62 @@ async function replenishItemsTable(items) {
     for(let i = 0; i < items.length; i++){
         let tableRow = document.createElement('tr')
 
-
-        let idCell = document.createElement('td')
-        idCell.innerHTML = items[i].id
-        let barcodeCell = document.createElement('td')
-        barcodeCell.innerHTML = items[i].barcode
         let nameCell = document.createElement('td')
         nameCell.innerHTML = items[i].item_name
 
-        tableRow.append(idCell)
-        tableRow.append(barcodeCell)
-        tableRow.append(nameCell)
+        let opCell = document.createElement('td')
 
-        tableRow.onclick = function(){
-            selectItem(items[i].id)
+        let selectButton = document.createElement('button')
+        selectButton.setAttribute('class', 'uk-button uk-button-small uk-button-primary')
+        selectButton.innerHTML = "Select"
+        selectButton.onclick = async function(){
+            console.log('clicked')
+            await selectItem(items[i].item_uuid)
         }
 
+        opCell.append(selectButton)
+        tableRow.append(nameCell, opCell)
         itemsTableBody.append(tableRow)
     }
 }
 
 async function populateForm() {
     if (item){
-        console.log(item)
-        document.getElementById('database_id').value = item.id
-        document.getElementById('barcode').value = item.barcode
+        document.getElementById('database_uuid').value = item.item_uuid
         document.getElementById('name').value = item.item_name
-        document.getElementById('transaction_cost').value = parseFloat(item.item_info.cost)
+        document.getElementById('transaction_cost').value = parseFloat(item.item_cost)
         
         await selectLocation(
-            item.logistics_info.primary_zone.id, 
-            item.logistics_info.primary_location.id,
-            item.logistics_info.primary_zone.name,
-            item.logistics_info.primary_location.name
+            item.primary_zone.zone_uuid, 
+            item.primary_location.location_uuid,
+            item.primary_zone.zone_name,
+            item.primary_location.location_name
         )
 
 
-        let quantity_on_hand = 0
-        let locations = await getItemLocations()
-        for(let i = 0; i < locations.length; i++){
-            quantity_on_hand = quantity_on_hand + locations[i].quantity_on_hand
-        }
-        document.getElementById('QOH').value = quantity_on_hand
-        document.getElementById('UOM').value = item.item_info.uom.fullname
+        document.getElementById('QOH').value = item.item_quantity_on_hand
+        document.getElementById('UOM').value = item.unit_fullname
 
-        await replenishItemLocationsTable(locations)
+        await replenishItemLocationsTable(item.item_locations)
 
     }
 }
 
-async function selectItem(id) {
+async function selectItem(item_uuid) {
+    console.log(item_uuid)
     UIkit.modal(document.getElementById("itemsModal")).hide();
-    item = await getItem(id)
+    item = await getItem(item_uuid)
+    console.log(item)
     await populateForm()
 }
 
-var transaction_zone_id = 0
-var transaction_item_location_id = 0
-async function selectLocation(zone_id, location_id, zone_name, location_name) {
+var transaction_zone_uuid = ""
+var transaction_location_uuid = ""
+async function selectLocation(zone_uuid, location_uuid, zone_name, location_name) {
     document.getElementById('zone').value = zone_name
     document.getElementById('location').value = location_name
-    transaction_zone_id = zone_id
-    transaction_item_location_id = location_id
+    transaction_zone_uuid = zone_uuid
+    transaction_item_location_uuid = location_uuid
 }
 
 async function openItemsModal(elementID){
@@ -139,7 +133,7 @@ async function replenishItemLocationsTable(locations) {
     for(let i = 0; i < locations.length; i++){
         let tableRow = document.createElement('tr')
 
-        let loca = locations[i].uuid.split('@')
+        let loca = locations[i].location_shortname.split('@')
 
         let zoneCell = document.createElement('td')
         zoneCell.innerHTML = loca[0]
@@ -148,13 +142,13 @@ async function replenishItemLocationsTable(locations) {
         locationCell.innerHTML = loca[1]
 
         let qohCell = document.createElement('td')
-        qohCell.innerHTML = parseFloat(locations[i].quantity_on_hand)
+        qohCell.innerHTML = parseFloat(locations[i].item_quantity_on_hand)
 
         tableRow.append(zoneCell, locationCell, qohCell)
         tableRow.onclick = async function(){
             await selectLocation(
-                locations[i].zone_id,
-                locations[i].id,
+                locations[i].zone_uuid,
+                locations[i].location_uuid,
                 loca[0],
                 loca[1]
             )
@@ -182,7 +176,7 @@ async function getItemLocations() {
 let items_limit = 50;
 async function getItems() {
     console.log("getting items")
-    const url = new URL('/items/getModalItems', window.location.origin);
+    const url = new URL('/items/api/getModalItems', window.location.origin);
     url.searchParams.append('page', pagination_current);
     url.searchParams.append('limit', items_limit);
     url.searchParams.append('search_string', search_string)
@@ -193,10 +187,10 @@ async function getItems() {
     return items;
 }
 
-async function getItem(id) {
-    console.log(`selected item: ${id}`)
-    const url = new URL('/items/getItem', window.location.origin);
-    url.searchParams.append('id', id);
+async function getItem(item_uuid) {
+    console.log(`selected item: ${item_uuid}`)
+    const url = new URL('/items/api/getTransactionItem', window.location.origin);
+    url.searchParams.append('item_uuid', item_uuid);
     const response = await fetch(url);
     data =  await response.json();
     item = data.item;
@@ -273,9 +267,7 @@ async function submitTransaction() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                item_id: item.id,
-                logistics_info_id: item.logistics_info_id,
-                barcode: item.barcode,
+                item_uuid: item.item_uuid,
                 item_name: item.item_name,
                 transaction_type: document.getElementById('trans_type').value,
                 quantity: parseFloat(document.getElementById('transaction_quantity').value),
@@ -283,7 +275,7 @@ async function submitTransaction() {
                 cost: cost,
                 vendor: 0,
                 expires: null,
-                location_id: transaction_item_location_id
+                location_id: transaction_location_uuid
             }),
         });
         data =  await response.json();

@@ -1,4 +1,18 @@
 INSERT INTO %%site_name%%_food_info
-(ingrediants, food_groups, nutrients, expires, default_expiration) 
-VALUES (%(ingrediants)s, %(food_groups)s, %(nutrients)s, %(expires)s, %(default_expiration)s) 
+(
+    item_uuid,
+    item_food_groups,
+    item_ingredients,
+    item_nutrients,
+    item_expires,
+    item_default_expiration
+) 
+VALUES (
+    %(item_uuid)s,
+    %(item_food_groups)s,
+    %(item_ingredients)s,
+    %(item_nutrients)s,
+    %(item_expires)s,
+    %(item_default_expiration)s
+) 
 RETURNING *;

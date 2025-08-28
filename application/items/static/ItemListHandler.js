@@ -174,6 +174,8 @@ async function updateTableElements(){
 
     let table_body = document.createElement('tbody')
 
+    console.log(items)
+
     for (let i = 0; i < items.length; i++){
         let table_row = document.createElement('tr')
 
@@ -181,11 +183,11 @@ async function updateTableElements(){
         nameCell.innerHTML = items[i].item_name
         nameCell.setAttribute('class', 'uk-width-1-4')
         let descriptionCell = document.createElement('td')
-        descriptionCell.innerHTML = items[i].description
+        descriptionCell.innerHTML = items[i].item_description
         descriptionCell.setAttribute('class', 'uk-text-truncate uk-table-expand uk-visible@m')
 
         let qtyUOMCell = document.createElement('td')
-        qtyUOMCell.innerHTML = `${parseFloat(items[i].total_qoh)} ${items[i].fullname}`
+        qtyUOMCell.innerHTML = `${parseFloat(items[i].quantity_on_hand)} ${items[i].fullname}`
 
         let opsCell = document.createElement('td')
         opsCell.setAttribute('class', 'uk-width-1-4')
@@ -196,12 +198,12 @@ async function updateTableElements(){
         let viewOp = document.createElement('a')
         viewOp.innerHTML = `edit <span uk-icon="icon: pencil"></span>`
         viewOp.setAttribute('class', 'uk-button uk-button-default uk-button-small')
-        viewOp.href = `/items/${items[i].id}`
+        viewOp.href = `/items/${items[i].item_uuid}`
 
         let historyOp = document.createElement('a')
         historyOp.innerHTML = `history <span uk-icon="icon: history"></span>`
         historyOp.setAttribute('class', 'uk-button uk-button-default uk-button-small')
-        historyOp.href = `/items/transactions/${items[i].id}`
+        historyOp.href = `/items/transactions/${items[i].item_uuid}`
 
         buttonGroup.append(viewOp, historyOp)
         opsCell.append(buttonGroup)
@@ -237,16 +239,16 @@ async function updateListElements(){
         header.classList.add('uk-card-header')
         header.style = "border-radius: 0px, 10px, 0px, 10px;"
 
-        header.innerHTML = `<h3>${items[i].item_name}</h3><div style="color: black;background-color: lightgrey; border-radius:10px;" class="uk-label uk-text-default">Quantity on Hand: ${parseFloat(items[i].total_qoh)} ${items[i].fullname}</div>`
+        header.innerHTML = `<h3>${items[i].item_name}</h3><div style="color: black;background-color: lightgrey; border-radius:10px;" class="uk-label uk-text-default">Quantity on Hand: ${parseFloat(items[i].quantity_on_hand)} ${items[i].fullname}</div>`
         
         let content = document.createElement('div')
         content.classList.add('uk-card-body')
-        content.innerHTML = `<p>${items[i].description}</p>`
+        content.innerHTML = `<p>${items[i].item_description}</p>`
 
         let footer = document.createElement('div')
         footer.classList.add('uk-card-footer')
-        footer.innerHTML = `<a style="margin-right: 5px; border-radius: 10px;" class="uk-button uk-button-default uk-button-small" uk-icon="icon: pencil" href="/items/${items[i].id}">edit</a>
-        <a style="border-radius: 10px;" class="uk-button uk-button-default uk-button-small" uk-icon="icon: history" href="/items/transactions/${items[i].id}">History</a>`
+        footer.innerHTML = `<a style="margin-right: 5px; border-radius: 10px;" class="uk-button uk-button-default uk-button-small" uk-icon="icon: pencil" href="/items/${items[i].item_uuid}">edit</a>
+        <a style="border-radius: 10px;" class="uk-button uk-button-default uk-button-small" uk-icon="icon: history" href="/items/transactions/${items[i].item_uuid}">History</a>`
         
         listItem.append(header)
         if(!items[i].description == ""){
@@ -263,7 +265,7 @@ async function updateListElements(){
     items_list.append(main_list)
 }
 
-let sort = "id"
+let sort = "item_uuid"
 async function setSort(sort_string) {
     sort = sort_string
     await getItems()
@@ -278,7 +280,7 @@ async function setOrder(order_string) {
 }
 async function getItems(){
 
-    const url = new URL('/items/getItemsWithQOH', window.location.origin);
+    const url = new URL('/items/api/getItemsWithQOH', window.location.origin);
     url.searchParams.append('page', current_page);
     url.searchParams.append('limit', limit);
     url.searchParams.append('search_text', searchText);

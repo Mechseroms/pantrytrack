@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/pantry.css') }}"/>
 
-        {% if session['user']['flags']['darkmode'] %}
+        {% if session['user']['user_flags']['darkmode'] %}
         <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}"/>
         {% endif %}
 
@@ -29,10 +29,10 @@
     </style>
     <style>
     :root {
-        --primary-color: {{ session['user']['flags']['styles']['primary_color']}};
+        --primary-color: {{ session['user']['user_flags']['styles']['primary_color']}};
     }
     </style>
-    {% if session['user']['flags']['darkmode'] %}
+    {% if session['user']['user_flags']['darkmode'] %}
     <body class="uk-light">
     {% else %}
     <body>
@@ -90,7 +90,7 @@
                         <ul class="uk-navbar-nav">
                             <li>
                                 <a href="#">
-                                    <img src="{{session['user']['profile_pic_url']}}" alt="Profile Picture" class="profile-pic uk-visible@m" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 5px;">
+                                    <img src="{{session['user']['user_profile_pic_url']}}" alt="Profile Picture" class="profile-pic uk-visible@m" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 5px;">
                                             {{username}}
                                 </a>
                                 <div class="uk-navbar-dropdown" uk-drop="mode: click; multi:false">
@@ -129,7 +129,7 @@
                             <div class="uk-width-1-1 uk-child-width-expand@s uk-grid-small uk-flex uk-flex-bottom uk-margin" uk-grid>
                                 <div class="uk-width-1-3@m">
                                     <label class="uk-form-label" for="database_id">Database ID</label>
-                                    <input id="database_id" class="uk-input uk-disabled uk-flex uk-flex-bottom" type="text">
+                                    <input autocomplete="off" id="database_uuid" class="uk-input uk-disabled uk-flex uk-flex-bottom" type="text">
                                 </div>
                                 <div class="uk-width-2-3@m uk-flex uk-flex-bottom">
                                     <button onclick="openItemsModal('itemsPage')" class="uk-button uk-button-default uk-flex uk-flex-middle uk-margin-remove-left" uk-tooltip="Select an item from the system by its database id."><span class="material-symbols-outlined" style="padding-right: 5px;">event_list</span>  Item Lookup</button>
@@ -137,22 +137,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="uk-width-1-1">
-                        <label class="uk-form-label" for="barcode">Barcode</label>
-                        <input class="uk-input uk-width-1-2@m uk-disabled" id="barcode" type="text" placeholder=" " maxlength="20">
-                    </div>
                     <div class="uk-width-1-1 uk-margin-top">
                         <label class="uk-form-label" for="name">Item Name</label>
-                        <input class="uk-input uk-disabled" id="name" type="text" placeholder=" " maxlength="20">
+                        <input autocomplete="off" class="uk-input uk-disabled" id="name" type="text" placeholder=" " maxlength="20">
                     </div>
                     <div class="uk-width-1-1 uk-margin-top" uk-grid>
                         <div class="uk-width-1-2">
                             <label class="uk-form-label" for="QOH">Quantity on Hand</label>
-                            <input class="uk-input uk-disabled" id="QOH" type="text" placeholder=" " maxlength="20">
+                            <input autocomplete="off" class="uk-input uk-disabled" id="QOH" type="text" placeholder=" " maxlength="20">
                         </div>
                         <div class="uk-width-1-2">
                             <label class="uk-form-label" for="UOM">Unit of Measure</label>
-                            <input class="uk-input uk-disabled" id="UOM" type="text" placeholder=" " maxlength="20">
+                            <input autocomplete="off" class="uk-input uk-disabled" id="UOM" type="text" placeholder=" " maxlength="20">
                         </div>
                     </div>
                     <div class="uk-width-1-1" uk-grid>
@@ -187,16 +183,16 @@
                     <div class="uk-width-1-1 uk-flex" uk-grid>
                         <div class="uk-width-1-4@m">
                             <label class="uk-form-label" for="transaction_quantity">Quantity</label>
-                            <input class="uk-input" id="transaction_quantity" type="text" placeholder=" " maxlength="20" value="0.00">
+                            <input autocomplete="off" class="uk-input" id="transaction_quantity" type="text" placeholder=" " maxlength="20" value="0.00">
                         </div>
                         <div class="uk-width-1-4@m">
                             <label class="uk-form-label" for="transaction_cost">SKU cost</label>
-                            <input class="uk-input" id="transaction_cost" type="text" placeholder=" " maxlength="20" value="0.00">
+                            <input autocomplete="off" class="uk-input" id="transaction_cost" type="text" placeholder=" " maxlength="20" value="0.00">
                         </div>  
                     </div>
                     <div class="uk-width-1-1">
                         <label class="uk-form-label" for="transaction_description">Description</label>
-                        <input class="uk-input" id="transaction_description" type="text" placeholder=" " maxlength="128" value="">
+                        <input autocomplete="off" class="uk-input" id="transaction_description" type="text" placeholder=" " maxlength="128" value="">
                     </div>  
                     <div class="uk-width-1-1">
                         <hr class="uk-divider-icon">
@@ -229,12 +225,11 @@
                         <li><a href="#"><span uk-pagination-next></span></a></li>
                     </ul>
                 </nav>
-                <table class="uk-table uk-table-striped uk-table-hover">
+                <table class="uk-table uk-table-striped">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Barcode</th>
                             <th>Name</th>
+                            <th>Operations</th>
                         </tr>
                     </thead>
                     <tbody id="itemsTableBody">

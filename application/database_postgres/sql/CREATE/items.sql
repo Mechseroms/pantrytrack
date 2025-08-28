@@ -10,8 +10,5 @@ CREATE TABLE IF NOT EXISTS %%site_name%%_items(
     item_category VARCHAR(255) NOT NULL,
     item_search_string TEXT DEFAULT '' NOT NULL,
     item_inactive BOOLEAN DEFAULT false NOT NULL,
-    CONSTRAINT fk_brand
-        FOREIGN KEY(item_brand_uuid)
-        REFERENCES %%site_name%%_brands(brand_uuid)
-        ON DELETE SET NULL
+    UNIQUE(item_name)
 );

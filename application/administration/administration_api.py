@@ -7,7 +7,7 @@ import hashlib
 
 # APPLICATION IMPORTS
 from application.access_module import access_api
-from application.administration import administration_database, administration_processes
+from application.administration import administration_database, administration_services
 from application import database_payloads, postsqldb
 
 
@@ -69,7 +69,7 @@ def first_time_setup():
             "site_description": request.form['site_description'] 
         }
 
-        administration_processes.addSite(payload)
+        administration_services.addSite(payload)
 
         return redirect("/login")
     
@@ -127,7 +127,7 @@ def postDeleteSite():
             return jsonify({'error': True, 'message': f"You must be the owner of this site to delete."})
         
         try:
-            administration_processes.deleteSite(site, user)
+            administration_services.deleteSite(site, user)
         except Exception as err:
             print(err)
 
@@ -144,7 +144,7 @@ def postAddSite():
         user = administration_database.selectLoginsTuple((user_id,))
         payload['admin_user'] = (user['username'], user['password'], user['email'], user['row_type'])
         
-        administration_processes.addSite(payload)
+        administration_services.addSite(payload)
         
 
         return jsonify({'error': False, 'message': f"Zone added to {site_name}."})

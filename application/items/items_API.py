@@ -15,6 +15,11 @@ import application.postsqldb as db
 from application.items import database_items
 from application.items import items_processes
 import application.database_payloads as dbPayloads
+from application.database_postgres.UsersModel import UsersModel
+from application.database_postgres.SitesModel import SitesModel
+from application.database_postgres.UnitsModel import UnitsModel
+from application.items import models
+from application.database_postgres.ItemsModel import ItemsModel
 
 items_api = Blueprint('items_api', __name__, template_folder="templates", static_folder="static")
 
@@ -28,59 +33,51 @@ def update_session_user():
 @items_api.route("/")
 @access_api.login_required
 def items():
-    update_session_user()
-    sites = [site[1] for site in db.get_sites(session['user']['sites'])]
+    sites = [SitesModel.select_tuple('', {'key': site})['site_name'] for site in session['user'].get('user_sites', [])]
+    access_api.update_session_user()
     return render_template("index.html", 
                            current_site=session['selected_site'], 
                            sites=sites)
 
-@items_api.route("/<id>")
+@items_api.route("/<item_uuid>")
 @access_api.login_required
-def item(id):
-    sites = [site[1] for site in db.get_sites(session['user']['sites'])]
-    database_config = config()
-    with psycopg2.connect(**database_config) as conn:
-        units = db.UnitsTable.getAll(conn)
+def item(item_uuid):
+    sites = [SitesModel.select_tuple('', {'key': site})['site_name'] for site in session['user'].get('user_sites', [])]
+    units = UnitsModel.select_tuples('')
     return render_template("item_new.html", id=id, units=units, current_site=session['selected_site'], sites=sites)
 
 @items_api.route("/transaction")
 @access_api.login_required
 def transaction():
-  sites = [site[1] for site in db.get_sites(session['user']['sites'])]
-  database_config = config()
-  with psycopg2.connect(**database_config) as conn:
-      units = db.UnitsTable.getAll(conn)
-  return render_template("transaction.html", units=units, current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer})
+    sites = [SitesModel.select_tuple('', {'key': site})['site_name'] for site in session['user'].get('user_sites', [])]
+    units = UnitsModel.select_tuples('')
+    return render_template("transaction.html", units=units, current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer})
 
-@items_api.route("/transactions/<id>")
+@items_api.route("/transactions/<item_uuid>")
 @access_api.login_required
-def transactions(id):
-  sites = [site[1] for site in db.get_sites(session['user']['sites'])]
-  return render_template("transactions.html", id=id, current_site=session['selected_site'], sites=sites)
-
-@items_api.route("/<parent_id>/itemLink/<id>")
-@access_api.login_required
-def itemLink(parent_id, id):
-  sites = [site[1] for site in db.get_sites(session['user']['sites'])]
-  return render_template("itemlink.html", current_site=session['selected_site'], sites=sites, proto={'referrer': request.referrer}, id=id)
+def transactions(item_uuid):
+    sites = [SitesModel.select_tuple('', {'key': site})['site_name'] for site in session['user'].get('user_sites', [])]
+    return render_template("transactions.html", item_uuid=item_uuid, current_site=session['selected_site'], sites=sites)
 
 # API CALLS
-@items_api.route("/getTransactions", methods=["GET"])
+@items_api.route("/api/getTransactions", methods=["GET"])
 @access_api.login_required
 def getTransactions():
     if request.method == "GET":
         recordset = []
         count = 0
-        logistics_info_id = int(request.args.get('logistics_info_id', 1))
+        item_uuid = request.args.get('item_uuid', None)
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 50))
         site_name = session['selected_site']
         offset = (page - 1) * limit
-        recordset, count = database_items.getTransactions(site_name, (logistics_info_id, limit, offset))
+        filter = {'item_uuid': item_uuid, 'limit': limit, 'offset': offset}
+        recordset, count = models.ExtendedTransactionModel.paginate_transactions_by_item_uuid(site_name, filter)
         return jsonify({"transactions": recordset, "end": math.ceil(count/limit), "error": False, "message": ""})
     return jsonify({"transactions": recordset, "end": math.ceil(count/limit), "error": True, "message": f"method {request.method} is not allowed."})
 
-@items_api.route("/getTransaction", methods=["GET"])
+#potential unused, was used on the transactions.html page
+@items_api.route("/api/getTransaction", methods=["GET"])
 @access_api.login_required
 def getTransaction():
     transaction = ()
@@ -91,18 +88,32 @@ def getTransaction():
         return jsonify({"transaction": transaction, "error": False, "message": ""})
     return jsonify({"transaction": transaction,  "error": True, "message": f"method {request.method} is not allowed."})
 
-@items_api.route("/getItem", methods=["GET"])
+@items_api.route("/api/getItem", methods=["GET"])
 @access_api.login_required
 def get_item():
     if request.method == "GET":
         id = int(request.args.get('id', 1))
         site_name = session['selected_site']
         item = ()
+        
         item = database_items.getItemAllByID(site_name, (id, ))
         return jsonify({'item': item, 'error': False, 'message': ''})
     return jsonify({'item': item, 'error': True, 'message': f'method {request.method} not allowed.'})
 
-@items_api.route("/getItemsWithQOH", methods=['GET'])
+@items_api.route("/api/getTransactionItem", methods=["GET"])
+@access_api.login_required
+def getTransactionItem():
+    if request.method == "GET":
+        item_uuid = request.args.get('item_uuid', None)
+        site_name = session['selected_site']
+        item = ()
+        if item_uuid:
+            item = models.ExtendedItemsModel.get_item_for_transactions(site_name, {'item_uuid': item_uuid})
+        return jsonify({'item': item, 'error': False, 'message': ''})
+    return jsonify({'item': item, 'error': True, 'message': f'method {request.method} not allowed.'})
+
+
+@items_api.route("/api/getItemsWithQOH", methods=['GET'])
 @access_api.login_required
 def pagninate_items():
     items = []
@@ -118,13 +129,14 @@ def pagninate_items():
         if sort == 'total_qoh':
             sort_order = f"{sort} {order}"
         else:
-            sort_order = f"item.{sort} {order}"
+            sort_order = f"items.{sort} {order}"
         
-        items, count = database_items.getItemsWithQOH(site_name, (search_string, limit, offset, sort_order))
+        filter = {'search_string': search_string, 'limit': limit, 'offset': offset, 'sort_order': sort_order}
+        items, count = ItemsModel.paginate_items_with_qoh(site_name, filter)
         return jsonify({'items': items, "end": math.ceil(count/limit), 'error':False, 'message': 'Items Loaded Successfully!'})
     return jsonify({'items': items, "end": math.ceil(count/limit), 'error':True, 'message': 'There was a problem loading the items!'})
 
-@items_api.route('/getModalItems', methods=["GET"])
+@items_api.route('/api/getModalItems', methods=["GET"])
 @access_api.login_required
 def getModalItems():
     recordset, count = tuple(), 0
@@ -134,7 +146,9 @@ def getModalItems():
         search_string = request.args.get('search_string', '')
         site_name = session['selected_site']
         offset = (page - 1) * limit
-        recordset, count = database_items.getModalSKUs(site_name, (search_string, limit, offset))
+        sort_order = "item_name ASC"
+        filter = {'search_string': search_string, 'limit': limit, 'offset': offset, 'sort_order': sort_order}
+        recordset, count = ItemsModel.paginate_items_for_modal(site_name, filter)
         return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":False, "message":"items fetched succesfully!"})
     return jsonify({"items":recordset, "end":math.ceil(count/limit), "error":True, "message": f"method {request.method} is not allowed."})
 

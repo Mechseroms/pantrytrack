@@ -1,26 +1,19 @@
 from flask import Blueprint, request, render_template, redirect, session, url_for, jsonify
-from authlib.integrations.flask_client import OAuth
-import hashlib, psycopg2
+import hashlib
 from config import config, sites_config
 from functools import wraps
-import postsqldb
 import requests
 
 from application.access_module import access_database
+from application.database_postgres.UsersModel import UsersModel
 from outh import oauth
 
 access_api = Blueprint('access_api', __name__, template_folder="templates", static_folder="static")
 
-
-
-
 def update_session_user():
-    user = access_database.selectLoginsTupleByID((session['user_id'],))
-    user = access_database.washUserDictionary(user)
+    user = UsersModel.select_tuple(session['selected_site'], {'key': session['user_uuid']})
+    user = UsersModel.washUserDictionary(user)
     session['user'] = user
-
-    print(user)
-
 
 def login_required(func):
     @wraps(func)
@@ -89,20 +82,13 @@ def login():
 
         password = hashlib.sha256(password.encode()).hexdigest()
         database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            try:
-                with conn.cursor() as cur:
-                    sql = f"SELECT * FROM logins WHERE username=%s;"
-                    cur.execute(sql, (username,))
-                    user = cur.fetchone()
-            except (Exception, psycopg2.DatabaseError) as error:
-                conn.rollback()
-                return jsonify({'error': True, 'message': str(error)})
         
-        if user and user[2] == password:
-            session['user_id'] = user[0]
-            session['user'] = {'id': user[0], 'username': user[1], 'sites': user[13], 'site_roles': user[14], 'system_admin': user[15], 'flags': user[16]}
-            session['login_type'] = 'Internal'
+        user = UsersModel.select_tuple_by_username({'key': username})
+        
+        if user and user['user_password'] == password:
+            session['user_uuid'] = user['user_uuid']
+            session['user'] = UsersModel.washUserDictionary(user)
+            session['user_login_type'] = 'Internal'
             return jsonify({'error': False, 'message': 'Logged In Sucessfully!'})
         else:
             return jsonify({'error': True, 'message': 'Username or Password was incorrect!'})
@@ -111,15 +97,7 @@ def login():
     if 'user' not in session.keys():
         session['user'] = None
     
-    print(instance_config)
-
     return render_template("login.html", instance_settings=instance_config)
-
-@access_api.route('/dashboard')
-def dashboard():
-    if 'user' not in session:
-        return redirect('/')
-    return f"Hello, {session['user']['name']}! <a href='/logout'>Logout</a>"
 
 @access_api.route('/signup', methods=['POST', 'GET'])
 def signup():
@@ -132,14 +110,14 @@ def signup():
         password = request.get_json()['password']
         email = request.get_json()['email']
         password = hashlib.sha256(password.encode()).hexdigest()
-        database_config = config()
-        with psycopg2.connect(**database_config) as conn:
-            try:
-                with conn.cursor() as cur:
-                    sql = f"INSERT INTO logins(username, password, email, row_type) VALUES(%s, %s, %s, %s);"
-                    cur.execute(sql, (username, password, email, 'user'))
-            except (Exception, psycopg2.DatabaseError) as error:
-                conn.rollback()
-                return jsonify({'error': True, 'message': str(error)})
+
+        new_user = UsersModel.Payload(
+            user_name=username,
+            user_password=password,
+            user_email=email
+        )
+
+        new_user = UsersModel.insert_tuple('', new_user.payload_dictionary())
+        
         return jsonify({'error': False, 'message': 'You have been signed up successfully, you will have to wait until the server admin finishes your onboarding!'})
     return jsonify({'error': True, 'message': 'There was a problem with this POST request!'})

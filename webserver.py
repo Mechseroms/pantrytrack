@@ -13,8 +13,12 @@ from application.poe import poe_api
 from application.shoppinglists import shoplist_api
 from application.receipts import receipts_api
 from application.meal_planner import meal_planner_api
+from application.database_postgres.UsersModel import UsersModel
+from application.database_postgres.SitesModel import SitesModel
 from flasgger import Swagger
 from outh import oauth
+
+psycopg2.extras.register_uuid()
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -58,25 +62,15 @@ app = create_app()
 
 @app.context_processor
 def inject_user():
-    if 'user_id' in session.keys() and session['user_id'] is not None:
-        database_config = config.config()
-        with psycopg2.connect(**database_config) as conn:
-            try:
-                with conn.cursor() as cur:
-                    sql = f"SELECT id, username, sites, site_roles, system_admin, flags, profile_pic_url, login_type FROM logins WHERE id=%s;"
-                    cur.execute(sql, (session['user_id'],))
-                    user = cur.fetchone()
-                    user = database.tupleDictionaryFactory(cur.description, user)
-                    session['user'] = user
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-                conn.rollback()
-                return dict(username="")
-        return dict(
-            user_id=session.get('user')['id'], 
-            username=session.get('user')['username'],
-            system_admin=session.get('user')['system_admin']
-            )
+    if 'user_uuid' in session.keys() and session['user_uuid'] is not None:
+        user = UsersModel.select_tuple('', {'key': session['user_uuid']})
+        session['user'] = user
+        if user:
+            return dict(
+                user_uuid=session.get('user')['user_uuid'], 
+                username=session.get('user')['user_name'],
+                system_admin=session.get('user')['user_is_system_admin']
+                )
     
     return dict(username="")
 
@@ -114,10 +108,10 @@ def favicon():
 @app.route("/")
 @access_api.login_required
 def home():
-    access_api.update_session_user()
-    sites = [site[1] for site in main.get_sites(session['user']['sites'])]
+    sites = [SitesModel.select_tuple('', {'key': site})['site_name'] for site in session['user'].get('user_sites', [])]
     session['selected_site'] = sites[0]
+    access_api.update_session_user()
     return redirect("/items")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5810, debug=True)
+    app.run(host="0.0.0.0", port=5811, debug=True)

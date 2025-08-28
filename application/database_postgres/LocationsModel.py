@@ -7,7 +7,8 @@ class LocationsModel(BaseModel):
 
     @dataclass
     class Payload(BasePayload):
-        uuid: str
-        name: str
-        zone_id: int
+        location_shortname: str
+        location_name: str
+        zone_uuid: str
+
     

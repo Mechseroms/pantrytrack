@@ -4,21 +4,22 @@ var pagination_end = 10
 var item;
 
 document.addEventListener('DOMContentLoaded', async function() {
-    item = await getItem(item_id);
+    //item = await getItem(item_uuid);
     let transactions = await getTransactions()
+    console.log(transactions)
     replenishTransactionsTable(transactions)
     updatePaginationElement()
 })
 
 async function populateTransactionReceipt(transaction) {
-    document.getElementById('trans_barcode').innerHTML = transaction.barcode
-    document.getElementById('trans_database_id').innerHTML = transaction.id
-    document.getElementById('trans_timestamp').innerHTML = transaction.timestamp
-    document.getElementById('trans_name').innerHTML = transaction.name
+    document.getElementById('trans_barcode').innerHTML = ''
+    document.getElementById('trans_database_id').innerHTML = ''
+    document.getElementById('trans_timestamp').innerHTML = transaction.transaction_created_at
+    document.getElementById('trans_name').innerHTML = transaction.transaction_name
     document.getElementById('trans_type').innerHTML = transaction.transaction_type
-    document.getElementById('trans_qty').innerHTML = transaction.quantity
-    document.getElementById('trans_description').innerHTML = transaction.description
-    document.getElementById('trans_user').innerHTML = transaction.user_id
+    document.getElementById('trans_qty').innerHTML = transaction.transaction_quantity
+    document.getElementById('trans_description').innerHTML = transaction.transaction_description
+    document.getElementById('trans_user').innerHTML = transaction.transaction_created_by
     
     let receiptTableBody = document.getElementById('receiptTableBody')
     receiptTableBody.innerHTML = ""
@@ -38,8 +39,7 @@ async function populateTransactionReceipt(transaction) {
     }
 }
 
-async function inspectTransactions(id) {
-    let transaction = await getTransaction(id)
+async function inspectTransactions(transaction) {
     await populateTransactionReceipt(transaction)
     UIkit.modal(document.getElementById("transactionModal")).show();
 
@@ -56,25 +56,25 @@ async function replenishTransactionsTable(transactions) {
 
 
         let timestampCell = document.createElement('td')
-        timestampCell.innerHTML = transactions[i].timestamp
+        timestampCell.innerHTML = transactions[i].transaction_created_at
 
         let barcodeCell = document.createElement('td')
-        barcodeCell.innerHTML = transactions[i].barcode
+        barcodeCell.innerHTML = ''
 
         let nameCell = document.createElement('td')
-        nameCell.innerHTML = transactions[i].name
+        nameCell.innerHTML = transactions[i].transaction_name
 
         let typeCell = document.createElement('td')
         typeCell.innerHTML = transactions[i].transaction_type
 
         let qtyCell = document.createElement('td')
-        qtyCell.innerHTML = transactions[i].quantity
+        qtyCell.innerHTML = transactions[i].transaction_quantity
 
         let descriptionCell = document.createElement('td')
-        descriptionCell.innerHTML = transactions[i].description
+        descriptionCell.innerHTML = transactions[i].transaction_description
 
         let userCell = document.createElement('td')
-        userCell.innerHTML = transactions[i].user_id
+        userCell.innerHTML = transactions[i].transaction_created_by
 
 
         tableRow.append(
@@ -88,7 +88,7 @@ async function replenishTransactionsTable(transactions) {
         )
 
         tableRow.onclick = async function() {
-            await inspectTransactions(transactions[i].id)
+            await inspectTransactions(transactions[i])
         }
 
         transactionsTableBody.append(tableRow)
@@ -96,7 +96,7 @@ async function replenishTransactionsTable(transactions) {
 }
 
 async function getItem(id) {
-    const url = new URL('/items/getItem', window.location.origin);
+    const url = new URL('/items/api/getItem', window.location.origin);
     url.searchParams.append('id', id);
     const response = await fetch(url);
     data =  await response.json();
@@ -114,10 +114,10 @@ async function getTransaction(id) {
 }
 
 async function getTransactions(){
-    const url = new URL('/items/getTransactions', window.location.origin);
+    const url = new URL('/items/api/getTransactions', window.location.origin);
     url.searchParams.append('page', pagination_current);
     url.searchParams.append('limit', limit);
-    url.searchParams.append('logistics_info_id', item.logistics_info_id)
+    url.searchParams.append('item_uuid', item_uuid)
     const response = await fetch(url);
     data =  await response.json();
     pagination_end = data.end

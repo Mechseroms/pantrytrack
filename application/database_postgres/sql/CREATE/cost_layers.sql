@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS %%site_name%%_cost_layers (
     layer_cost FLOAT8 DEFAULT 0.00 NOT NULL,
     layer_currency_type VARCHAR(16) DEFAULT 'USD' NOT NULL,
     layer_expires TIMESTAMP DEFAULT NULL,
-    layer_vendor INTEGER DEFAULT 0 NOT NULL
+    layer_vendor UUID DEFAULT NULL
 );

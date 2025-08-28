@@ -7,5 +7,5 @@ class BrandsModel(BaseModel):
 
     @dataclass
     class Payload(BasePayload):
-        name: str
+        brand_name: str
     

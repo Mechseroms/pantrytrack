@@ -1,6 +1,24 @@
 INSERT INTO %%site_name%%_transactions
-(timestamp, logistics_info_id, barcode, name, transaction_type, 
-quantity, description, user_id, data) 
-VALUES (%(timestamp)s, %(logistics_info_id)s, %(barcode)s, %(name)s, %(transaction_type)s, 
-%(quantity)s, %(description)s, %(user_id)s, %(data)s)
+(
+    item_uuid,
+    transaction_created_by,
+    transaction_name,
+    transaction_type,
+    transaction_created_at,
+    transaction_quantity,
+    transaction_description,
+    transaction_cost,
+    transaction_data
+) 
+VALUES (
+    %(item_uuid)s,
+    %(transaction_created_by)s,
+    %(transaction_name)s,
+    %(transaction_type)s,
+    %(transaction_created_at)s,
+    %(transaction_quantity)s,
+    %(transaction_description)s,
+    %(transaction_cost)s,
+    %(transaction_data)s
+)
 RETURNING *;

@@ -1,5 +1,6 @@
 from abc import ABC
 import psycopg2
+import psycopg2.extras
 import datetime
 import uuid
 import json
@@ -8,7 +9,6 @@ import string
 from copy import deepcopy
 
 import config
-
 
 def validateUUID(uuid_string, version):
     try:
@@ -58,6 +58,10 @@ def getUUID(n):
 
 class BasePayload(ABC):
     """BasePayloads holds the bare minimum methods required of a Payload. """
+    
+    def __repr__(self):
+        return self.__dict__
+
     def payload_dictionary(self):
         return deepcopy(self.__dict__)
 
@@ -76,6 +80,8 @@ class BaseModel(ABC):
     """
     table_name: str = None # All extended class must assign a table name that CRUD uses to call upon
     primary_key: str = 'id' # All extended class can assign a different primary key/cloumn which is used to call delete and update queries on.
+    primary_key_type: str = 'int'
+    site_agnostic: bool = False #all extended class can set this to true to avoid site injection
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -225,3 +231,69 @@ class BaseModel(ABC):
         
         except Exception as error:
             raise DatabaseError(error, payload, sql)
+        
+    @classmethod
+    def select_tuple(self, site: str, payload: dict, convert: bool = True, conn=None):
+        record = ()
+        self_conn = False
+        
+        if self.site_agnostic:
+            sql = f"SELECT * FROM {self.table_name} WHERE {self.primary_key} = %(key)s::{self.primary_key_type};"
+        else:
+            sql = f"SELECT * FROM {site}_{self.table_name} WHERE {self.primary_key} = %(key)s::{self.primary_key_type};"
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = True
+                self_conn = True
+
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    record = tupleDictionaryFactory(cur.description, rows)
+                elif rows and not convert:
+                    record = rows
+
+            if self_conn:
+                conn.commit()
+                conn.close()
+
+            return record
+        
+        except Exception as error:
+            raise DatabaseError(error, payload, sql)
+        
+    @classmethod
+    def select_tuples(self, site: str, convert: bool = True, conn=None):
+        records = ()
+        self_conn = False
+        
+        if self.site_agnostic:
+            sql = f"SELECT * FROM {self.table_name};"
+        else:
+            sql = f"SELECT * FROM {site}_{self.table_name};"
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = True
+                self_conn = True
+
+            with conn.cursor() as cur:
+                cur.execute(sql)
+                rows = cur.fetchall()
+                if rows and convert:
+                    records = [tupleDictionaryFactory(cur.description, row) for row in rows]
+                elif rows and not convert:
+                    records = rows
+
+            if self_conn:
+                conn.commit()
+                conn.close()
+
+            return records
+        
+        except Exception as error:
+            raise DatabaseError(error, {}, sql)

@@ -15,7 +15,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
         
         <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
-        {% if session['user']['flags']['darkmode'] %}
+        {% if session['user']['user_flags']['darkmode'] %}
         <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}"/>
         {% endif %}
 
@@ -25,10 +25,10 @@
     </head>
     <style>
     :root {
-        --primary-color: {{ session['user']['flags']['styles']['primary_color']}};
+        --primary-color: {{ session['user']['user_flags']['styles']['primary_color']}};
     }
     </style>
-    {% if session['user']['flags']['darkmode'] %}
+    {% if session['user']['user_flags']['darkmode'] %}
     <body class="uk-light">
     {% else %}
     <body>
@@ -86,7 +86,7 @@
                         <ul class="uk-navbar-nav">
                             <li>
                                 <a href="#">
-                                    <img src="{{session['user']['profile_pic_url']}}" alt="Profile Picture" class="profile-pic uk-visible@m" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 5px;">
+                                    <img src="{{session['user']['user_profile_pic_url']}}" alt="Profile Picture" class="profile-pic uk-visible@m" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 5px;">
                                     {{username}}
                                 </a>
                                 <div class="uk-navbar-dropdown" uk-drop="mode: click; multi:false">
@@ -197,45 +197,9 @@
                 </div>
             </div>
         </div>
-        <!-- add prefix modal -->
-        <div id="addPrefixModal" uk-modal>
-            <div class="uk-modal-dialog">
-                <button class="uk-modal-close-default" type="button" uk-close></button>
-                <div class="uk-modal-header">
-                    <h2 class="uk-modal-title">Add Prefix...</h2>
-                </div>
-                <div class="uk-modal-body">
-                    <p class="uk-text-meta">Add a Prefix to the system by providing a uuid, a name for the item, and a general description.</p>
-                    <div class="uk-margin">
-                        <label class="uk-form-label" for="addUUID">UUID</label>
-                        <input id="addUUID" class="uk-input" type="text" placeholder="" aria-label="Input">
-                    </div>
-                    <div class="uk-margin">
-                        <label class="uk-form-label" for="addGroupName">Group Name</label>
-                        <input id="addPrefixName" class="uk-input" type="text" placeholder="" aria-label="Input">
-                    </div>
-                    <div class="uk-margin">
-                        <label class="uk-form-label" for="addGroupDescription">Group Description</label>
-                        <textarea id="addPrefixDescription" class="uk-textarea"></textarea>
-                    </div>
-                </div>
-                <div class="uk-modal-footer">
-                    <button onclick="addSKUPrefix()" class="uk-button uk-button-default uk-align-right" type="button">Add Prefix</button>
-                </div>
-            </div>
-        </div>
+        
 
     </body>
-    <!-- footer class="uk-section uk-section-secondary uk-padding-small">
-        <div uk-grid>
-            <div class="uk-width-1-2">
-                <p>Made by Mechseroms, using <a href="https://getuikit.com/">UIkit</a></p>
-            </div>
-            <div class="uk-width-1-2 uk-text-right">
-                <a href="https://git.treehousefullofstars.com/jadowyne/pantry-track/issues/new">Report Issue</a>
-            </div>
-        </div>
-    </footer -->
     <script>const session = {{session|tojson}}</script>
     <script src="{{ url_for('items_api.static', filename='itemListHandler.js') }}"></script>
 </html>
