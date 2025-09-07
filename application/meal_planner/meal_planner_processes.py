@@ -62,10 +62,9 @@ def addTakeOutEvent(site, data, user_id, conn=None):
     )
 
     receipt_item = meal_planner_database.insertReceiptItemsTuple(site, receipt_item.payload(), conn=conn)
-    print(receipt_item)
     event_payload = database_payloads.PlanEventPayload(
         plan_uuid=None,
-        event_shortname=data['event_shortname'],
+        event_shortname=str(str(data['event_shortname'])[:32]),
         event_description=data['event_description'],
         event_date_start=event_date_start,
         event_date_end=event_date_end,
