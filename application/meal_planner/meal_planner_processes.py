@@ -51,7 +51,7 @@ def addTakeOutEvent(site, data, user_id, conn=None):
     cost = float(data['cost'])/int(attendees)
 
     receipt_item = database_payloads.ReceiptItemPayload(
-        type = 'custom',
+        type = data['event_type'],
         receipt_id=receipt['id'],
         barcode="",
         item_uuid=None,
@@ -62,9 +62,10 @@ def addTakeOutEvent(site, data, user_id, conn=None):
     )
 
     receipt_item = meal_planner_database.insertReceiptItemsTuple(site, receipt_item.payload(), conn=conn)
+    trimmed = data['event_shortname'][:32] # TODO: this shortens the name but i should use a a large character limit
     event_payload = database_payloads.PlanEventPayload(
         plan_uuid=None,
-        event_shortname=str(str(data['event_shortname'])[:32]),
+        event_shortname=str(trimmed),
         event_description=data['event_description'],
         event_date_start=event_date_start,
         event_date_end=event_date_end,
