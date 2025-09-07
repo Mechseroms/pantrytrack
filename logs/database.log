@@ -914,3 +914,15 @@
         REFERENCES test2_vendors(id)
 );,
                                          sql='receipts')
+2025-09-07 11:23:19.621345 --- ERROR --- DatabaseError(message='value too long for type character varying(32)',
+                                         payload=(None, "Take Out: Richie's Brickhouse BBQ Grill", "Take out dining at Take Out: Richie's Brickhouse BBQ Grill", datetime.datetime(2025, 9, 4, 0, 0), datetime.datetime(2025, 9, 4, 0, 0), 1, None, '99c30119-9f01-4199-9e99-63fc692d30eb', 'take out'),
+                                         sql='INSERT INTO main_plan_events(plan_uuid, event_shortname, event_description, event_date_start, event_date_end, created_by, recipe_uuid, receipt_uuid, event_type) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')
+2025-09-07 11:28:43.503622 --- ERROR --- DatabaseError(message='value too long for type character varying(32)',
+                                         payload=(None, "Take Out: Richie's Brickhouse BBQ Grill", "Take out dining at Take Out: Richie's Brickhouse BBQ Grill", datetime.datetime(2025, 9, 4, 0, 0), datetime.datetime(2025, 9, 4, 0, 0), 1, None, '688cee70-1ecf-4a9f-b606-0f7b1b3b433d', 'take out'),
+                                         sql='INSERT INTO main_plan_events(plan_uuid, event_shortname, event_description, event_date_start, event_date_end, created_by, recipe_uuid, receipt_uuid, event_type) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')
+2025-09-07 11:30:19.938172 --- ERROR --- DatabaseError(message='value too long for type character varying(32)',
+                                         payload=(None, "Take Out: Richie's Brickhouse BBQ Grill", "Take out dining at Take Out: Richie's Brickhouse BBQ Grill", datetime.datetime(2025, 9, 4, 0, 0), datetime.datetime(2025, 9, 4, 0, 0), 1, None, '55f2ee72-9f99-40e4-b2bc-ca98e031dd77', 'take out'),
+                                         sql='INSERT INTO main_plan_events(plan_uuid, event_shortname, event_description, event_date_start, event_date_end, created_by, recipe_uuid, receipt_uuid, event_type) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')
+2025-09-07 11:31:37.389493 --- ERROR --- DatabaseError(message='value too long for type character varying(32)',
+                                         payload=(None, "Take Out: Richie's Brickhouse BBQ Grill", "Take out dining at Take Out: Richie's Brickhouse BBQ Grill", datetime.datetime(2025, 9, 4, 0, 0), datetime.datetime(2025, 9, 4, 0, 0), 1, None, '08671808-a664-4dbc-8147-8634500364f7', 'take out'),
+                                         sql='INSERT INTO main_plan_events(plan_uuid, event_shortname, event_description, event_date_start, event_date_end, created_by, recipe_uuid, receipt_uuid, event_type) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;')
