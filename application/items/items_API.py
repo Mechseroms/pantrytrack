@@ -18,8 +18,9 @@ import application.database_payloads as dbPayloads
 from application.database_postgres.UsersModel import UsersModel
 from application.database_postgres.SitesModel import SitesModel
 from application.database_postgres.UnitsModel import UnitsModel
-from application.items import models
+from application.items import models, services
 from application.database_postgres.ItemsModel import ItemsModel
+from application.database_postgres.TransactionsModel import TransactionsModel
 
 items_api = Blueprint('items_api', __name__, template_folder="templates", static_folder="static")
 
@@ -44,7 +45,7 @@ def items():
 def item(item_uuid):
     sites = [SitesModel.select_tuple('', {'key': site})['site_name'] for site in session['user'].get('user_sites', [])]
     units = UnitsModel.select_tuples('')
-    return render_template("item_new.html", id=id, units=units, current_site=session['selected_site'], sites=sites)
+    return render_template("item_new.html", item_uuid=item_uuid, units=units, current_site=session['selected_site'], sites=sites)
 
 @items_api.route("/transaction")
 @access_api.login_required
@@ -82,9 +83,10 @@ def getTransactions():
 def getTransaction():
     transaction = ()
     if request.method == "GET":
-        id = int(request.args.get('id', 1))
-        site_name = session['selected_site']
-        transaction = database_items.getTransaction(site_name, (id, ))
+        transaction_uuid = int(request.args.get('transaction_uuid', None))
+        if transaction_uuid:
+            site_name = session['selected_site']
+            transaction = TransactionsModel.select_tuple(site_name, {'key': transaction_uuid})
         return jsonify({"transaction": transaction, "error": False, "message": ""})
     return jsonify({"transaction": transaction,  "error": True, "message": f"method {request.method} is not allowed."})
 
@@ -92,11 +94,13 @@ def getTransaction():
 @access_api.login_required
 def get_item():
     if request.method == "GET":
-        id = int(request.args.get('id', 1))
-        site_name = session['selected_site']
+        item_uuid = request.args.get('item_uuid', None)
         item = ()
-        
-        item = database_items.getItemAllByID(site_name, (id, ))
+        print(item_uuid)
+        if item_uuid:
+            site_name = session['selected_site']
+            item = ItemsModel.get_item_by_uuid(site_name, {'item_uuid': item_uuid})
+            print(item)
         return jsonify({'item': item, 'error': False, 'message': ''})
     return jsonify({'item': item, 'error': True, 'message': f'method {request.method} not allowed.'})
 
@@ -424,15 +428,13 @@ def getItemLocations():
         return jsonify({"locations":recordset, "end":math.ceil(count/limit), "error":False, "message":"item fetched succesfully!"})
     return jsonify({"locations":recordset, "end": math.ceil(count/limit), "error":True, "message":"There was an error with this GET statement"})
 
+
 @items_api.route('/postTransaction', methods=["POST"])
 @access_api.login_required
 def post_transaction():
     if request.method == "POST":
-        result = items_processes.postAdjustment(
-            site_name=session['selected_site'],
-            user_id=session['user_id'],
-            data=dict(request.json)
-        )  
+        print(session.keys())
+        result = services.postAdjustment(site_name=session['selected_site'], user_uuid=session['user_uuid'], data=request.get_json())
         return jsonify(result)
     return jsonify({"error":True, "message":"There was an error with this POST statement"})
 

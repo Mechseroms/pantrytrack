@@ -1,4 +1,5 @@
 CREATE TABLE IF NOT EXISTS %%site_name%%_cost_layers (
+    layer_id SERIAL UNIQUE,
     item_location_uuid UUID REFERENCES %%site_name%%_item_locations(item_location_uuid) ON DELETE SET NULL,
     layer_aquisition_date TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     layer_quantity FLOAT8 DEFAULT 0.00 NOT NULL,

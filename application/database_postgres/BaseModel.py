@@ -234,6 +234,7 @@ class BaseModel(ABC):
         
     @classmethod
     def select_tuple(self, site: str, payload: dict, convert: bool = True, conn=None):
+        ''' payload = {'key': value_to_filter}'''
         record = ()
         self_conn = False
         
@@ -264,7 +265,41 @@ class BaseModel(ABC):
         
         except Exception as error:
             raise DatabaseError(error, payload, sql)
+    
+    @classmethod
+    def select_tuples_by_key(self, site: str, payload: dict, convert: bool = True, conn=None):
+        '''payload = {'key'}'''
+        records = ()
+        self_conn = False
         
+        if self.site_agnostic:
+            sql = f"SELECT * FROM {self.table_name} WHERE {self.primary_key} = %(key)s::{self.primary_key_type};"
+        else:
+            sql = f"SELECT * FROM {site}_{self.table_name} WHERE {self.primary_key} = %(key)s::{self.primary_key_type};"
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = True
+                self_conn = True
+
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchall()
+                if rows and convert:
+                    records = [tupleDictionaryFactory(cur.description, row) for row in rows]
+                elif rows and not convert:
+                    records = rows
+
+            if self_conn:
+                conn.commit()
+                conn.close()
+
+            return records
+        
+        except Exception as error:
+            raise DatabaseError(error, {}, sql)
+
     @classmethod
     def select_tuples(self, site: str, convert: bool = True, conn=None):
         records = ()

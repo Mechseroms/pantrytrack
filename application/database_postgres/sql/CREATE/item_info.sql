@@ -7,5 +7,5 @@ CREATE TABLE IF NOT EXISTS %%site_name%%_item_info (
     item_safety_stock FLOAT8 DEFAULT 0.00 NOT NULL,
     item_lead_time_days FLOAT8 DEFAULT 0.00 NOT NULL,
     item_ai_pick BOOLEAN DEFAULT false NOT NULL,
-    item_prefixes INTEGER [] DEFAULT '{}' NOT NULL
+    item_prefixes UUID [] DEFAULT '{}' NOT NULL
 );

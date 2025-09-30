@@ -87,7 +87,7 @@ async function selectItem(item_uuid) {
 }
 
 var transaction_zone_uuid = ""
-var transaction_location_uuid = ""
+var transaction_item_location_uuid = ""
 async function selectLocation(zone_uuid, location_uuid, zone_name, location_name) {
     document.getElementById('zone').value = zone_name
     document.getElementById('location').value = location_name
@@ -131,6 +131,7 @@ async function replenishItemLocationsTable(locations) {
     let itemLocationTableBody = document.getElementById('itemLocationTableBody')
     itemLocationTableBody.innerHTML = ""
     for(let i = 0; i < locations.length; i++){
+        console.log(locations[i])
         let tableRow = document.createElement('tr')
 
         let loca = locations[i].location_shortname.split('@')
@@ -198,7 +199,7 @@ async function getItem(item_uuid) {
 }
 
 async function validateTransaction() {
-    let database_id = document.getElementById("database_id")
+    let database_uuid = document.getElementById("database_uuid")
     let transaction_type = document.getElementById("trans_type")
     let transaction_zone = document.getElementById("zone")
     let transaction_location = document.getElementById("location")
@@ -207,11 +208,11 @@ async function validateTransaction() {
 
 
     let error_count = 0
-    if(database_id.value === ""){
+    if(database_uuid.value === ""){
         error_count = error_count + 1
-        database_id.classList.add("uk-form-danger")
+        database_uuid.classList.add("uk-form-danger")
     } else {
-        database_id.classList.remove("uk-form-danger")
+        database_uuid.classList.remove("uk-form-danger")
     }
     if(transaction_type.value === "0"){
         error_count = error_count + 1
@@ -270,12 +271,12 @@ async function submitTransaction() {
                 item_uuid: item.item_uuid,
                 item_name: item.item_name,
                 transaction_type: document.getElementById('trans_type').value,
-                quantity: parseFloat(document.getElementById('transaction_quantity').value),
-                description: document.getElementById('transaction_description').value,
-                cost: cost,
-                vendor: 0,
-                expires: null,
-                location_id: transaction_location_uuid
+                transaction_quantity: parseFloat(document.getElementById('transaction_quantity').value),
+                transaction_description: document.getElementById('transaction_description').value,
+                transaction_cost: cost,
+                transaction_vendor: null,
+                trans_action_expires: null,
+                location_uuid: transaction_item_location_uuid
             }),
         });
         data =  await response.json();
@@ -291,7 +292,7 @@ async function submitTransaction() {
             timeout: 5000
         });
 
-        item = await getItem(item.id)
+        item = await getItem(item.item_uuid)
         await populateForm()
         document.getElementById('transaction_quantity').value = '0.00'
 

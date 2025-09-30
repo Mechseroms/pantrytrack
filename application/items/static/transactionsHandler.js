@@ -104,9 +104,9 @@ async function getItem(id) {
     return item;
 }
 
-async function getTransaction(id) {
+async function getTransaction(transaction_uuid) {
     const url = new URL('/items/getTransaction', window.location.origin);
-    url.searchParams.append('id', id);
+    url.searchParams.append('transaction_uuid', transaction_uuid);
     const response = await fetch(url);
     data =  await response.json();
     let transaction = data.transaction;

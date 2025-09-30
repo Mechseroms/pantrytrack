@@ -1190,3 +1190,26 @@ DETAIL:  Failing row contains (6527c4a4-d1b0-4c62-a1ae-9dcf5d266bca, jadowyne, t
     layer_expires TIMESTAMP DEFAULT NULL,
     layer_vendor UUID DEFAULT NULL REFERENCES test_vendors(vendor_uuid) ON DELETE SET NULL
 );, sql='cost_layers')
+2025-09-09 09:26:10.545234 --- ERROR --- DatabaseError(message='syntax error at or near ";"LINE 3: ...  transaction_uuid UUID DEFAULT uuid_generate_v4() NOT NULL;                                                                      ^', payload=CREATE TABLE IF NOT EXISTS test_transactions (
+    item_uuid UUID PRIMARY KEY REFERENCES test_items(item_uuid) ON DELETE CASCADE,
+    transaction_uuid UUID DEFAULT uuid_generate_v4() NOT NULL;
+    transaction_created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    transaction_name VARCHAR(255) DEFAULT NULL,
+    transaction_type VARCHAR(64) DEFAULT '' NOT NULL,
+    transaction_quantity FLOAT8 DEFAULT 0.00 NOT NULL,
+    transaction_description TEXT DEFAULT '' NOT NULL,
+    transaction_cost FLOAT8 DEFAULT 0.00 NOT NULL,
+    transaction_created_by UUID DEFAULT NULL REFERENCES users(user_uuid) ON DELETE SET NULL,
+    transaction_data JSONB DEFAULT '{}' NOT NULL
+);, sql='transactions')
+2025-09-09 14:52:54.978207 --- ERROR --- DatabaseError(message='syntax error at or near ";"LINE 2:     layer_id SERIAL UNIQUE;                                  ^', payload=CREATE TABLE IF NOT EXISTS test_cost_layers (
+    layer_id SERIAL UNIQUE;
+    item_location_uuid UUID REFERENCES test_item_locations(item_location_uuid) ON DELETE SET NULL,
+    layer_aquisition_date TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    layer_quantity FLOAT8 DEFAULT 0.00 NOT NULL,
+    layer_cost FLOAT8 DEFAULT 0.00 NOT NULL,
+    layer_currency_type VARCHAR(16) DEFAULT 'USD' NOT NULL,
+    layer_expires TIMESTAMP DEFAULT NULL,
+    layer_vendor UUID DEFAULT NULL
+);, sql='cost_layers')
+2025-09-09 15:51:40.480935 --- ERROR --- DatabaseError(message='duplicate key value violates unique constraint "sites_site_name_key"DETAIL:  Key (site_name)=(test) already exists.', payload={'site_name': 'test', 'site_description': 'Test Site', 'site_created_by': '17488a77-e26f-4f1d-bb7d-63beb1e83f6c', 'site_default_zone_uuid': None, 'site_default_auto_issue_location_uuid': None, 'site_default_primary_location_uuid': None, 'site_flags': '{}', 'site_created_on': datetime.datetime(2025, 9, 9, 15, 51, 40, 459928)}, sql='INSERT INTO sites(site_name, site_description, site_created_by, site_default_zone_uuid, site_default_auto_issue_location_uuid,site_default_primary_location_uuid, site_created_on, site_flags) VALUES (%(site_name)s, %(site_description)s, %(site_created_by)s, %(site_default_zone_uuid)s, %(site_default_auto_issue_location_uuid)s, %(site_default_primary_location_uuid)s, %(site_created_on)s, %(site_flags)s) RETURNING *;')

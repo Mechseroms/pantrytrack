@@ -6,7 +6,7 @@ from application.database_postgres.BaseModel import BasePayload, BaseModel
 
 class TransactionsModel(BaseModel):
     table_name = "transactions"
-    primary_key = "item_uuid"
+    primary_key = "transaction_uuid"
     primary_key_type = "uuid"
 
     @dataclass

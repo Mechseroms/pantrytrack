@@ -34,6 +34,35 @@ class ItemsModel(BaseModel):
             return payload
 
     @classmethod 
+    def get_item_by_uuid(self, site:str, payload: dict, convert: bool=True, conn = None):
+        record = ()
+        self_conn = False
+        with open('application/database_postgres/sql/ItemsModel/getItemAllByUUID.sql', 'r+') as file:
+            sql = file.read().replace("%%site_name%%", site)
+        try:
+            if not conn:
+                database_config = config.config()
+                conn = psycopg2.connect(**database_config)
+                conn.autocommit = True
+                self_conn = True
+
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+                rows = cur.fetchone()
+                if rows and convert:
+                    record = tupleDictionaryFactory(cur.description, rows)
+                if rows and not convert:
+                    record = rows
+
+            if self_conn:
+                conn.close()
+
+            return record
+        
+        except Exception as error:
+            raise DatabaseError(error, payload, sql)
+
+    @classmethod 
     def paginate_items_with_qoh(self, site:str, payload: dict, convert: bool=True, conn = None):
         recordset = ()
         count = 0

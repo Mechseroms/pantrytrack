@@ -1117,8 +1117,8 @@ async function fetchLocations(logis) {
 }
 
 async function fetchItem() {
-    const url = new URL('/items/getItem', window.location.origin);
-    url.searchParams.append('id', item_id);
+    const url = new URL('/items/api/getItem', window.location.origin);
+    url.searchParams.append('item_uuid', item_uuid);
     const response = await fetch(url);
     data =  await response.json();
     item = data.item;
