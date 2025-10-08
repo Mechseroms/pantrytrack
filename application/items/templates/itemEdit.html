@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" />
+        <title id="title"></title>
+        <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <!-- Material Symbols - Outlined Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <!-- Material Symbols - Rounded Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+        <!-- Material Symbols - Sharp Set -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet" />
+        
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/pantry.css') }}"/>
+        {% if session['user']['user_flags']['darkmode'] %}
+        <link id="dark-mode" rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}"/>
+        {% endif %}
+
+        <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
+
+    </head>
+    <style>
+        .add-button{
+            width: 100%;
+            border-radius: 10px; 
+            margin-top: 10px; 
+            background-color: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 40px;
+        }
+        .add-button:hover{
+            background-color: whitesmoke;
+        }
+    </style>
+    <style>
+    :root {
+        --primary-color: {{ session['user']['user_flags']['styles']['primary_color']}};
+    }
+    </style>
+    {% if session['user']['user_flags']['darkmode'] %}
+    <body class="uk-light">
+    {% else %}
+    <body>
+    {% endif %}
+        <nav class="uk-navbar-container">
+            <div class="uk-container uk-container-expand">
+                <div class="uk-navbar uk-navbar-primary">
+                    <!-- Application Navigation-->
+                    <div class="uk-navbar-left">
+                        <ul class="uk-navbar-nav">
+                            <li>
+                                <a href>Apps</a>
+                                <div class="uk-navbar-dropdown" uk-drop="mode: click; multi:false">
+                                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                                        <li><a href="/planner">Planner</a></li>
+                                        <li><a href="/recipes">Recipes</a></li>
+                                        <li><a href="/shopping-lists">Shopping Lists</a></li>
+                                        <li class="uk-nav-header">Logistics</li>
+                                        <li><a href="/items">Items</a></li>
+                                        <li><a href="/items/transaction">Transaction</a></li>
+                                        <li><a href="/receipts">Receipts</a></li>
+                                        <li class="uk-nav-header">Points of Ease</li>
+                                        <li><a href="/poe/scanner">Transaction Scanner</a></li>
+                                        <li><a href="/poe/receipts">Receipts Scanner</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+
+                    </div>
+                    <!-- Breadcrumbs Navigation -->
+                    <div class="uk-navbar-center uk-visible@m">
+                        <ul class="uk-breadcrumb uk-margin-remove">
+                            <li class="uk-disabled" style="cursor: pointer;"><span><strong>{{current_site}}</strong></span>
+                                <div uk-dropdown="mode: hover">
+                                    <ul class="uk-nav uk-dropdown-nav">
+                                        <li class="uk-nav-header">Select Site</li>
+                                        <li class="uk-nav-divider"></li>
+                                        {% for site in sites %}
+                                        {% if site == current_site %}
+                                        <li><a class="uk-disabled" href="#">{{site}}</a></li>
+                                        {% else %}
+                                        <li><a onclick="changeSite('{{site}}')">{{site}}</a></li>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </li>
+                            <li style="cursor: default; user-select: none;" class="uk-disabled"><span>Logistics</span></li>
+                            <li class="uk-disabled"><span>Items</span></li>
+                            <li class="uk-disabled"><span>Editing</span></li>
+                        </ul>
+                    </div>
+                    <!-- Profile/Management Navigation-->
+                    <div class="uk-navbar-right">
+                        <ul class="uk-navbar-nav">
+                            <li>
+                                <a href="#">
+                                    <img src="{{session['user']['user_profile_pic_url']}}" alt="Profile Picture" class="profile-pic uk-visible@m" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 5px;">
+                                            {{username}}
+                                </a>
+                                <div class="uk-navbar-dropdown" uk-drop="mode: click; multi:false">
+                                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                                        <li><a href="/profile">Profile</a></li>
+                                        <li><a onclick="toggleDarkMode()">Dark Mode</a></li>
+                                        <li><a href="/site-management">Site Management</a></li>
+                                        <li><a href="/administration">System Management</a></li>
+                                        <li><a href="/access/logout">Logout</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="uk-container">
+            <div class="uk-section">
+                <div uk-grid>
+                    <div class="uk-width-1-1">
+                        <p>The following information can be edited for the selected item. While editing your changes are not saved, you MUST press the save button in order
+                            for the changes to be saved.
+                        </p>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <label class="uk-form-label">Item Name</label>
+                        <input class="uk-input uk-text-lead uk-form-large" type="text" placeholder="Input" aria-label="Input" value={{item['item_name']}}>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <p class="uk-text-meta">Item UUID: {{item['item_uuid']}}</p>
+                    </div>
+                    <div class="uk-width-1-1 uk-margin-remove-top">
+                        <p class="uk-text-meta">Created At: {{item['item_created_at']}}</p>
+                    </div>
+                    <div class="uk-width-1-1 uk-margin-remove-top">
+                        <p class="uk-text-meta">Last Updated: {{item['item_updated_at']}}</p>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <label class="uk-form-label">Item Description</label>
+                        <textarea class="uk-textarea" rows="5" placeholder="" aria-label="Textarea" value={{item['item_description']}}></textarea>
+                    </div>
+                    <div class="uk-width-1-1">
+                        <label class="uk-form-label">Item Category</label>
+                        <select id="item_subtype_input" class="uk-select" aria-label="Select">
+                            {% for type in item_subtypes %}
+                                <option value="{{type[1]}}"
+                                {% if type[1] == item['item_category'] %}selected="selected"{% endif %}>
+                                {{type[0]}}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script type="module" src="{{ url_for('items_api.static', filename='itemEditHandler.js') }}"></script>
+    <script>const passed_item = {{item|tojson}}</script>
+</html>

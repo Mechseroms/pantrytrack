@@ -45,7 +45,11 @@ def items():
 def item(item_uuid):
     sites = [SitesModel.select_tuple('', {'key': site})['site_name'] for site in session['user'].get('user_sites', [])]
     units = UnitsModel.select_tuples('')
-    return render_template("item_new.html", item_uuid=item_uuid, units=units, current_site=session['selected_site'], sites=sites)
+    item_types = [['Single', 'single'], ['Linked List', 'list'], ['Linked Item', 'link']]
+    item_subtypes = [['Food', 'FOOD'], ['Food PLU', 'FOOD_PLU'], ['Other', 'OTHER'], ['Medicinal', 'MEDICINE'], ['Hygenic', 'HYGENIC']]
+    current_site = session['selected_site']
+    item = ItemsModel.get_item_by_uuid(current_site, {"item_uuid": item_uuid})
+    return render_template("itemEdit.html", item=item, units=units, item_types=item_types, item_subtypes=item_subtypes, current_site=session['selected_site'], sites=sites)
 
 @items_api.route("/transaction")
 @access_api.login_required
@@ -101,7 +105,7 @@ def get_item():
             site_name = session['selected_site']
             item = ItemsModel.get_item_by_uuid(site_name, {'item_uuid': item_uuid})
             print(item)
-        return jsonify({'item': item, 'error': False, 'message': ''})
+            return jsonify({'item': item, 'error': False, 'message': ''})
     return jsonify({'item': item, 'error': True, 'message': f'method {request.method} not allowed.'})
 
 @items_api.route("/api/getTransactionItem", methods=["GET"])

@@ -153,12 +153,18 @@
                         <div uk-grid>
                             <div class="uk-width-1-2">
                                 <caption>Item Type</caption>
-                                <select onchange="selectChanged('row_type')" id="itemTypeSelect" class="uk-select">
+                                <select onchange="updateItemType()" id="itemTypeSelect" class="uk-select">
+                                {% for type in item_types %}
+                                    <option value={{type[1]}}>{{type[0]}}</option>
+                                {% endfor %}
                                 </select>
                             </div>
                             <div class="uk-width-1-2">
                                 <caption>Item Subtype</caption>
-                                <select onchange="selectChanged('item_type')" id="itemSubTypeSelect" class="uk-select">
+                                <select onchange="updateItemSubtype()" id="itemSubTypeSelect" class="uk-select">
+                                {% for type in item_subtypes %}
+                                    <option value={{type[1]}}>{{type[0]}}</option>
+                                {% endfor %}
                                 </select>
                             </div>
                         </div>
@@ -166,8 +172,9 @@
                     <!-- Item Description -->
                     <div class="uk-width-1-1 uk-margin">
                         <label class="uk-form-label" for="itemDescription">SKU Description</label>
-                        <textarea onchange="descriptionChanged()" id="itemDescription" name="test" class="uk-textarea" placeholder="This is the items description..."></textarea>
+                        <textarea id="itemDescription" name="test" class="uk-textarea" placeholder="This is the items description..."></textarea>
                     </div>
+
                     <!-- Tags -->
                     <div class="uk-width-1-1 uk-margin">
                         <p style="color: red;" class="uk-hidden@s">Tags are currently hidden on smaller screens for development reasons...</p>
@@ -176,13 +183,13 @@
                             <thead>
                                 <tr>
                                     <th class="uk-table-expand">Tags</th>
-                                    <th class="uk-width-1-4 uk-text-nowrap"><input onkeydown="addTag(event)" class="uk-input uk-form-small" type="text" id="tagInput" placeholder="Add a tag..."></th>
+                                    <th class="uk-width-1-4 uk-text-nowrap"><input class="uk-input uk-form-small" type="text" id="tagInput" placeholder="Add a tag..."></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td id="tagsRow" class="uk-table-expand"></td>
-                                    <td class="uk-text-nowrap"><button onclick="addTag(event)" class="uk-align-right uk-button uk-button-small uk-button-default">Add Tag</button></td>
+                                    <td class="uk-text-nowrap"><button class="uk-align-right uk-button uk-button-small uk-button-default">Add Tag</button></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -790,6 +797,6 @@
 
 
     </body>
-    <script src="{{ url_for('items_api.static', filename='itemEditHandler.js') }}"></script>
+    <script type="module" src="{{ url_for('items_api.static', filename='itemEditHandler.js') }}"></script>
     <script>const item_uuid = {{item_uuid|tojson}}</script>
 </html>

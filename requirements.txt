@@ -1,0 +1,8 @@
+flask
+flask_assets
+authlib
+psycopg2
+pywebpush
+pymupdf
+openfoodfacts
+flasgger
