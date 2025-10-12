@@ -328,7 +328,7 @@ def add_food_item(site_name: str, barcode: str, name: str, payload: dict):
 	# TODO: I need to validate the name so that it doesnt have characters against the SQL database schema such as ' 
 
 	defaults = config(filename=f"sites/{site_name}/site.ini", section="defaults")
-	uuid = f"{defaults["default_zone"]}@{defaults["default_primary_location"]}"
+	uuid = f"{defaults['default_zone']}@{defaults['default_primary_location']}"
 	name = name.replace("'", "@&apostraphe&")
 	payload["logistics_info"]["primary_location"] = uuid
 	payload["logistics_info"]["auto_issue_location"] = uuid

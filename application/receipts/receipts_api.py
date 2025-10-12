@@ -44,7 +44,7 @@ def getItems():
         limit = int(request.args.get('limit', 10))
         site_name = session['selected_site']
         offset = (page - 1) * limit
-        search_string = f"%{str(request.args.get('search_string', ""))}%"
+        search_string = f"%{str(request.args.get('search_string', ''))}%"
         sort_order = "item_name ASC"
         payload = (search_string, limit, offset, sort_order)
         recordset, count = receipts_database.getItemsWithQOH(site_name, payload)
@@ -291,7 +291,7 @@ def resolveReceipt():
 @access_api.login_required
 def uploadFile(receipt_id):
     file = request.files['file']
-    file_path = current_app.config['FILES_FOLDER'] + f"/receipts/{file.filename.replace(" ", "_")}"
+    file_path = current_app.config['FILES_FOLDER'] + f"/receipts/{file.filename.replace(' ', '_')}"
     file.save(file_path)
     file_type, _ = mimetypes.guess_type(file.filename)
     preview_image = ""

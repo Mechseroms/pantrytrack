@@ -29,8 +29,8 @@ class DatabaseError(Exception):
         with open("logs/database.log", "a+") as file:
             file.write("\n")
             file.write(f"{datetime.datetime.now()} --- ERROR --- DatabaseError(message='{self.message}',\n")
-            file.write(f"{" "*41}payload={self.payload},\n")
-            file.write(f"{" "*41}sql='{self.sql}')")
+            file.write(f"{' '*41}payload={self.payload},\n")
+            file.write(f"{' '*41}sql='{self.sql}')")
 
     def __str__(self):
         return f"DatabaseError(message='{self.message}', payload={self.payload}, sql='{self.sql}')"

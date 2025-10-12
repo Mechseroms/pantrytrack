@@ -189,7 +189,7 @@ def postNewSKUItem():
 @access_api.login_required
 def uploadImage(recipe_id):
     file = request.files['file']
-    file_path = current_app.config['UPLOAD_FOLDER'] + f"/recipes/{file.filename.replace(" ", "_")}"
+    file_path = current_app.config['UPLOAD_FOLDER'] + f"/recipes/{file.filename.replace(' ', '_')}"
     file.save(file_path)
     site_name = session['selected_site']
     database_recipes.postUpdateRecipe(site_name, {'id': recipe_id, 'update': {'picture_path': file.filename.replace(" ", "_")}})    
@@ -212,7 +212,7 @@ def deleteRecipeItem():
         site_name = session['selected_site']
         deleted_item = database_recipes.postDeleteRecipeItem(site_name, (id, ))
         recipe = database_recipes.getRecipe(site_name, (int(deleted_item['rp_id']),))
-        return jsonify({'recipe': recipe, 'error': False, 'message': f'Recipe Item {deleted_item['item_name']} was deleted successful!'})
+        return jsonify({'recipe': recipe, 'error': False, 'message': f"Recipe Item {deleted_item['item_name']} was deleted successful!"})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} is not allowed!'})
 
 @recipes_api.route('/api/saveRecipeItem', methods=["POST"])
@@ -225,7 +225,7 @@ def saveRecipeItem():
         site_name = session['selected_site']
         updated_line = database_recipes.postUpdateRecipeItem(site_name, {'id': id, 'update': update})
         recipe = database_recipes.getRecipe(site_name, (int(updated_line['rp_id']), ))
-        return jsonify({'recipe': recipe, 'error': False, 'message': f'Recipe Item {updated_line['item_name']} was updated successful!'})
+        return jsonify({'recipe': recipe, 'error': False, 'message': f"Recipe Item {updated_line['item_name']} was updated successful!"})
     return jsonify({'recipe': recipe, 'error': True, 'message': f'method {request.method} not allowed!'})
 
 @recipes_api.route('/api/receiptRecipe', methods=["POST"])
